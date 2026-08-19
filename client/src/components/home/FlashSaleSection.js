@@ -2,14 +2,30 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Zap, Flame, Scale, Heart, Eye, Cpu, HardDrive, CircuitBoard, Layers, ArrowRight } from "lucide-react";
+import {
+  Zap,
+  Flame,
+  Scale,
+  Heart,
+  Eye,
+  Cpu,
+  HardDrive,
+  CircuitBoard,
+  Layers,
+  ArrowRight,
+} from "lucide-react";
 import { formatVND } from "@/lib/utils";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/redux/slices/cartSlice";
 
 export default function FlashSaleSection({ products = [] }) {
   const [activeTab, setActiveTab] = useState("all");
-  const [timeLeft, setTimeLeft] = useState({ days: 3, hours: 7, minutes: 52, seconds: 40 });
+  const [timeLeft, setTimeLeft] = useState({
+    days: 3,
+    hours: 7,
+    minutes: 52,
+    seconds: 40,
+  });
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -17,8 +33,16 @@ export default function FlashSaleSection({ products = [] }) {
       setTimeLeft((prev) => {
         if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
         if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
+        if (prev.hours > 0)
+          return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        if (prev.days > 0)
+          return {
+            ...prev,
+            days: prev.days - 1,
+            hours: 23,
+            minutes: 59,
+            seconds: 59,
+          };
         return prev;
       });
     }, 1000);
@@ -51,34 +75,42 @@ export default function FlashSaleSection({ products = [] }) {
             <span className="text-base sm:text-lg font-black block leading-none">
               {String(timeLeft.days).padStart(2, "0")}
             </span>
-            <span className="text-[9px] font-bold text-gray-500 uppercase">Ngày</span>
+            <span className="text-[9px] font-bold text-gray-500 uppercase">
+              Ngày
+            </span>
           </div>
           <span className="font-bold text-base text-white">:</span>
           <div className="flex-1 bg-white text-gray-900 rounded-xl p-2 shadow-xs">
             <span className="text-base sm:text-lg font-black block leading-none">
               {String(timeLeft.hours).padStart(2, "0")}
             </span>
-            <span className="text-[9px] font-bold text-gray-500 uppercase">Giờ</span>
+            <span className="text-[9px] font-bold text-gray-500 uppercase">
+              Giờ
+            </span>
           </div>
           <span className="font-bold text-base text-white">:</span>
           <div className="flex-1 bg-white text-gray-900 rounded-xl p-2 shadow-xs">
             <span className="text-base sm:text-lg font-black block leading-none">
               {String(timeLeft.minutes).padStart(2, "0")}
             </span>
-            <span className="text-[9px] font-bold text-gray-500 uppercase">Phút</span>
+            <span className="text-[9px] font-bold text-gray-500 uppercase">
+              Phút
+            </span>
           </div>
           <span className="font-bold text-base text-white">:</span>
           <div className="flex-1 bg-white text-gray-900 rounded-xl p-2 shadow-xs">
             <span className="text-base sm:text-lg font-black block leading-none">
               {String(timeLeft.seconds).padStart(2, "0")}
             </span>
-            <span className="text-[9px] font-bold text-gray-500 uppercase">Giây</span>
+            <span className="text-[9px] font-bold text-gray-500 uppercase">
+              Giây
+            </span>
           </div>
         </div>
 
         {/* Action Button */}
         <Link
-          href="/san-pham?isFlashSale=true"
+          href="/product?isFlashSale=true"
           className="w-full text-center bg-white hover:bg-red-50 text-[#eb1c24] font-black text-xs sm:text-sm py-3 rounded-xl transition-all shadow-sm uppercase tracking-wider block"
         >
           XEM TẤT CẢ
@@ -92,7 +124,9 @@ export default function FlashSaleSection({ products = [] }) {
           <button
             onClick={() => setActiveTab("all")}
             className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-              activeTab === "all" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
+              activeTab === "all"
+                ? "bg-gray-800 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
             }`}
           >
             Tất cả
@@ -100,7 +134,9 @@ export default function FlashSaleSection({ products = [] }) {
           <button
             onClick={() => setActiveTab("pc")}
             className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-              activeTab === "pc" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
+              activeTab === "pc"
+                ? "bg-gray-800 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
             }`}
           >
             PC Cũ
@@ -108,7 +144,9 @@ export default function FlashSaleSection({ products = [] }) {
           <button
             onClick={() => setActiveTab("laptop")}
             className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-              activeTab === "laptop" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
+              activeTab === "laptop"
+                ? "bg-gray-800 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
             }`}
           >
             Laptop Cũ
@@ -119,7 +157,8 @@ export default function FlashSaleSection({ products = [] }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {flashSaleItems.slice(0, 3).map((item) => {
             const discountPercent = item.discountPercent || 5;
-            const originalPrice = item.originalPrice || Math.round(item.price * 1.08);
+            const originalPrice =
+              item.originalPrice || Math.round(item.price * 1.08);
 
             return (
               <div
@@ -132,17 +171,22 @@ export default function FlashSaleSection({ products = [] }) {
                     Giảm {discountPercent}%
                   </span>
                   <span className="bg-gradient-to-r from-red-600 to-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-xs">
-                    <Flame className="w-3 h-3 fill-yellow-300 text-yellow-300" /> HOT SALE
+                    <Flame className="w-3 h-3 fill-yellow-300 text-yellow-300" />{" "}
+                    HOT SALE
                   </span>
                 </div>
 
                 {/* Product Image + 'Xem chi tiết ->' hover button */}
                 <Link
-                  href={`/san-pham/${item.slug}`}
+                  href={`/product/${item.slug}`}
                   className="block relative aspect-[4/3] w-full rounded-xl overflow-hidden border border-red-500/80 mb-3 bg-white group/img"
                 >
                   <img
-                    src={item.thumbnail || item.images?.[0] || "https://zcomputer.vn/logo-main.png"}
+                    src={
+                      item.thumbnail ||
+                      item.images?.[0] ||
+                      "https://zcomputer.vn/logo-main.png"
+                    }
                     alt={item.name}
                     className="w-full h-full object-contain group-hover/img:scale-105 transition-transform duration-300"
                   />
@@ -156,7 +200,9 @@ export default function FlashSaleSection({ products = [] }) {
 
                   {/* Watermark logo */}
                   <div className="absolute bottom-1 left-1.5 opacity-80 pointer-events-none">
-                    <span className="text-[9px] font-black text-red-600 tracking-tight">ZCOMPUTER.VN</span>
+                    <span className="text-[9px] font-black text-red-600 tracking-tight">
+                      ZCOMPUTER.VN
+                    </span>
                   </div>
                 </Link>
 
@@ -166,10 +212,16 @@ export default function FlashSaleSection({ products = [] }) {
                     {item.brand || "CUSTOM"}
                   </span>
                   <div className="flex items-center gap-2 text-gray-400">
-                    <button className="hover:text-gray-700 cursor-pointer transition-colors" title="So sánh">
+                    <button
+                      className="hover:text-gray-700 cursor-pointer transition-colors"
+                      title="So sánh"
+                    >
                       <Scale className="w-4 h-4" />
                     </button>
-                    <button className="hover:text-red-500 cursor-pointer transition-colors" title="Yêu thích">
+                    <button
+                      className="hover:text-red-500 cursor-pointer transition-colors"
+                      title="Yêu thích"
+                    >
                       <Heart className="w-4 h-4" />
                     </button>
                   </div>
@@ -177,7 +229,7 @@ export default function FlashSaleSection({ products = [] }) {
 
                 {/* Title */}
                 <Link
-                  href={`/san-pham/${item.slug}`}
+                  href={`/product/${item.slug}`}
                   className="font-bold text-xs sm:text-[13px] text-gray-800 hover:text-[#eb1c24] group-hover:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors"
                   title={item.name}
                 >
@@ -201,19 +253,31 @@ export default function FlashSaleSection({ products = [] }) {
 
                 {/* Specs 2x2 Box */}
                 <div className="bg-gray-50 rounded-xl p-2.5 grid grid-cols-2 gap-2 text-[10px] text-gray-600 mb-3 border border-gray-100">
-                  <div className="flex items-center gap-1.5 truncate" title="Intel Core i5 / i7">
+                  <div
+                    className="flex items-center gap-1.5 truncate"
+                    title="Intel Core i5 / i7"
+                  >
                     <Cpu className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     <span className="truncate">Intel Core i5/i7</span>
                   </div>
-                  <div className="flex items-center gap-1.5 truncate" title="RAM 16GB / 32GB">
+                  <div
+                    className="flex items-center gap-1.5 truncate"
+                    title="RAM 16GB / 32GB"
+                  >
                     <Layers className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     <span className="truncate">16GB / 32GB DDR4</span>
                   </div>
-                  <div className="flex items-center gap-1.5 truncate" title="Mainboard Pro">
+                  <div
+                    className="flex items-center gap-1.5 truncate"
+                    title="Mainboard Pro"
+                  >
                     <CircuitBoard className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     <span className="truncate">Mainboard Pro</span>
                   </div>
-                  <div className="flex items-center gap-1.5 truncate" title="VGA RTX Series">
+                  <div
+                    className="flex items-center gap-1.5 truncate"
+                    title="VGA RTX Series"
+                  >
                     <HardDrive className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     <span className="truncate">SSD 512GB NVMe</span>
                   </div>
@@ -226,7 +290,9 @@ export default function FlashSaleSection({ products = [] }) {
                     <span>{item.views || 49} lượt xem</span>
                   </span>
                   <button
-                    onClick={() => dispatch(addToCart({ product: item, quantity: 1 }))}
+                    onClick={() =>
+                      dispatch(addToCart({ product: item, quantity: 1 }))
+                    }
                     className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
                   >
                     + Mua ngay

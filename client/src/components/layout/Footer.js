@@ -32,7 +32,8 @@ export default function Footer() {
             </div>
 
             <p className="text-xs text-gray-400 leading-relaxed max-w-md">
-              ZCOMPUTER - Hệ thống chuyên cung cấp PC, Laptop Cũ / Like New uy tín, chất lượng cao với mức giá tốt nhất tại khu vực TP.HCM.
+              ZCOMPUTER - Hệ thống chuyên cung cấp PC, Laptop Cũ / Like New uy
+              tín, chất lượng cao với mức giá tốt nhất tại khu vực TP.HCM.
             </p>
 
             {/* Fanpage Widget */}
@@ -51,7 +52,9 @@ export default function Footer() {
                     <h5 className="text-xs font-bold text-white leading-tight">
                       Z Computer : Gaming.Nox.Office
                     </h5>
-                    <span className="text-[10px] text-gray-400">All for your PC</span>
+                    <span className="text-[10px] text-gray-400">
+                      All for your PC
+                    </span>
                   </div>
                 </div>
                 <a
@@ -72,11 +75,46 @@ export default function Footer() {
               DANH MỤC CŨ/ LIKE NEW
             </h4>
             <ul className="space-y-2.5 text-xs text-gray-400">
-              <li><Link href="/pc-cu" className="hover:text-[#dc2626] transition-colors">PC Cũ</Link></li>
-              <li><Link href="/laptop-cu" className="hover:text-[#dc2626] transition-colors">Laptop Cũ</Link></li>
-              <li><Link href="/man-hinh" className="hover:text-[#dc2626] transition-colors">Màn Hình Cũ</Link></li>
-              <li><Link href="/san-pham" className="hover:text-[#dc2626] transition-colors">Linh Kiện Cũ</Link></li>
-              <li><Link href="/cong-cu-test/ban-phim" className="hover:text-[#dc2626] transition-colors">Công Cụ Test</Link></li>
+              <li>
+                <Link
+                  href="/pc-cu"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  PC Cũ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/laptop-cu"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Laptop Cũ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/man-hinh"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Màn Hình Cũ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/product"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Linh Kiện Cũ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/cong-cu-test/ban-phim"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Công Cụ Test
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -86,12 +124,54 @@ export default function Footer() {
               CHÍNH SÁCH TỔNG HỢP
             </h4>
             <ul className="space-y-2.5 text-xs text-gray-400">
-              <li><Link href="/chinh-sach-doi-tra" className="hover:text-[#dc2626] transition-colors">Chính sách đổi trả</Link></li>
-              <li><Link href="/chinh-sach-bao-mat" className="hover:text-[#dc2626] transition-colors">Chính sách bảo mật</Link></li>
-              <li><Link href="/chinh-sach-bao-hanh" className="hover:text-[#dc2626] transition-colors">Chính sách bảo hành</Link></li>
-              <li><Link href="/chinh-sach-thanh-toan" className="hover:text-[#dc2626] transition-colors">Chính sách thanh toán</Link></li>
-              <li><Link href="/chinh-sach-van-chuyen" className="hover:text-[#dc2626] transition-colors">Chính sách vận chuyển</Link></li>
-              <li><Link href="/huong-dan-tra-gop" className="hover:text-[#dc2626] transition-colors">Hướng dẫn trả góp</Link></li>
+              <li>
+                <Link
+                  href="/chinh-sach-doi-tra"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Chính sách đổi trả
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/chinh-sach-bao-mat"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Chính sách bảo mật
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/chinh-sach-bao-hanh"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Chính sách bảo hành
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/chinh-sach-thanh-toan"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Chính sách thanh toán
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/chinh-sach-van-chuyen"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Chính sách vận chuyển
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/huong-dan-tra-gop"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Hướng dẫn trả góp
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -101,15 +181,52 @@ export default function Footer() {
               VỀ ZCOMPUTER
             </h4>
             <ul className="space-y-2 text-xs text-gray-400 mb-5">
-              <li><Link href="/lien-he" className="hover:text-[#dc2626] transition-colors">Liên Hệ</Link></li>
-              <li><Link href="/tin-tuc" className="hover:text-[#dc2626] transition-colors">Tin Tức</Link></li>
-              <li><Link href="/tuyen-dung" className="hover:text-[#dc2626] transition-colors">Tuyển Dụng</Link></li>
-              <li><Link href="/he-thong-showroom" className="hover:text-[#dc2626] transition-colors">Hệ Thống Cửa Hàng</Link></li>
-              <li><Link href="/gioi-thieu" className="hover:text-[#dc2626] transition-colors">Giới Thiệu Về ZCOMPUTER</Link></li>
+              <li>
+                <Link
+                  href="/lien-he"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Liên Hệ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/tin-tuc"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Tin Tức
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/tuyen-dung"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Tuyển Dụng
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/he-thong-showroom"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Hệ Thống Cửa Hàng
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/gioi-thieu"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
+                  Giới Thiệu Về ZCOMPUTER
+                </Link>
+              </li>
             </ul>
 
             {/* HỖ TRỢ THANH TOÁN */}
-            <h5 className="text-[11px] font-black text-white uppercase mb-2">HỖ TRỢ THANH TOÁN</h5>
+            <h5 className="text-[11px] font-black text-white uppercase mb-2">
+              HỖ TRỢ THANH TOÁN
+            </h5>
             <div className="grid grid-cols-3 gap-1.5 mb-3">
               <div className="bg-white text-gray-900 rounded p-1 text-center font-black text-[10px] flex items-center justify-center">
                 VISA
@@ -132,7 +249,9 @@ export default function Footer() {
             </div>
 
             {/* HỖ TRỢ TRẢ GÓP */}
-            <h5 className="text-[11px] font-black text-white uppercase mb-2">HỖ TRỢ TRẢ GÓP</h5>
+            <h5 className="text-[11px] font-black text-white uppercase mb-2">
+              HỖ TRỢ TRẢ GÓP
+            </h5>
             <div className="grid grid-cols-3 gap-1.5">
               <div className="bg-white text-red-700 rounded p-1 text-center font-bold text-[8px] flex items-center justify-center">
                 HD SAISON
@@ -149,15 +268,20 @@ export default function Footer() {
 
         {/* Bottom Legal Info */}
         <div className="pt-6 text-xs text-gray-400 space-y-1.5 leading-relaxed">
-          <div className="font-bold text-white text-sm">CÔNG TY TNHH TM DV ZCOM</div>
-          <div>
-            <strong>Mã số GPKD:</strong> 0317130199 - Cấp bởi Sở Kế Hoạch và Đầu Tư TP. Hồ Chí Minh.
+          <div className="font-bold text-white text-sm">
+            CÔNG TY TNHH TM DV ZCOM
           </div>
           <div>
-            <strong>Địa chỉ Trụ Sở:</strong> 23 Đường số 1, Khu phố 61, Phường Linh Xuân, TP. Thủ Đức, TP.HCM.
+            <strong>Mã số GPKD:</strong> 0317130199 - Cấp bởi Sở Kế Hoạch và Đầu
+            Tư TP. Hồ Chí Minh.
           </div>
           <div>
-            <strong>Email:</strong> truong.zvncomputer@gmail.com | <strong>Hotline:</strong> 0977 334 415
+            <strong>Địa chỉ Trụ Sở:</strong> 23 Đường số 1, Khu phố 61, Phường
+            Linh Xuân, TP. Thủ Đức, TP.HCM.
+          </div>
+          <div>
+            <strong>Email:</strong> truong.zvncomputer@gmail.com |{" "}
+            <strong>Hotline:</strong> 0977 334 415
           </div>
           <div className="pt-4 border-t border-gray-800/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-gray-500">
             <p>© 2026 ZCOMPUTER. All rights reserved.</p>

@@ -14,8 +14,15 @@ import {
   X,
   User,
 } from "lucide-react";
-import { loadCartFromStorage, selectTotalItems } from "@/redux/slices/cartSlice";
-import { initAuthFromStorage, selectCurrentUser, selectIsAuthenticated } from "@/redux/slices/authSlice";
+import {
+  loadCartFromStorage,
+  selectTotalItems,
+} from "@/redux/slices/cartSlice";
+import {
+  initAuthFromStorage,
+  selectCurrentUser,
+  selectIsAuthenticated,
+} from "@/redux/slices/authSlice";
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,11 +57,18 @@ export default function Header() {
           className="lg:hidden p-2 text-gray-700 hover:text-[#eb1c24] transition-colors focus:outline-none"
           aria-label="Toggle menu"
         >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {mobileMenuOpen ? (
+            <X className="w-6 h-6" />
+          ) : (
+            <Menu className="w-6 h-6" />
+          )}
         </button>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-1.5 shrink-0 group relative">
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 shrink-0 group relative"
+        >
           <img
             src="https://zcomputer.vn/logo-main.png"
             alt="ZComputer Logo"
@@ -91,7 +105,10 @@ export default function Header() {
 
         {/* Desktop Search Bar */}
         <div className="flex-1 w-full min-w-[200px] max-w-2xl lg:max-w-3xl hidden md:flex relative mx-2 lg:mx-6">
-          <form onSubmit={handleSearch} className="relative w-full group/search z-50">
+          <form
+            onSubmit={handleSearch}
+            className="relative w-full group/search z-50"
+          >
             <input
               id="desktop-search-input"
               aria-label="Tìm kiếm sản phẩm"
@@ -115,7 +132,10 @@ export default function Header() {
         <div className="flex items-center justify-end gap-2 sm:gap-4 shrink-0">
           {/* Hotline */}
           <div className="hidden xl:flex items-center gap-3 border-r pr-3 border-gray-200">
-            <a href="tel:0977334415" className="flex items-center gap-2 group cursor-pointer">
+            <a
+              href="tel:0977334415"
+              className="flex items-center gap-2 group cursor-pointer"
+            >
               <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-[#eb1c24] group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
                 <PhoneCall className="w-5 h-5" />
               </div>
@@ -130,7 +150,10 @@ export default function Header() {
             </a>
 
             {/* Showroom */}
-            <Link href="#he-thong-showroom" className="flex items-center gap-2 group cursor-pointer">
+            <Link
+              href="#he-thong-showroom"
+              className="flex items-center gap-2 group cursor-pointer"
+            >
               <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 group-hover:bg-gray-800 group-hover:text-white transition-colors duration-300">
                 <MapPin className="w-5 h-5" />
               </div>
@@ -170,11 +193,17 @@ export default function Header() {
               </div>
             ) : (
               <>
-                <Link href="/dang-nhap" className="hover:text-[#eb1c24] transition-colors">
+                <Link
+                  href="/dang-nhap"
+                  className="hover:text-[#eb1c24] transition-colors"
+                >
                   Đăng nhập
                 </Link>
                 <span className="text-gray-300 font-normal">|</span>
-                <Link href="/dang-ky" className="hover:text-[#eb1c24] transition-colors">
+                <Link
+                  href="/dang-ky"
+                  className="hover:text-[#eb1c24] transition-colors"
+                >
                   Đăng ký
                 </Link>
               </>
@@ -209,7 +238,10 @@ export default function Header() {
       <div className="hidden md:block bg-gray-800 text-white relative z-40">
         <div className="container mx-auto px-4 relative flex items-center">
           {/* Category Dropdown Button */}
-          <div className="relative hidden md:block mr-4 md:mr-8 shrink-0 w-[260px] group/cat" tabIndex={0}>
+          <div
+            className="relative hidden md:block mr-4 md:mr-8 shrink-0 w-[260px] group/cat"
+            tabIndex={0}
+          >
             <div className="bg-[#eb1c24] text-white flex items-center justify-between px-3 py-2 md:px-5 md:py-[14px] cursor-pointer hover:brightness-110 transition-all duration-300 relative overflow-hidden group">
               <div className="flex items-center gap-1.5 md:gap-3 relative z-10">
                 <Menu className="w-5 h-5" />
@@ -226,7 +258,7 @@ export default function Header() {
             {/* Tất cả sản phẩm */}
             <li className="shrink-0">
               <Link
-                href="/san-pham"
+                href="/product"
                 className="flex items-center gap-1 py-3 md:py-3.5 text-white hover:text-[#eb1c24] transition-all duration-300"
               >
                 <span className="uppercase relative inline-block">
@@ -294,7 +326,7 @@ export default function Header() {
             {/* Thu cũ đổi mới */}
             <li className="shrink-0">
               <Link
-                href="/thu-mua-cu"
+                href="/trade-in"
                 className="py-3 md:py-3.5 block text-white hover:text-[#eb1c24] transition-colors uppercase"
               >
                 THU CŨ ĐỔI MỚI
@@ -304,7 +336,7 @@ export default function Header() {
             {/* Giới thiệu bạn bè (Chỉ đổi màu đỏ khi rê chuột tới) */}
             <li className="shrink-0">
               <Link
-                href="/gioi-thieu-ban-be"
+                href="/referral"
                 className="py-3 md:py-3.5 block text-white hover:text-[#eb1c24] transition-colors uppercase font-bold"
               >
                 GIỚI THIỆU BẠN BÈ

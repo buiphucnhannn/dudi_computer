@@ -14,14 +14,41 @@ import {
 
 export default function Navbar() {
   const navLinks = [
-    { name: "PC Gaming", href: "/san-pham?category=pc-gaming", icon: Monitor, hot: true },
-    { name: "PC Đồ Họa - Workstation", href: "/san-pham?category=pc-do-hoa", icon: HardDrive },
-    { name: "Linh Kiện Máy Tính", href: "/san-pham?category=linh-kien-pc", icon: Cpu },
-    { name: "Laptop Gaming", href: "/san-pham?category=laptop", icon: Laptop },
-    { name: "Màn Hình Máy Tính", href: "/san-pham?category=man-hinh", icon: Monitor },
-    { name: "Gaming Gear", href: "/san-pham?category=gear", icon: Headphones },
-    { name: "Xây Dựng Cấu Hình", href: "/build-pc", icon: Wrench, highlight: true },
-    { name: "Khuyến Mãi Hot", href: "/san-pham?isFlashSale=true", icon: Flame, badge: "HOT" },
+    {
+      name: "PC Gaming",
+      href: "/product?category=pc-gaming",
+      icon: Monitor,
+      hot: true,
+    },
+    {
+      name: "PC Đồ Họa - Workstation",
+      href: "/product?category=pc-do-hoa",
+      icon: HardDrive,
+    },
+    {
+      name: "Linh Kiện Máy Tính",
+      href: "/product?category=linh-kien-pc",
+      icon: Cpu,
+    },
+    { name: "Laptop Gaming", href: "/product?category=laptop", icon: Laptop },
+    {
+      name: "Màn Hình Máy Tính",
+      href: "/product?category=man-hinh",
+      icon: Monitor,
+    },
+    { name: "Gaming Gear", href: "/product?category=gear", icon: Headphones },
+    {
+      name: "Xây Dựng Cấu Hình",
+      href: "/build-pc",
+      icon: Wrench,
+      highlight: true,
+    },
+    {
+      name: "Khuyến Mãi Hot",
+      href: "/product?isFlashSale=true",
+      icon: Flame,
+      badge: "HOT",
+    },
   ];
 
   return (
@@ -49,7 +76,9 @@ export default function Navbar() {
                     : "text-gray-700 hover:text-[#e11b22] hover:bg-gray-50"
                 }`}
               >
-                <Icon className={`w-4 h-4 ${link.highlight ? "text-[#e11b22]" : "text-gray-500"}`} />
+                <Icon
+                  className={`w-4 h-4 ${link.highlight ? "text-[#e11b22]" : "text-gray-500"}`}
+                />
                 <span>{link.name}</span>
                 {link.badge && (
                   <span className="bg-red-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full animate-bounce">

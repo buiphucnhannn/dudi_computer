@@ -2,7 +2,17 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { ChevronRight, Scale, Heart, Eye, Cpu, HardDrive, CircuitBoard, Layers, ArrowRight } from "lucide-react";
+import {
+  ChevronRight,
+  Scale,
+  Heart,
+  Eye,
+  Cpu,
+  HardDrive,
+  CircuitBoard,
+  Layers,
+  ArrowRight,
+} from "lucide-react";
 import { formatVND } from "@/lib/utils";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/redux/slices/cartSlice";
@@ -54,23 +64,48 @@ export default function CategoryProductBox({
           );
         }
         if (activeTab === "macbook") {
-          return name.includes("macbook") || brand.includes("apple") || name.includes("apple");
+          return (
+            name.includes("macbook") ||
+            brand.includes("apple") ||
+            name.includes("apple")
+          );
         }
 
         // 2. PC tabs
         if (activeTab === "pc-gaming") {
-          return name.includes("gaming") || name.includes("rtx") || name.includes("gtx") || name.includes("rx ");
+          return (
+            name.includes("gaming") ||
+            name.includes("rtx") ||
+            name.includes("gtx") ||
+            name.includes("rx ")
+          );
         }
         if (activeTab === "pc-do-hoa") {
-          return name.includes("i7") || name.includes("i9") || name.includes("ryzen 9") || name.includes("workstation") || name.includes("32gb");
+          return (
+            name.includes("i7") ||
+            name.includes("i9") ||
+            name.includes("ryzen 9") ||
+            name.includes("workstation") ||
+            name.includes("32gb")
+          );
         }
         if (activeTab === "pc-van-phong") {
-          return name.includes("i3") || name.includes("i5") || name.includes("vostro") || name.includes("h610") || name.includes("b760");
+          return (
+            name.includes("i3") ||
+            name.includes("i5") ||
+            name.includes("vostro") ||
+            name.includes("h610") ||
+            name.includes("b760")
+          );
         }
 
         // 3. Monitor tabs (24 inch, 27 inch, 32 inch, 22 inch)
         if (activeTab === "24-inch" || activeTab === "24inch") {
-          return name.includes("24") || name.includes("23.8") || name.includes("24.5");
+          return (
+            name.includes("24") ||
+            name.includes("23.8") ||
+            name.includes("24.5")
+          );
         }
         if (activeTab === "27-inch" || activeTab === "27inch") {
           return name.includes("27");
@@ -83,10 +118,14 @@ export default function CategoryProductBox({
         }
 
         // 4. PSU tabs (850W, 750W, 700W, 650W)
-        if (activeTab === "850w") return name.includes("850w") || name.includes("850");
-        if (activeTab === "750w") return name.includes("750w") || name.includes("750");
-        if (activeTab === "700w") return name.includes("700w") || name.includes("700");
-        if (activeTab === "650w") return name.includes("650w") || name.includes("650");
+        if (activeTab === "850w")
+          return name.includes("850w") || name.includes("850");
+        if (activeTab === "750w")
+          return name.includes("750w") || name.includes("750");
+        if (activeTab === "700w")
+          return name.includes("700w") || name.includes("700");
+        if (activeTab === "650w")
+          return name.includes("650w") || name.includes("650");
 
         // 5. Mainboard tabs (B760, Z790, B650)
         if (activeTab === "b760") return name.includes("b760");
@@ -99,7 +138,8 @@ export default function CategoryProductBox({
   }, [activeTab, products]);
 
   const getProductImage = (item) => {
-    if (item.thumbnail && item.thumbnail.startsWith("http")) return item.thumbnail;
+    if (item.thumbnail && item.thumbnail.startsWith("http"))
+      return item.thumbnail;
     if (item.thumbnail) return `https://zcomputer.vn${item.thumbnail}`;
     if (item.images && item.images.length > 0) {
       if (item.images[0].startsWith("http")) return item.images[0];
@@ -142,7 +182,7 @@ export default function CategoryProductBox({
 
         {/* View All Link */}
         <Link
-          href={`/san-pham?category=${mainSlug}`}
+          href={`/product?category=${mainSlug}`}
           className="text-xs font-bold text-[#eb1c24] hover:underline flex items-center gap-1 self-end lg:self-auto shrink-0"
         >
           <span>Xem tất cả</span> <ChevronRight className="w-4 h-4" />
@@ -160,9 +200,13 @@ export default function CategoryProductBox({
             const discountPercent =
               item.discountPercent ||
               (item.originalPrice > item.price
-                ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)
+                ? Math.round(
+                    ((item.originalPrice - item.price) / item.originalPrice) *
+                      100,
+                  )
                 : 5);
-            const originalPrice = item.originalPrice || Math.round(item.price * 1.05);
+            const originalPrice =
+              item.originalPrice || Math.round(item.price * 1.05);
             const imgSrc = getProductImage(item);
 
             return (
@@ -172,7 +216,7 @@ export default function CategoryProductBox({
               >
                 {/* Product Image + 'Xem chi tiết ->' hover button */}
                 <Link
-                  href={`/san-pham/${item.slug || item._id}`}
+                  href={`/product/${item.slug || item._id}`}
                   className="block relative aspect-square w-full rounded-xl overflow-hidden border-2 border-red-500 mb-3 bg-white group/img p-2"
                 >
                   {/* Top Discount Badge */}
@@ -217,10 +261,16 @@ export default function CategoryProductBox({
                     {item.brand || "ZCOMPUTER"}
                   </span>
                   <div className="flex items-center gap-2 text-gray-400">
-                    <button className="hover:text-gray-700 cursor-pointer transition-colors" title="So sánh">
+                    <button
+                      className="hover:text-gray-700 cursor-pointer transition-colors"
+                      title="So sánh"
+                    >
                       <Scale className="w-4 h-4" />
                     </button>
-                    <button className="hover:text-red-500 cursor-pointer transition-colors" title="Yêu thích">
+                    <button
+                      className="hover:text-red-500 cursor-pointer transition-colors"
+                      title="Yêu thích"
+                    >
                       <Heart className="w-4 h-4" />
                     </button>
                   </div>
@@ -228,7 +278,7 @@ export default function CategoryProductBox({
 
                 {/* Title */}
                 <Link
-                  href={`/san-pham/${item.slug || item._id}`}
+                  href={`/product/${item.slug || item._id}`}
                   className="font-bold text-xs sm:text-[13px] text-gray-900 hover:text-[#eb1c24] group-hover:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors"
                   title={item.name}
                 >
@@ -281,7 +331,9 @@ export default function CategoryProductBox({
                     <span>{item.views || 48} lượt xem</span>
                   </span>
                   <button
-                    onClick={() => dispatch(addToCart({ product: item, quantity: 1 }))}
+                    onClick={() =>
+                      dispatch(addToCart({ product: item, quantity: 1 }))
+                    }
                     className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
                   >
                     + Mua ngay

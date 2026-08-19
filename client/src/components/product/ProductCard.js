@@ -43,7 +43,7 @@ export default function ProductCard({ product }) {
 
       {/* Image container */}
       <Link
-        href={`/san-pham/${product.slug}`}
+        href={`/product/${product.slug}`}
         className="block relative aspect-square w-full p-3 bg-white overflow-hidden"
       >
         <div className="w-full h-full relative flex items-center justify-center">
@@ -67,7 +67,7 @@ export default function ProductCard({ product }) {
 
           {/* Product Name */}
           <Link
-            href={`/san-pham/${product.slug}`}
+            href={`/product/${product.slug}`}
             className="text-xs sm:text-[13px] font-bold text-gray-800 hover:text-[#dc2626] transition-colors line-clamp-2 min-h-[36px] sm:min-h-[38px] leading-snug"
             title={product.name}
           >
@@ -91,7 +91,10 @@ export default function ProductCard({ product }) {
           {/* Trả góp estimate */}
           {product.price > 3000000 && (
             <div className="text-[10px] text-gray-500 mb-2 font-medium">
-              Trả góp chỉ từ <span className="text-gray-800 font-bold">{formatVND(installmentEst)}/tháng</span>
+              Trả góp chỉ từ{" "}
+              <span className="text-gray-800 font-bold">
+                {formatVND(installmentEst)}/tháng
+              </span>
             </div>
           )}
 
@@ -104,7 +107,7 @@ export default function ProductCard({ product }) {
               <span>Thêm vào giỏ</span>
             </button>
             <Link
-              href={`/san-pham/${product.slug}`}
+              href={`/product/${product.slug}`}
               className="p-1.5 rounded-lg border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 transition-colors"
               title="Xem chi tiết"
             >
