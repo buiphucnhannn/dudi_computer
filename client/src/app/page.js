@@ -65,13 +65,17 @@ export default function HomePage() {
     });
   }, [products]);
 
-  // 3. Lọc sản phẩm Màn hình (chỉ lấy Màn hình thuần túy, không lẫn Laptop)
+  // 3. Lọc sản phẩm Màn hình (chỉ lấy Màn hình thuần túy, loại trừ Laptop)
   const monitorProducts = useMemo(() => {
     return products.filter((p) => {
       const name = (p.name || "").toLowerCase();
       const cat = (p.categoryName || "").toLowerCase();
-      const isLaptop = cat.includes("laptop") || name.startsWith("laptop") || name.startsWith("macbook");
+      const isLaptop =
+        cat.includes("laptop") ||
+        name.startsWith("laptop") ||
+        name.startsWith("macbook");
       if (isLaptop) return false;
+
       return (
         cat.includes("màn hình") ||
         cat.includes("monitor") ||
@@ -89,43 +93,54 @@ export default function HomePage() {
     });
   }, [products]);
 
-  // 4. Lọc sản phẩm Nguồn máy tính (PSU)
+  // 4. Lọc sản phẩm Nguồn máy tính (PSU thuần túy, loại trừ Bộ máy tính / Laptop)
   const psuProducts = useMemo(() => {
     return products.filter((p) => {
       const name = (p.name || "").toLowerCase();
       const cat = (p.categoryName || "").toLowerCase();
+      const isPCorLaptop =
+        name.startsWith("bộ máy") ||
+        name.startsWith("pc ") ||
+        name.startsWith("laptop") ||
+        name.startsWith("macbook") ||
+        cat.includes("pc cũ") ||
+        cat.includes("laptop");
+      if (isPCorLaptop) return false;
+
       return (
-        cat.includes("nguồn") ||
-        cat.includes("psu") ||
         name.startsWith("nguồn") ||
         name.startsWith("psu") ||
-        name.includes("850w") ||
-        name.includes("750w") ||
-        name.includes("700w") ||
-        name.includes("650w")
+        cat.includes("nguồn") ||
+        cat.includes("psu")
       );
     });
   }, [products]);
 
-  // 5. Lọc sản phẩm Mainboard (Bo mạch chủ)
+  // 5. Lọc sản phẩm Mainboard (Bo mạch chủ thuần túy, loại trừ Bộ máy tính / Laptop)
   const mainboardProducts = useMemo(() => {
     return products.filter((p) => {
       const name = (p.name || "").toLowerCase();
       const cat = (p.categoryName || "").toLowerCase();
+      const isPCorLaptop =
+        name.startsWith("bộ máy") ||
+        name.startsWith("pc ") ||
+        name.startsWith("laptop") ||
+        name.startsWith("macbook") ||
+        cat.includes("pc cũ") ||
+        cat.includes("laptop");
+      if (isPCorLaptop) return false;
+
       return (
-        cat.includes("mainboard") ||
-        cat.includes("bo mạch") ||
         name.startsWith("mainboard") ||
         name.startsWith("bo mạch") ||
-        name.includes("b760m") ||
-        name.includes("z790") ||
-        name.includes("b650")
+        cat.includes("mainboard") ||
+        cat.includes("bo mạch")
       );
     });
   }, [products]);
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-5 space-y-6 sm:space-y-8">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 space-y-10 sm:space-y-14 md:space-y-16">
       {/* 1. Hero Area: Sidebar + Full width carousel */}
       <section className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-2.5 sm:gap-3 items-stretch">
         <CategorySidebar />
@@ -212,11 +227,7 @@ export default function HomePage() {
       <CategoryProductBox
         title="MAINBOARD - BO MẠCH CHỦ"
         mainSlug="mainboard-bo-mach-chu"
-        tabs={[
-          { name: "Tất cả", slug: "all" },
-          { name: "B760", slug: "b760" },
-          { name: "Z790", slug: "z790" },
-        ]}
+        tabs={[]}
         products={mainboardProducts}
       />
 

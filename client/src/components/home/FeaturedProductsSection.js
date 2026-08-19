@@ -55,7 +55,7 @@ export default function FeaturedProductsSection({ products = [] }) {
   };
 
   return (
-    <section className="bg-gradient-to-b from-amber-100/70 via-amber-50/50 to-yellow-100/60 rounded-[2.5rem] p-4 sm:p-7 md:p-9 border-[3px] md:border-4 border-amber-300 shadow-xl relative overflow-hidden my-6">
+    <section className="bg-gradient-to-b from-amber-100/70 via-amber-50/50 to-yellow-100/60 rounded-[2.5rem] p-4 sm:p-7 md:p-9 border-[3px] md:border-4 border-amber-300 shadow-xl relative overflow-hidden mb-10 sm:mb-14 md:mb-16">
       {/* Background Glowing Blobs */}
       <div className="absolute -top-32 -right-32 w-96 h-96 bg-yellow-400/40 rounded-full blur-[80px] pointer-events-none hidden md:block" />
       <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-orange-500/30 rounded-full blur-[80px] pointer-events-none hidden md:block" />

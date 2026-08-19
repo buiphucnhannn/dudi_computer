@@ -17,7 +17,7 @@ export default function CategoryProductBox({
   const dispatch = useDispatch();
 
   const filteredProducts = useMemo(() => {
-    if (activeTab === "all") return products.slice(0, 4);
+    if (activeTab === "all" || tabs.length === 0) return products.slice(0, 4);
     return products
       .filter((p) => {
         const name = (p.name || "").toLowerCase();
@@ -96,7 +96,7 @@ export default function CategoryProductBox({
         return cat.includes(activeTab) || name.includes(activeTab);
       })
       .slice(0, 4);
-  }, [activeTab, products]);
+  }, [activeTab, tabs.length, products]);
 
   const getProductImage = (item) => {
     if (item.thumbnail && item.thumbnail.startsWith("http")) return item.thumbnail;
@@ -110,7 +110,7 @@ export default function CategoryProductBox({
   };
 
   return (
-    <section className="bg-white p-5 sm:p-7 md:p-8 rounded-[2.5rem] border-[3px] md:border-4 border-[#eb1c24] shadow-md space-y-5 my-6">
+    <section className="bg-white p-5 sm:p-7 md:p-8 rounded-[2.5rem] border-[3px] md:border-4 border-[#eb1c24] shadow-md space-y-5 mb-10 sm:mb-14 md:mb-16">
       {/* Box Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-gray-100">
         <div>
@@ -120,25 +120,27 @@ export default function CategoryProductBox({
           <div className="w-20 sm:w-24 h-1.5 bg-[#eb1c24] rounded-full mt-1.5 shadow-xs"></div>
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.slug;
-            return (
-              <button
-                key={tab.slug}
-                onClick={() => setActiveTab(tab.slug)}
-                className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  isActive
-                    ? "bg-[#eb1c24] text-white shadow-xs"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {tab.name}
-              </button>
-            );
-          })}
-        </div>
+        {/* Filter Pills (chỉ hiển thị nếu danh mục có tabs) */}
+        {tabs.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.slug;
+              return (
+                <button
+                  key={tab.slug}
+                  onClick={() => setActiveTab(tab.slug)}
+                  className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    isActive
+                      ? "bg-[#eb1c24] text-white shadow-xs"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {tab.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* View All Link */}
         <Link
