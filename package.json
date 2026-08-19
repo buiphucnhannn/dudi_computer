@@ -1,0 +1,16 @@
+{
+  "name": "zcomputer-clone-workspace",
+  "version": "1.0.0",
+  "description": "ZComputer E-commerce Clone Project (Next.js Frontend + Express Backend in JavaScript)",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "seed": "npm run seed --prefix server",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "start": "npm run start --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
