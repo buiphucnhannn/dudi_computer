@@ -27,6 +27,7 @@ import {
   Fan,
   Sparkles,
   LogOut,
+  Scale,
 } from "lucide-react";
 import {
   fetchCloudWishlist,
@@ -42,6 +43,7 @@ import {
 } from "@/redux/slices/authSlice";
 import { authAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
+import { useCompare } from "@/components/common/CompareContext";
 
 const NAV_CATEGORIES = [
   {
@@ -192,6 +194,7 @@ export default function Header() {
   const pathname = usePathname();
   const dispatch = useDispatch();
   const { showToast } = useToast();
+  const { compareItems } = useCompare();
   const totalItems = useSelector(selectTotalItems);
   const user = useSelector(selectCurrentUser);
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -335,8 +338,8 @@ export default function Header() {
         <div className="flex items-center justify-end gap-2 sm:gap-4 shrink-0">
           {/* Hotline */}
           <div className="hidden xl:flex items-center gap-3 border-r pr-3 border-gray-200">
-            <a href="tel:0977334415" className="flex items-center gap-2 group cursor-pointer">
-              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-[#eb1c24] group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
+            <div className="flex items-center gap-2 select-none cursor-default">
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-[#eb1c24]">
                 <PhoneCall className="w-5 h-5" />
               </div>
               <div className="flex flex-col">
@@ -347,10 +350,10 @@ export default function Header() {
                   0977 334 415
                 </span>
               </div>
-            </a>
+            </div>
 
             {/* Showroom */}
-            <Link href="#he-thong-showroom" className="flex items-center gap-2 group cursor-pointer">
+            <Link href="/store-locations" className="flex items-center gap-2 group cursor-pointer">
               <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 group-hover:bg-gray-800 group-hover:text-white transition-colors duration-300">
                 <MapPin className="w-5 h-5" />
               </div>
@@ -476,7 +479,7 @@ export default function Header() {
         <div className="container mx-auto px-4 relative flex items-center">
           {/* Category Dropdown Button */}
           <div
-            className="relative hidden md:block mr-4 md:mr-8 shrink-0 w-[260px] group/cat"
+            className="relative hidden md:block mr-2.5 sm:mr-3 shrink-0 w-[260px] group/cat"
             tabIndex={0}
           >
             <div className="bg-[#eb1c24] text-white flex items-center justify-between px-3 py-2 md:px-5 md:py-[14px] cursor-pointer hover:brightness-110 transition-all duration-300 relative overflow-hidden group">

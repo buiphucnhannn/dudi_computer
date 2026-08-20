@@ -34,41 +34,47 @@ export default function PromoGridCards() {
         </a>
       </div>
 
-      {/* Card 2: BACK TO SCHOOL */}
-      <Link
-        href="/product"
-        className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 min-h-[160px]"
-      >
-        <img
-          src="https://zcomputer.vn/uploads/image-1783241558898-515012004.webp"
-          alt="Back to school"
-          className="w-full h-full object-cover"
-        />
-      </Link>
+      {/* Cột phải (1fr): 3 Banner con được chia đều 3 cột */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+        {/* Card 2: BACK TO SCHOOL */}
+        <Link
+          href="/product"
+          className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 h-full min-h-[160px]"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://zcomputer.vn/uploads/image-1783241558898-515012004.webp"
+            alt="Back to school"
+            className="w-full h-full object-cover"
+          />
+        </Link>
 
-      {/* Card 3: THU CŨ ĐỔI MỚI */}
-      <Link
-        href="/trade-in"
-        className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 min-h-[160px]"
-      >
-        <img
-          src="https://zcomputer.vn/uploads/image-1783241574331-418008867.webp"
-          alt="Thu cũ đổi mới"
-          className="w-full h-full object-cover"
-        />
-      </Link>
+        {/* Card 3: THU CŨ ĐỔI MỚI */}
+        <Link
+          href="/trade-in"
+          className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 h-full min-h-[160px]"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://zcomputer.vn/uploads/image-1783241574331-418008867.webp"
+            alt="Thu cũ đổi mới"
+            className="w-full h-full object-cover"
+          />
+        </Link>
 
-      {/* Card 4: GIỚI THIỆU BẠN BÈ */}
-      <Link
-        href="/referral"
-        className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 min-h-[160px]"
-      >
-        <img
-          src="https://zcomputer.vn/uploads/image-1783241586922-863037014.webp"
-          alt="Giới thiệu bạn bè"
-          className="w-full h-full object-cover"
-        />
-      </Link>
+        {/* Card 4: GIỚI THIỆU BẠN BÈ */}
+        <Link
+          href="/referral"
+          className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 h-full min-h-[160px]"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://zcomputer.vn/uploads/image-1783241586922-863037014.webp"
+            alt="Giới thiệu bạn bè"
+            className="w-full h-full object-cover"
+          />
+        </Link>
+      </div>
     </div>
   );
 }

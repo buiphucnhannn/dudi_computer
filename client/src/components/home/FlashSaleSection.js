@@ -22,6 +22,7 @@ import {
   selectCartItems,
 } from "@/redux/slices/cartSlice";
 import { useToast } from "@/components/common/ToastContext";
+import { useCompare } from "@/components/common/CompareContext";
 
 export default function FlashSaleSection({ products = [] }) {
   const [activeTab, setActiveTab] = useState("all");
@@ -33,6 +34,7 @@ export default function FlashSaleSection({ products = [] }) {
   });
   const dispatch = useDispatch();
   const { showToast } = useToast();
+  const { addToCompare, isComparing } = useCompare();
   const cartItems = useSelector(selectCartItems) || [];
 
   useEffect(() => {
@@ -284,21 +286,30 @@ export default function FlashSaleSection({ products = [] }) {
                   <span className="font-black text-gray-900 uppercase tracking-wider text-[11px]">
                     {item.brand || "ZCOMPUTER"}
                   </span>
-                  <div className="flex items-center gap-2 text-gray-400">
+                  <div className="flex items-center gap-1.5 text-gray-400">
                     <button
-                      className="hover:text-gray-700 cursor-pointer transition-colors"
-                      title="So sánh"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        addToCompare(item);
+                      }}
+                      className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                        isComparing(item.slug || item._id || item.id)
+                          ? "text-[#eb1c24] bg-red-50"
+                          : "hover:text-[#eb1c24] hover:bg-gray-100"
+                      }`}
+                      title="So sánh sản phẩm"
                     >
-                      <Scale className="w-4 h-4" />
+                      <Scale className="w-[18px] h-[18px]" />
                     </button>
                     <button
                       onClick={(e) => handleToggleFavorite(e, item)}
-                      className={`cursor-pointer transition-colors ${
-                        isFav ? "text-red-500" : "hover:text-red-500"
+                      className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                        isFav ? "text-red-500 bg-red-50" : "hover:text-red-500 hover:bg-gray-100"
                       }`}
                       title="Yêu thích"
                     >
-                      <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
+                      <Heart className={`w-[18px] h-[18px] ${isFav ? "fill-current" : ""}`} />
                     </button>
                   </div>
                 </div>

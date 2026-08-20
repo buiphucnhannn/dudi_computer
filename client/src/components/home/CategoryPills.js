@@ -32,7 +32,7 @@ const EXPANDED_ROW_1 = [
 // Khi mở rộng: HÀNG 2 gồm 3 DANH MỤC (RAM, Tản nhiệt, VGA) nằm ở cột 4, 5, 6 và Nút Thu Gọn ở cột 7
 const EXPANDED_ROW_2 = [
   { name: "RAM - Bộ nhớ trong", slug: "ram-bo-nho-trong", icon: "https://zcomputer.vn/categories/icon11.png", bgColor: "bg-green-100/90" },
-  { name: "Tan nhiệt Cooling", slug: "tan-nhiet-cooling", icon: "https://cdn-icons-png.flaticon.com/512/912/912316.png", bgColor: "bg-blue-100/90" },
+  { name: "Tản nhiệt Cooling", slug: "tan-nhiet-cooling", icon: "https://cdn-icons-png.flaticon.com/512/912/912316.png", bgColor: "bg-blue-100/90" },
   { name: "VGA - Card màn hình", slug: "vga-card-man-hinh", icon: "https://cdn-icons-png.flaticon.com/512/912/912300.png", bgColor: "bg-teal-100/90" },
 ];
 

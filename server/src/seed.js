@@ -71,6 +71,7 @@ const seedDatabase = async () => {
         createdCategories[0]._id;
 
       return {
+        ...(p._id && mongoose.Types.ObjectId.isValid(p._id) ? { _id: p._id } : {}),
         name: p.name,
         slug: p.slug,
         brand: p.brand || "ZCOMPUTER",

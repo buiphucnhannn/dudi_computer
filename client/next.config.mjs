@@ -60,6 +60,10 @@ const nextConfig = {
         destination: "/store-locations",
       },
       {
+        source: "/he-thong-showroom",
+        destination: "/store-locations",
+      },
+      {
         source: "/cong-cu-test/ban-phim",
         destination: "/keyboard-test",
       },

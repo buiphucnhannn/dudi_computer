@@ -1,7 +1,9 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 import ProductGallery from "../../components/product-detail/ProductGallery";
 import ProductInfo from "../../components/product-detail/ProductInfo";
@@ -29,6 +31,7 @@ const findStaticProduct = (slug) =>
 
 function ProductDetailContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const slug = searchParams.get("slug");
 
   const [product, setProduct] = useState(() =>
@@ -157,20 +160,44 @@ function ProductDetailContent() {
   }
 
   return (
-    <main className="w-full min-h-screen bg-slate-50 pt-20">
-
+    <main className="w-full min-h-screen bg-[#f8f9fa] py-4 sm:py-6">
       {/* =====================================================
           PRODUCT DETAIL
       ===================================================== */}
+      <section className="w-full">
+        <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8">
+          {/* Breadcrumb + Back Button */}
+          <div className="flex items-center gap-3 mb-4 sm:mb-6 text-xs sm:text-[13px] text-gray-500 font-medium overflow-x-auto no-scrollbar py-1">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-[#eb1c24] font-bold text-xs px-3 py-1.5 rounded-lg transition-colors shrink-0 cursor-pointer shadow-2xs"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Quay lại</span>
+            </button>
 
-      <section className="w-full bg-slate-50">
-
-        <div className="mx-auto w-full max-w-7xl px-4 py-10 lg:px-10">
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Link href="/" className="hover:text-[#eb1c24] transition-colors">
+                Trang chủ
+              </Link>
+              <span className="text-gray-400">/</span>
+              <Link
+                href={`/product?category=${encodeURIComponent(product.categoryName || product.category || "")}`}
+                className="hover:text-[#eb1c24] transition-colors uppercase font-semibold text-gray-600"
+              >
+                {product.categoryName || product.category || product.brand || "Sản phẩm"}
+              </Link>
+              <span className="text-gray-400">/</span>
+              <span className="font-bold text-gray-900 line-clamp-1 max-w-[320px] sm:max-w-md md:max-w-xl truncate">
+                {product.name}
+              </span>
+            </div>
+          </div>
 
           {/* =================================================
               80 / 20 LAYOUT
           ================================================= */}
-
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
 
             {/* =================================================

@@ -1,8 +1,69 @@
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import mongoose from "mongoose";
 import { wishlistRepository, productRepository } from "../repositories/index.js";
 import { Wishlist } from "../models/Wishlist.js";
 import { ApiError } from "../utils/apiError.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 class WishlistService {
+  // Helper linh hoạt tìm kiếm hoặc tự động seed sản phẩm vào database nếu chưa có
+  async resolveProduct(productId) {
+    if (!productId) return null;
+
+    let product = null;
+    if (mongoose.Types.ObjectId.isValid(productId)) {
+      product = await productRepository.findById(productId);
+    }
+    if (!product) {
+      product = await productRepository.findOne({
+        $or: [{ slug: productId }, { name: productId }],
+      });
+    }
+
+    if (!product) {
+      try {
+        const dataPath = path.join(__dirname, "../../../client/src/data/products.json");
+        if (fs.existsSync(dataPath)) {
+          const rawProducts = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+          const matched = rawProducts.find(
+            (p) => p._id === productId || p.slug === productId || p.name === productId
+          );
+          if (matched) {
+            product = await productRepository.create({
+              ...(matched._id && mongoose.Types.ObjectId.isValid(matched._id)
+                ? { _id: matched._id }
+                : {}),
+              name: matched.name,
+              slug: matched.slug,
+              brand: matched.brand || "ZCOMPUTER",
+              price: matched.price,
+              originalPrice: matched.originalPrice || matched.price,
+              discountPrice: matched.price,
+              discountPercent: matched.discountPercent || 0,
+              stock: 20,
+              images:
+                matched.images && matched.images.length > 0
+                  ? matched.images
+                  : ["https://zcomputer.vn/logo-main.png"],
+              thumbnail:
+                matched.thumbnail || matched.images?.[0] || "https://zcomputer.vn/logo-main.png",
+              warranty: matched.warranty || "Bảo hành 3 - 12 Tháng",
+              status: "in_stock",
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi resolve product từ static data:", err);
+      }
+    }
+
+    return product;
+  }
+
   // Helper chuẩn hóa danh sách sản phẩm trả về cho Client
   formatItems(wishlistDoc) {
     if (!wishlistDoc || !wishlistDoc.items) return [];
@@ -38,15 +99,15 @@ class WishlistService {
 
     if (Array.isArray(localItems) && localItems.length > 0) {
       for (const local of localItems) {
-        const prodId = local._id || local.productId || local.product;
+        const prodId = local._id || local.productId || local.product || local.slug;
         if (!prodId) continue;
 
-        // Kiểm tra sản phẩm có tồn tại trong database không
-        const productExists = await productRepository.findById(prodId);
-        if (!productExists) continue;
+        const product = await this.resolveProduct(prodId);
+        if (!product) continue;
 
+        const actualId = product._id;
         const existingItem = wishlist.items.find(
-          (item) => item.product.toString() === prodId.toString()
+          (item) => item.product.toString() === actualId.toString()
         );
 
         if (existingItem) {
@@ -56,7 +117,7 @@ class WishlistService {
           );
         } else if (wishlist.items.length < 100) {
           wishlist.items.push({
-            product: prodId,
+            product: actualId,
             quantity: Math.min(99, Math.max(1, Number(local.quantity) || 1)),
             addedAt: new Date(),
           });
@@ -75,18 +136,19 @@ class WishlistService {
       throw new ApiError(400, "Thiếu ID sản phẩm");
     }
 
-    const product = await productRepository.findById(productId);
+    const product = await this.resolveProduct(productId);
     if (!product) {
       throw new ApiError(404, "Sản phẩm không tồn tại");
     }
 
+    const actualId = product._id;
     let wishlist = await Wishlist.findOne({ user: userId });
     if (!wishlist) {
       wishlist = new Wishlist({ user: userId, items: [] });
     }
 
     const existingItem = wishlist.items.find(
-      (item) => item.product.toString() === productId.toString()
+      (item) => item.product.toString() === actualId.toString()
     );
 
     if (existingItem) {
@@ -99,7 +161,7 @@ class WishlistService {
         throw new ApiError(400, "Danh sách yêu thích đã đạt tối đa 100 sản phẩm");
       }
       wishlist.items.push({
-        product: productId,
+        product: actualId,
         quantity: Math.min(99, Math.max(1, Number(quantity) || 1)),
         addedAt: new Date(),
       });
@@ -121,13 +183,16 @@ class WishlistService {
       return [];
     }
 
+    const product = await this.resolveProduct(productId);
+    const targetIdStr = product ? product._id.toString() : productId.toString();
+
     if (qty <= 0) {
       wishlist.items = wishlist.items.filter(
-        (item) => item.product.toString() !== productId.toString()
+        (item) => item.product.toString() !== targetIdStr
       );
     } else {
       const existingItem = wishlist.items.find(
-        (item) => item.product.toString() === productId.toString()
+        (item) => item.product.toString() === targetIdStr
       );
       if (existingItem) {
         existingItem.quantity = Math.min(99, qty);
@@ -149,8 +214,11 @@ class WishlistService {
       return [];
     }
 
+    const product = await this.resolveProduct(productId);
+    const targetIdStr = product ? product._id.toString() : productId.toString();
+
     wishlist.items = wishlist.items.filter(
-      (item) => item.product.toString() !== productId.toString()
+      (item) => item.product.toString() !== targetIdStr
     );
 
     await wishlist.save();

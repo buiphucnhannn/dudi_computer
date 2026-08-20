@@ -157,7 +157,7 @@ export default function CategorySidebar() {
   ];
 
   return (
-    <div className="hidden lg:flex flex-col w-full relative z-30 h-[536px]">
+    <div className="hidden lg:flex flex-col w-full relative z-30 h-[580px] xl:h-[600px]">
       <div className="relative bg-white shadow-xs border border-t-0 border-gray-200/90 py-1 w-full h-full flex flex-col justify-between rounded-b-2xl">
         {categories.map((cat) => {
           const Icon = cat.icon;

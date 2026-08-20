@@ -1,16 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { ShoppingCart, Eye, ShieldCheck } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { ShoppingCart, Eye, ShieldCheck, Scale, Heart } from "lucide-react";
 import { formatVND } from "@/lib/utils";
-import { addToCart } from "@/redux/slices/cartSlice";
+import { addToCart, addToCartAsync, removeFromCartAsync, selectCartItems } from "@/redux/slices/cartSlice";
+import { useCompare } from "@/components/common/CompareContext";
 
 export default function ProductCard({ product }) {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { addToCompare, isComparing } = useCompare();
+  const cartItems = useSelector(selectCartItems) || [];
 
   if (!product) return null;
+
+  const isFav = cartItems.some((i) => (i._id || i.id) === (product._id || product.id));
+  const isComp = isComparing(product.slug || product._id || product.id);
 
   const thumbnail =
     product.thumbnail ||
@@ -25,6 +31,23 @@ export default function ProductCard({ product }) {
     e.preventDefault();
     e.stopPropagation();
     dispatch(addToCart({ product, quantity: 1 }));
+  };
+
+  const handleToggleFavorite = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const prodId = product._id || product.id;
+    if (isFav) {
+      dispatch(removeFromCartAsync(prodId));
+    } else {
+      dispatch(addToCartAsync({ product, quantity: 1 }));
+    }
+  };
+
+  const handleToggleCompare = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCompare(product);
   };
 
   const handleOpenDetail = () => {
@@ -54,12 +77,31 @@ export default function ProductCard({ product }) {
         </span>
       )}
 
-      {/* Brand tag */}
-      {product.brand && (
-        <span className="absolute top-2 right-2 z-20 bg-gray-900/75 backdrop-blur-xs text-white text-[9.5px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
-          {product.brand}
-        </span>
-      )}
+      {/* Brand tag & Action buttons */}
+      <div className="absolute top-2 right-2 z-20 flex items-center gap-1">
+        <button
+          onClick={handleToggleCompare}
+          className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs ${
+            isComp
+              ? "bg-red-600 text-white"
+              : "bg-white/80 hover:bg-white text-gray-700 hover:text-red-600"
+          }`}
+          title="So sánh sản phẩm"
+        >
+          <Scale className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={handleToggleFavorite}
+          className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs ${
+            isFav
+              ? "bg-red-600 text-white"
+              : "bg-white/80 hover:bg-white text-gray-700 hover:text-red-600"
+          }`}
+          title="Yêu thích"
+        >
+          <Heart className={`w-3.5 h-3.5 ${isFav ? "fill-current" : ""}`} />
+        </button>
+      </div>
 
       {/* Image container */}
       <div className="block relative aspect-square w-full p-3 bg-white overflow-hidden">

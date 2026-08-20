@@ -4,6 +4,7 @@ import Footer from "@/components/layout/Footer";
 import FloatingWidgets from "@/components/layout/FloatingWidgets";
 import ReduxProvider from "@/redux/provider";
 import { ToastProvider } from "@/components/common/ToastContext";
+import { CompareProvider } from "@/components/common/CompareContext";
 import PromotionPopup from "@/components/common/PromotionPopup";
 export const metadata = {
   title: "ZCOMPUTER - PC Gaming, Laptop, Workstation",
@@ -23,13 +24,15 @@ export default function RootLayout({ children }) {
       >
         <ReduxProvider>
           <ToastProvider>
-            <Header />
-            <main className="flex-1 w-full overflow-x-hidden">
-              {children}
-            </main>
-            <Footer />
-            <FloatingWidgets />
-            <PromotionPopup />
+            <CompareProvider>
+              <Header />
+              <main className="flex-1 w-full overflow-x-hidden">
+                {children}
+              </main>
+              <Footer />
+              <FloatingWidgets />
+              <PromotionPopup />
+            </CompareProvider>
           </ToastProvider>
         </ReduxProvider>
       </body>

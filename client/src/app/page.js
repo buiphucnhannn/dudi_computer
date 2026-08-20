@@ -11,7 +11,7 @@ import ZComputerShorts from "@/components/home/ZComputerShorts";
 import FeaturedProductsSection from "@/components/home/FeaturedProductsSection";
 import BrandLogosBar from "@/components/home/BrandLogosBar";
 import CategoryProductBox from "@/components/home/CategoryProductBox";
-import NewsSection from "@/components/product-detail/NewsSection";
+import TechNewsSection from "@/components/home/TechNewsSection";
 import CustomerGallery from "@/components/home/CustomerGallery";
 import products from "@/data/products.json";
 
@@ -136,14 +136,23 @@ export default function Home() {
     return products.filter((p) => {
       const cat = (p.categoryName || p.category || "").toLowerCase();
       const name = p.name?.toLowerCase() || "";
+      // Loại trừ các dàn máy PC nguyên bộ và laptop
+      if (
+        name.startsWith("bộ máy") ||
+        name.startsWith("pc ") ||
+        cat === "pc cũ" ||
+        cat.includes("laptop") ||
+        cat.includes("màn hình")
+      ) {
+        return false;
+      }
       return (
-        name.includes("nguồn") ||
-        name.includes("psu") ||
+        cat === "850w" ||
+        cat === "750w" ||
+        cat === "700w" ||
         cat.includes("nguồn") ||
         cat.includes("psu") ||
-        cat.includes("850w") ||
-        cat.includes("750w") ||
-        cat.includes("700w")
+        name.startsWith("nguồn")
       );
     });
   }, [products]);
@@ -269,7 +278,7 @@ export default function Home() {
 
       {/* 14. 📰 TIN TỨC CÔNG NGHỆ MỚI */}
       <div className="mb-10 sm:mb-14 md:mb-16">
-        <NewsSection />
+        <TechNewsSection />
       </div>
 
       {/* 15. 🌟 LỜI CẢM ƠN TỪ ZCOMPUTER & HÌNH ẢNH KHÁCH HÀNG (Nền đen tràn viền) */}

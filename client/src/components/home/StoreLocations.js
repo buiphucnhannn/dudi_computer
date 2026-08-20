@@ -4,7 +4,7 @@ export default function StoreLocations() {
   return (
     <div
       id="he-thong-showroom"
-      className="mb-12 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl p-8 lg:p-10 shadow-2xl relative overflow-hidden group transition-all duration-500"
+      className="mb-12 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl p-8 lg:p-10 shadow-2xl relative overflow-hidden group transition-all duration-500 text-white"
     >
       {/* Hiệu ứng đỏ mờ khi hover */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#eb1c24]/20 via-[#eb1c24]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0"></div>

@@ -20,13 +20,13 @@ body {
 /* Tối ưu chiều rộng container chuẩn tỷ lệ hiển thị zcomputer.vn */
 @media (min-width: 1280px) {
   .container {
-    max-width: 1400px !important;
+    max-width: 1450px !important;
   }
 }
 
 @media (min-width: 1536px) {
   .container {
-    max-width: 1480px !important;
+    max-width: 1530px !important;
   }
 }
 
