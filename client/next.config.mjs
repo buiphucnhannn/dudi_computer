@@ -59,6 +59,26 @@ const nextConfig = {
         source: "/showroom",
         destination: "/store-locations",
       },
+      {
+        source: "/cong-cu-test/ban-phim",
+        destination: "/keyboard-test",
+      },
+      {
+        source: "/test-ban-phim",
+        destination: "/keyboard-test",
+      },
+      {
+        source: "/cong-cu-test/man-hinh",
+        destination: "/screen-test",
+      },
+      {
+        source: "/cong-cu-test/loa-micro-webcam",
+        destination: "/peripherals-test",
+      },
+      {
+        source: "/test-loa-micro-webcam",
+        destination: "/peripherals-test",
+      },
     ];
   },
 };
