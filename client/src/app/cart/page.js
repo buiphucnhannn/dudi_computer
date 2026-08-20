@@ -18,8 +18,9 @@ import {
   selectCartItems,
   selectTotalPrice,
   selectTotalItems,
-  updateQuantity,
-  removeFromCart,
+  updateQuantityAsync,
+  removeFromCartAsync,
+  clearCartAsync,
   loadCartFromStorage,
 } from "@/redux/slices/cartSlice";
 import { formatVND } from "@/lib/utils";
@@ -53,21 +54,21 @@ export default function CartWishlistPage() {
   const handleDecrease = (item) => {
     if (item.quantity > 1) {
       dispatch(
-        updateQuantity({ productId: item._id, quantity: item.quantity - 1 })
+        updateQuantityAsync({ productId: item._id, quantity: item.quantity - 1 })
       );
     } else {
-      dispatch(removeFromCart(item._id));
+      dispatch(removeFromCartAsync(item._id));
     }
   };
 
   const handleIncrease = (item) => {
     dispatch(
-      updateQuantity({ productId: item._id, quantity: item.quantity + 1 })
+      updateQuantityAsync({ productId: item._id, quantity: item.quantity + 1 })
     );
   };
 
   const handleRemove = (productId) => {
-    dispatch(removeFromCart(productId));
+    dispatch(removeFromCartAsync(productId));
   };
 
   if (!mounted) {

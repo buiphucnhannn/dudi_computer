@@ -3,7 +3,6 @@ import { create } from "zustand";
 export const useCartStore = create((set, get) => ({
   items: [],
   
-  // Tải giỏ hàng từ localStorage
   loadCart: () => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("zcomputer_cart");

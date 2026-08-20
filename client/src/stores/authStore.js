@@ -5,7 +5,6 @@ export const useAuthStore = create((set) => ({
   user: null,
   isAuthenticated: false,
 
-  // Tải profile người dùng từ localStorage (không lưu token ở client)
   initAuth: () => {
     if (typeof window !== "undefined") {
       const userStr = localStorage.getItem("zcomputer_user");

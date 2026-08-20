@@ -39,6 +39,18 @@ const nextConfig = {
         source: "/gio-hang",
         destination: "/cart",
       },
+      {
+        source: "/dang-nhap",
+        destination: "/login",
+      },
+      {
+        source: "/dang-ky",
+        destination: "/register",
+      },
+      {
+        source: "/quen-mat-khau",
+        destination: "/forgot-password",
+      },
     ];
   },
 };

@@ -83,17 +83,27 @@ export const categoryAPI = {
 export const authAPI = {
   register: (data) => apiClient.post("/auth/register", data),
   login: (data) => apiClient.post("/auth/login", data),
+  googleLogin: (data) => apiClient.post("/auth/google", data),
+  forgotPassword: (data) => apiClient.post("/auth/forgot-password", data),
+  resetPassword: (data) => apiClient.post("/auth/reset-password", data),
   refreshToken: () => apiClient.post("/auth/refresh-token"),
   logout: () => apiClient.post("/auth/logout"),
   getProfile: () => apiClient.get("/auth/profile"),
-};
-
-export const orderAPI = {
-  create: (data) => apiClient.post("/orders", data),
-  getMyOrders: () => apiClient.get("/orders/my-orders"),
+  updateProfile: (data) => apiClient.put("/auth/profile", data),
 };
 
 export const feedbackAPI = {
   create: (data) => apiClient.post("/feedbacks", data),
   getAll: (params) => apiClient.get("/feedbacks", { params }),
+};
+
+export const wishlistAPI = {
+  get: () => apiClient.get("/wishlist"),
+  sync: (items) => apiClient.post("/wishlist/sync", { items }),
+  addItem: (productId, quantity = 1) =>
+    apiClient.post("/wishlist/item", { productId, quantity }),
+  updateQuantity: (productId, quantity) =>
+    apiClient.put(`/wishlist/item/${productId}`, { quantity }),
+  removeItem: (productId) => apiClient.delete(`/wishlist/item/${productId}`),
+  clear: () => apiClient.delete("/wishlist"),
 };

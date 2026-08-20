@@ -26,9 +26,22 @@ import {
   MemoryStick,
   Fan,
   Sparkles,
+  LogOut,
 } from "lucide-react";
-import { loadCartFromStorage, selectTotalItems } from "@/redux/slices/cartSlice";
-import { initAuthFromStorage, selectCurrentUser, selectIsAuthenticated } from "@/redux/slices/authSlice";
+import {
+  loadCartFromStorage,
+  selectTotalItems,
+  fetchCloudWishlist,
+  resetCartOnLogout,
+} from "@/redux/slices/cartSlice";
+import {
+  initAuthFromStorage,
+  logoutUser,
+  selectCurrentUser,
+  selectIsAuthenticated,
+} from "@/redux/slices/authSlice";
+import { authAPI } from "@/lib/api";
+import { useToast } from "@/components/common/ToastContext";
 
 const NAV_CATEGORIES = [
   {
@@ -142,10 +155,12 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
   const dispatch = useDispatch();
+  const { showToast } = useToast();
   const totalItems = useSelector(selectTotalItems);
   const user = useSelector(selectCurrentUser);
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -155,6 +170,30 @@ export default function Header() {
     dispatch(loadCartFromStorage());
     dispatch(initAuthFromStorage());
   }, [dispatch]);
+
+  // Đồng bộ Wishlist từ Cloud nếu người dùng đã đăng nhập
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchCloudWishlist());
+    }
+  }, [isAuthenticated, dispatch]);
+
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      dispatch(logoutUser());
+      dispatch(resetCartOnLogout());
+      setUserDropdownOpen(false);
+      showToast({
+        title: "Đã đăng xuất",
+        message: "Bạn đã đăng xuất tài khoản thành công!",
+        type: "info",
+      });
+    }
+  };
 
   // Theo dõi cuộn trang để quyết định khi nào hiển thị Dropdown Danh Mục Sản Phẩm
   useEffect(() => {
@@ -305,20 +344,72 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* User Auth Links (Đăng nhập | Đăng ký) */}
-          <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-gray-700 pl-2">
+          {/* User Auth Links (Đăng nhập | Đăng ký | Dropdown Profile) */}
+          <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-gray-700 pl-2 relative">
             {mounted && isAuthenticated ? (
-              <div className="flex items-center gap-1.5">
-                <User className="w-4 h-4 text-[#eb1c24]" />
-                <span className="max-w-[100px] truncate">{user?.name}</span>
+              <div
+                className="relative group/user py-1"
+                onMouseEnter={() => setUserDropdownOpen(true)}
+                onMouseLeave={() => setUserDropdownOpen(false)}
+              >
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  <div className="w-8 h-8 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-[10px] text-gray-500 font-medium block leading-tight">
+                      Xin chào,
+                    </span>
+                    <span className="text-xs font-bold text-gray-900 leading-tight block truncate max-w-[100px]">
+                      {user?.name}
+                    </span>
+                  </div>
+                </Link>
+
+                {/* User Dropdown Menu with Hover Bridge */}
+                <div
+                  className={`absolute right-0 top-full pt-1 w-48 z-50 transition-all duration-150 ${
+                    userDropdownOpen
+                      ? "opacity-100 visible translate-y-0"
+                      : "opacity-0 invisible -translate-y-1 pointer-events-none"
+                  }`}
+                >
+                  <div className="bg-white rounded-xl shadow-lg shadow-black/5 border border-gray-100/80 py-1.5 overflow-hidden">
+                    <Link
+                      href="/profile"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 transition-colors"
+                    >
+                      <User className="w-3.5 h-3.5 text-gray-500" />
+                      <span>Hồ sơ cá nhân</span>
+                    </Link>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer border-t border-gray-100/60"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Đăng xuất</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
               <>
-                <Link href="/dang-nhap" className="hover:text-[#eb1c24] transition-colors">
+                <Link
+                  href="/login"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
                   Đăng nhập
                 </Link>
                 <span className="text-gray-300 font-normal">|</span>
-                <Link href="/dang-ky" className="hover:text-[#eb1c24] transition-colors">
+                <Link
+                  href="/register"
+                  className="hover:text-[#dc2626] transition-colors"
+                >
                   Đăng ký
                 </Link>
               </>
