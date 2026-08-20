@@ -15,8 +15,13 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { formatVND } from "@/lib/utils";
-import { useDispatch } from "react-redux";
-import { addToCart } from "@/redux/slices/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addToCartAsync,
+  removeFromCartAsync,
+  selectCartItems,
+} from "@/redux/slices/cartSlice";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function FlashSaleSection({ products = [] }) {
   const [activeTab, setActiveTab] = useState("all");
@@ -27,6 +32,8 @@ export default function FlashSaleSection({ products = [] }) {
     seconds: 40,
   });
   const dispatch = useDispatch();
+  const { showToast } = useToast();
+  const cartItems = useSelector(selectCartItems) || [];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -48,6 +55,28 @@ export default function FlashSaleSection({ products = [] }) {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const handleToggleFavorite = (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isFav = cartItems.some((i) => i._id === item._id);
+    if (isFav) {
+      dispatch(removeFromCartAsync(item._id));
+    } else {
+      dispatch(addToCartAsync({ product: item, quantity: 1 }));
+    }
+  };
+
+  const handleBuyNow = (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(addToCartAsync({ product: item, quantity: 1 }));
+    showToast({
+      title: "Đã thêm vào giỏ hàng",
+      message: `Đã thêm "${item.name}" vào danh sách chọn mua.`,
+      type: "success",
+    });
+  };
 
   // Lọc sản phẩm Flash Sale theo Tab đang chọn
   const flashSaleItems = useMemo(() => {
@@ -190,24 +219,37 @@ export default function FlashSaleSection({ products = [] }) {
 
         {/* Product Cards Row with gentle elevation & thin red border on hover */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {flashSaleItems.slice(0, 3).map((item) => {
-            const discountPercent = item.discountPercent || 5;
+          {flashSaleItems.map((item) => {
+            const discountPercent =
+              item.discountPercent ||
+              (item.originalPrice > item.price
+                ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)
+                : 5);
             const originalPrice = item.originalPrice || Math.round(item.price * 1.08);
+            const imgSrc = getProductImage(item);
 
             return (
               <div
                 key={item._id}
                 className="bg-white rounded-2xl border border-gray-200/90 shadow-2xs hover:border-[#eb1c24] hover:shadow-[0_12px_28px_rgba(235,28,36,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-3"
               >
-                {/* Top Badges */}
-                <div className="flex items-center justify-between gap-2 mb-2 relative z-10">
-                  <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow-xs">
-                    Giảm {discountPercent}%
-                  </span>
-                  <span className="bg-gradient-to-r from-red-600 to-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 shadow-xs">
-                    <Flame className="w-3 h-3 fill-yellow-300 text-yellow-300" /> HOT SALE
-                  </span>
-                </div>
+                {/* Product Image Area */}
+                <Link
+                  href={`/san-pham/${item.slug || item._id}`}
+                  className="block relative aspect-[4/3] w-full rounded-xl overflow-hidden border-2 border-red-500 mb-3 bg-white group/img p-2"
+                >
+                  {/* Top Badges */}
+                  <div className="absolute top-0 left-0 z-20 pointer-events-none">
+                    <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tl-[10px] rounded-br-[8px] shadow-xs">
+                      Giảm {discountPercent}%
+                    </span>
+                  </div>
+
+                  <div className="absolute top-0 right-0 z-20 pointer-events-none">
+                    <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tr-[10px] rounded-bl-[8px] flex items-center gap-1 shadow-xs">
+                      🔥 HOT SALE
+                    </span>
+                  </div>
 
                 {/* Product Image + 'Xem chi tiết ->' hover button */}
                 <Link
@@ -235,7 +277,9 @@ export default function FlashSaleSection({ products = [] }) {
 
                   {/* Watermark logo */}
                   <div className="absolute bottom-1 left-1.5 opacity-80 pointer-events-none">
-                    <span className="text-[9px] font-black text-red-600 tracking-tight">ZCOMPUTER.VN</span>
+                    <span className="text-[9px] font-black text-[#eb1c24] tracking-tight">
+                      ZCOMPUTER.VN
+                    </span>
                   </div>
                 </Link>
 
@@ -251,10 +295,7 @@ export default function FlashSaleSection({ products = [] }) {
                     >
                       <Scale className="w-4 h-4" />
                     </button>
-                    <button
-                      className="hover:text-red-500 cursor-pointer transition-colors"
-                      title="Yêu thích"
-                    >
+                    <button className="hover:text-red-500 cursor-pointer transition-colors" title="Yêu thích">
                       <Heart className="w-4 h-4" />
                     </button>
                   </div>
@@ -327,9 +368,7 @@ export default function FlashSaleSection({ products = [] }) {
                     <span>{item.views || 49} lượt xem</span>
                   </span>
                   <button
-                    onClick={() =>
-                      dispatch(addToCart({ product: item, quantity: 1 }))
-                    }
+                    onClick={() => dispatch(addToCart({ product: item, quantity: 1 }))}
                     className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
                   >
                     + Mua ngay

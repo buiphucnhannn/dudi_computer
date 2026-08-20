@@ -2,20 +2,15 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import {
-  ChevronRight,
-  Scale,
-  Heart,
-  Eye,
-  Cpu,
-  HardDrive,
-  CircuitBoard,
-  Layers,
-  ArrowRight,
-} from "lucide-react";
+import { ChevronRight, Scale, Heart, Eye, Cpu, HardDrive, CircuitBoard, Layers, ArrowRight } from "lucide-react";
 import { formatVND } from "@/lib/utils";
-import { useDispatch } from "react-redux";
-import { addToCart } from "@/redux/slices/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addToCartAsync,
+  removeFromCartAsync,
+  selectCartItems,
+} from "@/redux/slices/cartSlice";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function CategoryProductBox({
   title,
@@ -25,6 +20,30 @@ export default function CategoryProductBox({
 }) {
   const [activeTab, setActiveTab] = useState(tabs[0]?.slug || "all");
   const dispatch = useDispatch();
+  const { showToast } = useToast();
+  const cartItems = useSelector(selectCartItems) || [];
+
+  const handleToggleFavorite = (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isFav = cartItems.some((i) => i._id === item._id);
+    if (isFav) {
+      dispatch(removeFromCartAsync(item._id));
+    } else {
+      dispatch(addToCartAsync({ product: item, quantity: 1 }));
+    }
+  };
+
+  const handleBuyNow = (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(addToCartAsync({ product: item, quantity: 1 }));
+    showToast({
+      title: "Đã thêm vào giỏ hàng",
+      message: `Đã thêm "${item.name}" vào danh sách chọn mua.`,
+      type: "success",
+    });
+  };
 
   const filteredProducts = useMemo(() => {
     if (activeTab === "all" || tabs.length === 0) return products.slice(0, 4);
@@ -198,7 +217,7 @@ export default function CategoryProductBox({
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4.5">
-          {filteredProducts.map((item) => {
+          {filteredProducts.map((item, index) => {
             const discountPercent =
               item.discountPercent ||
               (item.originalPrice > item.price
@@ -210,25 +229,30 @@ export default function CategoryProductBox({
             const originalPrice =
               item.originalPrice || Math.round(item.price * 1.05);
             const imgSrc = getProductImage(item);
+            const isFav = cartItems.some((i) => i._id === item._id);
 
             return (
               <div
-                key={item._id}
-                className="bg-white rounded-2xl border border-gray-200/90 shadow-2xs hover:border-[#eb1c24] hover:shadow-[0_12px_28px_rgba(235,28,36,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-3"
+                key={item._id || index}
+                className="bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group/card relative"
               >
-                {/* Product Image + 'Xem chi tiết ->' hover button */}
+                {/* Product Image */}
                 <Link
-                  href={`/product-detail?slug=${encodeURIComponent(item.slug || item._id)}`}
+                  href={`/san-pham/${item.slug || item._id}`}
                   className="block relative aspect-square w-full rounded-xl overflow-hidden border-2 border-red-500 mb-3 bg-white group/img p-2"
                 >
-                  {/* Top Discount Badge */}
+                  {/* Tag Giảm giá góc trên bên trái */}
                   {discountPercent > 0 && (
-                    <div className="absolute top-0 left-0 z-20 pointer-events-none">
-                      <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tl-[10px] rounded-br-[8px] shadow-xs">
-                        Giảm {discountPercent}%
-                      </span>
+                    <div className="absolute top-2 left-2 z-20 bg-[#eb1c24] text-white text-[11px] font-black px-2 py-0.5 rounded shadow-sm">
+                      Giảm {discountPercent}%
                     </div>
                   )}
+
+                  {/* Hot Sale Fire Tag góc trên bên phải */}
+                  <div className="absolute top-2 right-2 z-20 bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
+                    <Flame className="w-3 h-3 fill-white" />
+                    <span>HOT SALE</span>
+                  </div>
 
                   <img
                     src={imgSrc}
@@ -240,21 +264,6 @@ export default function CategoryProductBox({
                         "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
                     }}
                   />
-
-                  {/* Center Hover Pill - Chính giữa ảnh */}
-                  <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
-                    <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover:scale-100 group-hover/img:scale-100 transition-all duration-300 whitespace-nowrap">
-                      <span>Xem chi tiết</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-[#eb1c24]" />
-                    </span>
-                  </div>
-
-                  {/* Bottom Brand Mark */}
-                  <div className="absolute bottom-1 left-2 opacity-80 pointer-events-none">
-                    <span className="text-[9px] font-black text-[#eb1c24] tracking-tight">
-                      ZCOMPUTER.VN
-                    </span>
-                  </div>
                 </Link>
 
                 {/* Brand & Action Icons */}
@@ -269,10 +278,7 @@ export default function CategoryProductBox({
                     >
                       <Scale className="w-4 h-4" />
                     </button>
-                    <button
-                      className="hover:text-red-500 cursor-pointer transition-colors"
-                      title="Yêu thích"
-                    >
+                    <button className="hover:text-red-500 cursor-pointer transition-colors" title="Yêu thích">
                       <Heart className="w-4 h-4" />
                     </button>
                   </div>
@@ -280,7 +286,7 @@ export default function CategoryProductBox({
 
                 {/* Title */}
                 <Link
-                  href={`/product-detail?slug=${encodeURIComponent(item.slug || item._id)}`}
+                  href={`/san-pham/${item.slug || item._id}`}
                   className="font-bold text-xs sm:text-[13px] text-gray-900 hover:text-[#eb1c24] group-hover:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors"
                   title={item.name}
                 >
@@ -298,11 +304,6 @@ export default function CategoryProductBox({
                     <span className="text-base sm:text-lg font-black text-[#eb1c24]">
                       {formatVND(item.price)}
                     </span>
-                    {discountPercent > 0 && (
-                      <span className="bg-red-50 text-[#eb1c24] text-[10px] font-bold px-1.5 py-0.5 rounded">
-                        -{discountPercent}%
-                      </span>
-                    )}
                   </div>
                 </div>
 
@@ -310,7 +311,7 @@ export default function CategoryProductBox({
                 <div className="bg-gray-50 rounded-xl p-2.5 grid grid-cols-2 gap-2 text-[10px] text-gray-600 mb-3 border border-gray-100">
                   <div className="flex items-center gap-1.5 truncate">
                     <Cpu className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span className="truncate">Intel / AMD Ryzen</span>
+                    <span className="truncate">Intel / AMD</span>
                   </div>
                   <div className="flex items-center gap-1.5 truncate">
                     <Layers className="w-3.5 h-3.5 text-gray-400 shrink-0" />
@@ -318,11 +319,11 @@ export default function CategoryProductBox({
                   </div>
                   <div className="flex items-center gap-1.5 truncate">
                     <CircuitBoard className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span className="truncate">GeForce RTX GPU</span>
+                    <span className="truncate">RTX GPU</span>
                   </div>
                   <div className="flex items-center gap-1.5 truncate">
                     <HardDrive className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span className="truncate">SSD NVMe Siêu Tốc</span>
+                    <span className="truncate">SSD NVMe</span>
                   </div>
                 </div>
 
@@ -333,9 +334,7 @@ export default function CategoryProductBox({
                     <span>{item.views || 48} lượt xem</span>
                   </span>
                   <button
-                    onClick={() =>
-                      dispatch(addToCart({ product: item, quantity: 1 }))
-                    }
+                    onClick={() => dispatch(addToCart({ product: item, quantity: 1 }))}
                     className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
                   >
                     + Mua ngay

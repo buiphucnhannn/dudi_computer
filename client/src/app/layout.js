@@ -3,6 +3,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FloatingWidgets from "@/components/layout/FloatingWidgets";
 import ReduxProvider from "@/redux/provider";
+import { ToastProvider } from "@/components/common/ToastContext";
 
 export const metadata = {
   title: "ZCOMPUTER - PC Gaming, Laptop, Workstation",
@@ -21,12 +22,14 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning
       >
         <ReduxProvider>
-          <Header />
-          <main className="flex-1 w-full overflow-x-hidden">
-            {children}
-          </main>
-          <Footer />
-          <FloatingWidgets />
+          <ToastProvider>
+            <Header />
+            <main className="flex-1 w-full overflow-x-hidden">
+              {children}
+            </main>
+            <Footer />
+            <FloatingWidgets />
+          </ToastProvider>
         </ReduxProvider>
       </body>
     </html>

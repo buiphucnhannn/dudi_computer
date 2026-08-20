@@ -27,7 +27,7 @@ export const registerUser = async (req, res, next) => {
       .json(
         new ApiResponse(
           201,
-          { user },
+          { user, accessToken, refreshToken },
           "Đăng ký tài khoản thành công"
         )
       );
@@ -47,8 +47,30 @@ export const loginUser = async (req, res, next) => {
       .json(
         new ApiResponse(
           200,
-          { user },
+          { user, accessToken, refreshToken },
           "Đăng nhập thành công"
+        )
+      );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleAuth = async (req, res, next) => {
+  try {
+    const { user, accessToken, refreshToken } = await authService.loginWithGoogle(
+      req.body
+    );
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, getAccessCookieOptions())
+      .cookie("refreshToken", refreshToken, getRefreshCookieOptions())
+      .json(
+        new ApiResponse(
+          200,
+          { user, accessToken, refreshToken },
+          "Đăng nhập Google thành công"
         )
       );
   } catch (error) {
@@ -108,6 +130,39 @@ export const getProfile = async (req, res, next) => {
     return res
       .status(200)
       .json(new ApiResponse(200, user, "Lấy thông tin người dùng thành công"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateProfile = async (req, res, next) => {
+  try {
+    const user = await authService.updateProfile(req.user._id, req.body);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "Cập nhật thông tin thành công"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const result = await authService.sendPasswordResetOtp(req.body?.email);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, result, result.message));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const result = await authService.resetPasswordWithOtp(req.body);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, result, result.message));
   } catch (error) {
     next(error);
   }

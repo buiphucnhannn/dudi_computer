@@ -18,8 +18,22 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "Vui lòng nhập mật khẩu"],
+      required: [
+        function () {
+          return this.authType === "local";
+        },
+        "Vui lòng nhập mật khẩu",
+      ],
       minlength: [6, "Mật khẩu phải từ 6 ký tự trở lên"],
+    },
+    authType: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+    googleId: {
+      type: String,
+      default: null,
     },
     phone: {
       type: String,
@@ -67,7 +81,7 @@ userSchema.methods.generateAccessToken = function () {
       email: this.email,
       role: this.role,
     },
-    process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET || "access_secret",
+    process.env.JWT_SECRET,
     {
       expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "15m",
     }
@@ -80,7 +94,7 @@ userSchema.methods.generateRefreshToken = function () {
     {
       _id: this._id,
     },
-    process.env.REFRESH_TOKEN_SECRET || (process.env.JWT_SECRET + "_refresh") || "refresh_secret",
+    process.env.JWT_SECRET,
     {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "7d",
     }

@@ -4,6 +4,7 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import routes from "./routes/index.js";
 import { errorHandler, notFound } from "./middlewares/errorHandler.js";
+import { globalLimiter } from "./middlewares/rateLimiter.js";
 
 const app = express();
 
@@ -18,6 +19,9 @@ app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 app.use(morgan("dev"));
+
+// Apply Global Rate Limiting to all /api routes
+app.use("/api", globalLimiter);
 
 // API Root
 app.use("/api/v1", routes);
