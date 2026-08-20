@@ -55,9 +55,9 @@ export default function StoreLocations() {
               <Phone className="text-[#eb1c24] fill-[#eb1c24]/20 w-4 h-4 shrink-0" />
               <span>
                 Hotline Hỗ Trợ:{" "}
-                <a href="tel:0977334415" className="text-[#eb1c24] font-bold text-lg hover:underline ml-1">
+                <span className="text-[#eb1c24] font-bold text-lg ml-1">
                   0977.334.415
-                </a>
+                </span>
               </span>
             </p>
 

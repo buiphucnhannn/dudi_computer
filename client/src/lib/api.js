@@ -92,3 +92,8 @@ export const orderAPI = {
   create: (data) => apiClient.post("/orders", data),
   getMyOrders: () => apiClient.get("/orders/my-orders"),
 };
+
+export const feedbackAPI = {
+  create: (data) => apiClient.post("/feedbacks", data),
+  getAll: (params) => apiClient.get("/feedbacks", { params }),
+};

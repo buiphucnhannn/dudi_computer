@@ -35,6 +35,10 @@ const nextConfig = {
         source: "/chinh-sach-thanh-toan",
         destination: "/payment-policy",
       },
+      {
+        source: "/gio-hang",
+        destination: "/cart",
+      },
     ];
   },
 };

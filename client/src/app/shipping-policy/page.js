@@ -181,9 +181,9 @@ export default function ShippingPolicyPage() {
                 </p>
                 <p className="text-sm text-gray-600 flex items-center gap-2">
                   📞 Hotline:{" "}
-                  <a href="tel:0977334415" className="text-[#eb1c24] font-medium hover:underline">
+                  <span className="text-[#eb1c24] font-medium">
                     0977 334 415
-                  </a>
+                  </span>
                 </p>
               </div>
             </div>

@@ -253,12 +253,11 @@ export default function Header() {
 
         {/* Header Right Actions */}
         <div className="flex items-center gap-2 lg:gap-4 shrink-0">
-          {/* Hotline */}
-          <a
-            href="tel:0977334415"
-            className="hidden xl:flex items-center gap-2.5 p-1.5 rounded-full hover:bg-gray-100/80 transition-colors group cursor-pointer"
+          {/* Hotline (Hiển thị thông tin, không kích hoạt gọi điện) */}
+          <div
+            className="hidden xl:flex items-center gap-2.5 p-1.5 rounded-full select-none cursor-default"
           >
-            <div className="relative w-10 h-10 rounded-full bg-red-50 text-[#eb1c24] flex items-center justify-center group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
+            <div className="relative w-10 h-10 rounded-full bg-red-50 text-[#eb1c24] flex items-center justify-center">
               <span className="absolute inset-0 rounded-full bg-red-500/20 animate-pulse-ring pointer-events-none"></span>
               <PhoneCall className="w-5 h-5 relative z-10" />
             </div>
@@ -270,7 +269,7 @@ export default function Header() {
                 0977 334 415
               </span>
             </div>
-          </a>
+          </div>
 
           {/* Showroom */}
           <Link
@@ -293,7 +292,7 @@ export default function Header() {
           {/* Wishlist / Cart */}
           <div className="flex items-center gap-1 sm:gap-2">
             <Link
-              href="/gio-hang"
+              href="/cart"
               className="relative p-2 text-gray-700 hover:text-[#eb1c24] transition-colors flex items-center gap-1"
               title="Sản phẩm yêu thích / Giỏ hàng"
             >
