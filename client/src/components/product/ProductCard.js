@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { ShoppingCart, Eye, ShieldCheck } from "lucide-react";
 import { formatVND } from "@/lib/utils";
@@ -8,6 +8,7 @@ import { addToCart } from "@/redux/slices/cartSlice";
 
 export default function ProductCard({ product }) {
   const dispatch = useDispatch();
+  const router = useRouter();
 
   if (!product) return null;
 
@@ -16,17 +17,36 @@ export default function ProductCard({ product }) {
     product.images?.[0] ||
     "https://zcomputer.vn/logo-main.png";
 
+  const detailHref = `/product-detail?slug=${encodeURIComponent(
+    product.slug || product._id,
+  )}`;
+
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
     dispatch(addToCart({ product, quantity: 1 }));
   };
 
+  const handleOpenDetail = () => {
+    router.push(detailHref);
+  };
+
   // Tính ước tính trả góp (khoảng 10-12% giá trị sản phẩm / tháng)
   const installmentEst = Math.round(product.price / 12);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-150/90 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative">
+    <div
+      role="link"
+      tabIndex={0}
+      onClick={handleOpenDetail}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleOpenDetail();
+        }
+      }}
+      className="bg-white rounded-xl border border-gray-150/90 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative cursor-pointer"
+    >
       {/* Discount badge */}
       {product.discountPercent > 0 && (
         <span className="absolute top-2 left-2 z-20 bg-[#dc2626] text-white text-[10.5px] font-black px-2 py-0.5 rounded shadow-sm">
@@ -42,10 +62,7 @@ export default function ProductCard({ product }) {
       )}
 
       {/* Image container */}
-      <Link
-        href={`/product/${product.slug}`}
-        className="block relative aspect-square w-full p-3 bg-white overflow-hidden"
-      >
+      <div className="block relative aspect-square w-full p-3 bg-white overflow-hidden">
         <div className="w-full h-full relative flex items-center justify-center">
           <img
             src={thumbnail}
@@ -54,7 +71,7 @@ export default function ProductCard({ product }) {
             loading="lazy"
           />
         </div>
-      </Link>
+      </div>
 
       {/* Content */}
       <div className="p-3 sm:p-3.5 flex flex-col flex-1 justify-between bg-white border-t border-gray-50">
@@ -66,13 +83,12 @@ export default function ProductCard({ product }) {
           </div>
 
           {/* Product Name */}
-          <Link
-            href={`/product/${product.slug}`}
-            className="text-xs sm:text-[13px] font-bold text-gray-800 hover:text-[#dc2626] transition-colors line-clamp-2 min-h-[36px] sm:min-h-[38px] leading-snug"
+          <h3
+            className="text-xs sm:text-[13px] font-bold text-gray-800 group-hover:text-[#dc2626] transition-colors line-clamp-2 min-h-[36px] sm:min-h-[38px] leading-snug"
             title={product.name}
           >
             {product.name}
-          </Link>
+          </h3>
         </div>
 
         {/* Price & Actions */}
@@ -106,13 +122,12 @@ export default function ProductCard({ product }) {
               <ShoppingCart className="w-3.5 h-3.5" />
               <span>Thêm vào giỏ</span>
             </button>
-            <Link
-              href={`/product/${product.slug}`}
+            <span
               className="p-1.5 rounded-lg border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 transition-colors"
               title="Xem chi tiết"
             >
               <Eye className="w-3.5 h-3.5" />
-            </Link>
+            </span>
           </div>
         </div>
       </div>

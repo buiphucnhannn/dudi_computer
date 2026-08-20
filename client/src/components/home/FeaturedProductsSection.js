@@ -153,7 +153,7 @@ export default function FeaturedProductsSection({ products = [] }) {
 
                 {/* Product Image Area */}
                 <Link
-                  href={`/product/${item.slug || item._id}`}
+                  href={`/product-detail?slug=${encodeURIComponent(item.slug || item._id)}`}
                   className="relative aspect-square w-full bg-white p-3 flex items-center justify-center overflow-hidden border-b border-gray-100 block cursor-pointer"
                 >
                   <img
@@ -186,7 +186,7 @@ export default function FeaturedProductsSection({ products = [] }) {
 
                     {/* Title */}
                     <Link
-                      href={`/product/${item.slug || item._id}`}
+                      href={`/product-detail?slug=${encodeURIComponent(item.slug || item._id)}`}
                       className="block hover:text-[#eb1c24] transition-colors"
                     >
                       <h4 className="text-gray-900 text-xs sm:text-[13px] font-bold leading-snug line-clamp-2 group-hover/card:text-[#eb1c24] transition-colors duration-300 min-h-[36px]">

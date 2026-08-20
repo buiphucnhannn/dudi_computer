@@ -218,7 +218,7 @@ export default function CategoryProductBox({
               >
                 {/* Product Image + 'Xem chi tiết ->' hover button */}
                 <Link
-                  href={`/product/${item.slug || item._id}`}
+                  href={`/product-detail?slug=${encodeURIComponent(item.slug || item._id)}`}
                   className="block relative aspect-square w-full rounded-xl overflow-hidden border-2 border-red-500 mb-3 bg-white group/img p-2"
                 >
                   {/* Top Discount Badge */}
@@ -280,7 +280,7 @@ export default function CategoryProductBox({
 
                 {/* Title */}
                 <Link
-                  href={`/product/${item.slug || item._id}`}
+                  href={`/product-detail?slug=${encodeURIComponent(item.slug || item._id)}`}
                   className="font-bold text-xs sm:text-[13px] text-gray-900 hover:text-[#eb1c24] group-hover:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors"
                   title={item.name}
                 >
