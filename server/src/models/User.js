@@ -39,6 +39,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
     },
+    refreshToken: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );
@@ -55,7 +59,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-// Tạo JWT Access Token
+// Tạo JWT Access Token (Thời hạn ngắn: 15 phút)
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
@@ -63,9 +67,22 @@ userSchema.methods.generateAccessToken = function () {
       email: this.email,
       role: this.role,
     },
-    process.env.JWT_SECRET,
+    process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET || "access_secret",
     {
-      expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "15m",
+    }
+  );
+};
+
+// Tạo JWT Refresh Token (Thời hạn dài: 7 ngày)
+userSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    {
+      _id: this._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET || (process.env.JWT_SECRET + "_refresh") || "refresh_secret",
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "7d",
     }
   );
 };

@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: null,
-  token: null,
   isAuthenticated: false,
 };
 
@@ -10,14 +9,12 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // Tải thông tin auth từ localStorage
+    // Tải thông tin người dùng từ localStorage khi khởi động
     initAuthFromStorage: (state) => {
       if (typeof window !== "undefined") {
-        const token = localStorage.getItem("zcomputer_token");
         const userStr = localStorage.getItem("zcomputer_user");
-        if (token && userStr) {
+        if (userStr) {
           try {
-            state.token = token;
             state.user = JSON.parse(userStr);
             state.isAuthenticated = true;
           } catch (e) {
@@ -27,27 +24,27 @@ export const authSlice = createSlice({
       }
     },
 
-    // Đăng nhập thành công
+    // Đăng nhập thành công (Token được quản lý trong HttpOnly Cookie)
     setCredentials: (state, action) => {
-      const { user, token } = action.payload;
+      const { user } = action.payload;
       state.user = user;
-      state.token = token;
-      state.isAuthenticated = true;
+      state.isAuthenticated = !!user;
 
       if (typeof window !== "undefined") {
-        localStorage.setItem("zcomputer_token", token);
-        localStorage.setItem("zcomputer_user", JSON.stringify(user));
+        if (user) {
+          localStorage.setItem("zcomputer_user", JSON.stringify(user));
+        } else {
+          localStorage.removeItem("zcomputer_user");
+        }
       }
     },
 
     // Đăng xuất
     logoutUser: (state) => {
       state.user = null;
-      state.token = null;
       state.isAuthenticated = false;
 
       if (typeof window !== "undefined") {
-        localStorage.removeItem("zcomputer_token");
         localStorage.removeItem("zcomputer_user");
       }
     },

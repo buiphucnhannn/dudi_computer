@@ -27,7 +27,7 @@ export default function CategoryProductBox({
   const dispatch = useDispatch();
 
   const filteredProducts = useMemo(() => {
-    if (activeTab === "all") return products.slice(0, 4);
+    if (activeTab === "all" || tabs.length === 0) return products.slice(0, 4);
     return products
       .filter((p) => {
         const name = (p.name || "").toLowerCase();
@@ -135,7 +135,7 @@ export default function CategoryProductBox({
         return cat.includes(activeTab) || name.includes(activeTab);
       })
       .slice(0, 4);
-  }, [activeTab, products]);
+  }, [activeTab, tabs.length, products]);
 
   const getProductImage = (item) => {
     if (item.thumbnail && item.thumbnail.startsWith("http"))
@@ -150,7 +150,7 @@ export default function CategoryProductBox({
   };
 
   return (
-    <section className="bg-white p-5 sm:p-7 md:p-8 rounded-[2.5rem] border-[3px] md:border-4 border-[#eb1c24] shadow-md space-y-5 my-6">
+    <section className="bg-white p-5 sm:p-7 md:p-8 rounded-[2.5rem] border-[3px] md:border-4 border-[#eb1c24] shadow-md space-y-5 mb-10 sm:mb-14 md:mb-16">
       {/* Box Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-gray-100">
         <div>
@@ -160,25 +160,27 @@ export default function CategoryProductBox({
           <div className="w-20 sm:w-24 h-1.5 bg-[#eb1c24] rounded-full mt-1.5 shadow-xs"></div>
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.slug;
-            return (
-              <button
-                key={tab.slug}
-                onClick={() => setActiveTab(tab.slug)}
-                className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  isActive
-                    ? "bg-[#eb1c24] text-white shadow-xs"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {tab.name}
-              </button>
-            );
-          })}
-        </div>
+        {/* Filter Pills (chỉ hiển thị nếu danh mục có tabs) */}
+        {tabs.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.slug;
+              return (
+                <button
+                  key={tab.slug}
+                  onClick={() => setActiveTab(tab.slug)}
+                  className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                    isActive
+                      ? "bg-[#eb1c24] text-white shadow-xs"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {tab.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* View All Link */}
         <Link
@@ -239,9 +241,9 @@ export default function CategoryProductBox({
                     }}
                   />
 
-                  {/* Center Hover Pill */}
-                  <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all duration-300">
-                    <span className="bg-white text-gray-900 text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover/img:translate-y-0 transition-transform duration-300 hover:text-[#eb1c24]">
+                  {/* Center Hover Pill - Chính giữa ảnh */}
+                  <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
+                    <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover:scale-100 group-hover/img:scale-100 transition-all duration-300 whitespace-nowrap">
                       <span>Xem chi tiết</span>
                       <ArrowRight className="w-3.5 h-3.5 text-[#eb1c24]" />
                     </span>

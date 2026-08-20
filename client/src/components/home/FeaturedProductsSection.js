@@ -70,7 +70,7 @@ export default function FeaturedProductsSection({ products = [] }) {
   };
 
   return (
-    <section className="bg-gradient-to-b from-amber-100/70 via-amber-50/50 to-yellow-100/60 rounded-[2.5rem] p-4 sm:p-7 md:p-9 border-[3px] md:border-4 border-amber-300 shadow-xl relative overflow-hidden my-6">
+    <section className="bg-gradient-to-b from-amber-100/70 via-amber-50/50 to-yellow-100/60 rounded-[2.5rem] p-4 sm:p-7 md:p-9 border-[3px] md:border-4 border-amber-300 shadow-xl relative overflow-hidden mb-10 sm:mb-14 md:mb-16">
       {/* Background Glowing Blobs */}
       <div className="absolute -top-32 -right-32 w-96 h-96 bg-yellow-400/40 rounded-full blur-[80px] pointer-events-none hidden md:block" />
       <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-orange-500/30 rounded-full blur-[80px] pointer-events-none hidden md:block" />
@@ -167,9 +167,9 @@ export default function FeaturedProductsSection({ products = [] }) {
                     }}
                   />
 
-                  {/* Center Hover Pill */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-6 group-hover/card:translate-y-0 opacity-0 group-hover/card:opacity-100 transition-all duration-300 z-40 pointer-events-none">
-                    <div className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-200 flex items-center gap-1.5 whitespace-nowrap">
+                  {/* Center Hover Pill - Chính giữa ảnh */}
+                  <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-all duration-300 z-30 pointer-events-none">
+                    <div className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover/card:scale-100 transition-all duration-300 whitespace-nowrap">
                       <span>Xem chi tiết</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </div>

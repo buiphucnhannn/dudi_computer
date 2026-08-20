@@ -1,186 +1,176 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { MoreHorizontal, ArrowLeft } from "lucide-react";
 
-const ROW_1_CATEGORIES = [
-  {
-    name: "Laptop Cũ",
-    slug: "laptop-cu",
-    icon: "https://zcomputer.vn/categories/icon1.png",
-    bgColor: "bg-pink-100",
-  },
-  {
-    name: "PC Cũ",
-    slug: "pc-cu",
-    icon: "https://zcomputer.vn/categories/icon2.png",
-    bgColor: "bg-blue-100",
-  },
-  {
-    name: "Chuột",
-    slug: "chuot",
-    icon: "https://zcomputer.vn/categories/icon3.png",
-    bgColor: "bg-green-100",
-  },
-  {
-    name: "Bàn phím",
-    slug: "ban-phim",
-    icon: "https://zcomputer.vn/categories/icon4.png",
-    bgColor: "bg-purple-100",
-  },
-  {
-    name: "Màn Hình",
-    slug: "man-hinh",
-    icon: "https://zcomputer.vn/categories/icon5.png",
-    bgColor: "bg-orange-100",
-  },
-  {
-    name: "CASE - Vỏ máy tính",
-    slug: "case-vo-may-tinh",
-    icon: "https://zcomputer.vn/categories/icon6.png",
-    bgColor: "bg-teal-100",
-  },
-  {
-    name: "CPU - Bộ vi xử lý",
-    slug: "cpu-bo-vi-xu-ly",
-    icon: "https://zcomputer.vn/categories/icon7.png",
-    bgColor: "bg-cyan-100",
-  },
-  {
-    name: "PSU - Nguồn máy tính",
-    slug: "psu-nguon-may-tinh",
-    icon: "https://zcomputer.vn/categories/icon8.png",
-    bgColor: "bg-red-100",
-  },
+// Khi chưa mở rộng: 7 danh mục đầu tiên
+const UNEXPANDED_ITEMS = [
+  { name: "Laptop Cũ", slug: "laptop-cu", icon: "https://zcomputer.vn/categories/icon1.png", bgColor: "bg-pink-100/90" },
+  { name: "PC Cũ", slug: "pc-cu", icon: "https://zcomputer.vn/categories/icon2.png", bgColor: "bg-blue-100/90" },
+  { name: "Chuột", slug: "chuot", icon: "https://zcomputer.vn/categories/icon3.png", bgColor: "bg-green-100/90" },
+  { name: "Bàn phím", slug: "ban-phim", icon: "https://zcomputer.vn/categories/icon4.png", bgColor: "bg-purple-100/90" },
+  { name: "Màn Hình", slug: "man-hinh", icon: "https://zcomputer.vn/categories/icon5.png", bgColor: "bg-orange-100/90" },
+  { name: "CASE - Vỏ máy tính", slug: "case-vo-may-tinh", icon: "https://zcomputer.vn/categories/icon6.png", bgColor: "bg-teal-100/90" },
+  { name: "CPU - Bộ vi xử lý", slug: "cpu-bo-vi-xu-ly", icon: "https://zcomputer.vn/categories/icon7.png", bgColor: "bg-cyan-100/90" },
 ];
 
-const ROW_2_CATEGORIES = [
-  {
-    name: "Mainboard - Bo mạch chủ",
-    slug: "mainboard-bo-mach-chu",
-    icon: "https://zcomputer.vn/categories/icon9.png",
-    bgColor: "bg-blue-100",
-  },
-  {
-    name: "Ổ cứng HDD - SSD",
-    slug: "o-cung-hdd-ssd",
-    icon: "https://zcomputer.vn/categories/icon10.png",
-    bgColor: "bg-teal-100",
-  },
-  {
-    name: "RAM - Bộ nhớ trong",
-    slug: "ram-bo-nho-trong",
-    icon: "https://zcomputer.vn/categories/icon11.png",
-    bgColor: "bg-green-100",
-  },
-  {
-    name: "Tan nhiệt Cooling",
-    slug: "tan-nhiet-cooling",
-    icon: "https://cdn-icons-png.flaticon.com/512/912/912316.png",
-    bgColor: "bg-blue-100",
-  },
-  {
-    name: "VGA - Card màn hình",
-    slug: "vga-card-man-hinh",
-    icon: "https://cdn-icons-png.flaticon.com/512/912/912300.png",
-    bgColor: "bg-green-100",
-  },
+// Khi mở rộng: HÀNG 1 gồm ĐÚNG 10 DANH MỤC
+const EXPANDED_ROW_1 = [
+  { name: "Laptop Cũ", slug: "laptop-cu", icon: "https://zcomputer.vn/categories/icon1.png", bgColor: "bg-pink-100/90" },
+  { name: "PC Cũ", slug: "pc-cu", icon: "https://zcomputer.vn/categories/icon2.png", bgColor: "bg-blue-100/90" },
+  { name: "Chuột", slug: "chuot", icon: "https://zcomputer.vn/categories/icon3.png", bgColor: "bg-green-100/90" },
+  { name: "Bàn phím", slug: "ban-phim", icon: "https://zcomputer.vn/categories/icon4.png", bgColor: "bg-purple-100/90" },
+  { name: "Màn Hình", slug: "man-hinh", icon: "https://zcomputer.vn/categories/icon5.png", bgColor: "bg-orange-100/90" },
+  { name: "CASE - Vỏ máy tính", slug: "case-vo-may-tinh", icon: "https://zcomputer.vn/categories/icon6.png", bgColor: "bg-teal-100/90" },
+  { name: "CPU - Bộ vi xử lý", slug: "cpu-bo-vi-xu-ly", icon: "https://zcomputer.vn/categories/icon7.png", bgColor: "bg-cyan-100/90" },
+  { name: "PSU - Nguồn máy tính", slug: "psu-nguon-may-tinh", icon: "https://zcomputer.vn/categories/icon8.png", bgColor: "bg-red-100/90" },
+  { name: "Mainboard - Bo mạch chủ", slug: "mainboard-bo-mach-chu", icon: "https://zcomputer.vn/categories/icon9.png", bgColor: "bg-cyan-100/90" },
+  { name: "Ổ cứng HDD - SSD", slug: "o-cung-hdd-ssd", icon: "https://zcomputer.vn/categories/icon10.png", bgColor: "bg-teal-100/90" },
+];
+
+// Khi mở rộng: HÀNG 2 gồm 3 DANH MỤC (RAM, Tản nhiệt, VGA) nằm ở cột 4, 5, 6 và Nút Thu Gọn ở cột 7
+const EXPANDED_ROW_2 = [
+  { name: "RAM - Bộ nhớ trong", slug: "ram-bo-nho-trong", icon: "https://zcomputer.vn/categories/icon11.png", bgColor: "bg-green-100/90" },
+  { name: "Tan nhiệt Cooling", slug: "tan-nhiet-cooling", icon: "https://cdn-icons-png.flaticon.com/512/912/912316.png", bgColor: "bg-blue-100/90" },
+  { name: "VGA - Card màn hình", slug: "vga-card-man-hinh", icon: "https://cdn-icons-png.flaticon.com/512/912/912300.png", bgColor: "bg-teal-100/90" },
 ];
 
 export default function CategoryPills({ activeCategory, onSelectCategory }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="space-y-4 py-2">
-      {/* Row 1 */}
-      <div className="flex flex-wrap justify-center gap-x-3 sm:gap-x-5 md:gap-x-8 gap-y-4 items-start">
-        {/* Khi chưa mở rộng: 7 items đầu */}
-        {(!isExpanded ? ROW_1_CATEGORIES.slice(0, 7) : ROW_1_CATEGORIES).map((c) => {
-          const isActive = activeCategory === c.slug;
-          return (
-            <button
-              key={c.slug}
-              onClick={() => onSelectCategory(c.slug)}
-              className="flex flex-col items-center gap-2 group cursor-pointer w-[76px] sm:w-[95px] md:w-[105px] focus:outline-none"
-            >
-              <div
-                className={`w-[60px] h-[60px] md:w-[72px] md:h-[72px] rounded-full ${c.bgColor} flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1.5 overflow-hidden p-2.5 md:p-3 shadow-xs ${
-                  isActive ? "ring-3 ring-[#eb1c24] scale-105" : ""
-                }`}
-              >
-                <img
-                  src={c.icon}
-                  alt={c.name}
-                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-2xs"
-                  loading="lazy"
-                />
-              </div>
-              <span className="text-[12px] md:text-[13.5px] text-gray-900 text-center font-bold leading-tight group-hover:text-[#eb1c24] transition-colors min-h-[32px] flex items-center justify-center">
-                {c.name}
-              </span>
-            </button>
-          );
-        })}
-
-        {/* Nút Xem thêm khi chưa mở rộng */}
-        {!isExpanded && (
-          <button
-            onClick={() => setIsExpanded(true)}
-            className="flex flex-col items-center gap-2 group cursor-pointer w-[76px] sm:w-[95px] md:w-[105px] focus:outline-none"
-          >
-            <div className="w-[60px] h-[60px] md:w-[72px] md:h-[72px] rounded-full bg-gray-100 flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1.5 shadow-xs border border-gray-200">
-              <MoreHorizontal className="w-7 h-7 text-gray-600 group-hover:text-[#eb1c24] transition-colors" />
-            </div>
-            <span className="text-[12px] md:text-[13.5px] text-gray-900 text-center font-bold leading-tight group-hover:text-[#eb1c24] transition-colors min-h-[32px] flex items-center justify-center">
-              Xem thêm
-            </span>
-          </button>
-        )}
-      </div>
-
-      {/* Row 2 (Hiển thị khi đã bấm Xem thêm - Căn giữa trung tâm chuẩn xác) */}
-      {isExpanded && (
-        <div className="flex flex-wrap justify-center gap-x-3 sm:gap-x-5 md:gap-x-8 gap-y-4 items-start pt-1 animate-fadeIn">
-          {ROW_2_CATEGORIES.map((c) => {
+    <div className="w-full py-1 select-none transition-all duration-300">
+      {/* ================= 1. TRẠNG THÁI CHƯA MỞ RỘNG (7 Danh Mục + Nút Xem Thêm) ================= */}
+      {!isExpanded && (
+        <div className="grid grid-cols-4 md:grid-cols-8 gap-x-2 sm:gap-x-3 md:gap-x-4 gap-y-4 items-start justify-items-center animate-fadeIn">
+          {UNEXPANDED_ITEMS.map((c) => {
             const isActive = activeCategory === c.slug;
             return (
               <button
                 key={c.slug}
                 onClick={() => onSelectCategory(c.slug)}
-                className="flex flex-col items-center gap-2 group cursor-pointer w-[76px] sm:w-[95px] md:w-[105px] focus:outline-none"
+                className="flex flex-col items-center gap-1.5 group cursor-pointer w-full max-w-[95px] focus:outline-none transition-transform active:scale-95"
               >
                 <div
-                  className={`w-[60px] h-[60px] md:w-[72px] md:h-[72px] rounded-full ${c.bgColor} flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1.5 overflow-hidden p-2.5 md:p-3 shadow-xs ${
-                    isActive ? "ring-3 ring-[#eb1c24] scale-105" : ""
+                  className={`w-[52px] h-[52px] sm:w-[56px] sm:h-[56px] md:w-[60px] md:h-[60px] rounded-full ${c.bgColor} flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1 overflow-hidden p-2 sm:p-2.5 shadow-2xs ${
+                    isActive ? "ring-2.5 ring-[#eb1c24] scale-105" : ""
                   }`}
                 >
                   <img
                     src={c.icon}
                     alt={c.name}
-                    className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-2xs"
+                    className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
                     loading="lazy"
                   />
                 </div>
-                <span className="text-[12px] md:text-[13.5px] text-gray-900 text-center font-bold leading-tight group-hover:text-[#eb1c24] transition-colors min-h-[32px] flex items-center justify-center">
+                <span className="text-[11.5px] sm:text-[12px] md:text-[12.5px] text-gray-800 text-center font-bold leading-tight group-hover:text-[#eb1c24] transition-colors min-h-[30px] flex items-center justify-center">
                   {c.name}
                 </span>
               </button>
             );
           })}
 
-          {/* Nút Thu gọn viền đỏ */}
+          {/* Nút Xem Thêm */}
           <button
-            onClick={() => setIsExpanded(false)}
-            className="flex flex-col items-center gap-2 group cursor-pointer w-[76px] sm:w-[95px] md:w-[105px] focus:outline-none"
+            onClick={() => setIsExpanded(true)}
+            className="flex flex-col items-center gap-1.5 group cursor-pointer w-full max-w-[95px] focus:outline-none transition-transform active:scale-95"
           >
-            <div className="w-[60px] h-[60px] md:w-[72px] md:h-[72px] rounded-full bg-white border-2 border-red-500 flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1.5 shadow-xs">
-              <ArrowLeft className="w-6 h-6 text-[#eb1c24] group-hover:-translate-x-0.5 transition-transform" />
+            <div className="w-[52px] h-[52px] sm:w-[56px] sm:h-[56px] md:w-[60px] md:h-[60px] rounded-full bg-gray-100 flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1 shadow-2xs border border-gray-200">
+              <MoreHorizontal className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 group-hover:text-[#eb1c24] transition-colors" />
             </div>
-            <span className="text-[12px] md:text-[13.5px] text-gray-900 text-center font-bold leading-tight text-[#eb1c24] min-h-[32px] flex items-center justify-center">
-              Thu gọn
+            <span className="text-[11.5px] sm:text-[12px] md:text-[12.5px] text-gray-800 text-center font-bold leading-tight group-hover:text-[#eb1c24] transition-colors min-h-[30px] flex items-center justify-center">
+              Xem thêm
             </span>
           </button>
+        </div>
+      )}
+
+      {/* ================= 2. TRẠNG THÁI ĐÃ MỞ RỘNG (HÀNG 1: 10 CỘT, HÀNG 2: 3 MỤC + NÚT THU GỌN Ở CỘT 4-7) ================= */}
+      {isExpanded && (
+        <div className="space-y-5 sm:space-y-6 animate-fadeIn">
+          {/* HÀNG 1: ĐỦ 10 DANH MỤC TRÊN 1 DÒNG DUY NHẤT */}
+          <div className="grid grid-cols-5 md:grid-cols-10 gap-x-1 sm:gap-x-2 md:gap-x-3 gap-y-4 items-start justify-items-center">
+            {EXPANDED_ROW_1.map((c) => {
+              const isActive = activeCategory === c.slug;
+              return (
+                <button
+                  key={c.slug}
+                  onClick={() => onSelectCategory(c.slug)}
+                  className="flex flex-col items-center gap-1.5 group cursor-pointer w-full max-w-[88px] focus:outline-none transition-transform active:scale-95"
+                >
+                  <div
+                    className={`w-[48px] h-[48px] sm:w-[52px] sm:h-[52px] md:w-[56px] md:h-[56px] rounded-full ${c.bgColor} flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1 overflow-hidden p-2 sm:p-2 shadow-2xs ${
+                      isActive ? "ring-2.5 ring-[#eb1c24] scale-105" : ""
+                    }`}
+                  >
+                    <img
+                      src={c.icon}
+                      alt={c.name}
+                      className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  </div>
+                  <span className="text-[11px] sm:text-[11.5px] md:text-[12px] text-gray-800 text-center font-bold leading-tight group-hover:text-[#eb1c24] transition-colors min-h-[28px] flex items-center justify-center">
+                    {c.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* HÀNG 2: 3 DANH MỤC (RAM, Tản nhiệt, VGA) + NÚT THU GỌN NẰM THẲNG CỘT 4, 5, 6, 7 */}
+          <div className="grid grid-cols-5 md:grid-cols-10 gap-x-1 sm:gap-x-2 md:gap-x-3 gap-y-4 items-start justify-items-center">
+            {/* 3 Cột đầu để trống trên Desktop để bắt đầu từ Cột 4 (dưới Bàn phím) */}
+            <div className="hidden md:block w-full max-w-[88px]"></div>
+            <div className="hidden md:block w-full max-w-[88px]"></div>
+            <div className="hidden md:block w-full max-w-[88px]"></div>
+
+            {/* Cột 4: RAM | Cột 5: Tản nhiệt | Cột 6: VGA */}
+            {EXPANDED_ROW_2.map((c) => {
+              const isActive = activeCategory === c.slug;
+              return (
+                <button
+                  key={c.slug}
+                  onClick={() => onSelectCategory(c.slug)}
+                  className="flex flex-col items-center gap-1.5 group cursor-pointer w-full max-w-[88px] focus:outline-none transition-transform active:scale-95"
+                >
+                  <div
+                    className={`w-[48px] h-[48px] sm:w-[52px] sm:h-[52px] md:w-[56px] md:h-[56px] rounded-full ${c.bgColor} flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1 overflow-hidden p-2 sm:p-2 shadow-2xs ${
+                      isActive ? "ring-2.5 ring-[#eb1c24] scale-105" : ""
+                    }`}
+                  >
+                    <img
+                      src={c.icon}
+                      alt={c.name}
+                      className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  </div>
+                  <span className="text-[11px] sm:text-[11.5px] md:text-[12px] text-gray-800 text-center font-bold leading-tight group-hover:text-[#eb1c24] transition-colors min-h-[28px] flex items-center justify-center">
+                    {c.name}
+                  </span>
+                </button>
+              );
+            })}
+
+            {/* Cột 7: Nút Thu Gọn (dưới CPU) */}
+            <button
+              onClick={() => setIsExpanded(false)}
+              className="flex flex-col items-center gap-1.5 group cursor-pointer w-full max-w-[88px] focus:outline-none transition-transform active:scale-95"
+            >
+              <div className="w-[48px] h-[48px] sm:w-[52px] sm:h-[52px] md:w-[56px] md:h-[56px] rounded-full bg-gray-100 flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1 shadow-2xs border border-gray-200">
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 group-hover:-translate-x-0.5 transition-transform" />
+              </div>
+              <span className="text-[11px] sm:text-[11.5px] md:text-[12px] text-gray-800 text-center font-bold leading-tight min-h-[28px] flex items-center justify-center">
+                Thu gọn
+              </span>
+            </button>
+
+            {/* 3 Cột cuối để trống */}
+            <div className="hidden md:block w-full max-w-[88px]"></div>
+            <div className="hidden md:block w-full max-w-[88px]"></div>
+            <div className="hidden md:block w-full max-w-[88px]"></div>
+          </div>
         </div>
       )}
     </div>

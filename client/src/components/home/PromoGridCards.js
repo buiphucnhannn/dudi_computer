@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { MessageSquare } from "lucide-react";
 
 export default function PromoGridCards() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-      {/* Card 1: Red Callout BUILD PC GAMING */}
-      <div className="bg-gradient-to-br from-[#dc2626] to-[#991b1b] text-white p-5 rounded-2xl shadow-xs flex flex-col justify-between group min-h-[160px]">
+    <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-2.5 sm:gap-3 items-stretch">
+      {/* Cột trái (Khớp chính xác chiều rộng 260px với CategorySidebar ở trên): Card Tư vấn BUILD PC GAMING */}
+      <div className="bg-gradient-to-br from-[#eb1c24] to-[#b91c1c] text-white p-5 rounded-2xl shadow-xs flex flex-col justify-between group h-full min-h-[160px]">
         <div>
           <div className="flex items-center gap-1.5 mb-1.5">
             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span>
@@ -23,7 +22,7 @@ export default function PromoGridCards() {
           href="https://m.me/zcomputer.vn"
           target="_blank"
           rel="noreferrer"
-          className="bg-white text-[#dc2626] font-bold text-xs px-4 py-2 rounded-lg w-fit shadow-xs group-hover:bg-yellow-400 group-hover:text-red-900 transition-colors flex items-center gap-2"
+          className="bg-white text-[#eb1c24] font-bold text-xs px-4 py-2 rounded-lg w-fit shadow-xs group-hover:bg-yellow-400 group-hover:text-red-900 transition-colors flex items-center gap-2"
         >
           <svg
             className="w-4 h-4 text-[#1877F2] fill-current"
@@ -37,7 +36,7 @@ export default function PromoGridCards() {
 
       {/* Card 2: BACK TO SCHOOL */}
       <Link
-        href="/product"
+        href="/san-pham"
         className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 min-h-[160px]"
       >
         <img
@@ -49,7 +48,7 @@ export default function PromoGridCards() {
 
       {/* Card 3: THU CŨ ĐỔI MỚI */}
       <Link
-        href="/trade-in"
+        href="/thu-mua-cu"
         className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 min-h-[160px]"
       >
         <img
@@ -61,7 +60,7 @@ export default function PromoGridCards() {
 
       {/* Card 4: GIỚI THIỆU BẠN BÈ */}
       <Link
-        href="/referral"
+        href="/gioi-thieu-ban-be"
         className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 min-h-[160px]"
       >
         <img

@@ -1,41 +1,51 @@
 import { create } from "zustand";
+import { authAPI } from "@/lib/api";
 
 export const useAuthStore = create((set) => ({
   user: null,
-  token: null,
   isAuthenticated: false,
 
+  // Tải profile người dùng từ localStorage (không lưu token ở client)
   initAuth: () => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("zcomputer_token");
       const userStr = localStorage.getItem("zcomputer_user");
-      if (token && userStr) {
+      if (userStr) {
         try {
+          const user = JSON.parse(userStr);
           set({
-            token,
-            user: JSON.parse(userStr),
+            user,
             isAuthenticated: true,
           });
         } catch (e) {
-          console.error("Lỗi parse user", e);
+          console.error("Lỗi đọc thông tin người dùng", e);
         }
       }
     }
   },
 
-  setAuth: (user, token) => {
-    set({ user, token, isAuthenticated: true });
+  // Đăng nhập / Cập nhật người dùng (Token được lưu an toàn trong HttpOnly Cookie phía Server)
+  setAuth: (user) => {
+    set({ user, isAuthenticated: !!user });
     if (typeof window !== "undefined") {
-      localStorage.setItem("zcomputer_token", token);
-      localStorage.setItem("zcomputer_user", JSON.stringify(user));
+      if (user) {
+        localStorage.setItem("zcomputer_user", JSON.stringify(user));
+      } else {
+        localStorage.removeItem("zcomputer_user");
+      }
     }
   },
 
-  logout: () => {
-    set({ user: null, token: null, isAuthenticated: false });
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("zcomputer_token");
-      localStorage.removeItem("zcomputer_user");
+  // Đăng xuất an toàn: Thu hồi HttpOnly Cookies trên server và xóa cache UI
+  logout: async () => {
+    try {
+      await authAPI.logout();
+    } catch (error) {
+      console.warn("Lỗi khi gọi API đăng xuất:", error);
+    } finally {
+      set({ user: null, isAuthenticated: false });
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("zcomputer_user");
+      }
     }
   },
 }));
