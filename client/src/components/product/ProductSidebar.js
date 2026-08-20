@@ -1,8 +1,33 @@
 import FilterGroup from "./FilterGroup";
 
-const categories = ["Laptop Cũ", "PC Cũ", "Chuột", "Bàn phím", "Màn Hình"];
+const categories = [
+  { label: "Laptop Cũ", value: "laptop-cu" },
+  { label: "PC Cũ", value: "pc-cu" },
+  { label: "Màn Hình", value: "man-hinh" },
+  { label: "Mainboard - Bo mạch chủ", value: "mainboard-bo-mach-chu" },
+  { label: "PSU - Nguồn máy tính", value: "psu-nguon-may-tinh" },
+  { label: "CPU - Bộ vi xử lý", value: "cpu-bo-vi-xu-ly" },
+  { label: "VGA - Card màn hình", value: "vga-card-man-hinh" },
+  { label: "RAM - Bộ nhớ trong", value: "ram-bo-nho-trong" },
+  { label: "Ổ cứng HDD - SSD", value: "o-cung-hdd-ssd" },
+  { label: "CASE - Vỏ máy tính", value: "case-vo-may-tinh" },
+  { label: "Chuột", value: "chuot" },
+  { label: "Bàn phím", value: "ban-phim" },
+  { label: "Tản nhiệt Cooling", value: "tan-nhiet-cooling" },
+];
 
-const brands = ["Lenovo", "Custom", "ASUS", "SURFACE"];
+const brands = [
+  "Lenovo",
+  "Dell",
+  "ASUS",
+  "HP",
+  "Acer",
+  "MSI",
+  "Custom",
+  "Samsung",
+  "LG",
+  "Gigabyte",
+];
 
 export default function ProductSidebar({ filters, onFilterChange }) {
   const handleCategoryChange = (category) => {
