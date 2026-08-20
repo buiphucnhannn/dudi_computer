@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { MoreHorizontal, ArrowLeft } from "lucide-react";
 
 // Khi chưa mở rộng: 7 danh mục đầu tiên
@@ -46,9 +47,10 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
           {UNEXPANDED_ITEMS.map((c) => {
             const isActive = activeCategory === c.slug;
             return (
-              <button
+              <Link
                 key={c.slug}
-                onClick={() => onSelectCategory(c.slug)}
+                href={`/product?category=${c.slug}`}
+                onClick={() => onSelectCategory && onSelectCategory(c.slug)}
                 className="flex flex-col items-center gap-1.5 group cursor-pointer w-full max-w-[95px] focus:outline-none transition-transform active:scale-95"
               >
                 <div
@@ -66,7 +68,7 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
                 <span className="text-[11.5px] sm:text-[12px] md:text-[12.5px] text-gray-800 text-center font-bold leading-tight group-hover:text-[#eb1c24] transition-colors min-h-[30px] flex items-center justify-center">
                   {c.name}
                 </span>
-              </button>
+              </Link>
             );
           })}
 
@@ -93,9 +95,10 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
             {EXPANDED_ROW_1.map((c) => {
               const isActive = activeCategory === c.slug;
               return (
-                <button
+                <Link
                   key={c.slug}
-                  onClick={() => onSelectCategory(c.slug)}
+                  href={`/product?category=${c.slug}`}
+                  onClick={() => onSelectCategory && onSelectCategory(c.slug)}
                   className="flex flex-col items-center gap-1.5 group cursor-pointer w-full max-w-[88px] focus:outline-none transition-transform active:scale-95"
                 >
                   <div
@@ -113,7 +116,7 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
                   <span className="text-[11px] sm:text-[11.5px] md:text-[12px] text-gray-800 text-center font-bold leading-tight group-hover:text-[#eb1c24] transition-colors min-h-[28px] flex items-center justify-center">
                     {c.name}
                   </span>
-                </button>
+                </Link>
               );
             })}
           </div>
@@ -129,9 +132,10 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
             {EXPANDED_ROW_2.map((c) => {
               const isActive = activeCategory === c.slug;
               return (
-                <button
+                <Link
                   key={c.slug}
-                  onClick={() => onSelectCategory(c.slug)}
+                  href={`/product?category=${c.slug}`}
+                  onClick={() => onSelectCategory && onSelectCategory(c.slug)}
                   className="flex flex-col items-center gap-1.5 group cursor-pointer w-full max-w-[88px] focus:outline-none transition-transform active:scale-95"
                 >
                   <div
@@ -149,7 +153,7 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
                   <span className="text-[11px] sm:text-[11.5px] md:text-[12px] text-gray-800 text-center font-bold leading-tight group-hover:text-[#eb1c24] transition-colors min-h-[28px] flex items-center justify-center">
                     {c.name}
                   </span>
-                </button>
+                </Link>
               );
             })}
 

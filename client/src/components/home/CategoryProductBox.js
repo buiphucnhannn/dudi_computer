@@ -2,7 +2,18 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { ChevronRight, Scale, Heart, Eye, Cpu, HardDrive, CircuitBoard, Layers, ArrowRight } from "lucide-react";
+import {
+  ChevronRight,
+  Scale,
+  Heart,
+  Eye,
+  Cpu,
+  HardDrive,
+  CircuitBoard,
+  Layers,
+  ArrowRight,
+  Flame,
+} from "lucide-react";
 import { formatVND } from "@/lib/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -11,7 +22,6 @@ import {
   selectCartItems,
 } from "@/redux/slices/cartSlice";
 import { useToast } from "@/components/common/ToastContext";
-
 export default function CategoryProductBox({
   title,
   mainSlug,
@@ -121,30 +131,47 @@ export default function CategoryProductBox({
         // 3. Monitor tabs (24 inch, 27 inch, 32 inch, 22 inch)
         if (activeTab === "24-inch" || activeTab === "24inch") {
           return (
+            cat.includes("24inch") ||
+            name.includes("24 inch") ||
+            name.includes("24inch") ||
             name.includes("24") ||
-            name.includes("23.8") ||
-            name.includes("24.5")
+            name.includes("23.8")
           );
         }
         if (activeTab === "27-inch" || activeTab === "27inch") {
-          return name.includes("27");
+          return (
+            cat.includes("27inch") ||
+            name.includes("27 inch") ||
+            name.includes("27inch") ||
+            name.includes("27")
+          );
         }
         if (activeTab === "32-inch" || activeTab === "32inch") {
-          return name.includes("32");
+          return (
+            cat.includes("32inch") ||
+            name.includes("32 inch") ||
+            name.includes("32inch") ||
+            name.includes("32")
+          );
         }
         if (activeTab === "22-inch" || activeTab === "22inch") {
-          return name.includes("22");
+          return (
+            cat.includes("22inch") ||
+            name.includes("22 inch") ||
+            name.includes("22inch") ||
+            name.includes("22")
+          );
         }
 
         // 4. PSU tabs (850W, 750W, 700W, 650W)
         if (activeTab === "850w")
-          return name.includes("850w") || name.includes("850");
+          return cat.includes("850w") || name.includes("850w") || name.includes("850");
         if (activeTab === "750w")
-          return name.includes("750w") || name.includes("750");
+          return cat.includes("750w") || name.includes("750w") || name.includes("750");
         if (activeTab === "700w")
-          return name.includes("700w") || name.includes("700");
+          return cat.includes("700w") || name.includes("700w") || name.includes("700");
         if (activeTab === "650w")
-          return name.includes("650w") || name.includes("650");
+          return cat.includes("650w") || name.includes("650w") || name.includes("650");
 
         // 5. Mainboard tabs (B760, Z790, B650)
         if (activeTab === "b760") return name.includes("b760");
@@ -230,15 +257,18 @@ export default function CategoryProductBox({
               item.originalPrice || Math.round(item.price * 1.05);
             const imgSrc = getProductImage(item);
             const isFav = cartItems.some((i) => i._id === item._id);
+            const detailHref = `/product-detail?slug=${encodeURIComponent(
+              item.slug || item._id || item.id,
+            )}`;
 
             return (
               <div
-                key={item._id || index}
+                key={item._id || item.id || index}
                 className="bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group/card relative"
               >
                 {/* Product Image */}
                 <Link
-                  href={`/san-pham/${item.slug || item._id}`}
+                  href={detailHref}
                   className="block relative aspect-square w-full rounded-xl overflow-hidden border-2 border-red-500 mb-3 bg-white group/img p-2"
                 >
                   {/* Tag Giảm giá góc trên bên trái */}
@@ -264,6 +294,14 @@ export default function CategoryProductBox({
                         "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
                     }}
                   />
+
+                  {/* Center Hover Pill */}
+                  <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
+                    <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover:scale-100 group-hover/img:scale-100 transition-all duration-300 whitespace-nowrap">
+                      <span>Xem chi tiết</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-[#eb1c24]" />
+                    </span>
+                  </div>
                 </Link>
 
                 {/* Brand & Action Icons */}
@@ -278,15 +316,21 @@ export default function CategoryProductBox({
                     >
                       <Scale className="w-4 h-4" />
                     </button>
-                    <button className="hover:text-red-500 cursor-pointer transition-colors" title="Yêu thích">
-                      <Heart className="w-4 h-4" />
+                    <button
+                      onClick={(e) => handleToggleFavorite(e, item)}
+                      className={`cursor-pointer transition-colors ${
+                        isFav ? "text-red-500" : "hover:text-red-500"
+                      }`}
+                      title="Yêu thích"
+                    >
+                      <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
                     </button>
                   </div>
                 </div>
 
                 {/* Title */}
                 <Link
-                  href={`/san-pham/${item.slug || item._id}`}
+                  href={detailHref}
                   className="font-bold text-xs sm:text-[13px] text-gray-900 hover:text-[#eb1c24] group-hover:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors"
                   title={item.name}
                 >
@@ -334,7 +378,7 @@ export default function CategoryProductBox({
                     <span>{item.views || 48} lượt xem</span>
                   </span>
                   <button
-                    onClick={() => dispatch(addToCart({ product: item, quantity: 1 }))}
+                    onClick={(e) => handleBuyNow(e, item)}
                     className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
                   >
                     + Mua ngay

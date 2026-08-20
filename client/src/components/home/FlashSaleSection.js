@@ -228,17 +228,20 @@ export default function FlashSaleSection({ products = [] }) {
             const originalPrice = item.originalPrice || Math.round(item.price * 1.08);
             const imgSrc = getProductImage(item);
 
+            const isFav = cartItems.some((i) => i._id === item._id);
+            const detailHref = `/product-detail?slug=${encodeURIComponent(
+              item.slug || item._id,
+            )}`;
+
             return (
               <div
                 key={item._id}
                 className="bg-white rounded-2xl border border-gray-200/90 shadow-2xs hover:border-[#eb1c24] hover:shadow-[0_12px_28px_rgba(235,28,36,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-3"
               >
-                {/* Product Image Area */}
                 <Link
-                  href={`/san-pham/${item.slug || item._id}`}
-                  className="block relative aspect-[4/3] w-full rounded-xl overflow-hidden border-2 border-red-500 mb-3 bg-white group/img p-2"
+                  href={detailHref}
+                  className="block relative aspect-[4/3] w-full rounded-xl overflow-hidden border border-red-500/80 mb-3 bg-white group/img p-2"
                 >
-                  {/* Top Badges */}
                   <div className="absolute top-0 left-0 z-20 pointer-events-none">
                     <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tl-[10px] rounded-br-[8px] shadow-xs">
                       Giảm {discountPercent}%
@@ -251,13 +254,8 @@ export default function FlashSaleSection({ products = [] }) {
                     </span>
                   </div>
 
-                {/* Product Image + 'Xem chi tiết ->' hover button */}
-                <Link
-                  href={`/san-pham/${item.slug}`}
-                  className="block relative aspect-[4/3] w-full rounded-xl overflow-hidden border border-red-500/80 mb-3 bg-white group/img"
-                >
                   <img
-                    src={item.thumbnail || item.images?.[0] || "https://zcomputer.vn/logo-main.png"}
+                    src={imgSrc}
                     alt={item.name}
                     className="w-full h-full object-contain p-1 group-hover/img:scale-105 transition-transform duration-500"
                     loading="lazy"
@@ -267,7 +265,6 @@ export default function FlashSaleSection({ products = [] }) {
                     }}
                   />
 
-                  {/* Hover Button 'Xem chi tiết' nằm CHÍNH GIỮA */}
                   <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
                     <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover:scale-100 group-hover/img:scale-100 transition-all duration-300 whitespace-nowrap">
                       <span>Xem chi tiết</span>
@@ -275,7 +272,6 @@ export default function FlashSaleSection({ products = [] }) {
                     </span>
                   </div>
 
-                  {/* Watermark logo */}
                   <div className="absolute bottom-1 left-1.5 opacity-80 pointer-events-none">
                     <span className="text-[9px] font-black text-[#eb1c24] tracking-tight">
                       ZCOMPUTER.VN
@@ -295,15 +291,21 @@ export default function FlashSaleSection({ products = [] }) {
                     >
                       <Scale className="w-4 h-4" />
                     </button>
-                    <button className="hover:text-red-500 cursor-pointer transition-colors" title="Yêu thích">
-                      <Heart className="w-4 h-4" />
+                    <button
+                      onClick={(e) => handleToggleFavorite(e, item)}
+                      className={`cursor-pointer transition-colors ${
+                        isFav ? "text-red-500" : "hover:text-red-500"
+                      }`}
+                      title="Yêu thích"
+                    >
+                      <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
                     </button>
                   </div>
                 </div>
 
                 {/* Title */}
                 <Link
-                  href={`/san-pham/${item.slug}`}
+                  href={detailHref}
                   className="font-bold text-xs sm:text-[13px] text-gray-800 hover:text-[#eb1c24] group-hover:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors"
                   title={item.name}
                 >
@@ -368,7 +370,7 @@ export default function FlashSaleSection({ products = [] }) {
                     <span>{item.views || 49} lượt xem</span>
                   </span>
                   <button
-                    onClick={() => dispatch(addToCart({ product: item, quantity: 1 }))}
+                    onClick={(e) => handleBuyNow(e, item)}
                     className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
                   >
                     + Mua ngay

@@ -36,7 +36,7 @@ export default function PromoGridCards() {
 
       {/* Card 2: BACK TO SCHOOL */}
       <Link
-        href="/san-pham"
+        href="/product"
         className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 min-h-[160px]"
       >
         <img
@@ -48,7 +48,7 @@ export default function PromoGridCards() {
 
       {/* Card 3: THU CŨ ĐỔI MỚI */}
       <Link
-        href="/thu-mua-cu"
+        href="/trade-in"
         className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 min-h-[160px]"
       >
         <img
@@ -60,7 +60,7 @@ export default function PromoGridCards() {
 
       {/* Card 4: GIỚI THIỆU BẠN BÈ */}
       <Link
-        href="/gioi-thieu-ban-be"
+        href="/referral"
         className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 min-h-[160px]"
       >
         <img
