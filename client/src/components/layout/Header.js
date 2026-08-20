@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -11,17 +11,140 @@ import {
   Heart,
   Menu,
   ChevronDown,
+  ChevronRight,
   X,
   User,
+  Laptop,
+  Monitor,
+  Mouse,
+  Keyboard,
+  Server,
+  Cpu,
+  Zap,
+  CircuitBoard,
+  HardDrive,
+  MemoryStick,
+  Fan,
+  Sparkles,
 } from "lucide-react";
 import { loadCartFromStorage, selectTotalItems } from "@/redux/slices/cartSlice";
 import { initAuthFromStorage, selectCurrentUser, selectIsAuthenticated } from "@/redux/slices/authSlice";
+
+const NAV_CATEGORIES = [
+  {
+    name: "Laptop Cũ",
+    slug: "laptop-cu",
+    icon: Laptop,
+    hasSub: true,
+    subGroups: [
+      {
+        title: "Laptop Gaming",
+        slug: "laptop-gaming",
+        items: ["Laptop Dell", "Laptop Lenovo", "Laptop Asus", "Laptop Acer", "Laptop MSI", "Laptop HP", "Laptop Gigabyte", "Laptop Razer"],
+      },
+      {
+        title: "Laptop Văn phòng",
+        slug: "laptop-van-phong",
+        items: ["Laptop Dell", "Laptop Lenovo", "Laptop HP", "Laptop Acer", "Laptop Asus", "Laptop MSI", "Laptop LG", "Laptop Surface"],
+      },
+    ],
+  },
+  {
+    name: "PC Cũ",
+    slug: "pc-cu",
+    icon: Monitor,
+    hasSub: false,
+  },
+  {
+    name: "Chuột",
+    slug: "chuot",
+    icon: Mouse,
+    hasSub: false,
+  },
+  {
+    name: "Bàn phím",
+    slug: "ban-phim",
+    icon: Keyboard,
+    hasSub: false,
+  },
+  {
+    name: "Màn Hình",
+    slug: "man-hinh",
+    icon: Monitor,
+    hasSub: true,
+    subGroups: [
+      {
+        title: "Kích Thước Màn Hình",
+        slug: "man-hinh",
+        items: ["Màn hình 22 inch", "Màn hình 24 inch", "Màn hình 27 inch", "Màn hình 32 inch", "Màn hình cong", "Màn hình Gaming"],
+      },
+    ],
+  },
+  {
+    name: "CASE - Vỏ máy tính",
+    slug: "case-vo-may-tinh",
+    icon: Server,
+    hasSub: false,
+  },
+  {
+    name: "CPU - Bộ vi xử lý",
+    slug: "cpu-bo-vi-xu-ly",
+    icon: Cpu,
+    hasSub: false,
+  },
+  {
+    name: "PSU - Nguồn máy tính",
+    slug: "psu-nguon-may-tinh",
+    icon: Zap,
+    hasSub: true,
+    subGroups: [
+      {
+        title: "Công Suất Nguồn",
+        slug: "psu-nguon-may-tinh",
+        items: ["Nguồn 450W - 550W", "Nguồn 600W - 750W", "Nguồn 850W - 1000W", "Nguồn 80 Plus Bronze", "Nguồn 80 Plus Gold"],
+      },
+    ],
+  },
+  {
+    name: "Mainboard - Bo mạch chủ",
+    slug: "mainboard-bo-mach-chu",
+    icon: CircuitBoard,
+    hasSub: false,
+  },
+  {
+    name: "Ổ cứng HDD - SSD",
+    slug: "o-cung-hdd-ssd",
+    icon: HardDrive,
+    hasSub: false,
+  },
+  {
+    name: "RAM - Bộ nhớ trong",
+    slug: "ram-bo-nho-trong",
+    icon: MemoryStick,
+    hasSub: false,
+  },
+  {
+    name: "Tản nhiệt Cooling",
+    slug: "tan-nhiet-cooling",
+    icon: Fan,
+    hasSub: false,
+  },
+  {
+    name: "VGA - Card màn hình",
+    slug: "vga-card-man-hinh",
+    icon: Sparkles,
+    hasSub: false,
+  },
+];
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
   const router = useRouter();
+  const pathname = usePathname();
   const dispatch = useDispatch();
   const totalItems = useSelector(selectTotalItems);
   const user = useSelector(selectCurrentUser);
@@ -33,12 +156,29 @@ export default function Header() {
     dispatch(initAuthFromStorage());
   }, [dispatch]);
 
+  // Theo dõi cuộn trang để quyết định khi nào hiển thị Dropdown Danh Mục Sản Phẩm
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 350) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
+
+  // Chỉ hiển thị Dropdown khi cuộn xuống dưới hoặc khi ở trang con
+  const showCategoryDropdown = pathname !== "/" || isScrolled;
 
   return (
     <header className="bg-white/95 md:bg-white/85 md:backdrop-blur-xl sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.05)] border-b border-gray-200/50">
@@ -99,54 +239,59 @@ export default function Header() {
               placeholder="Bạn cần tìm linh kiện, PC hay Laptop..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full border-2 border-red-600/20 bg-gray-50 rounded-full py-2.5 pl-5 pr-16 text-sm focus:outline-none focus:border-red-600/60 focus:bg-white shadow-inner transition-all duration-300 text-gray-800 placeholder-gray-400 font-medium"
+              className="w-full border-2 border-[#eb1c24] bg-white rounded-full py-2.5 pl-6 pr-14 text-sm focus:outline-none focus:ring-3 focus:ring-red-100 transition-all duration-300 placeholder-gray-400 font-medium"
             />
             <button
               type="submit"
-              className="absolute right-0 top-0 h-full w-14 bg-[#eb1c24] hover:bg-[#d01720] rounded-r-full text-white flex items-center justify-center transition-all duration-300"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-[38px] w-12 bg-[#eb1c24] rounded-full text-white flex items-center justify-center hover:brightness-110 transition-all duration-200 cursor-pointer shadow-xs"
               aria-label="Tìm kiếm"
             >
-              <Search className="w-[18px] h-[18px]" />
+              <Search className="w-4 h-4" />
             </button>
           </form>
         </div>
 
         {/* Header Right Actions */}
-        <div className="flex items-center justify-end gap-2 sm:gap-4 shrink-0">
+        <div className="flex items-center gap-2 lg:gap-4 shrink-0">
           {/* Hotline */}
-          <div className="hidden xl:flex items-center gap-3 border-r pr-3 border-gray-200">
-            <a href="tel:0977334415" className="flex items-center gap-2 group cursor-pointer">
-              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-[#eb1c24] group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
-                <PhoneCall className="w-5 h-5" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wide">
-                  HOTLINE MUA HÀNG
-                </span>
-                <span className="text-[15px] font-black text-[#eb1c24] leading-tight">
-                  0977 334 415
-                </span>
-              </div>
-            </a>
+          <a
+            href="tel:0977334415"
+            className="hidden xl:flex items-center gap-2.5 p-1.5 rounded-full hover:bg-gray-100/80 transition-colors group cursor-pointer"
+          >
+            <div className="relative w-10 h-10 rounded-full bg-red-50 text-[#eb1c24] flex items-center justify-center group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
+              <span className="absolute inset-0 rounded-full bg-red-500/20 animate-pulse-ring pointer-events-none"></span>
+              <PhoneCall className="w-5 h-5 relative z-10" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                HOTLINE MUA HÀNG
+              </span>
+              <span className="text-sm font-black text-[#eb1c24] leading-tight tracking-tight">
+                0977 334 415
+              </span>
+            </div>
+          </a>
 
-            {/* Showroom */}
-            <Link href="#he-thong-showroom" className="flex items-center gap-2 group cursor-pointer">
-              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 group-hover:bg-gray-800 group-hover:text-white transition-colors duration-300">
-                <MapPin className="w-5 h-5" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wide">
-                  HỆ THỐNG 2 CƠ SỞ
-                </span>
-                <span className="text-[15px] font-black text-gray-800 leading-tight">
-                  Showroom
-                </span>
-              </div>
-            </Link>
-          </div>
+          {/* Showroom */}
+          <Link
+            href="/showroom"
+            className="hidden lg:flex items-center gap-2.5 p-1.5 rounded-full hover:bg-gray-100/80 transition-colors group"
+          >
+            <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
+              <MapPin className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                HỆ THỐNG 2 CƠ SỞ
+              </span>
+              <span className="text-sm font-black text-gray-900 leading-tight">
+                Showroom
+              </span>
+            </div>
+          </Link>
 
-          {/* Wishlist / Cart Heart button */}
-          <div className="relative">
+          {/* Wishlist / Cart */}
+          <div className="flex items-center gap-1 sm:gap-2">
             <Link
               href="/gio-hang"
               className="relative p-2 text-gray-700 hover:text-[#eb1c24] transition-colors flex items-center gap-1"
@@ -217,8 +362,75 @@ export default function Header() {
                   DANH MỤC SẢN PHẨM
                 </span>
               </div>
-              <ChevronDown className="w-4 h-4 transition-transform duration-300 relative z-10 group-hover/cat:rotate-180" />
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-300 relative z-10 ${
+                  showCategoryDropdown ? "group-hover/cat:rotate-180" : ""
+                }`}
+              />
             </div>
+
+            {/* Dropdown Menu: CHỈ XUẤT HIỆN KHI ĐÃ CUỘN XUỐNG DƯỚI HOẶC Ở TRANG CON */}
+            {showCategoryDropdown && (
+              <div className="absolute top-full left-0 w-[260px] bg-white text-gray-800 shadow-[0_20px_40px_rgba(0,0,0,0.15)] border border-gray-200/90 border-t-0 rounded-b-2xl z-50 py-1.5 opacity-0 invisible group-hover/cat:opacity-100 group-hover/cat:visible transition-all duration-200 pointer-events-none group-hover/cat:pointer-events-auto">
+                {NAV_CATEGORIES.map((cat) => {
+                  const Icon = cat.icon;
+                  return (
+                    <div key={cat.slug} className="group/item relative flex-1 flex flex-col justify-center">
+                      <div className="px-2 py-0.5 flex items-center">
+                        <Link
+                          href={`/${cat.slug}`}
+                          className="flex w-full items-center justify-between px-3 py-1.5 transition-all duration-200 rounded-lg text-gray-700 hover:bg-[#eb1c24] hover:text-white group-hover/item:bg-[#eb1c24] group-hover/item:text-white"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Icon className="w-4 h-4 text-gray-500 group-hover/item:text-white transition-colors" />
+                            <span className="text-[13px] font-bold group-hover/item:text-white transition-colors">
+                              {cat.name}
+                            </span>
+                          </div>
+                          {cat.hasSub && (
+                            <ChevronRight className="w-3.5 h-3.5 text-gray-400 group-hover/item:text-white transition-colors" />
+                          )}
+                        </Link>
+                      </div>
+
+                      {/* Flyout Submenu - Dính liền ngay bên cạnh dòng danh mục đang rê chuột */}
+                      {cat.hasSub && cat.subGroups && (
+                        <div
+                          className={`opacity-0 invisible group-hover/item:opacity-100 group-hover/item:visible absolute left-full top-0 ${
+                            cat.subGroups.length > 1 ? "w-[520px]" : "w-[280px]"
+                          } bg-white shadow-[0_12px_35px_rgba(0,0,0,0.15)] border border-gray-200/90 z-50 rounded-2xl transition-all duration-200 p-4 sm:p-5 flex items-start gap-6 ml-0.5 pointer-events-none group-hover/item:pointer-events-auto`}
+                        >
+                          <div className="flex flex-wrap gap-x-6 gap-y-4 w-full items-start">
+                            {cat.subGroups.map((group) => (
+                              <div key={group.title} className="flex flex-col min-w-[210px] flex-1">
+                                <Link
+                                  href={`/${group.slug}`}
+                                  className="font-bold text-gray-900 mb-2.5 hover:text-[#eb1c24] transition-colors text-[13px] border-b pb-1.5 border-red-100 uppercase"
+                                >
+                                  {group.title}
+                                </Link>
+                                <div className="flex flex-col gap-1">
+                                  {group.items.map((brand) => (
+                                    <Link
+                                      key={brand}
+                                      href={`/san-pham?search=${encodeURIComponent(brand)}`}
+                                      className="group/link text-xs font-semibold text-gray-600 hover:text-[#eb1c24] hover:bg-red-50 hover:translate-x-0.5 px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-2"
+                                    >
+                                      <span className="w-1.5 h-1.5 rounded-full bg-red-400 group-hover/link:bg-[#eb1c24] transition-all shrink-0"></span>
+                                      {brand}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Navigation Links */}
