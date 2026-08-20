@@ -4,13 +4,20 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Zap, Flame, Scale, Heart, Eye, Cpu, HardDrive, CircuitBoard, Layers, ArrowRight } from "lucide-react";
 import { formatVND } from "@/lib/utils";
-import { useDispatch } from "react-redux";
-import { addToCart } from "@/redux/slices/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addToCartAsync,
+  removeFromCartAsync,
+  selectCartItems,
+} from "@/redux/slices/cartSlice";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function FlashSaleSection({ products = [] }) {
   const [activeTab, setActiveTab] = useState("all");
   const [timeLeft, setTimeLeft] = useState({ days: 3, hours: 7, minutes: 52, seconds: 40 });
   const dispatch = useDispatch();
+  const { showToast } = useToast();
+  const cartItems = useSelector(selectCartItems) || [];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -24,6 +31,28 @@ export default function FlashSaleSection({ products = [] }) {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const handleToggleFavorite = (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isFav = cartItems.some((i) => i._id === item._id);
+    if (isFav) {
+      dispatch(removeFromCartAsync(item._id));
+    } else {
+      dispatch(addToCartAsync({ product: item, quantity: 1 }));
+    }
+  };
+
+  const handleBuyNow = (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(addToCartAsync({ product: item, quantity: 1 }));
+    showToast({
+      title: "Đã thêm vào giỏ hàng",
+      message: `Đã thêm "${item.name}" vào danh sách chọn mua.`,
+      type: "success",
+    });
+  };
 
   // Lọc sản phẩm Flash Sale theo Tab đang chọn
   const flashSaleItems = useMemo(() => {
@@ -164,7 +193,7 @@ export default function FlashSaleSection({ products = [] }) {
 
         {/* Product Cards Row with gentle elevation & thin red border on hover */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {flashSaleItems.map((item) => {
+          {flashSaleItems.map((item, index) => {
             const discountPercent =
               item.discountPercent ||
               (item.originalPrice > item.price
@@ -172,28 +201,29 @@ export default function FlashSaleSection({ products = [] }) {
                 : 5);
             const originalPrice = item.originalPrice || Math.round(item.price * 1.08);
             const imgSrc = getProductImage(item);
+            const isFav = cartItems.some((i) => i._id === item._id);
 
             return (
               <div
-                key={item._id}
-                className="bg-white rounded-2xl border border-gray-200/90 shadow-2xs hover:border-[#eb1c24] hover:shadow-[0_12px_28px_rgba(235,28,36,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-3"
+                key={item._id || index}
+                className="bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group/card relative"
               >
-                {/* Product Image Area */}
+                {/* Product Image */}
                 <Link
                   href={`/san-pham/${item.slug || item._id}`}
-                  className="block relative aspect-[4/3] w-full rounded-xl overflow-hidden border-2 border-red-500 mb-3 bg-white group/img p-2"
+                  className="block relative aspect-square w-full bg-white rounded-xl overflow-hidden mb-3 border border-gray-100 group/img cursor-pointer"
                 >
-                  {/* Top Badges */}
-                  <div className="absolute top-0 left-0 z-20 pointer-events-none">
-                    <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tl-[10px] rounded-br-[8px] shadow-xs">
+                  {/* Tag Giảm giá góc trên bên trái */}
+                  {discountPercent > 0 && (
+                    <div className="absolute top-2 left-2 z-20 bg-[#eb1c24] text-white text-[11px] font-black px-2 py-0.5 rounded shadow-sm">
                       Giảm {discountPercent}%
-                    </span>
-                  </div>
+                    </div>
+                  )}
 
-                  <div className="absolute top-0 right-0 z-20 pointer-events-none">
-                    <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tr-[10px] rounded-bl-[8px] flex items-center gap-1 shadow-xs">
-                      🔥 HOT SALE
-                    </span>
+                  {/* Hot Sale Fire Tag góc trên bên phải */}
+                  <div className="absolute top-2 right-2 z-20 bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
+                    <Flame className="w-3 h-3 fill-white" />
+                    <span>HOT SALE</span>
                   </div>
 
                   <img
@@ -206,21 +236,6 @@ export default function FlashSaleSection({ products = [] }) {
                         "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
                     }}
                   />
-
-                  {/* Hover Button 'Xem chi tiết' nằm CHÍNH GIỮA */}
-                  <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
-                    <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover:scale-100 group-hover/img:scale-100 transition-all duration-300 whitespace-nowrap">
-                      <span>Xem chi tiết</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-[#eb1c24]" />
-                    </span>
-                  </div>
-
-                  {/* Watermark logo */}
-                  <div className="absolute bottom-1 left-1.5 opacity-80 pointer-events-none">
-                    <span className="text-[9px] font-black text-[#eb1c24] tracking-tight">
-                      ZCOMPUTER.VN
-                    </span>
-                  </div>
                 </Link>
 
                 {/* Brand & Actions */}
@@ -232,8 +247,18 @@ export default function FlashSaleSection({ products = [] }) {
                     <button className="hover:text-gray-700 cursor-pointer transition-colors" title="So sánh">
                       <Scale className="w-4 h-4" />
                     </button>
-                    <button className="hover:text-red-500 cursor-pointer transition-colors" title="Yêu thích">
-                      <Heart className="w-4 h-4" />
+                    <button
+                      onClick={(e) => handleToggleFavorite(e, item)}
+                      className={`p-0.5 transition-all duration-200 hover:scale-110 cursor-pointer ${
+                        isFav ? "text-[#eb1c24]" : "text-gray-400 hover:text-[#eb1c24]"
+                      }`}
+                      title={isFav ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
+                    >
+                      <Heart
+                        className={`w-4 h-4 transition-colors ${
+                          isFav ? "fill-[#eb1c24] text-[#eb1c24]" : ""
+                        }`}
+                      />
                     </button>
                   </div>
                 </div>
@@ -293,8 +318,8 @@ export default function FlashSaleSection({ products = [] }) {
                     <span>{item.views || 49} lượt xem</span>
                   </span>
                   <button
-                    onClick={() => dispatch(addToCart({ product: item, quantity: 1 }))}
-                    className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                    onClick={(e) => handleBuyNow(e, item)}
+                    className="text-[#eb1c24] font-bold hover:underline cursor-pointer transition-all active:scale-95"
                   >
                     + Mua ngay
                   </button>

@@ -51,6 +51,14 @@ const nextConfig = {
         source: "/quen-mat-khau",
         destination: "/forgot-password",
       },
+      {
+        source: "/he-thong-cua-hang",
+        destination: "/store-locations",
+      },
+      {
+        source: "/showroom",
+        destination: "/store-locations",
+      },
     ];
   },
 };

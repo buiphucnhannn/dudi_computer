@@ -312,7 +312,7 @@ export default function Header() {
 
           {/* Showroom */}
           <Link
-            href="/showroom"
+            href="/he-thong-cua-hang"
             className="hidden lg:flex items-center gap-2.5 p-1.5 rounded-full hover:bg-gray-100/80 transition-colors group"
           >
             <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
