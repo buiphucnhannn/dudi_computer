@@ -25,6 +25,7 @@ import ProductComparisonModal from "./ProductComparisonModal";
 import ProductComparisonBar from "./ProductComparisonBar";
 
 import staticProducts from "@/data/products.json";
+import { parseProductSpecs } from "@/lib/specParser";
 
 const ProductInfo = ({ product }) => {
   const router = useRouter();
@@ -62,103 +63,43 @@ const ProductInfo = ({ product }) => {
   const [comparisonProducts, setComparisonProducts] = useState([]);
 
   // =====================================================
-  // SPECIFICATIONS
+  // SPECIFICATIONS & HIGHLIGHTS
   // =====================================================
 
-  const specifications = product?.specifications || [];
-
-  const getSpec = (keywords) => {
-    const spec = specifications.find((item) => {
-      const label = String(
-        item?.name || item?.label || ""
-      ).toLowerCase();
-
-      return keywords.some((keyword) =>
-        label.includes(keyword.toLowerCase())
-      );
-    });
-
-    return spec?.value || spec?.detail || null;
-  };
-
-  // =====================================================
-  // HIGHLIGHTS
-  // =====================================================
+  const specs = parseProductSpecs(product);
 
   const highlights = [
     {
       label: "CPU",
-      value:
-        getSpec([
-          "cpu",
-          "bộ xử lý",
-          "processor",
-        ]) || "Đang cập nhật",
+      value: specs.cpu,
     },
     {
       label: "RAM",
-      value:
-        getSpec([
-          "ram",
-          "memory",
-          "bộ nhớ",
-        ]) || "Đang cập nhật",
+      value: specs.ram,
     },
     {
       label: "Ổ CỨNG",
-      value:
-        getSpec([
-          "ssd",
-          "storage",
-          "ổ cứng",
-          "hdd",
-        ]) || "Đang cập nhật",
+      value: specs.ssd,
     },
     {
       label: "CARD MÀN HÌNH",
-      value:
-        getSpec([
-          "vga",
-          "gpu",
-          "card màn hình",
-          "graphics",
-        ]) || "Đang cập nhật",
+      value: specs.vga,
     },
     {
       label: "MAINBOARD",
-      value:
-        getSpec([
-          "mainboard",
-          "main",
-          "bo mạch chủ",
-        ]) || "Đang cập nhật",
+      value: specs.mainboard,
     },
     {
       label: "NGUỒN",
-      value:
-        getSpec([
-          "psu",
-          "nguồn",
-          "power supply",
-        ]) || "Đang cập nhật",
+      value: specs.psu,
     },
     {
       label: "COOLER",
-      value:
-        getSpec([
-          "cooler",
-          "tản nhiệt",
-          "tản",
-        ]) || "Đang cập nhật",
+      value: specs.cooler,
     },
     {
       label: "CASE",
-      value:
-        getSpec([
-          "case",
-          "vỏ case",
-          "thùng máy",
-        ]) || "Đang cập nhật",
+      value: specs.caseBox,
     },
   ];
 

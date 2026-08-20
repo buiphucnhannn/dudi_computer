@@ -1,37 +1,63 @@
-const STATUS_LABEL = {
-  in_stock: "Còn hàng",
-  out_of_stock: "Hết hàng",
-  pre_order: "Đặt trước",
-};
+import { parseProductSpecs } from "@/lib/specParser";
 
 const buildSpecifications = (product) => {
-  if (product?.specifications?.length) {
-    return product.specifications.map((item) => ({
-      name: item.name,
-      detail: item.value || item.detail || "-",
-      warranty: item.warranty || product.warranty || "-",
-    }));
-  }
+  const specs = parseProductSpecs(product);
+  const w = product?.warranty || "Bảo hành 3 - 12 Tháng";
 
   return [
     {
-      name: "Tên sản phẩm",
-      detail: product?.name || "-",
-      warranty: product?.warranty || "-",
+      name: "CPU / Bộ vi xử lý",
+      detail: specs.cpu,
+      warranty: w,
+    },
+    {
+      name: "RAM / Bộ nhớ trong",
+      detail: specs.ram,
+      warranty: w,
+    },
+    {
+      name: "Ổ cứng lưu trữ",
+      detail: specs.ssd,
+      warranty: w,
+    },
+    {
+      name: "Card đồ họa (VGA)",
+      detail: specs.vga,
+      warranty: w,
+    },
+    {
+      name: "Bo mạch chủ (Mainboard)",
+      detail: specs.mainboard,
+      warranty: w,
+    },
+    {
+      name: "Nguồn máy tính (PSU)",
+      detail: specs.psu,
+      warranty: w,
+    },
+    {
+      name: "Tản nhiệt (Cooling)",
+      detail: specs.cooler,
+      warranty: w,
+    },
+    {
+      name: "Vỏ Case / Khung vỏ",
+      detail: specs.caseBox,
+      warranty: w,
+    },
+    {
+      name: "Màn hình / Hiển thị",
+      detail: specs.display,
+      warranty: w,
     },
     {
       name: "Thương hiệu",
-      detail: product?.brand || "ZCOMPUTER",
-      warranty: product?.warranty || "-",
-    },
-    {
-      name: "Danh mục",
-      detail: product?.categoryName || "-",
+      detail: specs.brand,
       warranty: "-",
     },
     {
       name: "Tình trạng",
-      detail: STATUS_LABEL[product?.status] || "Còn hàng",
+      detail: specs.status,
       warranty: "-",
     },
   ];

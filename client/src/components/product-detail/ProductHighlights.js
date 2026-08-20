@@ -1,38 +1,43 @@
 "use client";
 
 import { ChevronDown, ListChecks } from "lucide-react";
+import { parseProductSpecs } from "@/lib/specParser";
 
 const buildHighlights = (product) => {
-  if (product?.specifications?.length) {
-    return product.specifications
-      .slice(0, 8)
-      .map((item) => ({
-        label: item.name || item.label,
-        value:
-          item.value ||
-          item.detail ||
-          "Đang cập nhật",
-      }));
-  }
+  const specs = parseProductSpecs(product);
 
   return [
     {
-      label: "Danh mục",
-      value: product?.categoryName || "Sản phẩm",
+      label: "CPU",
+      value: specs.cpu,
     },
     {
-      label: "Thương hiệu",
-      value: product?.brand || "ZCOMPUTER",
+      label: "RAM",
+      value: specs.ram,
     },
     {
-      label: "Bảo hành",
-      value:
-        product?.warranty ||
-        "Bảo hành 3 - 12 Tháng",
+      label: "Ổ CỨNG",
+      value: specs.ssd,
     },
     {
-      label: "Tình trạng",
-      value: product?.condition || "Còn hàng",
+      label: "VGA",
+      value: specs.vga,
+    },
+    {
+      label: "MAINBOARD",
+      value: specs.mainboard,
+    },
+    {
+      label: "NGUỒN",
+      value: specs.psu,
+    },
+    {
+      label: "TẢN NHIỆT",
+      value: specs.cooler,
+    },
+    {
+      label: "VỎ CASE",
+      value: specs.caseBox,
     },
   ];
 };

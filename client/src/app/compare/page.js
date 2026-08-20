@@ -21,6 +21,8 @@ import staticProducts from "@/data/products.json";
 import { productAPI } from "@/lib/api";
 
 
+import { parseProductSpecs } from "@/lib/specParser";
+
 // =====================================================
 // HELPER
 // =====================================================
@@ -53,6 +55,7 @@ const getProductImage = (product) => {
   }
 
   return (
+    product.thumbnail ||
     product.image ||
     product.imageUrl ||
     null
@@ -83,146 +86,24 @@ const getOriginalPrice = (product) => {
     : null;
 };
 
-
-// =====================================================
-// LẤY SPEC
-// =====================================================
-
-const getSpecifications = (product) => {
-  const specifications =
-    product?.specifications || [];
-
-  const result = {};
-
-  specifications.forEach((item) => {
-    const name = String(
-      item?.name ||
-        item?.label ||
-        ""
-    ).trim();
-
-    const value =
-      item?.value ??
-      item?.detail ??
-      "";
-
-    if (!name) return;
-
-    result[name] = value;
-  });
-
-  return result;
-};
-
-
-// =====================================================
-// TÌM SPEC THEO KEYWORD
-// =====================================================
-
-const findSpec = (
-  product,
-  keywords
-) => {
-  const specifications =
-    product?.specifications || [];
-
-  const item =
-    specifications.find(
-      (spec) => {
-        const name = String(
-          spec?.name ||
-            spec?.label ||
-            ""
-        ).toLowerCase();
-
-        return keywords.some(
-          (keyword) =>
-            name.includes(
-              keyword.toLowerCase()
-            )
-        );
-      }
-    );
-
-  return (
-    item?.value ||
-    item?.detail ||
-    "Trống"
-  );
-};
-
-
 // =====================================================
 // SPEC ROWS
 // =====================================================
 
 const SPEC_ROWS = [
-  {
-    label: "Mainboard",
-    keywords: [
-      "mainboard",
-      "main",
-      "bo mạch chủ",
-    ],
-  },
-  {
-    label: "CPU",
-    keywords: [
-      "cpu",
-      "bộ xử lý",
-      "processor",
-    ],
-  },
-  {
-    label: "RAM",
-    keywords: [
-      "ram",
-      "memory",
-      "bộ nhớ",
-    ],
-  },
-  {
-    label: "Ổ cứng",
-    keywords: [
-      "ssd",
-      "storage",
-      "ổ cứng",
-      "hdd",
-    ],
-  },
-  {
-    label: "VGA",
-    keywords: [
-      "vga",
-      "gpu",
-      "card màn hình",
-      "graphics",
-    ],
-  },
-  {
-    label: "Nguồn",
-    keywords: [
-      "psu",
-      "nguồn",
-      "power supply",
-    ],
-  },
-  {
-    label: "Tản nhiệt",
-    keywords: [
-      "cooler",
-      "tản nhiệt",
-      "tản",
-    ],
-  },
-  {
-    label: "Vỏ Case",
-    keywords: [
-      "case",
-      "vỏ case",
-      "thùng máy",
-    ],
-  },
+  { label: "Danh mục", key: "category" },
+  { label: "Thương hiệu", key: "brand" },
+  { label: "Bộ vi xử lý (CPU)", key: "cpu" },
+  { label: "RAM (Bộ nhớ trong)", key: "ram" },
+  { label: "Ổ cứng (SSD / HDD)", key: "ssd" },
+  { label: "Card đồ họa (VGA)", key: "vga" },
+  { label: "Bo mạch chủ (Mainboard)", key: "mainboard" },
+  { label: "Nguồn (PSU)", key: "psu" },
+  { label: "Tản nhiệt (Cooling)", key: "cooler" },
+  { label: "Vỏ Case / Thiết kế", key: "caseBox" },
+  { label: "Màn hình hiển thị", key: "display" },
+  { label: "Chế độ bảo hành", key: "warranty" },
+  { label: "Tình trạng hàng", key: "status" },
 ];
 
 
@@ -780,21 +661,19 @@ function CompareContent() {
 
                     {/* PRODUCT VALUES */}
 
-                    {products.map(
-                      (product) => (
+                    {products.map((product) => {
+                      const specs = parseProductSpecs(product);
+                      const value = specs[row.key] || "Theo cấu hình chuẩn";
+
+                      return (
                         <div
-                          key={`${getProductId(
-                            product
-                          )}-${row.label}`}
-                          className="flex min-h-[64px] items-center border-l border-slate-200 p-4 text-sm leading-relaxed text-slate-600"
+                          key={`${getProductId(product)}-${row.key}`}
+                          className="flex min-h-[64px] items-center border-l border-slate-200 p-4 text-sm font-medium leading-relaxed text-slate-700"
                         >
-                          {findSpec(
-                            product,
-                            row.keywords
-                          )}
+                          {value}
                         </div>
-                      )
-                    )}
+                      );
+                    })}
 
 
                     {/* EMPTY COLUMNS */}
