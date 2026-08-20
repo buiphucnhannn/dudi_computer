@@ -4,7 +4,7 @@ import Footer from "@/components/layout/Footer";
 import FloatingWidgets from "@/components/layout/FloatingWidgets";
 import ReduxProvider from "@/redux/provider";
 import { ToastProvider } from "@/components/common/ToastContext";
-
+import PromotionPopup from "@/components/common/PromotionPopup";
 export const metadata = {
   title: "ZCOMPUTER - PC Gaming, Laptop, Workstation",
   description:
@@ -29,6 +29,7 @@ export default function RootLayout({ children }) {
             </main>
             <Footer />
             <FloatingWidgets />
+            <PromotionPopup />
           </ToastProvider>
         </ReduxProvider>
       </body>
