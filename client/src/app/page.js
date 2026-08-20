@@ -11,7 +11,7 @@ import ZComputerShorts from "@/components/home/ZComputerShorts";
 import FeaturedProductsSection from "@/components/home/FeaturedProductsSection";
 import BrandLogosBar from "@/components/home/BrandLogosBar";
 import CategoryProductBox from "@/components/home/CategoryProductBox";
-import TechNewsSection from "@/components/home/TechNewsSection";
+import HomeNewsSection from "@/components/home/HomeNewsSection";
 import CustomerGallery from "@/components/home/CustomerGallery";
 import products from "@/data/products.json";
 
@@ -278,7 +278,7 @@ export default function Home() {
 
       {/* 14. 📰 TIN TỨC CÔNG NGHỆ MỚI */}
       <div className="mb-10 sm:mb-14 md:mb-16">
-        <TechNewsSection />
+        <HomeNewsSection />
       </div>
 
       {/* 15. 🌟 LỜI CẢM ƠN TỪ ZCOMPUTER & HÌNH ẢNH KHÁCH HÀNG (Nền đen tràn viền) */}

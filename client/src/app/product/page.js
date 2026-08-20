@@ -380,9 +380,9 @@ function ProductsContent() {
   return (
     <main className="w-full bg-[#f8f9fa] min-h-screen">
       <div className="mx-auto max-w-[1600px] px-3 py-5 sm:px-4 lg:px-6">
-        <div className="mb-6 overflow-hidden rounded-2xl">
+        <div className="mb-6 overflow-hidden rounded-2xl shadow-xs">
           <img
-            src="banner.webp"
+            src="/banner.webp"
             alt="ZComputer - Sản phẩm"
             className="block h-[140px] w-full object-cover sm:h-[200px] lg:h-[280px]"
           />

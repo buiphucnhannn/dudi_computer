@@ -13,7 +13,7 @@ import StoreInfo from "../../components/product-detail/StoreInfo";
 import WhyChooseUs from "../../components/product-detail/WhyChooseUs";
 import NewsSection from "../../components/product-detail/NewsSection";
 import RelatedProducts from "../../components/product-detail/RelatedProducts";
-
+import SimilarProducts from "@/components/product-detail/SimilarProducts";
 import staticProducts from "@/data/products.json";
 import { productAPI } from "@/lib/api";
 
@@ -311,6 +311,7 @@ const Page = () => {
       }
     >
       <ProductDetailContent />
+      <SimilarProducts />
     </Suspense>
   );
 };

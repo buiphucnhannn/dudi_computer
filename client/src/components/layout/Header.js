@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Search,
@@ -27,7 +27,13 @@ import {
   Fan,
   Sparkles,
   LogOut,
+  TrendingUp,
+  ShoppingCart,
   Scale,
+  RefreshCw,
+  Users,
+  ShieldCheck,
+  FileText,
 } from "lucide-react";
 import {
   fetchCloudWishlist,
@@ -44,6 +50,7 @@ import {
 import { authAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
 import { useCompare } from "@/components/common/CompareContext";
+import staticProducts from "@/data/products.json";
 
 const NAV_CATEGORIES = [
   {
@@ -185,10 +192,15 @@ const NAV_CATEGORIES = [
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState(null);
   const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+  const searchContainerRef = useRef(null);
+  const mobileSearchRef = useRef(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -198,6 +210,69 @@ export default function Header() {
   const totalItems = useSelector(selectTotalItems);
   const user = useSelector(selectCurrentUser);
   const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  const POPULAR_SEARCHES = [
+    "Laptop Lenovo",
+    "PC Cũ",
+    "i5 13400F",
+    "RTX 4060",
+    "Màn hình 24 inch",
+    "B760M",
+    "SSD 1TB",
+    "RAM 16GB",
+  ];
+
+  // Instant live search results
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+
+    return staticProducts
+      .filter((p) => {
+        const name = (p.name || "").toLowerCase();
+        const brand = (p.brand || "").toLowerCase();
+        const category = (p.categoryName || "").toLowerCase();
+        return name.includes(q) || brand.includes(q) || category.includes(q);
+      })
+      .slice(0, 6);
+  }, [searchQuery]);
+
+  // Click outside listener for search suggestions
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      const isOutsideDesktop =
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target);
+      const isOutsideMobile =
+        mobileSearchRef.current &&
+        !mobileSearchRef.current.contains(e.target);
+
+      if (isOutsideDesktop && isOutsideMobile) {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Tự động đóng menu mobile khi đổi trang
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setExpandedCategory(null);
+  }, [pathname]);
+
+  // Khóa cuộn trang khi menu mobile mở
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     setMounted(true);
@@ -244,10 +319,29 @@ export default function Header() {
   }, []);
 
   const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    if (e) e.preventDefault();
+    const q = searchQuery.trim();
+    if (q) {
+      setIsSearchOpen(false);
+      router.push(`/product?search=${encodeURIComponent(q)}`);
     }
+  };
+
+  const handleSelectKeyword = (kw) => {
+    setSearchQuery(kw);
+    setIsSearchOpen(false);
+    router.push(`/product?search=${encodeURIComponent(kw)}`);
+  };
+
+  const handleSelectProduct = (product) => {
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    const slug = product.slug || product._id || product.id;
+    router.push(`/product-detail?slug=${encodeURIComponent(slug)}`);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
   };
 
   // Chỉ hiển thị Dropdown khi cuộn xuống dưới hoặc khi ở trang con
@@ -310,7 +404,10 @@ export default function Header() {
         </Link>
 
         {/* Desktop Search Bar */}
-        <div className="flex-1 w-full min-w-[200px] max-w-2xl lg:max-w-3xl hidden md:flex relative mx-2 lg:mx-6">
+        <div
+          ref={searchContainerRef}
+          className="flex-1 w-full min-w-[200px] max-w-2xl lg:max-w-3xl hidden md:flex relative mx-2 lg:mx-6"
+        >
           <form
             onSubmit={handleSearch}
             className="relative w-full group/search z-50"
@@ -321,9 +418,23 @@ export default function Header() {
               type="text"
               placeholder="Bạn cần tìm linh kiện, PC hay Laptop..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full border-2 border-[#eb1c24] bg-white rounded-full py-2.5 pl-6 pr-14 text-sm focus:outline-none focus:ring-3 focus:ring-red-100 transition-all duration-300 placeholder-gray-400 font-medium"
+              onFocus={() => setIsSearchOpen(true)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setIsSearchOpen(true);
+              }}
+              className="w-full border-2 border-[#eb1c24] bg-white rounded-full py-2.5 pl-6 pr-20 text-sm focus:outline-none focus:ring-3 focus:ring-red-100 transition-all duration-300 placeholder-gray-400 font-medium"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="absolute right-14 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full cursor-pointer transition-colors"
+                aria-label="Xóa từ khóa"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
             <button
               type="submit"
               className="absolute right-1 top-1/2 -translate-y-1/2 h-[38px] w-12 bg-[#eb1c24] rounded-full text-white flex items-center justify-center hover:brightness-110 transition-all duration-200 cursor-pointer shadow-xs"
@@ -332,6 +443,124 @@ export default function Header() {
               <Search className="w-4 h-4" />
             </button>
           </form>
+
+          {/* Desktop Live Search Dropdown */}
+          {isSearchOpen && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-200/90 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              {searchQuery.trim() ? (
+                <>
+                  {searchResults.length > 0 ? (
+                    <div>
+                      <div className="p-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                          Sản phẩm gợi ý ({searchResults.length})
+                        </span>
+                      </div>
+                      <div className="divide-y divide-gray-100 max-h-[380px] overflow-y-auto">
+                        {searchResults.map((item) => {
+                          const img =
+                            item.thumbnail ||
+                            (Array.isArray(item.images)
+                              ? item.images[0]
+                              : "") ||
+                            "";
+                          const price = Number(item.price || 0);
+                          const originalPrice = Number(
+                            item.originalPrice || 0
+                          );
+
+                          return (
+                            <div
+                              key={item._id || item.slug}
+                              onClick={() => handleSelectProduct(item)}
+                              className="p-3 hover:bg-red-50/50 transition-colors flex items-center gap-3.5 cursor-pointer group"
+                            >
+                              <div className="w-12 h-12 rounded-lg bg-slate-50 border border-gray-100 flex items-center justify-center p-1 shrink-0 overflow-hidden">
+                                {img ? (
+                                  <img
+                                    src={img}
+                                    alt={item.name}
+                                    className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform"
+                                  />
+                                ) : (
+                                  <ShoppingCart className="w-5 h-5 text-gray-300" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-xs font-bold text-gray-900 line-clamp-1 group-hover:text-[#eb1c24] transition-colors">
+                                  {item.name}
+                                </h4>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <span className="text-xs font-extrabold text-[#eb1c24]">
+                                    {price > 0
+                                      ? `${price.toLocaleString("vi-VN")}₫`
+                                      : "Liên hệ"}
+                                  </span>
+                                  {originalPrice > price && (
+                                    <span className="text-[10px] text-gray-400 line-through">
+                                      {originalPrice.toLocaleString(
+                                        "vi-VN"
+                                      )}
+                                      ₫
+                                    </span>
+                                  )}
+                                  {item.categoryName && (
+                                    <span className="text-[9px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded ml-auto truncate max-w-[120px]">
+                                      {item.categoryName}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSearch}
+                        className="w-full p-3 bg-red-50 hover:bg-red-100 text-[#eb1c24] text-xs font-bold text-center flex items-center justify-center gap-1.5 transition-colors cursor-pointer border-t border-red-100"
+                      >
+                        <Search className="w-3.5 h-3.5" />
+                        <span>
+                          Xem tất cả kết quả cho &quot;{searchQuery}&quot;
+                        </span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="p-6 text-center">
+                      <p className="text-sm font-semibold text-gray-700">
+                        Không tìm thấy sản phẩm phù hợp với &quot;
+                        {searchQuery}&quot;
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Hãy thử tìm kiếm với từ khóa khác như &quot;Laptop&quot;,
+                        &quot;PC&quot;, &quot;RTX 4060&quot;
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="p-4">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-gray-700 mb-2.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-[#eb1c24]" />
+                    <span>Tìm kiếm phổ biến</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {POPULAR_SEARCHES.map((kw) => (
+                      <button
+                        key={kw}
+                        type="button"
+                        onClick={() => handleSelectKeyword(kw)}
+                        className="px-3 py-1.5 bg-gray-100 hover:bg-red-50 hover:text-[#eb1c24] text-gray-700 text-xs font-semibold rounded-full transition-colors cursor-pointer"
+                      >
+                        {kw}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Header Right Actions */}
@@ -453,7 +682,10 @@ export default function Header() {
       </div>
 
       {/* Mobile Search Bar */}
-      <div className="md:hidden px-4 pb-3 relative z-30">
+      <div
+        ref={mobileSearchRef}
+        className="md:hidden px-4 pb-3 relative z-30"
+      >
         <form onSubmit={handleSearch} className="relative w-full group/search">
           <input
             id="mobile-search-input"
@@ -461,9 +693,23 @@ export default function Header() {
             type="text"
             placeholder="Tìm kiếm linh kiện, PC, Laptop..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full border-2 border-red-600/20 bg-gray-50 rounded-full py-1.5 pl-4 pr-10 text-xs focus:outline-none focus:bg-white focus:border-red-600/60 transition-all duration-300 shadow-inner"
+            onFocus={() => setIsSearchOpen(true)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setIsSearchOpen(true);
+            }}
+            className="w-full border-2 border-red-600/20 bg-gray-50 rounded-full py-1.5 pl-4 pr-16 text-xs focus:outline-none focus:bg-white focus:border-red-600/60 transition-all duration-300 shadow-inner"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+              aria-label="Xóa từ khóa"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
           <button
             type="submit"
             className="absolute right-0 top-0 h-full w-10 bg-[#eb1c24] rounded-r-full text-white flex items-center justify-center hover:brightness-110"
@@ -472,6 +718,88 @@ export default function Header() {
             <Search className="w-4 h-4" />
           </button>
         </form>
+
+        {/* Mobile Search Dropdown */}
+        {isSearchOpen && (
+          <div className="absolute top-full left-4 right-4 mt-1 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+            {searchQuery.trim() ? (
+              searchResults.length > 0 ? (
+                <div>
+                  <div className="divide-y divide-gray-100 max-h-[300px] overflow-y-auto">
+                    {searchResults.map((item) => {
+                      const img =
+                        item.thumbnail ||
+                        (Array.isArray(item.images)
+                          ? item.images[0]
+                          : "") ||
+                        "";
+                      const price = Number(item.price || 0);
+
+                      return (
+                        <div
+                          key={item._id || item.slug}
+                          onClick={() => handleSelectProduct(item)}
+                          className="p-2.5 hover:bg-red-50 flex items-center gap-2.5 cursor-pointer"
+                        >
+                          <div className="w-10 h-10 rounded bg-slate-50 border p-1 shrink-0 flex items-center justify-center overflow-hidden">
+                            {img ? (
+                              <img
+                                src={img}
+                                alt={item.name}
+                                className="w-full h-full object-contain mix-blend-multiply"
+                              />
+                            ) : (
+                              <ShoppingCart className="w-4 h-4 text-gray-300" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-xs font-bold text-gray-900 line-clamp-1">
+                              {item.name}
+                            </h4>
+                            <span className="text-[11px] font-extrabold text-[#eb1c24]">
+                              {price > 0
+                                ? `${price.toLocaleString("vi-VN")}₫`
+                                : "Liên hệ"}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSearch}
+                    className="w-full p-2.5 bg-red-50 text-[#eb1c24] text-xs font-bold text-center block border-t border-red-100 cursor-pointer"
+                  >
+                    Xem tất cả kết quả cho &quot;{searchQuery}&quot;
+                  </button>
+                </div>
+              ) : (
+                <div className="p-4 text-center text-xs text-gray-500">
+                  Không tìm thấy kết quả phù hợp với &quot;{searchQuery}&quot;
+                </div>
+              )
+            ) : (
+              <div className="p-3">
+                <span className="text-[11px] font-bold text-gray-500 block mb-2">
+                  Tìm kiếm phổ biến
+                </span>
+                <div className="flex flex-wrap gap-1">
+                  {POPULAR_SEARCHES.slice(0, 6).map((kw) => (
+                    <button
+                      key={kw}
+                      type="button"
+                      onClick={() => handleSelectKeyword(kw)}
+                      className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[11px] font-medium rounded-full hover:bg-red-50 hover:text-[#eb1c24]"
+                    >
+                      {kw}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Dark Navigation Bar (Desktop) */}
@@ -688,6 +1016,380 @@ export default function Header() {
           </ul>
         </div>
       </div>
+      {/* ========================================================= */}
+      {/* MOBILE HAMBURGER NAVIGATION DRAWER / SIDEBAR */}
+      {/* ========================================================= */}
+
+      {/* Backdrop Overlay */}
+      <div
+        className={`fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-[100] transition-opacity duration-300 md:hidden ${
+          mobileMenuOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Drawer Sidebar Panel */}
+      <aside
+        className={`fixed top-0 left-0 bottom-0 w-[86%] max-w-[340px] bg-white z-[101] shadow-2xl flex flex-col transition-transform duration-300 ease-out md:hidden ${
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        aria-label="Mobile Navigation"
+      >
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between px-4 py-3.5 border-b border-gray-100 bg-slate-50/90 shrink-0">
+          <Link
+            href="/"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-2"
+          >
+            <img
+              src="https://zcomputer.vn/logo-main.png"
+              alt="ZComputer Logo"
+              className="h-8 w-8 object-contain"
+            />
+            <div className="flex flex-col">
+              <span className="text-xs font-black text-gray-900 leading-tight">
+                ZCOMPUTER
+              </span>
+              <span className="text-[9px] font-bold text-[#eb1c24] tracking-tight">
+                PC & LAPTOP GAMING
+              </span>
+            </div>
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(false)}
+            className="w-8 h-8 rounded-full bg-gray-200/70 hover:bg-red-50 text-gray-600 hover:text-[#eb1c24] flex items-center justify-center transition-colors cursor-pointer"
+            aria-label="Đóng menu"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
+          {/* User Auth Section */}
+          <div className="p-4 bg-gradient-to-br from-red-50/40 via-white to-gray-50/50">
+            {mounted && isAuthenticated ? (
+              <div className="flex items-center justify-between">
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 min-w-0"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#eb1c24] text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[11px] text-gray-400 font-medium block">
+                      Tài khoản của bạn
+                    </span>
+                    <span className="text-sm font-bold text-gray-900 block truncate">
+                      {user?.name || "Người dùng"}
+                    </span>
+                  </div>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="p-2 text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
+                  title="Đăng xuất"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2.5 px-3 bg-[#eb1c24] text-white text-xs font-bold rounded-xl text-center shadow-xs hover:bg-[#c9121a] transition-colors"
+                >
+                  Đăng nhập
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-2.5 px-3 bg-white text-gray-700 text-xs font-bold rounded-xl text-center border border-gray-200 hover:border-red-400 transition-colors"
+                >
+                  Đăng ký
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Access Badges Grid */}
+          <div className="p-3 grid grid-cols-2 gap-2 bg-white">
+            <Link
+              href="/cart"
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2.5 bg-gray-50 hover:bg-red-50 rounded-xl flex items-center gap-2.5 transition-colors border border-gray-100"
+            >
+              <div className="w-8 h-8 rounded-lg bg-red-100/70 text-[#eb1c24] flex items-center justify-center shrink-0">
+                <Heart className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-xs font-bold text-gray-800 block leading-tight">
+                  Ưa thích & Giỏ
+                </span>
+                <span className="text-[10px] text-gray-400">
+                  {mounted && totalItems > 0 ? `${totalItems} món` : "0 sản phẩm"}
+                </span>
+              </div>
+            </Link>
+
+            <Link
+              href="/compare"
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2.5 bg-gray-50 hover:bg-red-50 rounded-xl flex items-center gap-2.5 transition-colors border border-gray-100"
+            >
+              <div className="w-8 h-8 rounded-lg bg-blue-100/70 text-blue-600 flex items-center justify-center shrink-0">
+                <Scale className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-xs font-bold text-gray-800 block leading-tight">
+                  So sánh
+                </span>
+                <span className="text-[10px] text-gray-400">Cấu hình PC</span>
+              </div>
+            </Link>
+
+            <Link
+              href="/student-promotion"
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2.5 bg-red-50/60 hover:bg-red-100/60 rounded-xl flex items-center gap-2.5 transition-colors border border-red-100 col-span-2"
+            >
+              <div className="w-8 h-8 rounded-lg bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-[#eb1c24] uppercase tracking-wide">
+                    Ưu Đãi Học Sinh - Sinh Viên
+                  </span>
+                  <span className="text-[9px] font-black bg-[#eb1c24] text-white px-1.5 py-0.2 rounded-full">
+                    HOT
+                  </span>
+                </div>
+                <span className="text-[10px] text-gray-500 block truncate">
+                  Giảm thêm tới 500k + Quà tặng độc quyền
+                </span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Main Navigation & Categories Accordion */}
+          <div className="p-3">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400 px-2 block mb-2">
+              Danh mục sản phẩm
+            </span>
+
+            {/* Link to all products */}
+            <Link
+              href="/product"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between p-2.5 rounded-xl font-bold text-xs text-[#eb1c24] bg-red-50/70 hover:bg-red-100 transition-colors mb-1.5"
+            >
+              <div className="flex items-center gap-2.5">
+                <Sparkles className="w-4 h-4 text-[#eb1c24]" />
+                <span>TẤT CẢ SẢN PHẨM</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[#eb1c24]" />
+            </Link>
+
+            {/* Category Accordion Items */}
+            <div className="space-y-1">
+              {NAV_CATEGORIES.map((cat) => {
+                const Icon = cat.icon;
+                const isExpanded = expandedCategory === cat.slug;
+
+                return (
+                  <div key={cat.slug} className="rounded-xl overflow-hidden">
+                    <div
+                      onClick={() => {
+                        if (cat.hasSub) {
+                          setExpandedCategory(isExpanded ? null : cat.slug);
+                        } else {
+                          setMobileMenuOpen(false);
+                          router.push(`/product?category=${cat.slug}`);
+                        }
+                      }}
+                      className={`flex items-center justify-between p-2.5 text-xs font-bold rounded-xl transition-colors cursor-pointer ${
+                        isExpanded
+                          ? "bg-gray-100 text-[#eb1c24]"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Icon className={`w-4 h-4 ${isExpanded ? "text-[#eb1c24]" : "text-gray-400"}`} />
+                        <span>{cat.name}</span>
+                      </div>
+                      {cat.hasSub ? (
+                        <ChevronDown
+                          className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
+                            isExpanded ? "rotate-180 text-[#eb1c24]" : ""
+                          }`}
+                        />
+                      ) : (
+                        <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+                      )}
+                    </div>
+
+                    {/* Subcategories */}
+                    {cat.hasSub && isExpanded && (
+                      <div className="pl-9 pr-3 py-1.5 bg-gray-50/80 rounded-b-xl space-y-2 text-xs">
+                        {cat.subGroups?.map((group) => (
+                          <div key={group.title} className="py-1">
+                            <Link
+                              href={`/product?category=${cat.slug}`}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="font-bold text-gray-900 hover:text-[#eb1c24] text-[11px] uppercase block mb-1.5"
+                            >
+                              {group.title}
+                            </Link>
+                            <div className="grid grid-cols-2 gap-1">
+                              {group.items.map((item) => (
+                                <Link
+                                  key={item}
+                                  href={`/product?search=${encodeURIComponent(item)}`}
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="text-[11px] text-gray-600 hover:text-[#eb1c24] hover:bg-white px-2 py-1 rounded transition-colors"
+                                >
+                                  • {item}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Dịch vụ & Chính sách */}
+          <div className="p-3">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400 px-2 block mb-2">
+              Dịch vụ & Chính sách
+            </span>
+
+            <div className="space-y-1 text-xs font-semibold text-gray-700">
+              <Link
+                href="/trade-in"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <RefreshCw className="w-4 h-4 text-gray-400" />
+                  <span>Thu cũ đổi mới</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              </Link>
+
+              <Link
+                href="/referral"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Users className="w-4 h-4 text-gray-400" />
+                  <span>Giới thiệu bạn bè</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              </Link>
+
+              <Link
+                href="/store-locations"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <span>Hệ thống Showroom</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              </Link>
+
+              <Link
+                href="/warranty-policy"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-gray-400" />
+                  <span>Chính sách bảo hành</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              </Link>
+
+              <Link
+                href="/return-policy"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <FileText className="w-4 h-4 text-gray-400" />
+                  <span>Chính sách đổi trả</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              </Link>
+
+              <Link
+                href="/shipping-policy"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <FileText className="w-4 h-4 text-gray-400" />
+                  <span>Chính sách vận chuyển</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              </Link>
+
+              <Link
+                href="/privacy-policy"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <FileText className="w-4 h-4 text-gray-400" />
+                  <span>Chính sách bảo mật</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              </Link>
+
+              <Link
+                href="/payment-policy"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <FileText className="w-4 h-4 text-gray-400" />
+                  <span>Chính sách thanh toán</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Drawer Footer / Hotline */}
+        <div className="p-3.5 border-t border-gray-100 bg-gray-50/90 shrink-0">
+          <a
+            href="tel:0977334415"
+            className="flex items-center justify-center gap-2 py-2.5 px-4 bg-[#eb1c24] text-white rounded-xl font-bold text-xs shadow-xs hover:bg-[#c9121a] transition-colors"
+          >
+            <PhoneCall className="w-4 h-4" />
+            <span>HOTLINE: 0977 334 415</span>
+          </a>
+        </div>
+      </aside>
     </header>
   );
 }
