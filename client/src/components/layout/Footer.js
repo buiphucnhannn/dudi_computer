@@ -84,11 +84,11 @@ export default function Footer() {
               DANH MỤC CŨ/ LIKE NEW
             </h4>
             <ul className="space-y-2.5 text-xs text-gray-400">
-              <li><Link href="/pc-cu" className="hover:text-[#dc2626] transition-colors">PC Cũ</Link></li>
-              <li><Link href="/laptop-cu" className="hover:text-[#dc2626] transition-colors">Laptop Cũ</Link></li>
-              <li><Link href="/man-hinh" className="hover:text-[#dc2626] transition-colors">Màn Hình Cũ</Link></li>
-              <li><Link href="/san-pham" className="hover:text-[#dc2626] transition-colors">Linh Kiện Cũ</Link></li>
-              <li><Link href="/cong-cu-test/ban-phim" className="hover:text-[#dc2626] transition-colors">Công Cụ Test</Link></li>
+              <li><Link href="/product?category=pc-cu" className="hover:text-[#dc2626] transition-colors">PC Cũ</Link></li>
+              <li><Link href="/product?category=laptop-cu" className="hover:text-[#dc2626] transition-colors">Laptop Cũ</Link></li>
+              <li><Link href="/product?category=man-hinh" className="hover:text-[#dc2626] transition-colors">Màn Hình Cũ</Link></li>
+              <li><Link href="/product" className="hover:text-[#dc2626] transition-colors">Linh Kiện Cũ</Link></li>
+              <li><Link href="/product" className="hover:text-[#dc2626] transition-colors">Tất cả sản phẩm</Link></li>
             </ul>
           </div>
 
@@ -98,12 +98,11 @@ export default function Footer() {
               CHÍNH SÁCH TỔNG HỢP
             </h4>
             <ul className="space-y-2.5 text-xs text-gray-400">
-              <li><Link href="/chinh-sach-doi-tra" className="hover:text-[#dc2626] transition-colors">Chính sách đổi trả</Link></li>
-              <li><Link href="/chinh-sach-bao-mat" className="hover:text-[#dc2626] transition-colors">Chính sách bảo mật</Link></li>
-              <li><Link href="/chinh-sach-bao-hanh" className="hover:text-[#dc2626] transition-colors">Chính sách bảo hành</Link></li>
-              <li><Link href="/chinh-sach-thanh-toan" className="hover:text-[#dc2626] transition-colors">Chính sách thanh toán</Link></li>
-              <li><Link href="/chinh-sach-van-chuyen" className="hover:text-[#dc2626] transition-colors">Chính sách vận chuyển</Link></li>
-              <li><Link href="/huong-dan-tra-gop" className="hover:text-[#dc2626] transition-colors">Hướng dẫn trả góp</Link></li>
+              <li><Link href="/return-policy" className="hover:text-[#dc2626] transition-colors">Chính sách đổi trả</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-[#dc2626] transition-colors">Chính sách bảo mật</Link></li>
+              <li><Link href="/warranty-policy" className="hover:text-[#dc2626] transition-colors">Chính sách bảo hành</Link></li>
+              <li><Link href="/payment-policy" className="hover:text-[#dc2626] transition-colors">Chính sách thanh toán</Link></li>
+              <li><Link href="/shipping-policy" className="hover:text-[#dc2626] transition-colors">Chính sách vận chuyển</Link></li>
             </ul>
           </div>
 
