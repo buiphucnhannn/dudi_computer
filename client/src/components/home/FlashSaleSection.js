@@ -2,7 +2,18 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Zap, Flame, Scale, Heart, Eye, Cpu, HardDrive, CircuitBoard, Layers, ArrowRight } from "lucide-react";
+import {
+  Zap,
+  Flame,
+  Scale,
+  Heart,
+  Eye,
+  Cpu,
+  HardDrive,
+  CircuitBoard,
+  Layers,
+  ArrowRight,
+} from "lucide-react";
 import { formatVND } from "@/lib/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -14,7 +25,12 @@ import { useToast } from "@/components/common/ToastContext";
 
 export default function FlashSaleSection({ products = [] }) {
   const [activeTab, setActiveTab] = useState("all");
-  const [timeLeft, setTimeLeft] = useState({ days: 3, hours: 7, minutes: 52, seconds: 40 });
+  const [timeLeft, setTimeLeft] = useState({
+    days: 3,
+    hours: 7,
+    minutes: 52,
+    seconds: 40,
+  });
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
@@ -24,8 +40,16 @@ export default function FlashSaleSection({ products = [] }) {
       setTimeLeft((prev) => {
         if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
         if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
+        if (prev.hours > 0)
+          return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        if (prev.days > 0)
+          return {
+            ...prev,
+            days: prev.days - 1,
+            hours: 23,
+            minutes: 59,
+            seconds: 59,
+          };
         return prev;
       });
     }, 1000);
@@ -121,34 +145,42 @@ export default function FlashSaleSection({ products = [] }) {
             <span className="text-base sm:text-lg font-black block leading-none">
               {String(timeLeft.days).padStart(2, "0")}
             </span>
-            <span className="text-[9px] font-bold text-gray-500 uppercase">Ngày</span>
+            <span className="text-[9px] font-bold text-gray-500 uppercase">
+              Ngày
+            </span>
           </div>
           <span className="font-bold text-base text-white">:</span>
           <div className="flex-1 bg-white text-gray-900 rounded-xl p-2 shadow-xs">
             <span className="text-base sm:text-lg font-black block leading-none">
               {String(timeLeft.hours).padStart(2, "0")}
             </span>
-            <span className="text-[9px] font-bold text-gray-500 uppercase">Giờ</span>
+            <span className="text-[9px] font-bold text-gray-500 uppercase">
+              Giờ
+            </span>
           </div>
           <span className="font-bold text-base text-white">:</span>
           <div className="flex-1 bg-white text-gray-900 rounded-xl p-2 shadow-xs">
             <span className="text-base sm:text-lg font-black block leading-none">
               {String(timeLeft.minutes).padStart(2, "0")}
             </span>
-            <span className="text-[9px] font-bold text-gray-500 uppercase">Phút</span>
+            <span className="text-[9px] font-bold text-gray-500 uppercase">
+              Phút
+            </span>
           </div>
           <span className="font-bold text-base text-white">:</span>
           <div className="flex-1 bg-white text-gray-900 rounded-xl p-2 shadow-xs">
             <span className="text-base sm:text-lg font-black block leading-none">
               {String(timeLeft.seconds).padStart(2, "0")}
             </span>
-            <span className="text-[9px] font-bold text-gray-500 uppercase">Giây</span>
+            <span className="text-[9px] font-bold text-gray-500 uppercase">
+              Giây
+            </span>
           </div>
         </div>
 
         {/* Action Button */}
         <Link
-          href="/san-pham?isFlashSale=true"
+          href="/product?isFlashSale=true"
           className="w-full text-center bg-white hover:bg-red-50 text-[#eb1c24] font-black text-xs sm:text-sm py-3 rounded-xl transition-all shadow-sm uppercase tracking-wider block"
         >
           XEM TẤT CẢ
@@ -161,30 +193,24 @@ export default function FlashSaleSection({ products = [] }) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "all"
-                ? "bg-[#111827] text-white shadow-xs"
-                : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200/60"
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+              activeTab === "all" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
             }`}
           >
             Tất cả
           </button>
           <button
             onClick={() => setActiveTab("pc")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "pc"
-                ? "bg-[#111827] text-white shadow-xs"
-                : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200/60"
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+              activeTab === "pc" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
             }`}
           >
             PC Cũ
           </button>
           <button
             onClick={() => setActiveTab("laptop")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "laptop"
-                ? "bg-[#111827] text-white shadow-xs"
-                : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200/60"
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+              activeTab === "laptop" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
             }`}
           >
             Laptop Cũ
@@ -193,7 +219,7 @@ export default function FlashSaleSection({ products = [] }) {
 
         {/* Product Cards Row with gentle elevation & thin red border on hover */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {flashSaleItems.map((item, index) => {
+          {flashSaleItems.map((item) => {
             const discountPercent =
               item.discountPercent ||
               (item.originalPrice > item.price
@@ -201,29 +227,31 @@ export default function FlashSaleSection({ products = [] }) {
                 : 5);
             const originalPrice = item.originalPrice || Math.round(item.price * 1.08);
             const imgSrc = getProductImage(item);
+
             const isFav = cartItems.some((i) => i._id === item._id);
+            const detailHref = `/product-detail?slug=${encodeURIComponent(
+              item.slug || item._id,
+            )}`;
 
             return (
               <div
-                key={item._id || index}
-                className="bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group/card relative"
+                key={item._id}
+                className="bg-white rounded-2xl border border-gray-200/90 shadow-2xs hover:border-[#eb1c24] hover:shadow-[0_12px_28px_rgba(235,28,36,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-3"
               >
-                {/* Product Image */}
                 <Link
-                  href={`/san-pham/${item.slug || item._id}`}
-                  className="block relative aspect-square w-full bg-white rounded-xl overflow-hidden mb-3 border border-gray-100 group/img cursor-pointer"
+                  href={detailHref}
+                  className="block relative aspect-[4/3] w-full rounded-xl overflow-hidden border border-red-500/80 mb-3 bg-white group/img p-2"
                 >
-                  {/* Tag Giảm giá góc trên bên trái */}
-                  {discountPercent > 0 && (
-                    <div className="absolute top-2 left-2 z-20 bg-[#eb1c24] text-white text-[11px] font-black px-2 py-0.5 rounded shadow-sm">
+                  <div className="absolute top-0 left-0 z-20 pointer-events-none">
+                    <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tl-[10px] rounded-br-[8px] shadow-xs">
                       Giảm {discountPercent}%
-                    </div>
-                  )}
+                    </span>
+                  </div>
 
-                  {/* Hot Sale Fire Tag góc trên bên phải */}
-                  <div className="absolute top-2 right-2 z-20 bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
-                    <Flame className="w-3 h-3 fill-white" />
-                    <span>HOT SALE</span>
+                  <div className="absolute top-0 right-0 z-20 pointer-events-none">
+                    <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tr-[10px] rounded-bl-[8px] flex items-center gap-1 shadow-xs">
+                      🔥 HOT SALE
+                    </span>
                   </div>
 
                   <img
@@ -236,6 +264,19 @@ export default function FlashSaleSection({ products = [] }) {
                         "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
                     }}
                   />
+
+                  <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
+                    <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover:scale-100 group-hover/img:scale-100 transition-all duration-300 whitespace-nowrap">
+                      <span>Xem chi tiết</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-[#eb1c24]" />
+                    </span>
+                  </div>
+
+                  <div className="absolute bottom-1 left-1.5 opacity-80 pointer-events-none">
+                    <span className="text-[9px] font-black text-[#eb1c24] tracking-tight">
+                      ZCOMPUTER.VN
+                    </span>
+                  </div>
                 </Link>
 
                 {/* Brand & Actions */}
@@ -244,29 +285,28 @@ export default function FlashSaleSection({ products = [] }) {
                     {item.brand || "ZCOMPUTER"}
                   </span>
                   <div className="flex items-center gap-2 text-gray-400">
-                    <button className="hover:text-gray-700 cursor-pointer transition-colors" title="So sánh">
+                    <button
+                      className="hover:text-gray-700 cursor-pointer transition-colors"
+                      title="So sánh"
+                    >
                       <Scale className="w-4 h-4" />
                     </button>
                     <button
                       onClick={(e) => handleToggleFavorite(e, item)}
-                      className={`p-0.5 transition-all duration-200 hover:scale-110 cursor-pointer ${
-                        isFav ? "text-[#eb1c24]" : "text-gray-400 hover:text-[#eb1c24]"
+                      className={`cursor-pointer transition-colors ${
+                        isFav ? "text-red-500" : "hover:text-red-500"
                       }`}
-                      title={isFav ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
+                      title="Yêu thích"
                     >
-                      <Heart
-                        className={`w-4 h-4 transition-colors ${
-                          isFav ? "fill-[#eb1c24] text-[#eb1c24]" : ""
-                        }`}
-                      />
+                      <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
                     </button>
                   </div>
                 </div>
 
                 {/* Title */}
                 <Link
-                  href={`/san-pham/${item.slug || item._id}`}
-                  className="font-bold text-xs sm:text-[13px] text-gray-900 hover:text-[#eb1c24] group-hover:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors"
+                  href={detailHref}
+                  className="font-bold text-xs sm:text-[13px] text-gray-800 hover:text-[#eb1c24] group-hover:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors"
                   title={item.name}
                 >
                   {item.name}
@@ -293,19 +333,31 @@ export default function FlashSaleSection({ products = [] }) {
 
                 {/* Specs 2x2 Box */}
                 <div className="bg-gray-50 rounded-xl p-2.5 grid grid-cols-2 gap-2 text-[10px] text-gray-600 mb-3 border border-gray-100">
-                  <div className="flex items-center gap-1.5 truncate" title="Intel Core i5 / i7">
+                  <div
+                    className="flex items-center gap-1.5 truncate"
+                    title="Intel Core i5 / i7"
+                  >
                     <Cpu className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     <span className="truncate">Intel / AMD CPU</span>
                   </div>
-                  <div className="flex items-center gap-1.5 truncate" title="RAM 16GB / 32GB">
+                  <div
+                    className="flex items-center gap-1.5 truncate"
+                    title="RAM 16GB / 32GB"
+                  >
                     <Layers className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     <span className="truncate">16GB / 32GB RAM</span>
                   </div>
-                  <div className="flex items-center gap-1.5 truncate" title="Mainboard Pro">
+                  <div
+                    className="flex items-center gap-1.5 truncate"
+                    title="Mainboard Pro"
+                  >
                     <CircuitBoard className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     <span className="truncate">Mainboard Pro</span>
                   </div>
-                  <div className="flex items-center gap-1.5 truncate" title="VGA RTX Series">
+                  <div
+                    className="flex items-center gap-1.5 truncate"
+                    title="VGA RTX Series"
+                  >
                     <HardDrive className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     <span className="truncate">SSD NVMe Siêu Tốc</span>
                   </div>
@@ -319,7 +371,7 @@ export default function FlashSaleSection({ products = [] }) {
                   </span>
                   <button
                     onClick={(e) => handleBuyNow(e, item)}
-                    className="text-[#eb1c24] font-bold hover:underline cursor-pointer transition-all active:scale-95"
+                    className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
                   >
                     + Mua ngay
                   </button>

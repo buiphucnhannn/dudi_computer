@@ -19,8 +19,16 @@ export default function FeaturedProductsSection({ products = [] }) {
     if (activeTab === "all") return true;
     const cat = (p.categoryName || "").toLowerCase();
     const name = (p.name || "").toLowerCase();
-    if (activeTab === "pc") return cat.includes("pc") || name.includes("bộ máy") || name.includes("pc ");
-    if (activeTab === "laptop") return cat.includes("laptop") || name.includes("laptop") || name.includes("macbook");
+    if (activeTab === "pc")
+      return (
+        cat.includes("pc") || name.includes("bộ máy") || name.includes("pc ")
+      );
+    if (activeTab === "laptop")
+      return (
+        cat.includes("laptop") ||
+        name.includes("laptop") ||
+        name.includes("macbook")
+      );
     return true;
   });
 
@@ -33,18 +41,25 @@ export default function FeaturedProductsSection({ products = [] }) {
 
   const scrollLeft = () => {
     if (sliderRef.current) {
-      sliderRef.current.scrollBy({ left: -sliderRef.current.offsetWidth, behavior: "smooth" });
+      sliderRef.current.scrollBy({
+        left: -sliderRef.current.offsetWidth,
+        behavior: "smooth",
+      });
     }
   };
 
   const scrollRight = () => {
     if (sliderRef.current) {
-      sliderRef.current.scrollBy({ left: sliderRef.current.offsetWidth, behavior: "smooth" });
+      sliderRef.current.scrollBy({
+        left: sliderRef.current.offsetWidth,
+        behavior: "smooth",
+      });
     }
   };
 
   const getProductImage = (item) => {
-    if (item.thumbnail && item.thumbnail.startsWith("http")) return item.thumbnail;
+    if (item.thumbnail && item.thumbnail.startsWith("http"))
+      return item.thumbnail;
     if (item.thumbnail) return `https://zcomputer.vn${item.thumbnail}`;
     if (item.images && item.images.length > 0) {
       if (item.images[0].startsWith("http")) return item.images[0];
@@ -108,9 +123,13 @@ export default function FeaturedProductsSection({ products = [] }) {
             const discountPercent =
               item.discountPercent ||
               (item.originalPrice > item.price
-                ? Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)
+                ? Math.round(
+                    ((item.originalPrice - item.price) / item.originalPrice) *
+                      100,
+                  )
                 : 5);
-            const originalPrice = item.originalPrice || Math.round(item.price * 1.05);
+            const originalPrice =
+              item.originalPrice || Math.round(item.price * 1.05);
             const imgSrc = getProductImage(item);
 
             return (
@@ -134,7 +153,7 @@ export default function FeaturedProductsSection({ products = [] }) {
 
                 {/* Product Image Area */}
                 <Link
-                  href={`/san-pham/${item.slug || item._id}`}
+                  href={`/product-detail?slug=${encodeURIComponent(item.slug || item._id)}`}
                   className="relative aspect-square w-full bg-white p-3 flex items-center justify-center overflow-hidden border-b border-gray-100 block cursor-pointer"
                 >
                   <img
@@ -167,7 +186,7 @@ export default function FeaturedProductsSection({ products = [] }) {
 
                     {/* Title */}
                     <Link
-                      href={`/san-pham/${item.slug || item._id}`}
+                      href={`/product-detail?slug=${encodeURIComponent(item.slug || item._id)}`}
                       className="block hover:text-[#eb1c24] transition-colors"
                     >
                       <h4 className="text-gray-900 text-xs sm:text-[13px] font-bold leading-snug line-clamp-2 group-hover/card:text-[#eb1c24] transition-colors duration-300 min-h-[36px]">
@@ -190,7 +209,9 @@ export default function FeaturedProductsSection({ products = [] }) {
                     </div>
 
                     <div className="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between text-[10.5px] text-gray-400">
-                      <span className="text-emerald-600 font-bold">✓ Còn hàng</span>
+                      <span className="text-emerald-600 font-bold">
+                        ✓ Còn hàng
+                      </span>
                       <div className="flex items-center gap-1">
                         <Eye className="w-3.5 h-3.5" />
                         <span>{item.views || 48} lượt xem</span>

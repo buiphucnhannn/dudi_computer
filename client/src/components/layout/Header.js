@@ -29,10 +29,10 @@ import {
   LogOut,
 } from "lucide-react";
 import {
-  loadCartFromStorage,
-  selectTotalItems,
   fetchCloudWishlist,
+  loadCartFromStorage,
   resetCartOnLogout,
+  selectTotalItems,
 } from "@/redux/slices/cartSlice";
 import {
   initAuthFromStorage,
@@ -53,12 +53,30 @@ const NAV_CATEGORIES = [
       {
         title: "Laptop Gaming",
         slug: "laptop-gaming",
-        items: ["Laptop Dell", "Laptop Lenovo", "Laptop Asus", "Laptop Acer", "Laptop MSI", "Laptop HP", "Laptop Gigabyte", "Laptop Razer"],
+        items: [
+          "Laptop Dell",
+          "Laptop Lenovo",
+          "Laptop Asus",
+          "Laptop Acer",
+          "Laptop MSI",
+          "Laptop HP",
+          "Laptop Gigabyte",
+          "Laptop Razer",
+        ],
       },
       {
         title: "Laptop Văn phòng",
         slug: "laptop-van-phong",
-        items: ["Laptop Dell", "Laptop Lenovo", "Laptop HP", "Laptop Acer", "Laptop Asus", "Laptop MSI", "Laptop LG", "Laptop Surface"],
+        items: [
+          "Laptop Dell",
+          "Laptop Lenovo",
+          "Laptop HP",
+          "Laptop Acer",
+          "Laptop Asus",
+          "Laptop MSI",
+          "Laptop LG",
+          "Laptop Surface",
+        ],
       },
     ],
   },
@@ -89,7 +107,14 @@ const NAV_CATEGORIES = [
       {
         title: "Kích Thước Màn Hình",
         slug: "man-hinh",
-        items: ["Màn hình 22 inch", "Màn hình 24 inch", "Màn hình 27 inch", "Màn hình 32 inch", "Màn hình cong", "Màn hình Gaming"],
+        items: [
+          "Màn hình 22 inch",
+          "Màn hình 24 inch",
+          "Màn hình 27 inch",
+          "Màn hình 32 inch",
+          "Màn hình cong",
+          "Màn hình Gaming",
+        ],
       },
     ],
   },
@@ -114,7 +139,13 @@ const NAV_CATEGORIES = [
       {
         title: "Công Suất Nguồn",
         slug: "psu-nguon-may-tinh",
-        items: ["Nguồn 450W - 550W", "Nguồn 600W - 750W", "Nguồn 850W - 1000W", "Nguồn 80 Plus Bronze", "Nguồn 80 Plus Gold"],
+        items: [
+          "Nguồn 450W - 550W",
+          "Nguồn 600W - 750W",
+          "Nguồn 850W - 1000W",
+          "Nguồn 80 Plus Bronze",
+          "Nguồn 80 Plus Gold",
+        ],
       },
     ],
   },
@@ -229,11 +260,18 @@ export default function Header() {
           className="lg:hidden p-2 text-gray-700 hover:text-[#eb1c24] transition-colors focus:outline-none"
           aria-label="Toggle menu"
         >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {mobileMenuOpen ? (
+            <X className="w-6 h-6" />
+          ) : (
+            <Menu className="w-6 h-6" />
+          )}
         </button>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-1.5 shrink-0 group relative">
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 shrink-0 group relative"
+        >
           <img
             src="https://zcomputer.vn/logo-main.png"
             alt="ZComputer Logo"
@@ -270,7 +308,10 @@ export default function Header() {
 
         {/* Desktop Search Bar */}
         <div className="flex-1 w-full min-w-[200px] max-w-2xl lg:max-w-3xl hidden md:flex relative mx-2 lg:mx-6">
-          <form onSubmit={handleSearch} className="relative w-full group/search z-50">
+          <form
+            onSubmit={handleSearch}
+            className="relative w-full group/search z-50"
+          >
             <input
               id="desktop-search-input"
               aria-label="Tìm kiếm sản phẩm"
@@ -291,42 +332,38 @@ export default function Header() {
         </div>
 
         {/* Header Right Actions */}
-        <div className="flex items-center gap-2 lg:gap-4 shrink-0">
-          {/* Hotline (Hiển thị thông tin, không kích hoạt gọi điện) */}
-          <div
-            className="hidden xl:flex items-center gap-2.5 p-1.5 rounded-full select-none cursor-default"
-          >
-            <div className="relative w-10 h-10 rounded-full bg-red-50 text-[#eb1c24] flex items-center justify-center">
-              <span className="absolute inset-0 rounded-full bg-red-500/20 animate-pulse-ring pointer-events-none"></span>
-              <PhoneCall className="w-5 h-5 relative z-10" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
-                HOTLINE MUA HÀNG
-              </span>
-              <span className="text-sm font-black text-[#eb1c24] leading-tight tracking-tight">
-                0977 334 415
-              </span>
-            </div>
-          </div>
+        <div className="flex items-center justify-end gap-2 sm:gap-4 shrink-0">
+          {/* Hotline */}
+          <div className="hidden xl:flex items-center gap-3 border-r pr-3 border-gray-200">
+            <a href="tel:0977334415" className="flex items-center gap-2 group cursor-pointer">
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-[#eb1c24] group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
+                <PhoneCall className="w-5 h-5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wide">
+                  HOTLINE MUA HÀNG
+                </span>
+                <span className="text-[15px] font-black text-[#eb1c24] leading-tight">
+                  0977 334 415
+                </span>
+              </div>
+            </a>
 
-          {/* Showroom */}
-          <Link
-            href="/he-thong-cua-hang"
-            className="hidden lg:flex items-center gap-2.5 p-1.5 rounded-full hover:bg-gray-100/80 transition-colors group"
-          >
-            <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
-              <MapPin className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
-                HỆ THỐNG 2 CƠ SỞ
-              </span>
-              <span className="text-sm font-black text-gray-900 leading-tight">
-                Showroom
-              </span>
-            </div>
-          </Link>
+            {/* Showroom */}
+            <Link href="#he-thong-showroom" className="flex items-center gap-2 group cursor-pointer">
+              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 group-hover:bg-gray-800 group-hover:text-white transition-colors duration-300">
+                <MapPin className="w-5 h-5" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wide">
+                  HỆ THỐNG 2 CƠ SỞ
+                </span>
+                <span className="text-[15px] font-black text-gray-800 leading-tight">
+                  Showroom
+                </span>
+              </div>
+            </Link>
+          </div>
 
           {/* Wishlist / Cart */}
           <div className="flex items-center gap-1 sm:gap-2">
@@ -399,17 +436,11 @@ export default function Header() {
               </div>
             ) : (
               <>
-                <Link
-                  href="/login"
-                  className="hover:text-[#dc2626] transition-colors"
-                >
+                <Link href="/dang-nhap" className="hover:text-[#eb1c24] transition-colors">
                   Đăng nhập
                 </Link>
                 <span className="text-gray-300 font-normal">|</span>
-                <Link
-                  href="/register"
-                  className="hover:text-[#dc2626] transition-colors"
-                >
+                <Link href="/dang-ky" className="hover:text-[#eb1c24] transition-colors">
                   Đăng ký
                 </Link>
               </>
@@ -444,7 +475,10 @@ export default function Header() {
       <div className="hidden md:block bg-gray-800 text-white relative z-40">
         <div className="container mx-auto px-4 relative flex items-center">
           {/* Category Dropdown Button */}
-          <div className="relative hidden md:block mr-4 md:mr-8 shrink-0 w-[260px] group/cat" tabIndex={0}>
+          <div
+            className="relative hidden md:block mr-4 md:mr-8 shrink-0 w-[260px] group/cat"
+            tabIndex={0}
+          >
             <div className="bg-[#eb1c24] text-white flex items-center justify-between px-3 py-2 md:px-5 md:py-[14px] cursor-pointer hover:brightness-110 transition-all duration-300 relative overflow-hidden group">
               <div className="flex items-center gap-1.5 md:gap-3 relative z-10">
                 <Menu className="w-5 h-5" />
@@ -503,7 +537,7 @@ export default function Header() {
                                   {group.items.map((brand) => (
                                     <Link
                                       key={brand}
-                                      href={`/san-pham?search=${encodeURIComponent(brand)}`}
+                                      href={`/product?search=${encodeURIComponent(brand)}`}
                                       className="group/link text-xs font-semibold text-gray-600 hover:text-[#eb1c24] hover:bg-red-50 hover:translate-x-0.5 px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-2"
                                     >
                                       <span className="w-1.5 h-1.5 rounded-full bg-red-400 group-hover/link:bg-[#eb1c24] transition-all shrink-0"></span>
@@ -528,7 +562,7 @@ export default function Header() {
             {/* Tất cả sản phẩm */}
             <li className="shrink-0">
               <Link
-                href="/san-pham"
+                href="/product"
                 className="flex items-center gap-1 py-3 md:py-3.5 text-white hover:text-[#eb1c24] transition-all duration-300"
               >
                 <span className="uppercase relative inline-block">
@@ -596,7 +630,7 @@ export default function Header() {
             {/* Thu cũ đổi mới */}
             <li className="shrink-0">
               <Link
-                href="/thu-mua-cu"
+                href="/trade-in"
                 className="py-3 md:py-3.5 block text-white hover:text-[#eb1c24] transition-colors uppercase"
               >
                 THU CŨ ĐỔI MỚI
@@ -606,7 +640,7 @@ export default function Header() {
             {/* Giới thiệu bạn bè (Chỉ đổi màu đỏ khi rê chuột tới) */}
             <li className="shrink-0">
               <Link
-                href="/gioi-thieu-ban-be"
+                href="/referral"
                 className="py-3 md:py-3.5 block text-white hover:text-[#eb1c24] transition-colors uppercase font-bold"
               >
                 GIỚI THIỆU BẠN BÈ

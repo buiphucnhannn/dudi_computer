@@ -151,7 +151,7 @@ export default function CartWishlistPage() {
                       </div>
                       <div className="flex flex-col min-w-0">
                         <Link
-                          href={`/san-pham/${item.slug || ""}`}
+                          href={`/product-detail?slug=${encodeURIComponent(item.slug || item._id || item.id || "")}`}
                           className="text-xs sm:text-sm font-bold text-gray-800 hover:text-[#dc2626] transition-colors line-clamp-2 leading-snug"
                         >
                           {item.name}

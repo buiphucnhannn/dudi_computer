@@ -11,7 +11,7 @@ import ZComputerShorts from "@/components/home/ZComputerShorts";
 import FeaturedProductsSection from "@/components/home/FeaturedProductsSection";
 import BrandLogosBar from "@/components/home/BrandLogosBar";
 import CategoryProductBox from "@/components/home/CategoryProductBox";
-import TechNewsSection from "@/components/home/TechNewsSection";
+import NewsSection from "@/components/product-detail/NewsSection";
 import CustomerGallery from "@/components/home/CustomerGallery";
 import products from "@/data/products.json";
 
@@ -21,7 +21,7 @@ export default function Home() {
   // Lọc sản phẩm cho 5 khối Danh Mục Sản Phẩm chuẩn 100% website gốc
   const laptopProducts = useMemo(() => {
     return products.filter((p) => {
-      const cat = p.category?.toLowerCase() || "";
+      const cat = (p.categoryName || p.category || "").toLowerCase();
       const name = p.name?.toLowerCase() || "";
       return (
         cat.includes("laptop") ||
@@ -35,7 +35,7 @@ export default function Home() {
 
   const pcProducts = useMemo(() => {
     return products.filter((p) => {
-      const cat = p.category?.toLowerCase() || "";
+      const cat = (p.categoryName || p.category || "").toLowerCase();
       const name = p.name?.toLowerCase() || "";
       return (
         cat.includes("pc") ||
@@ -51,11 +51,13 @@ export default function Home() {
 
   const monitorProducts = useMemo(() => {
     const directMonitors = products.filter((p) => {
-      const cat = p.category?.toLowerCase() || "";
+      const cat = (p.categoryName || p.category || "").toLowerCase();
       const name = p.name?.toLowerCase() || "";
       return (
         cat.includes("màn hình") ||
         cat.includes("monitor") ||
+        cat.includes("24inch") ||
+        cat.includes("22inch") ||
         name.includes("màn hình") ||
         name.includes("monitor")
       );
@@ -132,20 +134,23 @@ export default function Home() {
 
   const psuProducts = useMemo(() => {
     return products.filter((p) => {
-      const cat = p.category?.toLowerCase() || "";
+      const cat = (p.categoryName || p.category || "").toLowerCase();
       const name = p.name?.toLowerCase() || "";
       return (
         name.includes("nguồn") ||
         name.includes("psu") ||
         cat.includes("nguồn") ||
-        cat.includes("psu")
+        cat.includes("psu") ||
+        cat.includes("850w") ||
+        cat.includes("750w") ||
+        cat.includes("700w")
       );
     });
   }, [products]);
 
   const mainboardProducts = useMemo(() => {
     return products.filter((p) => {
-      const cat = p.category?.toLowerCase() || "";
+      const cat = (p.categoryName || p.category || "").toLowerCase();
       const name = p.name?.toLowerCase() || "";
       return (
         name.startsWith("main") ||
@@ -264,7 +269,7 @@ export default function Home() {
 
       {/* 14. 📰 TIN TỨC CÔNG NGHỆ MỚI */}
       <div className="mb-10 sm:mb-14 md:mb-16">
-        <TechNewsSection />
+        <NewsSection />
       </div>
 
       {/* 15. 🌟 LỜI CẢM ƠN TỪ ZCOMPUTER & HÌNH ẢNH KHÁCH HÀNG (Nền đen tràn viền) */}
