@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { useToast } from "@/components/common/ToastContext";
+import {
+  addToCartAsync,
+  removeFromCartAsync,
+  selectCartItems,
+} from "@/redux/slices/cartSlice";
 
 import {
   Check,
@@ -21,6 +28,26 @@ import staticProducts from "@/data/products.json";
 
 const ProductInfo = ({ product }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { showToast } = useToast();
+  const cartItems = useSelector(selectCartItems) || [];
+
+  const isFavorite = cartItems.some(
+    (item) =>
+      (product?._id && item._id === product._id) ||
+      (product?.id && (item.id === product.id || item._id === product.id)) ||
+      (product?.slug && item.slug === product.slug)
+  );
+
+  const handleToggleFavorite = () => {
+    if (!product) return;
+    const productId = product._id || product.id || product.slug;
+    if (isFavorite) {
+      dispatch(removeFromCartAsync(productId));
+    } else {
+      dispatch(addToCartAsync({ product, quantity: 1 }));
+    }
+  };
 
   // =====================================================
   // MODAL STATE
@@ -149,8 +176,8 @@ const ProductInfo = ({ product }) => {
     product?.discount ??
     (originalPrice > price && price > 0
       ? Math.round(
-          ((originalPrice - price) / originalPrice) * 100
-        )
+        ((originalPrice - price) / originalPrice) * 100
+      )
       : 0);
 
   const saving =
@@ -354,7 +381,7 @@ const ProductInfo = ({ product }) => {
             Tình trạng:{" "}
             <strong className="font-bold text-emerald-600">
               {product?.status ===
-              "out_of_stock"
+                "out_of_stock"
                 ? "Hết hàng"
                 : "Còn hàng"}
             </strong>
@@ -418,8 +445,8 @@ const ProductInfo = ({ product }) => {
               <span className="text-2xl font-extrabold tracking-tight text-red-600 sm:text-3xl lg:text-4xl">
                 {price > 0
                   ? `${price.toLocaleString(
-                      "vi-VN"
-                    )}₫`
+                    "vi-VN"
+                  )}₫`
                   : "Liên hệ"}
               </span>
 
@@ -507,18 +534,24 @@ const ProductInfo = ({ product }) => {
           {/* YÊU THÍCH */}
           <button
             type="button"
-            className="
+            onClick={handleToggleFavorite}
+            className={`
               flex h-11 flex-1 items-center
               justify-center gap-2 rounded-lg
               border-2 border-red-600
-              px-3 text-xs font-bold uppercase
-              text-red-600 transition
-              hover:bg-red-50
-              sm:text-sm
-            "
+              px-3 text-xs font-bold uppercase transition
+              cursor-pointer sm:text-sm
+              ${isFavorite
+                ? "bg-red-600 text-white shadow-sm hover:bg-red-700"
+                : "bg-transparent text-red-600 hover:bg-red-50"
+              }
+            `}
           >
-            <Heart size={17} />
-            Ưa thích
+            <Heart
+              size={17}
+              className={isFavorite ? "fill-white text-white" : "text-red-600"}
+            />
+            {isFavorite ? "Đã ưa thích" : "Ưa thích"}
           </button>
         </div>
 

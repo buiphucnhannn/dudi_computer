@@ -71,11 +71,6 @@ export default function FlashSaleSection({ products = [] }) {
     e.preventDefault();
     e.stopPropagation();
     dispatch(addToCartAsync({ product: item, quantity: 1 }));
-    showToast({
-      title: "Đã thêm vào giỏ hàng",
-      message: `Đã thêm "${item.name}" vào danh sách chọn mua.`,
-      type: "success",
-    });
   };
 
   // Lọc sản phẩm Flash Sale theo Tab đang chọn
@@ -193,25 +188,22 @@ export default function FlashSaleSection({ products = [] }) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-              activeTab === "all" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${activeTab === "all" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}
           >
             Tất cả
           </button>
           <button
             onClick={() => setActiveTab("pc")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-              activeTab === "pc" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${activeTab === "pc" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}
           >
             PC Cũ
           </button>
           <button
             onClick={() => setActiveTab("laptop")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-              activeTab === "laptop" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${activeTab === "laptop" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}
           >
             Laptop Cũ
           </button>
@@ -293,9 +285,8 @@ export default function FlashSaleSection({ products = [] }) {
                     </button>
                     <button
                       onClick={(e) => handleToggleFavorite(e, item)}
-                      className={`cursor-pointer transition-colors ${
-                        isFav ? "text-red-500" : "hover:text-red-500"
-                      }`}
+                      className={`cursor-pointer transition-colors ${isFav ? "text-red-500" : "hover:text-red-500"
+                        }`}
                       title="Yêu thích"
                     >
                       <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
