@@ -47,10 +47,9 @@ import {
   selectCurrentUser,
   selectIsAuthenticated,
 } from "@/redux/slices/authSlice";
-import { authAPI } from "@/lib/api";
+import { authAPI, productAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
 import { useCompare } from "@/components/common/CompareContext";
-import staticProducts from "@/data/products.json";
 
 const NAV_CATEGORIES = [
   {
@@ -222,12 +221,27 @@ export default function Header() {
     "RAM 16GB",
   ];
 
+  const [headerProducts, setHeaderProducts] = useState([]);
+
+  useEffect(() => {
+    productAPI
+      .getAll({ limit: 100 })
+      .then((res) => {
+        if (res.data?.data?.products) {
+          setHeaderProducts(res.data.data.products);
+        } else if (Array.isArray(res.data?.data)) {
+          setHeaderProducts(res.data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Instant live search results
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return [];
 
-    return staticProducts
+    return headerProducts
       .filter((p) => {
         const name = (p.name || "").toLowerCase();
         const brand = (p.brand || "").toLowerCase();
@@ -235,7 +249,7 @@ export default function Header() {
         return name.includes(q) || brand.includes(q) || category.includes(q);
       })
       .slice(0, 6);
-  }, [searchQuery]);
+  }, [searchQuery, headerProducts]);
 
   // Click outside listener for search suggestions
   useEffect(() => {
@@ -614,7 +628,7 @@ export default function Header() {
           </div>
 
           {/* User Auth Links (Đăng nhập | Đăng ký | Dropdown Profile) */}
-          <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-gray-700 pl-2 relative">
+          <div className="hidden sm:flex items-center gap-2 pl-2 relative">
             {mounted && isAuthenticated ? (
               <div
                 className="relative group/user py-1"
@@ -623,59 +637,59 @@ export default function Header() {
               >
                 <Link
                   href="/profile"
-                  className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="flex items-center gap-3 px-3 py-1.5 rounded-2xl bg-gray-50 hover:bg-gray-100/90 border border-gray-200/60 transition-all cursor-pointer shadow-xs"
                 >
-                  <div className="w-8 h-8 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <User className="w-4 h-4 text-white" />
+                  <div className="w-10 h-10 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <User className="w-5 h-5 text-white" />
                   </div>
                   <div className="text-left">
-                    <span className="text-[10px] text-gray-500 font-medium block leading-tight">
+                    <span className="text-[12px] text-gray-500 font-medium block leading-tight">
                       Xin chào,
                     </span>
-                    <span className="text-xs font-bold text-gray-900 leading-tight block truncate max-w-[100px]">
+                    <span className="text-[15px] font-black text-gray-900 leading-tight block truncate max-w-[140px]">
                       {user?.name}
                     </span>
                   </div>
                 </Link>
 
-                {/* User Dropdown Menu with Hover Bridge */}
+                {/* User Dropdown Menu with Hover Bridge (Căn giữa hoàn hảo ngay dưới thẻ người dùng) */}
                 <div
-                  className={`absolute right-0 top-full pt-1 w-48 z-50 transition-all duration-150 ${
+                  className={`absolute left-1/2 -translate-x-1/2 top-full pt-2 w-[210px] z-50 transition-all duration-150 ${
                     userDropdownOpen
                       ? "opacity-100 visible translate-y-0"
                       : "opacity-0 invisible -translate-y-1 pointer-events-none"
                   }`}
                 >
-                  <div className="bg-white rounded-xl shadow-lg shadow-black/5 border border-gray-100/80 py-1.5 overflow-hidden">
+                  <div className="bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 p-1.5 overflow-hidden">
                     <Link
                       href="/profile"
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-3 px-3.5 py-2.5 text-[14px] font-bold text-gray-700 hover:text-[#eb1c24] hover:bg-red-50/60 rounded-xl transition-all"
                     >
-                      <User className="w-3.5 h-3.5 text-gray-500" />
+                      <User className="w-4.5 h-4.5 text-gray-500 shrink-0" />
                       <span>Hồ sơ cá nhân</span>
                     </Link>
 
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 text-left text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer border-t border-gray-100/60"
+                      className="w-full flex items-center gap-3 px-3.5 py-2.5 text-left text-[14px] font-bold text-red-600 hover:bg-red-50/60 rounded-xl transition-all cursor-pointer border-t border-gray-100 mt-1"
                     >
-                      <LogOut className="w-3.5 h-3.5" />
+                      <LogOut className="w-4.5 h-4.5 shrink-0 text-red-500" />
                       <span>Đăng xuất</span>
                     </button>
                   </div>
                 </div>
               </div>
             ) : (
-              <>
-                <Link href="/dang-nhap" className="hover:text-[#eb1c24] transition-colors">
+              <div className="flex items-center gap-2 text-[15px] font-bold text-gray-900">
+                <Link href="/dang-nhap" className="hover:text-[#eb1c24] transition-colors py-1">
                   Đăng nhập
                 </Link>
                 <span className="text-gray-300 font-normal">|</span>
-                <Link href="/dang-ky" className="hover:text-[#eb1c24] transition-colors">
+                <Link href="/dang-ky" className="hover:text-[#eb1c24] transition-colors py-1">
                   Đăng ký
                 </Link>
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -807,7 +821,7 @@ export default function Header() {
         <div className="container mx-auto px-4 relative flex items-center">
           {/* Category Dropdown Button */}
           <div
-            className="relative hidden md:block mr-2.5 sm:mr-3 shrink-0 w-[260px] group/cat"
+            className="relative hidden md:block shrink-0 w-[240px] lg:w-[260px] group/cat"
             tabIndex={0}
           >
             <div className="bg-[#eb1c24] text-white flex items-center justify-between px-3 py-2 md:px-5 md:py-[14px] cursor-pointer hover:brightness-110 transition-all duration-300 relative overflow-hidden group">
@@ -888,13 +902,13 @@ export default function Header() {
             )}
           </div>
 
-          {/* Navigation Links */}
-          <ul className="flex items-center flex-wrap lg:flex-nowrap justify-center md:justify-start gap-x-3 md:gap-x-4 lg:gap-x-6 xl:gap-x-8 gap-y-1 py-1 md:py-0 text-[11px] lg:text-[13px] xl:text-[14px] font-bold tracking-wide flex-1">
+          {/* Navigation Links (Khoảng cách đều đặn, liền mạch sang bên trái) */}
+          <ul className="flex items-center justify-start gap-x-5 lg:gap-x-7 xl:gap-x-9 py-1 md:py-0 text-[12px] lg:text-[13px] xl:text-[14px] font-bold tracking-wide flex-1 pl-4 lg:pl-7">
             {/* Tất cả sản phẩm */}
             <li className="shrink-0">
               <Link
                 href="/product"
-                className="flex items-center gap-1 py-3 md:py-3.5 text-white hover:text-[#eb1c24] transition-all duration-300"
+                className="flex items-center gap-1 py-3 md:py-[14px] text-white hover:text-[#eb1c24] transition-all duration-300"
               >
                 <span className="uppercase relative inline-block">
                   TẤT CẢ SẢN PHẨM
@@ -908,8 +922,8 @@ export default function Header() {
 
             {/* Chính Sách Tổng Hợp Dropdown */}
             <li className="relative shrink-0 group/policy">
-              <div className="py-3 md:py-3.5 flex items-center gap-1 cursor-pointer uppercase text-white hover:text-[#eb1c24] transition-colors select-none">
-                CHÍNH SÁCH TỔNG HỢP
+              <div className="py-3 md:py-[14px] flex items-center gap-1.5 cursor-pointer uppercase text-white hover:text-[#eb1c24] transition-colors select-none">
+                <span>CHÍNH SÁCH TỔNG HỢP</span>
                 <ChevronDown className="w-4 h-4 text-gray-300 transition-transform duration-300 group-hover/policy:rotate-180" />
               </div>
               <div className="absolute top-full left-0 w-60 bg-white/95 backdrop-blur-xl text-gray-800 shadow-[0_20px_40px_rgba(0,0,0,0.1)] border-t-2 border-[#eb1c24] rounded-b-xl overflow-hidden z-50 transition-all duration-200 origin-top opacity-0 invisible group-hover/policy:opacity-100 group-hover/policy:visible pointer-events-none group-hover/policy:pointer-events-auto">
@@ -962,17 +976,17 @@ export default function Header() {
             <li className="shrink-0">
               <Link
                 href="/trade-in"
-                className="py-3 md:py-3.5 block text-white hover:text-[#eb1c24] transition-colors uppercase"
+                className="py-3 md:py-[14px] block text-white hover:text-[#eb1c24] transition-colors uppercase"
               >
                 THU CŨ ĐỔI MỚI
               </Link>
             </li>
 
-            {/* Giới thiệu bạn bè (Chỉ đổi màu đỏ khi rê chuột tới) */}
+            {/* Giới thiệu bạn bè */}
             <li className="shrink-0">
               <Link
                 href="/referral"
-                className="py-3 md:py-3.5 block text-white hover:text-[#eb1c24] transition-colors uppercase font-bold"
+                className="py-3 md:py-[14px] block text-white hover:text-[#eb1c24] transition-colors uppercase font-bold"
               >
                 GIỚI THIỆU BẠN BÈ
               </Link>
@@ -980,15 +994,15 @@ export default function Header() {
 
             {/* Công cụ Test Dropdown */}
             <li className="relative shrink-0 group/test">
-              <div className="py-3 md:py-3.5 flex items-center gap-1 cursor-pointer uppercase text-white hover:text-[#eb1c24] transition-colors select-none">
-                CÔNG CỤ TEST
+              <div className="py-3 md:py-[14px] flex items-center gap-1.5 cursor-pointer uppercase text-white hover:text-[#eb1c24] transition-colors select-none">
+                <span>CÔNG CỤ TEST</span>
                 <ChevronDown className="w-4 h-4 text-gray-300 transition-transform duration-300 group-hover/test:rotate-180" />
               </div>
               <div className="absolute top-full right-0 w-60 bg-white/95 backdrop-blur-xl text-gray-800 shadow-[0_20px_40px_rgba(0,0,0,0.1)] border-t-2 border-[#eb1c24] rounded-b-xl overflow-hidden z-50 transition-all duration-200 origin-top opacity-0 invisible group-hover/test:opacity-100 group-hover/test:visible pointer-events-none group-hover/test:pointer-events-auto">
                 <ul className="py-2 text-[13px] font-bold">
                   <li>
                     <Link
-                      href="/cong-cu-test/ban-phim"
+                      href="/keyboard-test"
                       className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase"
                     >
                       Test Bàn Phím
@@ -996,7 +1010,7 @@ export default function Header() {
                   </li>
                   <li>
                     <Link
-                      href="/cong-cu-test/man-hinh"
+                      href="/screen-test"
                       className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase"
                     >
                       Test Màn Hình
@@ -1004,7 +1018,7 @@ export default function Header() {
                   </li>
                   <li>
                     <Link
-                      href="/cong-cu-test/loa-micro-webcam"
+                      href="/peripherals-test"
                       className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 uppercase"
                     >
                       Test Loa, Micro, Webcam

@@ -4,6 +4,7 @@ import categoryRoutes from "./categoryRoutes.js";
 import productRoutes from "./productRoutes.js";
 import feedbackRoutes from "./feedbackRoutes.js";
 import wishlistRoutes from "./wishlistRoutes.js";
+import newsRoutes from "./newsRoutes.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
 const router = Router();
@@ -20,5 +21,6 @@ router.use("/categories", categoryRoutes);
 router.use("/products", productRoutes);
 router.use("/feedbacks", feedbackRoutes);
 router.use("/wishlist", wishlistRoutes);
+router.use("/news", newsRoutes);
 
 export default router;

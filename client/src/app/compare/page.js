@@ -1,93 +1,45 @@
 "use client";
 
-import {
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import {
-  ArrowLeft,
-  Plus,
-  ShoppingCart,
-  X,
-  Trash2,
-} from "lucide-react";
-
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Plus, ShoppingCart, X, Trash2, Scale, ShieldCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-
-import staticProducts from "@/data/products.json";
 import { productAPI } from "@/lib/api";
-
-
 import { parseProductSpecs } from "@/lib/specParser";
+import { useCompare } from "@/components/common/CompareContext";
+import ProductComparisonModal from "@/components/product-detail/ProductComparisonModal";
 
 // =====================================================
-// HELPER
+// HELPER FUNCTIONS
 // =====================================================
 
 const getProductId = (product) => {
-  return (
-    product?.slug ||
-    product?._id ||
-    product?.id
-  );
+  return product?.slug || product?._id || product?.id;
 };
 
 const getProductName = (product) => {
-  return (
-    product?.name ||
-    product?.title ||
-    "Sản phẩm"
-  );
+  return product?.name || product?.title || "Sản phẩm";
 };
 
 const getProductImage = (product) => {
-  if (!product) return null;
-
-  if (Array.isArray(product.images)) {
-    return (
-      product.images[0]?.url ||
-      product.images[0] ||
-      null
-    );
+  if (!product) return "https://zcomputer.vn/logo-main.png";
+  if (Array.isArray(product.images) && product.images.length > 0) {
+    return product.images[0]?.url || product.images[0] || product.thumbnail;
   }
-
-  return (
-    product.thumbnail ||
-    product.image ||
-    product.imageUrl ||
-    null
-  );
+  return product.thumbnail || product.image || "https://zcomputer.vn/logo-main.png";
 };
 
 const getPrice = (product) => {
-  const price = Number(
-    product?.price || 0
-  );
-
-  return price > 0
-    ? `${price.toLocaleString(
-        "vi-VN"
-      )}₫`
-    : "Liên hệ";
+  const price = Number(product?.price || 0);
+  return price > 0 ? `${price.toLocaleString("vi-VN")}₫` : "Liên hệ";
 };
 
 const getOriginalPrice = (product) => {
-  const price = Number(
-    product?.originalPrice || 0
-  );
-
-  return price > 0
-    ? `${price.toLocaleString(
-        "vi-VN"
-      )}₫`
-    : null;
+  const price = Number(product?.originalPrice || 0);
+  return price > 0 ? `${price.toLocaleString("vi-VN")}₫` : null;
 };
 
 // =====================================================
-// SPEC ROWS
+// SPECIFICATION ROWS DEFINITION
 // =====================================================
 
 const SPEC_ROWS = [
@@ -106,47 +58,55 @@ const SPEC_ROWS = [
   { label: "Tình trạng hàng", key: "status" },
 ];
 
-
 // =====================================================
-// COMPARE CONTENT
+// COMPARE CONTENT COMPONENT
 // =====================================================
 
 function CompareContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const productsParam = searchParams.get("products");
 
-  const searchParams =
-    useSearchParams();
+  const { compareItems, removeFromCompare, clearCompare, addToCompare } = useCompare();
 
-  const productsParam =
-    searchParams.get("products");
+  const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Tải danh sách tất cả sản phẩm phục vụ Modal tìm kiếm
+  useEffect(() => {
+    productAPI
+      .getAll({ limit: 100 })
+      .then((res) => {
+        if (res.data?.data?.products) {
+          setAllProducts(res.data.data.products);
+        } else if (Array.isArray(res.data?.data)) {
+          setAllProducts(res.data.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi khi tải danh sách sản phẩm:", err);
+      });
+  }, []);
+
+  // Parse ID danh sách so sánh từ URL
   const productIds = useMemo(() => {
-    if (!productsParam) {
-      return [];
+    if (productsParam) {
+      return productsParam
+        .split(",")
+        .map((id) => decodeURIComponent(id.trim()))
+        .filter(Boolean)
+        .slice(0, 3);
     }
+    // Nếu URL chưa có params thì lấy từ Context
+    if (compareItems.length > 0) {
+      return compareItems.map(getProductId).filter(Boolean).slice(0, 3);
+    }
+    return [];
+  }, [productsParam, compareItems]);
 
-    return productsParam
-      .split(",")
-      .map((id) =>
-        decodeURIComponent(
-          id.trim()
-        )
-      )
-      .filter(Boolean)
-      .slice(0, 3);
-  }, [productsParam]);
-
-  const [products, setProducts] =
-    useState([]);
-
-  const [loading, setLoading] =
-    useState(false);
-
-
-  // =====================================================
-  // LOAD PRODUCTS
-  // =====================================================
-
+  // Load chi tiết các sản phẩm cần so sánh
   useEffect(() => {
     let cancelled = false;
 
@@ -159,60 +119,28 @@ function CompareContent() {
       setLoading(true);
 
       try {
-        const loadedProducts =
-          await Promise.all(
-            productIds.map(
-              async (id) => {
+        const loadedProducts = await Promise.all(
+          productIds.map(async (id) => {
+            // Thử tìm trong Context trước để hiển thị tức thì
+            const inContext = compareItems.find((item) => getProductId(item) === id);
 
-                /*
-                 * 1. Ưu tiên tìm trong staticProducts
-                 */
-                const staticProduct =
-                  staticProducts.find(
-                    (item) =>
-                      item.slug === id ||
-                      item._id === id ||
-                      item.id === id
-                  );
-
-                /*
-                 * 2. Thử lấy API
-                 *
-                 * Nếu API lỗi thì sử dụng
-                 * staticProducts.
-                 */
-                try {
-                  const response =
-                    await productAPI.getBySlug(
-                      id
-                    );
-
-                  const data =
-                    response?.data?.data;
-
-                  const apiProduct =
-                    data?.product;
-
-                  if (apiProduct) {
-                    return apiProduct;
-                  }
-                } catch (error) {
-                  console.info(
-                    `[Compare] Không lấy được API cho ${id}`
-                  );
-                }
-
-                return (
-                  staticProduct || null
-                );
+            try {
+              const response = await productAPI.getBySlug(id);
+              const data = response?.data?.data;
+              const apiProduct = data?.product || data;
+              if (apiProduct) {
+                return apiProduct;
               }
-            )
-          );
+            } catch (error) {
+              console.info(`[Compare] Lấy chi tiết API cho ${id}`);
+            }
+
+            return inContext || null;
+          })
+        );
 
         if (!cancelled) {
-          setProducts(
-            loadedProducts.filter(Boolean)
-          );
+          setProducts(loadedProducts.filter(Boolean));
         }
       } finally {
         if (!cancelled) {
@@ -228,506 +156,330 @@ function CompareContent() {
     };
   }, [productIds]);
 
-
-  // =====================================================
-  // XÓA 1 PRODUCT
-  // =====================================================
-
-  const handleRemoveProduct = (
-    productId
-  ) => {
-    const nextProducts =
-      products.filter(
-        (product) =>
-          getProductId(product) !==
-          productId
-      );
+  // Xóa 1 sản phẩm
+  const handleRemoveProduct = (productId) => {
+    removeFromCompare(productId);
+    const nextProducts = products.filter((p) => getProductId(p) !== productId);
+    setProducts(nextProducts);
 
     if (nextProducts.length === 0) {
-      router.push(
-        "/compare"
-      );
+      router.push("/compare");
       return;
     }
 
-    const ids = nextProducts
-      .map(getProductId)
-      .filter(Boolean);
-
-    router.replace(
-      `/compare?products=${ids
-        .map((id) =>
-          encodeURIComponent(id)
-        )
-        .join(",")}`
-    );
+    const ids = nextProducts.map(getProductId).filter(Boolean);
+    router.replace(`/compare?products=${ids.map(encodeURIComponent).join(",")}`);
   };
 
-
-  // =====================================================
-  // XÓA TẤT CẢ
-  // =====================================================
-
+  // Xóa tất cả
   const handleClearAll = () => {
+    clearCompare();
+    setProducts([]);
     router.push("/compare");
   };
 
-
-  // =====================================================
-  // THÊM PRODUCT
-  // =====================================================
-
+  // Thêm sản phẩm
   const handleAddProduct = () => {
-    /*
-     * Hiện tại quay lại trang sản phẩm.
-     *
-     * Bạn có thể thay bằng popup
-     * ProductComparisonModal nếu muốn
-     * dùng chung component.
-     */
-    router.back();
+    setIsModalOpen(true);
   };
 
-
-  // =====================================================
-  // MUA NGAY
-  // =====================================================
-
-  const handleBuy = (
-    product
-  ) => {
-    const id =
-      product?.slug ||
-      product?._id ||
-      product?.id;
-
+  const handleSelectProductFromModal = (selectedProduct) => {
+    addToCompare(selectedProduct);
+    const id = getProductId(selectedProduct);
     if (!id) return;
 
-    router.push(
-      `/product?slug=${encodeURIComponent(
-        id
-      )}`
-    );
+    const nextProducts = [...products, selectedProduct].slice(0, 3);
+    const ids = nextProducts.map(getProductId).filter(Boolean);
+    router.replace(`/compare?products=${ids.map(encodeURIComponent).join(",")}`);
+    setIsModalOpen(false);
   };
 
+  // Chuyển tới trang chi tiết
+  const handleBuy = (product) => {
+    const id = getProductId(product);
+    if (!id) return;
+    router.push(`/product-detail?slug=${encodeURIComponent(id)}`);
+  };
 
-  // =====================================================
-  // EMPTY
-  // =====================================================
-
-  if (
-    !loading &&
-    products.length === 0
-  ) {
+  // MÀN HÌNH TRỐNG KHI CHƯA CÓ SẢN PHẨM NÀO
+  if (!loading && products.length === 0) {
     return (
-      <main className="min-h-screen bg-slate-50 pt-20">
-        <div className="mx-auto flex min-h-[70vh] max-w-7xl flex-col items-center justify-center px-4">
-          <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100">
-            <Plus
-              size={34}
-              className="text-slate-400"
-            />
+      <main className="min-h-screen bg-slate-50 pt-28 pb-16">
+        <div className="mx-auto flex min-h-[60vh] max-w-4xl flex-col items-center justify-center px-4 text-center">
+          <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-red-50 text-red-600 shadow-inner">
+            <Scale size={44} />
           </div>
 
-          <h1 className="text-2xl font-extrabold uppercase text-slate-900">
-            Chưa có sản phẩm
+          <h1 className="text-2xl sm:text-3xl font-extrabold uppercase text-slate-900 tracking-tight">
+            Chưa có sản phẩm để so sánh
           </h1>
 
-          <p className="mt-2 text-center text-sm text-slate-500">
-            Hãy thêm ít nhất 2 sản phẩm
-            để bắt đầu so sánh.
+          <p className="mt-3 max-w-md text-sm sm:text-base text-slate-500">
+            Vui lòng chọn thêm ít nhất 2 sản phẩm trên hệ thống để xem bảng so sánh thông số kỹ thuật chi tiết.
           </p>
 
-          <button
-            type="button"
-            onClick={() =>
-              router.back()
-            }
-            className="mt-6 flex h-11 items-center gap-2 rounded-lg bg-red-600 px-5 text-sm font-bold uppercase text-white transition hover:bg-red-700"
-          >
-            <ArrowLeft size={17} />
-            Quay lại
-          </button>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="flex h-12 items-center gap-2 rounded-xl bg-red-600 px-6 text-sm font-bold uppercase text-white shadow-lg shadow-red-600/30 transition hover:bg-red-700"
+            >
+              <Plus size={18} />
+              Chọn sản phẩm so sánh
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="flex h-12 items-center gap-2 rounded-xl border border-slate-300 bg-white px-6 text-sm font-bold uppercase text-slate-700 transition hover:bg-slate-50"
+            >
+              <ArrowLeft size={18} />
+              Về trang chủ
+            </button>
+          </div>
         </div>
+
+        {/* Modal chọn sản phẩm so sánh */}
+        <ProductComparisonModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          products={allProducts}
+          currentProduct={products[0] || null}
+          selectedProducts={products}
+          onAddProduct={handleSelectProductFromModal}
+        />
       </main>
     );
   }
 
-
-  // =====================================================
-  // RENDER
-  // =====================================================
-
   return (
-    <main className="min-h-screen bg-slate-50 pt-20">
-
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-20 pt-8 lg:px-10">
-
-        {/* =================================================
-            HEADER
-        ================================================= */}
-
+    <main className="min-h-screen bg-slate-50 pt-24 pb-20">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
+        {/* HEADER */}
         <div className="flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-end md:justify-between">
-
           <div>
-            <h1 className="text-3xl font-extrabold uppercase tracking-tight text-red-600 sm:text-4xl">
-              So sánh cấu hình
+            <div className="flex items-center gap-2 text-red-600 font-bold uppercase text-xs tracking-wider mb-1">
+              <Scale size={16} />
+              <span>Công cụ đối chiếu cấu hình</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-slate-900">
+              So sánh thông số kỹ thuật ({products.length}/3)
             </h1>
-
-            <p className="mt-2 text-base text-slate-500">
-              So sánh chi tiết các thông số
-              kỹ thuật
+            <p className="mt-1 text-sm text-slate-500">
+              Đối chiếu chi tiết cấu hình CPU, RAM, VGA, Màn hình, Ổ cứng và giá bán
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleClearAll}
-            className="flex w-fit items-center gap-2 text-sm font-bold text-slate-700 transition hover:text-red-600"
-          >
-            <Trash2 size={17} />
-            Xóa tất cả
-          </button>
+          <div className="flex items-center gap-3">
+            {products.length < 3 && (
+              <button
+                type="button"
+                onClick={handleAddProduct}
+                className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-red-700"
+              >
+                <Plus size={15} />
+                Thêm sản phẩm
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleClearAll}
+              className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:text-red-600 hover:border-red-300"
+            >
+              <Trash2 size={15} />
+              Xóa tất cả
+            </button>
+          </div>
         </div>
 
-
-        {/* =================================================
-            LOADING
-        ================================================= */}
-
+        {/* LOADING */}
         {loading && (
-          <div className="rounded-xl border border-slate-200 bg-white p-5 text-center text-sm text-slate-500">
-            Đang tải thông tin sản phẩm...
+          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 shadow-sm animate-pulse">
+            Đang tải và xử lý dữ liệu so sánh cấu hình...
           </div>
         )}
 
-
-        {/* =================================================
-            PRODUCT GRID
-        ================================================= */}
-
+        {/* PRODUCT CARDS TOP ROW */}
         {!loading && (
-          <div className="w-full overflow-x-auto pb-3">
-
-            <div
-              className="
-                grid
-                min-w-[900px]
-                grid-cols-4
-                gap-5
-              "
-            >
-
-              {/* LABEL COLUMN */}
-
-              <div className="hidden flex-col justify-end pb-6 md:flex">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Thông số kỹ thuật
+          <div className="w-full overflow-x-auto pb-4">
+            <div className="grid min-w-[900px] grid-cols-4 gap-4">
+              {/* LABEL COLUMN HEADER */}
+              <div className="flex flex-col justify-end p-4 rounded-xl bg-slate-100/70 border border-slate-200">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-700">
+                  Sản phẩm so sánh
+                </span>
+                <span className="text-[11px] text-slate-500 mt-1">
+                  Hiển thị tối đa 3 cấu hình cùng lúc
                 </span>
               </div>
 
+              {/* PRODUCTS COLUMNS */}
+              {products.map((product) => {
+                const id = getProductId(product);
+                const image = getProductImage(product);
 
-              {/* PRODUCTS */}
-
-              {products.map(
-                (product) => {
-                  const id =
-                    getProductId(
-                      product
-                    );
-
-                  const image =
-                    getProductImage(
-                      product
-                    );
-
-                  return (
-                    <div
-                      key={id}
-                      className="
-                        group
-                        relative
-                        flex
-                        min-h-[430px]
-                        flex-col
-                        rounded-xl
-                        border
-                        border-slate-200
-                        bg-white
-                        p-5
-                        shadow-sm
-                        transition
-                        hover:border-red-500
-                        hover:shadow-md
-                      "
+                return (
+                  <div
+                    key={id}
+                    className="group relative flex min-h-[420px] flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-red-500 hover:shadow-md"
+                  >
+                    {/* REMOVE BUTTON */}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveProduct(id)}
+                      className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-red-600 hover:text-white"
+                      title="Xóa khỏi so sánh"
                     >
+                      <X size={14} />
+                    </button>
 
-                      {/* REMOVE */}
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleRemoveProduct(
-                            id
-                          )
-                        }
-                        className="
-                          absolute
-                          right-4
-                          top-4
-                          z-10
-                          flex
-                          h-8
-                          w-8
-                          items-center
-                          justify-center
-                          rounded-full
-                          bg-slate-100
-                          text-slate-500
-                          opacity-100
-                          transition
-                          hover:bg-red-600
-                          hover:text-white
-                          md:opacity-0
-                          md:group-hover:opacity-100
-                        "
-                      >
-                        <X size={15} />
-                      </button>
-
-
-                      {/* IMAGE */}
-
-                      <div className="mb-5 flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg bg-slate-100">
-                        {image ? (
-                          <img
-                            src={image}
-                            alt={getProductName(
-                              product
-                            )}
-                            className="h-full w-full object-contain mix-blend-multiply"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center text-slate-400">
-                            <ShoppingCart
-                              size={32}
-                            />
-
-                            <span className="mt-2 text-xs">
-                              Chưa có hình ảnh
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-
-                      {/* NAME */}
-
-                      <h3 className="mb-3 line-clamp-2 min-h-[56px] text-base font-bold leading-7 text-slate-900">
-                        {getProductName(
-                          product
-                        )}
-                      </h3>
-
-
-                      {/* PRICE */}
-
-                      <div className="mb-5 flex flex-col gap-1">
-                        {getOriginalPrice(
-                          product
-                        ) && (
-                          <span className="text-sm text-slate-400 line-through">
-                            {getOriginalPrice(
-                              product
-                            )}
-                          </span>
-                        )}
-
-                        <span className="text-xl font-extrabold text-red-600">
-                          {getPrice(
-                            product
-                          )}
-                        </span>
-                      </div>
-
-
-                      {/* BUY */}
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleBuy(
-                            product
-                          )
-                        }
-                        className="
-                          mt-auto
-                          flex
-                          h-11
-                          w-full
-                          items-center
-                          justify-center
-                          gap-2
-                          rounded-lg
-                          bg-red-600
-                          text-sm
-                          font-bold
-                          uppercase
-                          text-white
-                          transition
-                          hover:bg-red-700
-                        "
-                      >
-                        <ShoppingCart
-                          size={17}
-                        />
-
-                        Mua ngay
-                      </button>
+                    {/* PRODUCT IMAGE */}
+                    <div className="mb-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg bg-white p-2">
+                      <img
+                        src={image}
+                        alt={getProductName(product)}
+                        className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-300"
+                      />
                     </div>
-                  );
-                }
-              )}
 
+                    {/* WARRANTY BADGE */}
+                    <div className="text-[10.5px] text-green-600 mb-1.5 flex items-center gap-1 font-semibold">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>{product.warranty || "Bảo hành chính hãng"}</span>
+                    </div>
 
-              {/* ADD PRODUCT */}
+                    {/* PRODUCT NAME */}
+                    <h3
+                      className="mb-2 line-clamp-2 min-h-[44px] text-[13px] sm:text-sm font-bold text-slate-900 group-hover:text-red-600 transition-colors leading-snug cursor-pointer"
+                      onClick={() => handleBuy(product)}
+                      title={getProductName(product)}
+                    >
+                      {getProductName(product)}
+                    </h3>
 
+                    {/* PRICE */}
+                    <div className="mb-4 flex items-baseline gap-2">
+                      <span className="text-lg font-black text-red-600">
+                        {getPrice(product)}
+                      </span>
+                      {getOriginalPrice(product) && (
+                        <span className="text-xs text-slate-400 line-through">
+                          {getOriginalPrice(product)}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* ACTION BUY BUTTON */}
+                    <button
+                      type="button"
+                      onClick={() => handleBuy(product)}
+                      className="mt-auto flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-red-600 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-red-700"
+                    >
+                      <ShoppingCart size={15} />
+                      Xem chi tiết & Mua
+                    </button>
+                  </div>
+                );
+              })}
+
+              {/* EMPTY COLUMN PLACEHOLDER TO ADD */}
               {products.length < 3 && (
                 <button
                   type="button"
-                  onClick={
-                    handleAddProduct
-                  }
-                  className="
-                    flex
-                    min-h-[430px]
-                    flex-col
-                    items-center
-                    justify-center
-                    rounded-xl
-                    border
-                    border-dashed
-                    border-slate-300
-                    bg-white
-                    p-5
-                    transition
-                    hover:border-red-500
-                    hover:bg-red-50/30
-                  "
+                  onClick={handleAddProduct}
+                  className="flex min-h-[420px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-white/70 p-6 transition hover:border-red-500 hover:bg-red-50/20 cursor-pointer"
                 >
-                  <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-red-600">
-                    <Plus size={30} />
+                  <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600 shadow-sm group-hover:scale-110 transition-transform">
+                    <Plus size={28} />
                   </span>
-
-                  <span className="text-sm font-bold uppercase text-slate-500">
+                  <span className="text-xs font-extrabold uppercase text-slate-700">
                     Thêm sản phẩm
+                  </span>
+                  <span className="text-[11px] text-slate-400 mt-1">
+                    Chọn máy khác để đối chiếu
                   </span>
                 </button>
               )}
-
             </div>
-
 
             {/* =================================================
-                SPECIFICATION TABLE
+                SPECIFICATION COMPARISON TABLE
             ================================================= */}
-
             <div className="mt-8 min-w-[900px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="bg-slate-900 text-white px-5 py-3.5 font-bold uppercase text-xs tracking-wider flex items-center gap-2">
+                <Scale size={16} />
+                <span>Bảng đối chiếu thông số phần cứng chi tiết</span>
+              </div>
 
-              {SPEC_ROWS.map(
-                (row, index) => (
-                  <div
-                    key={row.label}
-                    className={`
-                      grid
-                      grid-cols-4
-                      transition
-                      hover:bg-slate-50
-                      ${
-                        index !==
-                        SPEC_ROWS.length - 1
-                          ? "border-b border-slate-200"
-                          : ""
-                      }
-                    `}
-                  >
-
-                    {/* LABEL */}
-
-                    <div className="flex items-center bg-slate-100 p-4 text-sm font-bold text-slate-900">
-                      {row.label}
-                    </div>
-
-
-                    {/* PRODUCT VALUES */}
-
-                    {products.map((product) => {
-                      const specs = parseProductSpecs(product);
-                      const value = specs[row.key] || "Theo cấu hình chuẩn";
-
-                      return (
-                        <div
-                          key={`${getProductId(product)}-${row.key}`}
-                          className="flex min-h-[64px] items-center border-l border-slate-200 p-4 text-sm font-medium leading-relaxed text-slate-700"
-                        >
-                          {value}
-                        </div>
-                      );
-                    })}
-
-
-                    {/* EMPTY COLUMNS */}
-
-                    {Array.from({
-                      length:
-                        3 -
-                        products.length,
-                    }).map(
-                      (_, emptyIndex) => (
-                        <div
-                          key={`empty-${row.label}-${emptyIndex}`}
-                          className="flex min-h-[64px] items-center justify-center border-l border-slate-200 bg-slate-50 p-4"
-                        >
-                          <span className="text-sm italic text-slate-400">
-                            Trống
-                          </span>
-                        </div>
-                      )
-                    )}
-
+              {SPEC_ROWS.map((row, index) => (
+                <div
+                  key={row.label}
+                  className={`grid grid-cols-4 transition hover:bg-slate-50/80 ${
+                    index !== SPEC_ROWS.length - 1 ? "border-b border-slate-150" : ""
+                  }`}
+                >
+                  {/* LABEL */}
+                  <div className="flex items-center bg-slate-50/90 p-4 text-xs font-bold text-slate-800 border-r border-slate-200">
+                    {row.label}
                   </div>
-                )
-              )}
 
+                  {/* PRODUCT VALUE COLUMNS */}
+                  {products.map((product) => {
+                    const specs = parseProductSpecs(product);
+                    const value = specs[row.key] || "Theo cấu hình chuẩn";
+
+                    return (
+                      <div
+                        key={`${getProductId(product)}-${row.key}`}
+                        className="flex min-h-[56px] items-center border-r last:border-r-0 border-slate-200 p-4 text-xs font-medium leading-relaxed text-slate-700"
+                      >
+                        {value}
+                      </div>
+                    );
+                  })}
+
+                  {/* EMPTY FILLER COLUMNS */}
+                  {Array.from({ length: 3 - products.length }).map((_, emptyIndex) => (
+                    <div
+                      key={`empty-${row.label}-${emptyIndex}`}
+                      className="flex min-h-[56px] items-center justify-center border-r last:border-r-0 border-slate-200 bg-slate-50/30 p-4"
+                    >
+                      <span className="text-xs italic text-slate-400">---</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
             </div>
-
           </div>
         )}
-
       </div>
+
+      {/* Product Comparison Modal */}
+      <ProductComparisonModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        products={allProducts}
+        currentProduct={products[0] || null}
+        selectedProducts={products}
+        onAddProduct={handleSelectProductFromModal}
+      />
     </main>
   );
 }
 
-
 // =====================================================
-// PAGE
+// MAIN EXPORT PAGE
 // =====================================================
 
-const Page = () => {
+export default function Page() {
   return (
     <Suspense
       fallback={
         <main className="flex min-h-screen items-center justify-center bg-slate-50 pt-20">
-          <p className="font-semibold text-slate-500">
-            Đang tải trang so sánh...
-          </p>
+          <p className="font-semibold text-slate-500">Đang tải trang so sánh...</p>
         </main>
       }
     >
       <CompareContent />
     </Suspense>
   );
-};
-
-export default Page;
+}

@@ -83,6 +83,12 @@ class ProductRepository extends BaseRepository {
   }
 
   async findBySlug(slug) {
+    if (!slug) return null;
+    const isObjectId = typeof slug === "string" && slug.match(/^[0-9a-fA-F]{24}$/);
+    if (isObjectId) {
+      const byId = await this.model.findById(slug).populate("category").exec();
+      if (byId) return byId;
+    }
     return await this.model.findOne({ slug }).populate("category").exec();
   }
 

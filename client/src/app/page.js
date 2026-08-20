@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import CategorySidebar from "@/components/home/CategorySidebar";
 import HeroSlider from "@/components/home/HeroSlider";
 import PromoGridCards from "@/components/home/PromoGridCards";
@@ -13,159 +13,196 @@ import BrandLogosBar from "@/components/home/BrandLogosBar";
 import CategoryProductBox from "@/components/home/CategoryProductBox";
 import HomeNewsSection from "@/components/home/HomeNewsSection";
 import CustomerGallery from "@/components/home/CustomerGallery";
-import products from "@/data/products.json";
+import { productAPI } from "@/lib/api";
 
 export default function Home() {
   const [selectedCategoryPill, setSelectedCategoryPill] = useState("all");
+  const [products, setProducts] = useState([]);
 
-  // Lọc sản phẩm cho 5 khối Danh Mục Sản Phẩm chuẩn 100% website gốc
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const res = await productAPI.getAll({ limit: 100 });
+        if (res.data && res.data.data && res.data.data.products) {
+          setProducts(res.data.data.products);
+        } else if (res.data && Array.isArray(res.data.data)) {
+          setProducts(res.data.data);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải sản phẩm từ Database:", error);
+      }
+    };
+    loadProducts();
+  }, []);
+
+  // Lọc sản phẩm cho 5 khối Danh Mục Sản Phẩm
   const laptopProducts = useMemo(() => {
     return products.filter((p) => {
-      const cat = (p.categoryName || p.category || "").toLowerCase();
-      const name = p.name?.toLowerCase() || "";
+      const catSlug = (p.categorySlug || "").toLowerCase();
+      const cat = (p.categoryName || p.category?.name || "").toLowerCase();
+      const name = (p.name || "").toLowerCase();
+      
+      // Loại trừ các bộ máy PC, linh kiện rời
+      if (
+        name.startsWith("bộ máy") ||
+        name.startsWith("máy tính để bàn") ||
+        name.startsWith("pc ") ||
+        name.includes("case pc") ||
+        name.startsWith("main") ||
+        name.startsWith("nguồn") ||
+        catSlug.includes("pc-") ||
+        catSlug === "mainboard-bo-mach-chu" ||
+        catSlug === "psu-nguon-may-tinh" ||
+        catSlug === "man-hinh"
+      ) {
+        return false;
+      }
+
       return (
+        catSlug === "laptop-cu" ||
+        catSlug === "laptop-gaming" ||
+        catSlug === "laptop-van-phong" ||
+        catSlug === "macbook" ||
         cat.includes("laptop") ||
         name.includes("laptop") ||
-        name.includes("dell latitude") ||
-        name.includes("lenovo thinkpad") ||
-        name.includes("macbook")
+        name.includes("thinkpad") ||
+        name.includes("macbook") ||
+        name.includes("surface") ||
+        name.includes("latitude") ||
+        name.includes("xps")
       );
     });
   }, [products]);
 
   const pcProducts = useMemo(() => {
     return products.filter((p) => {
-      const cat = (p.categoryName || p.category || "").toLowerCase();
-      const name = p.name?.toLowerCase() || "";
+      const catSlug = (p.categorySlug || "").toLowerCase();
+      const cat = (p.categoryName || p.category?.name || "").toLowerCase();
+      const name = (p.name || "").toLowerCase();
+
+      // Loại trừ laptop và linh kiện rời (Mainboard, Nguồn, VGA, RAM, CPU, SSD, Màn hình, Gear)
+      if (
+        name.includes("laptop") ||
+        name.includes("macbook") ||
+        name.includes("surface") ||
+        name.startsWith("mainboard") ||
+        name.startsWith("bo mạch") ||
+        name.startsWith("nguồn") ||
+        name.startsWith("card màn hình") ||
+        name.startsWith("ram") ||
+        name.startsWith("ssd") ||
+        name.startsWith("cpu") ||
+        name.startsWith("bàn phím") ||
+        name.startsWith("chuột") ||
+        catSlug.includes("laptop") ||
+        catSlug === "macbook" ||
+        catSlug === "mainboard-bo-mach-chu" ||
+        catSlug === "psu-nguon-may-tinh" ||
+        catSlug === "vga-card-man-hinh" ||
+        catSlug === "cpu-bo-vi-xu-ly" ||
+        catSlug === "ram-bo-nho-trong" ||
+        catSlug === "o-cung-hdd-ssd" ||
+        catSlug === "man-hinh" ||
+        catSlug === "ban-phim" ||
+        catSlug === "chuot"
+      ) {
+        return false;
+      }
+
       return (
-        cat.includes("pc") ||
-        name.startsWith("pc") ||
-        name.includes("bộ máy tính") ||
-        name.includes("case pc") ||
-        name.includes("i5") ||
-        name.includes("i7") ||
-        name.includes("ryzen")
+        catSlug === "pc-cu" ||
+        catSlug === "pc-gaming" ||
+        catSlug === "pc-do-hoa" ||
+        catSlug === "pc-van-phong" ||
+        name.startsWith("bộ máy") ||
+        name.startsWith("pc ") ||
+        name.startsWith("máy tính để bàn") ||
+        name.startsWith("máy tính aio")
       );
     });
   }, [products]);
 
   const monitorProducts = useMemo(() => {
-    const directMonitors = products.filter((p) => {
-      const cat = (p.categoryName || p.category || "").toLowerCase();
-      const name = p.name?.toLowerCase() || "";
+    return products.filter((p) => {
+      const catSlug = (p.categorySlug || "").toLowerCase();
+      const cat = (p.categoryName || p.category?.name || "").toLowerCase();
+      const name = (p.name || "").toLowerCase();
+
+      // Loại trừ card màn hình (VGA), laptop, PC
+      if (
+        name.includes("card màn hình") ||
+        name.includes("vga") ||
+        catSlug.includes("vga") ||
+        name.startsWith("laptop") ||
+        name.startsWith("bộ máy") ||
+        catSlug.includes("laptop") ||
+        catSlug.includes("pc-")
+      ) {
+        return false;
+      }
+
       return (
+        catSlug === "man-hinh" ||
         cat.includes("màn hình") ||
         cat.includes("monitor") ||
-        cat.includes("24inch") ||
-        cat.includes("22inch") ||
-        name.includes("màn hình") ||
+        name.startsWith("màn hình") ||
         name.includes("monitor")
       );
     });
-
-    if (directMonitors.length >= 4) return directMonitors;
-
-    // Bổ sung các màn hình chuẩn từ zcomputer.vn
-    const fallbackMonitors = [
-      {
-        id: "mon-1",
-        name: "MÀN HÌNH MÁY TÍNH KTC H24V13 24 INCH VA 100HZ FHD NEW",
-        price: 1590000,
-        originalPrice: 1890000,
-        slug: "man-hinh-ktc-h24v13-24-inch-100hz",
-        image: "https://zcomputer.vn/uploads/image-1785590924976-597554988.webp",
-        badge: "New 100%",
-        specs: {
-          kichThuoc: "23.8 inch",
-          doPhanGiai: "FHD (1920x1080)",
-          tanSoQuet: "100Hz",
-          tamNen: "VA",
-        },
-      },
-      {
-        id: "mon-2",
-        name: "MÀN HÌNH GAMING VIEWSONIC VX2479-HD-PRO 24 INCH IPS 165HZ",
-        price: 2490000,
-        originalPrice: 2890000,
-        slug: "man-hinh-viewsonic-vx2479-hd-pro-165hz",
-        image: "https://zcomputer.vn/uploads/image-1785591040855-885444738.webp",
-        badge: "Like New",
-        specs: {
-          kichThuoc: "24 inch",
-          doPhanGiai: "FHD (1920x1080)",
-          tanSoQuet: "165Hz",
-          tamNen: "Fast IPS",
-        },
-      },
-      {
-        id: "mon-3",
-        name: "MÀN HÌNH GIGABYTE G27F 2 27 INCH IPS 170HZ CHUYÊN GAME",
-        price: 3390000,
-        originalPrice: 3990000,
-        slug: "man-hinh-gigabyte-g27f-2-170hz",
-        image: "https://zcomputer.vn/uploads/image-1785591150244-665578125.webp",
-        badge: "Chính Hãng",
-        specs: {
-          kichThuoc: "27 inch",
-          doPhanGiai: "FHD (1920x1080)",
-          tanSoQuet: "170Hz",
-          tamNen: "IPS",
-        },
-      },
-      {
-        id: "mon-4",
-        name: "MÀN HÌNH CONG SAMSUNG ODYSSEY G5 G55C 32 INCH 2K 165HZ",
-        price: 4990000,
-        originalPrice: 5890000,
-        slug: "man-hinh-samsung-odyssey-g5-32-inch-2k",
-        image: "https://zcomputer.vn/uploads/image-1785591240112-998877665.webp",
-        badge: "Hot Sale",
-        specs: {
-          kichThuoc: "32 inch Cong 1000R",
-          doPhanGiai: "2K QHD (2560x1440)",
-          tanSoQuet: "165Hz",
-          tamNen: "VA",
-        },
-      },
-    ];
-
-    return [...directMonitors, ...fallbackMonitors].slice(0, 8);
   }, [products]);
 
   const psuProducts = useMemo(() => {
     return products.filter((p) => {
-      const cat = (p.categoryName || p.category || "").toLowerCase();
-      const name = p.name?.toLowerCase() || "";
-      // Loại trừ các dàn máy PC nguyên bộ và laptop
+      const catSlug = (p.categorySlug || "").toLowerCase();
+      const cat = (p.categoryName || p.category?.name || "").toLowerCase();
+      const name = (p.name || "").toLowerCase();
+      
+      // Loại trừ bộ máy PC và laptop
       if (
         name.startsWith("bộ máy") ||
         name.startsWith("pc ") ||
-        cat === "pc cũ" ||
-        cat.includes("laptop") ||
-        cat.includes("màn hình")
+        name.includes("laptop") ||
+        name.includes("màn hình") ||
+        catSlug.includes("pc-") ||
+        catSlug.includes("laptop")
       ) {
         return false;
       }
+
       return (
-        cat === "850w" ||
-        cat === "750w" ||
-        cat === "700w" ||
-        cat.includes("nguồn") ||
+        catSlug === "psu-nguon-may-tinh" ||
         cat.includes("psu") ||
-        name.startsWith("nguồn")
+        cat.includes("nguồn") ||
+        name.includes("nguồn") ||
+        name.includes("psu")
       );
     });
   }, [products]);
 
   const mainboardProducts = useMemo(() => {
     return products.filter((p) => {
-      const cat = (p.categoryName || p.category || "").toLowerCase();
-      const name = p.name?.toLowerCase() || "";
+      const catSlug = (p.categorySlug || "").toLowerCase();
+      const cat = (p.categoryName || p.category?.name || "").toLowerCase();
+      const name = (p.name || "").toLowerCase();
+
+      // Loại trừ bộ máy PC và laptop
+      if (
+        name.startsWith("bộ máy") ||
+        name.startsWith("pc ") ||
+        name.includes("laptop") ||
+        name.includes("màn hình") ||
+        catSlug.includes("pc-") ||
+        catSlug.includes("laptop")
+      ) {
+        return false;
+      }
+
       return (
-        name.startsWith("main") ||
-        name.startsWith("bo mạch") ||
+        catSlug === "mainboard-bo-mach-chu" ||
         cat.includes("mainboard") ||
-        cat.includes("bo mạch")
+        cat.includes("bo mạch") ||
+        name.includes("mainboard") ||
+        name.includes("bo mạch")
       );
     });
   }, [products]);
@@ -178,41 +215,41 @@ export default function Home() {
         <HeroSlider />
       </section>
 
-      {/* 2. 4 Promo Cards Row */}
-      <div className="mb-6 sm:mb-8 md:mb-10">
+      {/* 2. 4 Khối thông tin khuyến mãi/chính sách dưới Slider */}
+      <div className="mb-4 sm:mb-6">
         <PromoGridCards />
       </div>
 
-      {/* 3. 5 Service Trust Criteria */}
-      <div className="mb-8 sm:mb-10 md:mb-12">
+      {/* 3. Khối 4 tiêu chuẩn cam kết dịch vụ */}
+      <div className="mb-4 sm:mb-6">
         <ServiceFeatures />
       </div>
 
-      {/* 4. Circular Category Icons */}
-      <div className="mb-10 sm:mb-14 md:mb-16">
+      {/* 4. Danh mục nổi bật Pills */}
+      <div className="mb-4 sm:mb-6">
         <CategoryPills
           activeCategory={selectedCategoryPill}
           onSelectCategory={setSelectedCategoryPill}
         />
       </div>
 
-      {/* 5. ⚡ FLASH SALE Section */}
-      <div className="mb-10 sm:mb-14 md:mb-16">
+      {/* 5. ⚡ FLASH SALE HÀNG NGÀY GIÁ CỰC SỐC */}
+      <div className="mb-6 sm:mb-8">
         <FlashSaleSection products={products} />
       </div>
 
-      {/* 6. ▶ ZCOMPUTER SHORT Video Shorts */}
-      <div className="mb-10 sm:mb-14 md:mb-16">
+      {/* 6. ZComputer Shorts / Video ngắn */}
+      <div className="mb-6 sm:mb-8">
         <ZComputerShorts />
       </div>
 
-      {/* 7. 🔥 SẢN PHẨM NỔI BẬT (Featured Slider) */}
-      <div className="mb-10 sm:mb-14 md:mb-16">
+      {/* 7. 🌟 SẢN PHẨM NỔI BẬT KHUYÊN DÙNG */}
+      <div className="mb-6 sm:mb-8">
         <FeaturedProductsSection products={products} />
       </div>
 
-      {/* 8. 🏷️ Brand Logos Bar (Infinite Marquee) */}
-      <div className="mb-10 sm:mb-14 md:mb-16">
+      {/* 8. Logo các thương hiệu đối tác */}
+      <div className="mb-6 sm:mb-8">
         <BrandLogosBar />
       </div>
 
@@ -222,8 +259,8 @@ export default function Home() {
         mainSlug="laptop-cu"
         tabs={[
           { name: "Tất cả", slug: "all" },
-          { name: "Laptop Văn phòng", slug: "van-phong" },
-          { name: "Laptop Gaming", slug: "gaming" },
+          { name: "Laptop Gaming", slug: "laptop-gaming" },
+          { name: "Laptop Văn phòng", slug: "laptop-van-phong" },
           { name: "Macbook", slug: "macbook" },
         ]}
         products={laptopProducts}
@@ -242,9 +279,9 @@ export default function Home() {
         products={pcProducts}
       />
 
-      {/* 11. 📺 MÀN HÌNH MÁY TÍNH Box */}
+      {/* 11. 📺 MÀN HÌNH Box */}
       <CategoryProductBox
-        title="MÀN HÌNH MÁY TÍNH"
+        title="MÀN HÌNH"
         mainSlug="man-hinh"
         tabs={[
           { name: "Tất cả", slug: "all" },
@@ -263,7 +300,7 @@ export default function Home() {
           { name: "Tất cả", slug: "all" },
           { name: "850W", slug: "850w" },
           { name: "750W", slug: "750w" },
-          { name: "700W", slug: "700w" },
+          { name: "650W", slug: "650w" },
         ]}
         products={psuProducts}
       />
@@ -272,11 +309,16 @@ export default function Home() {
       <CategoryProductBox
         title="MAINBOARD - BO MẠCH CHỦ"
         mainSlug="mainboard-bo-mach-chu"
-        tabs={[]}
+        tabs={[
+          { name: "Tất cả", slug: "all" },
+          { name: "B760", slug: "b760" },
+          { name: "Z790", slug: "z790" },
+          { name: "B650", slug: "b650" },
+        ]}
         products={mainboardProducts}
       />
 
-      {/* 14. 📰 TIN TỨC CÔNG NGHỆ MỚI */}
+      {/* 14. 📰 BÀI VIẾT - TIN TỨC CÔNG NGHỆ (Load trực tiếp từ Database API) */}
       <div className="mb-10 sm:mb-14 md:mb-16">
         <HomeNewsSection />
       </div>

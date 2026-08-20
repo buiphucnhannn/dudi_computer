@@ -14,35 +14,19 @@ import WhyChooseUs from "../../components/product-detail/WhyChooseUs";
 import NewsSection from "../../components/product-detail/NewsSection";
 import RelatedProducts from "../../components/product-detail/RelatedProducts";
 import SimilarProducts from "@/components/product-detail/SimilarProducts";
-import staticProducts from "@/data/products.json";
 import { productAPI } from "@/lib/api";
-
-/**
- * Tìm sản phẩm trong products.json
- * nếu API không tìm thấy hoặc API bị lỗi.
- */
-const findStaticProduct = (slug) =>
-  staticProducts.find(
-    (item) =>
-      item.slug === slug ||
-      item._id === slug ||
-      item.id === slug
-  );
 
 function ProductDetailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const slug = searchParams.get("slug");
 
-  const [product, setProduct] = useState(() =>
-    slug ? findStaticProduct(slug) || null : null
-  );
-
+  const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(Boolean(slug));
 
   /**
-   * Fetch product
+   * Fetch product from Database API
    */
   useEffect(() => {
     if (!slug) {
@@ -52,13 +36,6 @@ function ProductDetailContent() {
       return;
     }
 
-    // Tìm fallback trước
-    const fallback = findStaticProduct(slug);
-
-    if (fallback) {
-      setProduct(fallback);
-    }
-
     const fetchProduct = async () => {
       setLoading(true);
 
@@ -66,24 +43,17 @@ function ProductDetailContent() {
         const response = await productAPI.getBySlug(slug);
 
         const data = response?.data?.data;
-        const apiProduct = data?.product;
+        const apiProduct = data?.product || data;
 
         if (apiProduct) {
           setProduct(apiProduct);
-
-          setRelatedProducts(
-            data?.relatedProducts || []
-          );
+          setRelatedProducts(data?.relatedProducts || []);
         } else {
-          setProduct(fallback || null);
+          setProduct(null);
         }
       } catch (error) {
-        console.info(
-          "[Database] Sử dụng products.json:",
-          error.message
-        );
-
-        setProduct(fallback || null);
+        console.error("Lỗi khi tải chi tiết sản phẩm:", error.message);
+        setProduct(null);
       } finally {
         setLoading(false);
       }
@@ -92,33 +62,9 @@ function ProductDetailContent() {
     fetchProduct();
   }, [slug]);
 
-  /**
-   * Related products
-   *
-   * Nếu API có relatedProducts thì dùng API.
-   *
-   * Nếu không có thì lấy từ products.json
-   * cùng category.
-   */
   const related = useMemo(() => {
-    if (relatedProducts.length > 0) {
-      return relatedProducts;
-    }
-
-    if (!product) {
-      return [];
-    }
-
-    return staticProducts
-      .filter(
-        (item) =>
-          item._id !== product._id &&
-          item.id !== product.id &&
-          item.slug !== product.slug &&
-          item.categoryName === product.categoryName
-      )
-      .slice(0, 4);
-  }, [product, relatedProducts]);
+    return relatedProducts;
+  }, [relatedProducts]);
 
   /**
    * Không có slug

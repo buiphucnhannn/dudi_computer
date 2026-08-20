@@ -16,6 +16,14 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        source: "/tin-tuc",
+        destination: "/news",
+      },
+      {
+        source: "/tin-tuc/:slug*",
+        destination: "/news/:slug*",
+      },
+      {
         source: "/chinh-sach-bao-hanh",
         destination: "/warranty-policy",
       },

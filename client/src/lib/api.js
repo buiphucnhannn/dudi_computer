@@ -107,3 +107,9 @@ export const wishlistAPI = {
   removeItem: (productId) => apiClient.delete(`/wishlist/item/${productId}`),
   clear: () => apiClient.delete("/wishlist"),
 };
+
+export const newsAPI = {
+  getAll: (params) => apiClient.get("/news", { params }),
+  getBySlug: (slug) => apiClient.get(`/news/${slug}`),
+  getFeatured: (limit = 4) => apiClient.get("/news/featured", { params: { limit } }),
+};

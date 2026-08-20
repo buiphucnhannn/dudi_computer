@@ -66,7 +66,7 @@ export default function CategoryProductBox({
         const brand = (p.brand || "").toLowerCase();
 
         // 1. Laptop tabs
-        if (activeTab === "van-phong") {
+        if (activeTab === "laptop-van-phong" || activeTab === "van-phong") {
           return (
             name.includes("văn phòng") ||
             name.includes("thinkpad") ||
@@ -76,10 +76,13 @@ export default function CategoryProductBox({
             name.includes("zenbook") ||
             name.includes("vivobook") ||
             name.includes("inspiron") ||
-            name.includes("pavilion")
+            name.includes("pavilion") ||
+            name.includes("surface") ||
+            name.includes("yoga") ||
+            name.includes("xps")
           );
         }
-        if (activeTab === "gaming") {
+        if (activeTab === "laptop-gaming" || activeTab === "gaming") {
           return (
             name.includes("gaming") ||
             name.includes("legion") ||
@@ -91,7 +94,8 @@ export default function CategoryProductBox({
             name.includes("nitro") ||
             name.includes("stealth") ||
             name.includes("alpha") ||
-            name.includes("loq")
+            name.includes("loq") ||
+            name.includes("blade")
           );
         }
         if (activeTab === "macbook") {
@@ -178,6 +182,7 @@ export default function CategoryProductBox({
         // 5. Mainboard tabs (B760, Z790, B650)
         if (activeTab === "b760") return name.includes("b760");
         if (activeTab === "z790") return name.includes("z790");
+        if (activeTab === "b650") return name.includes("b650");
         if (activeTab === "b650") return name.includes("b650");
 
         return cat.includes(activeTab) || name.includes(activeTab);
@@ -363,24 +368,51 @@ export default function CategoryProductBox({
                 </div>
 
                 {/* Specs 2x2 Grid */}
-                <div className="bg-gray-50 rounded-xl p-2.5 grid grid-cols-2 gap-2 text-[10px] text-gray-600 mb-3 border border-gray-100">
-                  <div className="flex items-center gap-1.5 truncate">
-                    <Cpu className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span className="truncate">Intel / AMD</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 truncate">
-                    <Layers className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span className="truncate">16GB / 32GB RAM</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 truncate">
-                    <CircuitBoard className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span className="truncate">RTX GPU</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 truncate">
-                    <HardDrive className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span className="truncate">SSD NVMe</span>
-                  </div>
-                </div>
+                {(() => {
+                  const name = item.name || "";
+                  let cpu = item.specs?.cpu || "";
+                  let ram = item.specs?.ram || "";
+                  let storage = item.specs?.storage || item.specs?.ssd || "";
+                  let gpu = item.specs?.gpu || item.specs?.vga || "";
+
+                  if (!cpu) {
+                    const cpuMatch = name.match(/(i[3579][-\s]\w+|ryzen\s*\d\s*\w+|core\s*ultra\s*\d|m[1234]\s*(pro|max)?)/i);
+                    cpu = cpuMatch ? cpuMatch[0] : (name.includes("i5") ? "Intel Core i5" : name.includes("i7") ? "Intel Core i7" : "Intel / AMD");
+                  }
+                  if (!ram) {
+                    const ramMatch = name.match(/(\d+GB\s*(DDR[45]|RAM)?)/i);
+                    ram = ramMatch ? ramMatch[0] : (item.specs?.size || "16GB RAM");
+                  }
+                  if (!storage) {
+                    const ssdMatch = name.match(/(SSD\s*\d+(GB|TB)|\d+(GB|TB)\s*SSD|NVMe\s*\d+(GB|TB))/i);
+                    storage = ssdMatch ? ssdMatch[0] : (item.specs?.wattage || item.specs?.chipset || "512GB SSD");
+                  }
+                  if (!gpu) {
+                    const gpuMatch = name.match(/(RTX\s*\d{4}(\s*Ti|\s*Super)?|GTX\s*\d{4}|RX\s*\d{4}|Intel\s*Iris|Radeon)/i);
+                    gpu = gpuMatch ? gpuMatch[0] : (item.specs?.refreshRate || item.specs?.efficiency || "Card đồ họa");
+                  }
+
+                  return (
+                    <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-600 mb-2.5 border border-gray-100">
+                      <div className="flex items-center gap-1 truncate" title={cpu}>
+                        <Cpu className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        <span className="truncate">{cpu}</span>
+                      </div>
+                      <div className="flex items-center gap-1 truncate" title={ram}>
+                        <Layers className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        <span className="truncate">{ram}</span>
+                      </div>
+                      <div className="flex items-center gap-1 truncate" title={storage}>
+                        <CircuitBoard className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        <span className="truncate">{storage}</span>
+                      </div>
+                      <div className="flex items-center gap-1 truncate" title={gpu}>
+                        <HardDrive className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        <span className="truncate">{gpu}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Views & Add button */}
                 <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100">

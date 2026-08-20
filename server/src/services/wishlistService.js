@@ -1,13 +1,8 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 import { wishlistRepository, productRepository } from "../repositories/index.js";
 import { Wishlist } from "../models/Wishlist.js";
 import { ApiError } from "../utils/apiError.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { PRODUCTS_DATA } from "../seed.js";
 
 class WishlistService {
   // Helper linh hoạt tìm kiếm hoặc tự động seed sản phẩm vào database nếu chưa có
@@ -24,40 +19,36 @@ class WishlistService {
       });
     }
 
-    if (!product) {
+    if (!product && Array.isArray(PRODUCTS_DATA)) {
       try {
-        const dataPath = path.join(__dirname, "../../../client/src/data/products.json");
-        if (fs.existsSync(dataPath)) {
-          const rawProducts = JSON.parse(fs.readFileSync(dataPath, "utf8"));
-          const matched = rawProducts.find(
-            (p) => p._id === productId || p.slug === productId || p.name === productId
-          );
-          if (matched) {
-            product = await productRepository.create({
-              ...(matched._id && mongoose.Types.ObjectId.isValid(matched._id)
-                ? { _id: matched._id }
-                : {}),
-              name: matched.name,
-              slug: matched.slug,
-              brand: matched.brand || "ZCOMPUTER",
-              price: matched.price,
-              originalPrice: matched.originalPrice || matched.price,
-              discountPrice: matched.price,
-              discountPercent: matched.discountPercent || 0,
-              stock: 20,
-              images:
-                matched.images && matched.images.length > 0
-                  ? matched.images
-                  : ["https://zcomputer.vn/logo-main.png"],
-              thumbnail:
-                matched.thumbnail || matched.images?.[0] || "https://zcomputer.vn/logo-main.png",
-              warranty: matched.warranty || "Bảo hành 3 - 12 Tháng",
-              status: "in_stock",
-            });
-          }
+        const matched = PRODUCTS_DATA.find(
+          (p) => p._id === productId || p.slug === productId || p.name === productId
+        );
+        if (matched) {
+          product = await productRepository.create({
+            ...(matched._id && mongoose.Types.ObjectId.isValid(matched._id)
+              ? { _id: matched._id }
+              : {}),
+            name: matched.name,
+            slug: matched.slug,
+            brand: matched.brand || "ZCOMPUTER",
+            price: matched.price,
+            originalPrice: matched.originalPrice || matched.price,
+            discountPrice: matched.price,
+            discountPercent: matched.discountPercent || 0,
+            stock: 20,
+            images:
+              matched.images && matched.images.length > 0
+                ? matched.images
+                : ["https://zcomputer.vn/logo-main.png"],
+            thumbnail:
+              matched.thumbnail || matched.images?.[0] || "https://zcomputer.vn/logo-main.png",
+            warranty: matched.warranty || "Bảo hành 3 - 12 Tháng",
+            status: "in_stock",
+          });
         }
       } catch (err) {
-        console.error("Lỗi resolve product từ static data:", err);
+        console.error("Lỗi resolve product từ seed data:", err);
       }
     }
 

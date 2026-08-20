@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { useToast } from "@/components/common/ToastContext";
@@ -24,7 +24,7 @@ import BuyContactModal from "./BuyContactModal";
 import ProductComparisonModal from "./ProductComparisonModal";
 import ProductComparisonBar from "./ProductComparisonBar";
 
-import staticProducts from "@/data/products.json";
+import { productAPI } from "@/lib/api";
 import { parseProductSpecs } from "@/lib/specParser";
 
 const ProductInfo = ({ product }) => {
@@ -32,6 +32,22 @@ const ProductInfo = ({ product }) => {
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
+  const [allProducts, setAllProducts] = useState([]);
+
+  // Tải danh sách sản phẩm từ API
+  useEffect(() => {
+    productAPI.getAll({ limit: 100 })
+      .then((res) => {
+        if (res.data?.data?.products) {
+          setAllProducts(res.data.data.products);
+        } else if (Array.isArray(res.data?.data)) {
+          setAllProducts(res.data.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi khi tải sản phẩm so sánh:", err);
+      });
+  }, []);
 
   const isFavorite = cartItems.some(
     (item) =>
@@ -531,7 +547,7 @@ const ProductInfo = ({ product }) => {
         onClose={() =>
           setIsComparisonModalOpen(false)
         }
-        products={staticProducts}
+        products={allProducts}
         selectedProducts={comparisonProducts}
         currentProduct={product}
         onAddProduct={

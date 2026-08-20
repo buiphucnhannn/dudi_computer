@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/common/ToastContext";
 import ProductComparisonBar from "@/components/product-detail/ProductComparisonBar";
 import ProductComparisonModal from "@/components/product-detail/ProductComparisonModal";
-import staticProducts from "@/data/products.json";
+import { productAPI } from "@/lib/api";
 
 const CompareContext = createContext(null);
 
@@ -26,6 +26,7 @@ export const useCompare = () => {
 
 export const CompareProvider = ({ children }) => {
   const [compareItems, setCompareItems] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
   const toast = useToast();
@@ -37,6 +38,19 @@ export const CompareProvider = ({ children }) => {
         setCompareItems(JSON.parse(saved));
       }
     } catch (_) {}
+
+    // Tải danh sách sản phẩm thực tế từ Database API phục vụ modal so sánh
+    productAPI.getAll({ limit: 100 })
+      .then((res) => {
+        if (res.data?.data?.products) {
+          setAllProducts(res.data.data.products);
+        } else if (Array.isArray(res.data?.data)) {
+          setAllProducts(res.data.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Lỗi khi tải sản phẩm so sánh:", err);
+      });
   }, []);
 
   const saveItems = (items) => {
@@ -131,7 +145,7 @@ export const CompareProvider = ({ children }) => {
       <ProductComparisonModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        products={staticProducts}
+        products={allProducts}
         currentProduct={compareItems[0] || null}
         selectedProducts={compareItems}
         onAddProduct={(product) => {

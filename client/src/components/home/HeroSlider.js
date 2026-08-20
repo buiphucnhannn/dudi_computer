@@ -109,7 +109,7 @@ export default function HeroSlider() {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="relative rounded-2xl overflow-hidden shadow-xs bg-[#050505] aspect-[16/9] md:aspect-[16/8] lg:aspect-auto lg:h-[580px] xl:h-[600px] w-full h-full group select-none cursor-grab active:cursor-grabbing"
+      className="relative rounded-2xl overflow-hidden shadow-xs bg-[#050505] aspect-[16/9] md:aspect-[16/8] lg:aspect-auto lg:h-[590px] xl:h-[610px] w-full h-full group select-none cursor-grab active:cursor-grabbing"
     >
       {/* Khung chứa các slide cố định 100% không xê dịch, chuyển đổi bằng hiệu ứng Fade 1500ms mượt mà */}
       <div className="relative w-full h-full">

@@ -157,20 +157,20 @@ export default function CategorySidebar() {
   ];
 
   return (
-    <div className="hidden lg:flex flex-col w-full relative z-30 h-[580px] xl:h-[600px]">
+    <div className="hidden lg:flex flex-col w-full relative z-30 h-[590px] xl:h-[610px]">
       <div className="relative bg-white shadow-xs border border-t-0 border-gray-200/90 py-1 w-full h-full flex flex-col justify-between rounded-b-2xl">
         {categories.map((cat) => {
           const Icon = cat.icon;
           return (
-            <div key={cat.slug} className="group static flex-1 flex flex-col justify-center" tabIndex={0}>
+            <div key={cat.slug} className="group relative flex-1 flex flex-col justify-center" tabIndex={0}>
               <div className="px-2 py-0.5 h-full flex items-center">
                 <Link
                   href={`/product?category=${cat.slug}`}
-                  className="flex w-full items-center justify-between px-3 py-1.5 transition-all duration-200 rounded-lg text-gray-700 hover:bg-[#eb1c24] hover:text-white group-hover:bg-[#eb1c24] group-hover:text-white"
+                  className="flex w-full items-center justify-between px-3 py-2 transition-all duration-200 rounded-lg text-gray-700 hover:bg-[#eb1c24] hover:text-white group-hover:bg-[#eb1c24] group-hover:text-white"
                 >
                   <div className="flex items-center gap-2.5">
                     <Icon className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors" />
-                    <span className="text-[13px] font-bold group-hover:text-white transition-colors">
+                    <span className="text-[13.5px] font-bold group-hover:text-white transition-colors">
                       {cat.name}
                     </span>
                   </div>
@@ -180,12 +180,12 @@ export default function CategorySidebar() {
                 </Link>
               </div>
 
-              {/* Flyout Submenu - Dính liền ngay bên cạnh dòng danh mục đang rê chuột */}
+              {/* Flyout Submenu - Dính liền ngay cạnh dòng danh mục đang rê chuột */}
               {cat.hasSub && cat.subGroups && (
                 <div
                   className={`opacity-0 invisible group-hover:opacity-100 group-hover:visible absolute left-full top-0 ${
                     cat.subGroups.length > 1 ? "w-[520px]" : "w-[280px]"
-                  } bg-white shadow-[0_12px_35px_rgba(0,0,0,0.15)] border border-gray-200/90 z-50 rounded-2xl transition-all duration-200 p-4 sm:p-5 flex items-start gap-6 ml-0.5`}
+                  } bg-white shadow-[0_12px_35px_rgba(0,0,0,0.15)] border border-gray-200/90 z-50 rounded-2xl transition-all duration-200 p-4 sm:p-5 flex items-start gap-6 ml-1`}
                 >
                   <div className="flex flex-wrap gap-x-6 gap-y-4 w-full items-start">
                     {cat.subGroups.map((group) => (

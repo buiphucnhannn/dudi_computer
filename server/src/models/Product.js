@@ -26,6 +26,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: "Laptop Cũ",
     },
+    categorySlug: {
+      type: String,
+      default: "laptop-cu",
+    },
     price: {
       type: Number,
       required: [true, "Giá bán là bắt buộc"],

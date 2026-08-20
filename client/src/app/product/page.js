@@ -9,8 +9,6 @@ import ProductToolbar from "@/components/product/ProductToolbar";
 import ProductSearch from "@/components/product/ProductSearch";
 import ProductPagination from "@/components/product/ProductPagination";
 import ActiveFilters from "@/components/product/ActiveFilters";
-
-import staticProducts from "@/data/products.json";
 import { productAPI } from "@/lib/api";
 
 function ProductsContent() {
@@ -20,7 +18,7 @@ function ProductsContent() {
   const isFlashSaleParam = searchParams.get("isFlashSale");
   const brandParam = searchParams.get("brand") || "";
 
-  const [products, setProducts] = useState(staticProducts);
+  const [products, setProducts] = useState([]);
   const [search, setSearch] = useState(searchParam);
   const [sort, setSort] = useState("newest");
   const [filters, setFilters] = useState({
@@ -47,7 +45,7 @@ function ProductsContent() {
   }, [categoryParam, searchParam, isFlashSaleParam, brandParam]);
 
   // =========================
-  // LOAD PRODUCTS
+  // LOAD PRODUCTS TỪ API
   // =========================
   useEffect(() => {
     const fetchProducts = async () => {
@@ -60,9 +58,11 @@ function ProductsContent() {
 
         if (data?.length > 0) {
           setProducts(data);
+        } else if (Array.isArray(response?.data?.data)) {
+          setProducts(response.data.data);
         }
       } catch (error) {
-        console.info("[Database] Sử dụng products.json:", error.message);
+        console.error("Lỗi khi tải sản phẩm từ API:", error.message);
       }
     };
 

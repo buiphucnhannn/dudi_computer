@@ -80,25 +80,74 @@ export default function FlashSaleSection({ products = [] }) {
     return products
       .filter((p) => {
         const name = (p.name || "").toLowerCase();
+        const catSlug = (p.categorySlug || "").toLowerCase();
         const cat = (p.categoryName || "").toLowerCase();
 
+        // 1. Tab PC Cũ: Chỉ lấy bộ máy PC, TUYỆT ĐỐI KHÔNG lấy Mainboard, Nguồn, VGA rời, Màn hình, Laptop
         if (activeTab === "pc") {
+          if (
+            name.startsWith("mainboard") ||
+            name.startsWith("bo mạch") ||
+            name.startsWith("nguồn") ||
+            name.startsWith("card màn hình") ||
+            name.startsWith("ram") ||
+            name.startsWith("ssd") ||
+            name.startsWith("màn hình") ||
+            name.startsWith("laptop") ||
+            name.startsWith("macbook") ||
+            catSlug === "mainboard-bo-mach-chu" ||
+            catSlug === "psu-nguon-may-tinh" ||
+            catSlug === "vga-card-man-hinh" ||
+            catSlug === "cpu-bo-vi-xu-ly" ||
+            catSlug === "ram-bo-nho-trong" ||
+            catSlug === "o-cung-hdd-ssd" ||
+            catSlug === "man-hinh" ||
+            catSlug.includes("laptop") ||
+            catSlug === "macbook"
+          ) {
+            return false;
+          }
+
           return (
-            cat.includes("pc") ||
+            catSlug === "pc-cu" ||
+            catSlug === "pc-gaming" ||
+            catSlug === "pc-do-hoa" ||
+            catSlug === "pc-van-phong" ||
             name.startsWith("bộ máy") ||
             name.startsWith("pc ") ||
-            name.includes("b760m") ||
-            name.includes("h610")
+            name.startsWith("máy tính để bàn") ||
+            name.startsWith("máy tính aio")
           );
         }
 
+        // 2. Tab Laptop Cũ: Chỉ lấy Laptop
         if (activeTab === "laptop") {
+          if (
+            name.startsWith("bộ máy") ||
+            name.startsWith("pc ") ||
+            name.startsWith("mainboard") ||
+            name.startsWith("nguồn") ||
+            name.startsWith("màn hình") ||
+            catSlug.includes("pc-") ||
+            catSlug === "mainboard-bo-mach-chu" ||
+            catSlug === "psu-nguon-may-tinh" ||
+            catSlug === "man-hinh"
+          ) {
+            return false;
+          }
+
           return (
+            catSlug.includes("laptop") ||
+            catSlug === "macbook" ||
             cat.includes("laptop") ||
             name.startsWith("laptop") ||
             name.startsWith("macbook") ||
             name.includes("thinkpad") ||
-            name.includes("legion")
+            name.includes("legion") ||
+            name.includes("zenbook") ||
+            name.includes("surface") ||
+            name.includes("latitude") ||
+            name.includes("xps")
           );
         }
 

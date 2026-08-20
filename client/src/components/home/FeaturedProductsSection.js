@@ -2,12 +2,35 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, ArrowRight, Eye } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  Eye,
+  Scale,
+  Heart,
+  Cpu,
+  Layers,
+  HardDrive,
+  CircuitBoard,
+  Sparkles,
+  Flame,
+} from "lucide-react";
 import { formatVND } from "@/lib/utils";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addToCartAsync,
+  removeFromCartAsync,
+  selectCartItems,
+} from "@/redux/slices/cartSlice";
+import { useCompare } from "@/components/common/CompareContext";
 
 export default function FeaturedProductsSection({ products = [] }) {
   const [activeTab, setActiveTab] = useState("all");
   const sliderRef = useRef(null);
+  const dispatch = useDispatch();
+  const { addToCompare, isComparing } = useCompare();
+  const cartItems = useSelector(selectCartItems) || [];
 
   const tabs = [
     { id: "all", name: "Tất cả" },
@@ -17,18 +40,62 @@ export default function FeaturedProductsSection({ products = [] }) {
 
   const filteredProducts = products.filter((p) => {
     if (activeTab === "all") return true;
+    const catSlug = (p.categorySlug || "").toLowerCase();
     const cat = (p.categoryName || "").toLowerCase();
     const name = (p.name || "").toLowerCase();
-    if (activeTab === "pc")
+
+    if (activeTab === "pc") {
+      if (
+        name.startsWith("mainboard") ||
+        name.startsWith("nguồn") ||
+        name.startsWith("card màn hình") ||
+        name.startsWith("ram") ||
+        name.startsWith("ssd") ||
+        name.startsWith("màn hình") ||
+        name.startsWith("laptop") ||
+        catSlug === "mainboard-bo-mach-chu" ||
+        catSlug === "psu-nguon-may-tinh" ||
+        catSlug === "vga-card-man-hinh" ||
+        catSlug === "cpu-bo-vi-xu-ly" ||
+        catSlug === "man-hinh" ||
+        catSlug.includes("laptop") ||
+        catSlug === "macbook"
+      ) {
+        return false;
+      }
       return (
-        cat.includes("pc") || name.includes("bộ máy") || name.includes("pc ")
+        catSlug === "pc-cu" ||
+        catSlug === "pc-gaming" ||
+        catSlug === "pc-do-hoa" ||
+        catSlug === "pc-van-phong" ||
+        name.startsWith("bộ máy") ||
+        name.startsWith("pc ") ||
+        name.startsWith("máy tính để bàn") ||
+        name.startsWith("máy tính aio")
       );
-    if (activeTab === "laptop")
+    }
+
+    if (activeTab === "laptop") {
+      if (
+        name.startsWith("bộ máy") ||
+        name.startsWith("pc ") ||
+        name.startsWith("mainboard") ||
+        name.startsWith("nguồn") ||
+        catSlug.includes("pc-") ||
+        catSlug === "mainboard-bo-mach-chu"
+      ) {
+        return false;
+      }
       return (
+        catSlug.includes("laptop") ||
+        catSlug === "macbook" ||
         cat.includes("laptop") ||
-        name.includes("laptop") ||
-        name.includes("macbook")
+        name.startsWith("laptop") ||
+        name.startsWith("macbook") ||
+        name.includes("thinkpad") ||
+        name.includes("legion")
       );
+    }
     return true;
   });
 
@@ -57,6 +124,17 @@ export default function FeaturedProductsSection({ products = [] }) {
     }
   };
 
+  const handleToggleFavorite = (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isFav = cartItems.some((i) => (i._id || i.id) === (item._id || item.id));
+    if (isFav) {
+      dispatch(removeFromCartAsync(item._id || item.id));
+    } else {
+      dispatch(addToCartAsync({ product: item, quantity: 1 }));
+    }
+  };
+
   const getProductImage = (item) => {
     if (item.thumbnail && item.thumbnail.startsWith("http"))
       return item.thumbnail;
@@ -67,6 +145,34 @@ export default function FeaturedProductsSection({ products = [] }) {
     }
     if (item.image && item.image.startsWith("http")) return item.image;
     return "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
+  };
+
+  // Trích xuất 4 thông số cấu hình hiển thị trong thẻ sản phẩm
+  const extractSpecs = (item) => {
+    const name = item.name || "";
+    let cpu = item.specs?.cpu || item.specifications?.cpu || "";
+    let ram = item.specs?.ram || item.specifications?.ram || "";
+    let storage = item.specs?.storage || item.specifications?.storage || item.specs?.ssd || "";
+    let gpu = item.specs?.gpu || item.specifications?.gpu || item.specs?.vga || "";
+
+    if (!cpu) {
+      const cpuMatch = name.match(/(i[3579][-\s]\w+|ryzen\s*\d\s*\w+|core\s*ultra\s*\d|m[1234]\s*(pro|max)?)/i);
+      cpu = cpuMatch ? cpuMatch[0] : (name.includes("i5") ? "Intel Core i5" : name.includes("i7") ? "Intel Core i7" : "Intel / AMD");
+    }
+    if (!ram) {
+      const ramMatch = name.match(/(\d+GB\s*(DDR[45]|RAM)?)/i);
+      ram = ramMatch ? ramMatch[0] : "16GB RAM";
+    }
+    if (!storage) {
+      const ssdMatch = name.match(/(SSD\s*\d+(GB|TB)|\d+(GB|TB)\s*SSD|NVMe\s*\d+(GB|TB))/i);
+      storage = ssdMatch ? ssdMatch[0] : (name.includes("B760") ? "MSI PRO B760M" : name.includes("B650") ? "ASUS B650M" : "512GB SSD");
+    }
+    if (!gpu) {
+      const gpuMatch = name.match(/(RTX\s*\d{4}(\s*Ti|\s*Super)?|GTX\s*\d{4}|RX\s*\d{4}|Intel\s*Iris|Radeon)/i);
+      gpu = gpuMatch ? gpuMatch[0] : (name.includes("RTX 3060") ? "RTX 3060 12GB" : name.includes("RTX 4060") ? "RTX 4060 8GB" : "Card đồ họa rời");
+    }
+
+    return { cpu, ram, storage, gpu };
   };
 
   return (
@@ -131,93 +237,149 @@ export default function FeaturedProductsSection({ products = [] }) {
             const originalPrice =
               item.originalPrice || Math.round(item.price * 1.05);
             const imgSrc = getProductImage(item);
+            const isFav = cartItems.some((i) => (i._id || i.id) === (item._id || item.id));
+            const isComp = isComparing(item.slug || item._id || item.id);
+            const detailHref = `/product-detail?slug=${encodeURIComponent(
+              item.slug || item._id || item.id
+            )}`;
+            const specs = extractSpecs(item);
 
             return (
               <div
-                key={`featured-${item._id}`}
-                className="w-[260px] sm:w-[280px] lg:w-[calc(25%-12px)] shrink-0 bg-white rounded-2xl border-2 border-red-500 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group/card relative"
+                key={`featured-${item._id || item.id}`}
+                className="w-[260px] sm:w-[280px] lg:w-[calc(25%-12px)] shrink-0 bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group/card relative"
               >
-                {/* Top Left Discount Badge */}
-                <div className="absolute top-0 left-0 z-40 pointer-events-none">
-                  <div className="bg-[#eb1c24] text-white text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-tl-[12px] rounded-br-[10px] whitespace-nowrap shadow-xs">
-                    Giảm {discountPercent}%
-                  </div>
-                </div>
+                <div>
+                  {/* Product Image Area */}
+                  <Link
+                    href={detailHref}
+                    className="block relative aspect-square w-full rounded-xl overflow-hidden border-2 border-red-500 mb-3 bg-white group/img p-2"
+                  >
+                    {/* Top Left Discount Badge */}
+                    {discountPercent > 0 && (
+                      <div className="absolute top-2 left-2 z-20 bg-[#eb1c24] text-white text-[11px] font-black px-2 py-0.5 rounded shadow-sm">
+                        Giảm {discountPercent}%
+                      </div>
+                    )}
 
-                {/* Top Right '🔥 HOT SALE' Badge */}
-                <div className="absolute top-0 right-0 z-40 pointer-events-none">
-                  <div className="bg-[#eb1c24] text-white text-[10px] sm:text-[11px] font-black px-2.5 py-1 rounded-tr-[12px] rounded-bl-[10px] uppercase tracking-wider flex items-center gap-1 shadow-xs">
-                    🔥 HOT SALE
-                  </div>
-                </div>
-
-                {/* Product Image Area */}
-                <Link
-                  href={`/product-detail?slug=${encodeURIComponent(item.slug || item._id)}`}
-                  className="relative aspect-square w-full bg-white p-3 flex items-center justify-center overflow-hidden border-b border-gray-100 block cursor-pointer"
-                >
-                  <img
-                    src={imgSrc}
-                    alt={item.name}
-                    className="w-full h-full object-contain p-1 transition-transform duration-700 group-hover/card:scale-105"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
-                    }}
-                  />
-
-                  {/* Center Hover Pill - Chính giữa ảnh */}
-                  <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-all duration-300 z-30 pointer-events-none">
-                    <div className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover/card:scale-100 transition-all duration-300 whitespace-nowrap">
-                      <span>Xem chi tiết</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </div>
-                  </div>
-                </Link>
-
-                {/* Product Details Info */}
-                <div className="p-3.5 sm:p-4 flex flex-col flex-1 bg-white justify-between">
-                  <div>
-                    {/* Brand */}
-                    <div className="text-[10px] sm:text-[11px] font-extrabold text-gray-500 uppercase tracking-wider mb-1">
-                      {item.brand || "ZCOMPUTER"}
+                    {/* Top Right '🔥 HOT SALE' Badge */}
+                    <div className="absolute top-2 right-2 z-20 bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
+                      <Flame className="w-3 h-3 fill-white" />
+                      <span>HOT SALE</span>
                     </div>
 
-                    {/* Title */}
-                    <Link
-                      href={`/product-detail?slug=${encodeURIComponent(item.slug || item._id)}`}
-                      className="block hover:text-[#eb1c24] transition-colors"
-                    >
-                      <h4 className="text-gray-900 text-xs sm:text-[13px] font-bold leading-snug line-clamp-2 group-hover/card:text-[#eb1c24] transition-colors duration-300 min-h-[36px]">
-                        {item.name}
-                      </h4>
-                    </Link>
+                    <img
+                      src={imgSrc}
+                      alt={item.name}
+                      className="w-full h-full object-contain p-1 group-hover/img:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
+                      }}
+                    />
+
+                    {/* Center Hover Pill */}
+                    <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover/card:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
+                      <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover/card:scale-100 transition-all duration-300 whitespace-nowrap">
+                        <span>Xem chi tiết</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-[#eb1c24]" />
+                      </span>
+                    </div>
+                  </Link>
+
+                  {/* Brand & Action Icons (Cân so sánh + Trái tim yêu thích) */}
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
+                    <span className="font-black text-gray-900 uppercase tracking-wider text-[11px]">
+                      {item.brand || "CUSTOM"}
+                    </span>
+                    <div className="flex items-center gap-1.5 text-gray-400">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          addToCompare(item);
+                        }}
+                        className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                          isComp
+                            ? "text-[#eb1c24] bg-red-50"
+                            : "hover:text-[#eb1c24] hover:bg-gray-100"
+                        }`}
+                        title="So sánh sản phẩm"
+                      >
+                        <Scale className="w-[18px] h-[18px]" />
+                      </button>
+                      <button
+                        onClick={(e) => handleToggleFavorite(e, item)}
+                        className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                          isFav
+                            ? "text-red-500 bg-red-50"
+                            : "hover:text-red-500 hover:bg-gray-100"
+                        }`}
+                        title="Yêu thích"
+                      >
+                        <Heart
+                          className={`w-[18px] h-[18px] ${
+                            isFav ? "fill-current" : ""
+                          }`}
+                        />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Price and Footer */}
-                  <div className="mt-3">
+                  {/* Title */}
+                  <Link
+                    href={detailHref}
+                    className="font-bold text-xs sm:text-[13px] text-gray-900 hover:text-[#eb1c24] group-hover/card:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors block"
+                    title={item.name}
+                  >
+                    {item.name}
+                  </Link>
+
+                  {/* Price Box */}
+                  <div className="mb-2.5">
+                    {originalPrice > item.price && (
+                      <div className="text-xs text-gray-400 line-through mb-0.5">
+                        {formatVND(originalPrice)}
+                      </div>
+                    )}
                     <div className="flex items-baseline gap-2">
-                      <span className="text-sm sm:text-base font-black text-[#eb1c24] leading-none">
+                      <span className="text-base sm:text-lg font-black text-[#eb1c24]">
                         {formatVND(item.price)}
                       </span>
                       {discountPercent > 0 && (
-                        <span className="text-[11px] text-gray-400 line-through">
-                          {formatVND(originalPrice)}
+                        <span className="text-xs font-bold text-[#eb1c24]">
+                          -{discountPercent}%
                         </span>
                       )}
                     </div>
+                  </div>
 
-                    <div className="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between text-[10.5px] text-gray-400">
-                      <span className="text-emerald-600 font-bold">
-                        ✓ Còn hàng
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>{item.views || 48} lượt xem</span>
-                      </div>
+                  {/* 4 Specs Chips Grid (Khối mô tả cấu hình 2x2) */}
+                  <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-600 mb-2.5 border border-gray-100">
+                    <div className="flex items-center gap-1 truncate" title={specs.cpu}>
+                      <Cpu className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                      <span className="truncate">{specs.cpu}</span>
+                    </div>
+                    <div className="flex items-center gap-1 truncate" title={specs.ram}>
+                      <Layers className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                      <span className="truncate">{specs.ram}</span>
+                    </div>
+                    <div className="flex items-center gap-1 truncate" title={specs.storage}>
+                      <CircuitBoard className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                      <span className="truncate">{specs.storage}</span>
+                    </div>
+                    <div className="flex items-center gap-1 truncate" title={specs.gpu}>
+                      <Sparkles className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                      <span className="truncate">{specs.gpu}</span>
                     </div>
                   </div>
+                </div>
+
+                {/* Footer View Count */}
+                <div className="pt-2 border-t border-gray-100 flex items-center justify-center text-[10.5px] text-gray-400 gap-1.5">
+                  <Eye className="w-3.5 h-3.5 text-gray-400" />
+                  <span>{item.views || 70} lượt xem</span>
                 </div>
               </div>
             );

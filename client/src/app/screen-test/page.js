@@ -478,6 +478,7 @@ export default function ScreenTestPage() {
         setIsLcdActive(false);
         setIsTouchActive(false);
         document.body.style.overflow = "";
+        window.scrollTo({ top: 0, behavior: "instant" });
       }
     };
 
@@ -590,6 +591,7 @@ export default function ScreenTestPage() {
               if (document.fullscreenElement && document.exitFullscreen) {
                 document.exitFullscreen();
               }
+              window.scrollTo({ top: 0, behavior: "instant" });
             }}
             className="ml-2 p-1 hover:bg-white/20 rounded-full transition-colors cursor-pointer text-gray-300 hover:text-white"
             title="Thoát test (ESC)"
@@ -615,6 +617,7 @@ export default function ScreenTestPage() {
           if (document.fullscreenElement && document.exitFullscreen) {
             document.exitFullscreen();
           }
+          window.scrollTo({ top: 0, behavior: "instant" });
         }}
       />
     );
