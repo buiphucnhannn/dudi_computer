@@ -12,7 +12,8 @@ export const verifyJWT = async (req, res, next) => {
       throw new ApiError(401, "Yêu cầu đăng nhập để truy cập tài nguyên này");
     }
 
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const secret = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET;
+    const decodedToken = jwt.verify(token, secret);
     const user = await User.findById(decodedToken?._id).select("-password");
 
     if (!user) {

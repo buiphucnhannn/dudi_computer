@@ -197,9 +197,9 @@ export default function CategoryProductBox({
                     }}
                   />
 
-                  {/* Center Hover Pill */}
-                  <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all duration-300">
-                    <span className="bg-white text-gray-900 text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover/img:translate-y-0 transition-transform duration-300 hover:text-[#eb1c24]">
+                  {/* Center Hover Pill - Chính giữa ảnh */}
+                  <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
+                    <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover:scale-100 group-hover/img:scale-100 transition-all duration-300 whitespace-nowrap">
                       <span>Xem chi tiết</span>
                       <ArrowRight className="w-3.5 h-3.5 text-[#eb1c24]" />
                     </span>

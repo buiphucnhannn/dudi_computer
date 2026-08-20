@@ -14,20 +14,20 @@ const BANNERS = [
 
 export default function HeroSlider() {
   const [current, setCurrent] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef(null);
 
-  // Tự động chuyển slide sau 4.5s (tạm dừng khi đang rê chuột hoặc kéo)
+  // Tự động chuyển slide sau 4s với hiệu ứng mờ dần xuất hiện (Cross-fade)
   useEffect(() => {
-    if (isDragging || isHovered) return;
+    if (isHovered || isDragging) return;
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % BANNERS.length);
-    }, 4500);
+    }, 4000);
     return () => clearInterval(timer);
-  }, [isDragging, isHovered]);
+  }, [isHovered, isDragging]);
 
   const prevSlide = () => {
     setCurrent((prev) => (prev === 0 ? BANNERS.length - 1 : prev - 1));
@@ -37,7 +37,7 @@ export default function HeroSlider() {
     setCurrent((prev) => (prev + 1) % BANNERS.length);
   };
 
-  // --- Xử lý kéo chuột (Mouse Drag) ---
+  // --- Xử lý kéo chuột để chuyển slide (Chỉ nhận diện cử chỉ, KHÔNG làm xê dịch khung ảnh) ---
   const handleMouseDown = (e) => {
     setIsDragging(true);
     setStartX(e.clientX);
@@ -46,16 +46,15 @@ export default function HeroSlider() {
 
   const handleMouseMove = (e) => {
     if (!isDragging) return;
-    const currentX = e.clientX;
-    const diff = currentX - startX;
+    const diff = e.clientX - startX;
     setDragOffset(diff);
   };
 
   const handleMouseUp = () => {
     if (!isDragging) return;
-    if (dragOffset < -50) {
+    if (dragOffset < -40) {
       nextSlide();
-    } else if (dragOffset > 50) {
+    } else if (dragOffset > 40) {
       prevSlide();
     }
     setIsDragging(false);
@@ -64,9 +63,9 @@ export default function HeroSlider() {
 
   const handleMouseLeave = () => {
     if (isDragging) {
-      if (dragOffset < -50) {
+      if (dragOffset < -40) {
         nextSlide();
-      } else if (dragOffset > 50) {
+      } else if (dragOffset > 40) {
         prevSlide();
       }
       setIsDragging(false);
@@ -84,16 +83,15 @@ export default function HeroSlider() {
 
   const handleTouchMove = (e) => {
     if (!isDragging) return;
-    const currentX = e.touches[0].clientX;
-    const diff = currentX - startX;
+    const diff = e.touches[0].clientX - startX;
     setDragOffset(diff);
   };
 
   const handleTouchEnd = () => {
     if (!isDragging) return;
-    if (dragOffset < -50) {
+    if (dragOffset < -40) {
       nextSlide();
-    } else if (dragOffset > 50) {
+    } else if (dragOffset > 40) {
       prevSlide();
     }
     setIsDragging(false);
@@ -111,31 +109,33 @@ export default function HeroSlider() {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="relative rounded-2xl overflow-hidden shadow-xs bg-[#050505] aspect-[16/9] md:aspect-[16/8] lg:aspect-auto lg:h-[530px] w-full h-full group select-none cursor-grab active:cursor-grabbing"
+      className="relative rounded-2xl overflow-hidden shadow-xs bg-[#050505] aspect-[16/9] md:aspect-[16/8] lg:aspect-auto lg:h-[536px] w-full h-full group select-none cursor-grab active:cursor-grabbing"
     >
-      {/* Track chứa tất cả banner trượt mượt mà */}
-      <div
-        className={`flex h-full w-full ${
-          isDragging ? "transition-none" : "transition-transform duration-500 ease-out"
-        }`}
-        style={{
-          transform: `translateX(calc(-${current * 100}% + ${dragOffset}px))`,
-        }}
-      >
-        {BANNERS.map((img, idx) => (
-          <div
-            key={idx}
-            className="w-full h-full shrink-0 relative pointer-events-none"
-          >
-            <img
-              src={img}
-              alt={`ZComputer Banner ${idx + 1}`}
-              className="w-full h-full object-cover select-none pointer-events-none"
-              loading={idx === 0 ? "eager" : "lazy"}
-              draggable={false}
-            />
-          </div>
-        ))}
+      {/* Khung chứa các slide cố định 100% không xê dịch, chuyển đổi bằng hiệu ứng Fade 1500ms mượt mà */}
+      <div className="relative w-full h-full">
+        {BANNERS.map((img, idx) => {
+          const isActive = idx === current;
+          return (
+            <div
+              key={idx}
+              className={`absolute inset-0 w-full h-full flex items-center justify-center bg-[#050505] transition-opacity duration-[1500ms] ease-in-out ${
+                isActive
+                  ? "opacity-100 z-10 pointer-events-auto"
+                  : "opacity-0 z-0 pointer-events-none"
+              }`}
+            >
+              <img
+                src={img}
+                alt={`ZComputer Banner ${idx + 1}`}
+                className={`w-full h-full object-contain select-none pointer-events-none transition-transform ease-out ${
+                  isHovered && isActive ? "scale-105 duration-[6000ms]" : "scale-100 duration-[3000ms]"
+                }`}
+                loading={idx === 0 ? "eager" : "lazy"}
+                draggable={false}
+              />
+            </div>
+          );
+        })}
       </div>
 
       {/* Arrow Controls */}
@@ -144,7 +144,7 @@ export default function HeroSlider() {
           e.stopPropagation();
           prevSlide();
         }}
-        className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+        className="absolute left-3.5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer shadow-md hover:scale-105"
         aria-label="Previous Slide"
       >
         <ChevronLeft className="w-6 h-6" />
@@ -154,14 +154,14 @@ export default function HeroSlider() {
           e.stopPropagation();
           nextSlide();
         }}
-        className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+        className="absolute right-3.5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer shadow-md hover:scale-105"
         aria-label="Next Slide"
       >
         <ChevronRight className="w-6 h-6" />
       </button>
 
-      {/* Pagination dots */}
-      <div className="absolute bottom-3.5 left-1/2 -translate-x-1/2 z-20 flex gap-1.5 pointer-events-auto">
+      {/* Pagination dots (Màu xám/trắng siêu nhạt nhòa tinh tế) */}
+      <div className="absolute bottom-3.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 pointer-events-auto">
         {BANNERS.map((_, idx) => (
           <button
             key={idx}
@@ -169,8 +169,10 @@ export default function HeroSlider() {
               e.stopPropagation();
               setCurrent(idx);
             }}
-            className={`h-2.5 rounded-full transition-all cursor-pointer ${
-              idx === current ? "w-7 bg-[#eb1c24]" : "w-2.5 bg-white/70 hover:bg-white"
+            className={`h-2 rounded-full transition-all duration-700 cursor-pointer ${
+              idx === current
+                ? "w-6 bg-white/40 shadow-none"
+                : "w-2 bg-white/15 hover:bg-white/30"
             }`}
             aria-label={`Go to slide ${idx + 1}`}
           />
