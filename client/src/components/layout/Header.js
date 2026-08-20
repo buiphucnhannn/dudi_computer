@@ -28,8 +28,158 @@ import {
   Sparkles,
   LogOut,
 } from "lucide-react";
-import { loadCartFromStorage, selectTotalItems } from "@/redux/slices/cartSlice";
-import { initAuthFromStorage, selectCurrentUser, selectIsAuthenticated } from "@/redux/slices/authSlice";
+import {
+  fetchCloudWishlist,
+  loadCartFromStorage,
+  resetCartOnLogout,
+  selectTotalItems,
+} from "@/redux/slices/cartSlice";
+import {
+  initAuthFromStorage,
+  logoutUser,
+  selectCurrentUser,
+  selectIsAuthenticated,
+} from "@/redux/slices/authSlice";
+import { authAPI } from "@/lib/api";
+import { useToast } from "@/components/common/ToastContext";
+
+const NAV_CATEGORIES = [
+  {
+    name: "Laptop Cũ",
+    slug: "laptop-cu",
+    icon: Laptop,
+    hasSub: true,
+    subGroups: [
+      {
+        title: "Laptop Gaming",
+        slug: "laptop-gaming",
+        items: [
+          "Laptop Dell",
+          "Laptop Lenovo",
+          "Laptop Asus",
+          "Laptop Acer",
+          "Laptop MSI",
+          "Laptop HP",
+          "Laptop Gigabyte",
+          "Laptop Razer",
+        ],
+      },
+      {
+        title: "Laptop Văn phòng",
+        slug: "laptop-van-phong",
+        items: [
+          "Laptop Dell",
+          "Laptop Lenovo",
+          "Laptop HP",
+          "Laptop Acer",
+          "Laptop Asus",
+          "Laptop MSI",
+          "Laptop LG",
+          "Laptop Surface",
+        ],
+      },
+    ],
+  },
+  {
+    name: "PC Cũ",
+    slug: "pc-cu",
+    icon: Monitor,
+    hasSub: false,
+  },
+  {
+    name: "Chuột",
+    slug: "chuot",
+    icon: Mouse,
+    hasSub: false,
+  },
+  {
+    name: "Bàn phím",
+    slug: "ban-phim",
+    icon: Keyboard,
+    hasSub: false,
+  },
+  {
+    name: "Màn Hình",
+    slug: "man-hinh",
+    icon: Monitor,
+    hasSub: true,
+    subGroups: [
+      {
+        title: "Kích Thước Màn Hình",
+        slug: "man-hinh",
+        items: [
+          "Màn hình 22 inch",
+          "Màn hình 24 inch",
+          "Màn hình 27 inch",
+          "Màn hình 32 inch",
+          "Màn hình cong",
+          "Màn hình Gaming",
+        ],
+      },
+    ],
+  },
+  {
+    name: "CASE - Vỏ máy tính",
+    slug: "case-vo-may-tinh",
+    icon: Server,
+    hasSub: false,
+  },
+  {
+    name: "CPU - Bộ vi xử lý",
+    slug: "cpu-bo-vi-xu-ly",
+    icon: Cpu,
+    hasSub: false,
+  },
+  {
+    name: "PSU - Nguồn máy tính",
+    slug: "psu-nguon-may-tinh",
+    icon: Zap,
+    hasSub: true,
+    subGroups: [
+      {
+        title: "Công Suất Nguồn",
+        slug: "psu-nguon-may-tinh",
+        items: [
+          "Nguồn 450W - 550W",
+          "Nguồn 600W - 750W",
+          "Nguồn 850W - 1000W",
+          "Nguồn 80 Plus Bronze",
+          "Nguồn 80 Plus Gold",
+        ],
+      },
+    ],
+  },
+  {
+    name: "Mainboard - Bo mạch chủ",
+    slug: "mainboard-bo-mach-chu",
+    icon: CircuitBoard,
+    hasSub: false,
+  },
+  {
+    name: "Ổ cứng HDD - SSD",
+    slug: "o-cung-hdd-ssd",
+    icon: HardDrive,
+    hasSub: false,
+  },
+  {
+    name: "RAM - Bộ nhớ trong",
+    slug: "ram-bo-nho-trong",
+    icon: MemoryStick,
+    hasSub: false,
+  },
+  {
+    name: "Tản nhiệt Cooling",
+    slug: "tan-nhiet-cooling",
+    icon: Fan,
+    hasSub: false,
+  },
+  {
+    name: "VGA - Card màn hình",
+    slug: "vga-card-man-hinh",
+    icon: Sparkles,
+    hasSub: false,
+  },
+];
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -387,7 +537,7 @@ export default function Header() {
                                   {group.items.map((brand) => (
                                     <Link
                                       key={brand}
-                                      href={`/san-pham?search=${encodeURIComponent(brand)}`}
+                                      href={`/product?search=${encodeURIComponent(brand)}`}
                                       className="group/link text-xs font-semibold text-gray-600 hover:text-[#eb1c24] hover:bg-red-50 hover:translate-x-0.5 px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-2"
                                     >
                                       <span className="w-1.5 h-1.5 rounded-full bg-red-400 group-hover/link:bg-[#eb1c24] transition-all shrink-0"></span>
