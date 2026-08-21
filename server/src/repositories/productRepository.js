@@ -70,10 +70,12 @@ class ProductRepository extends BaseRepository {
     const total = await this.model.countDocuments(query).exec();
     const products = await this.model
       .find(query)
+      .select("-description")
       .populate("category", "name slug pcPartType")
       .sort(sortOptions)
       .skip(skip)
       .limit(Number(limit))
+      .lean()
       .exec();
 
     return {
@@ -91,10 +93,10 @@ class ProductRepository extends BaseRepository {
     if (!slug) return null;
     const isObjectId = typeof slug === "string" && slug.match(/^[0-9a-fA-F]{24}$/);
     if (isObjectId) {
-      const byId = await this.model.findById(slug).populate("category").exec();
+      const byId = await this.model.findById(slug).populate("category").lean().exec();
       if (byId) return byId;
     }
-    return await this.model.findOne({ slug }).populate("category").exec();
+    return await this.model.findOne({ slug }).populate("category").lean().exec();
   }
 
   async incrementViews(productId) {
@@ -114,7 +116,9 @@ class ProductRepository extends BaseRepository {
         ],
         _id: { $ne: product._id },
       })
+      .select("-description")
       .limit(limit)
+      .lean()
       .exec();
   }
 
@@ -123,8 +127,10 @@ class ProductRepository extends BaseRepository {
       .find({
         $or: [{ isFlashSale: true }, { discountPercent: { $gt: 0 } }],
       })
+      .select("-description")
       .sort({ views: -1 })
       .limit(limit)
+      .lean()
       .exec();
   }
 }

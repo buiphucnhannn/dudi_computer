@@ -13,6 +13,28 @@ import ActiveFilters from "@/components/product/ActiveFilters";
 import { productAPI } from "@/lib/api";
 import { detectProductType, PRODUCT_TYPES } from "@/lib/specParser";
 
+// Module-level cache để load tức thì 0ms khi quay lại trang
+let globalProductCache = null;
+
+// Skeleton Card Placeholder khi đang tải dữ liệu
+function ProductCardSkeleton() {
+  return (
+    <div className="bg-white rounded-xl border border-gray-150/80 p-3 sm:p-3.5 flex flex-col justify-between animate-pulse shadow-2xs">
+      <div>
+        <div className="aspect-square w-full bg-gray-200/80 rounded-lg mb-3" />
+        <div className="h-3 bg-gray-200/70 rounded w-1/3 mb-2" />
+        <div className="h-3.5 bg-gray-200/70 rounded w-full mb-1.5" />
+        <div className="h-3.5 bg-gray-200/70 rounded w-3/4 mb-3" />
+        <div className="h-11 bg-gray-100 rounded-xl mb-2" />
+      </div>
+      <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+        <div className="h-5 bg-red-100/80 rounded w-1/2" />
+        <div className="h-7 bg-gray-200/70 rounded-lg w-1/3" />
+      </div>
+    </div>
+  );
+}
+
 function ProductsContent() {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category") || "";
@@ -20,7 +42,8 @@ function ProductsContent() {
   const isFlashSaleParam = searchParams.get("isFlashSale");
   const brandParam = searchParams.get("brand") || "";
 
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(() => globalProductCache || []);
+  const [loading, setLoading] = useState(() => !globalProductCache || globalProductCache.length === 0);
   const [search, setSearch] = useState(searchParam);
   const [sort, setSort] = useState("newest");
   const [filters, setFilters] = useState({
@@ -55,25 +78,36 @@ function ProductsContent() {
   // LOAD PRODUCTS TỪ API
   // =========================
   useEffect(() => {
+    let isMounted = true;
+
     const fetchProducts = async () => {
       try {
         const response = await productAPI.getAll({
           limit: 500,
         });
 
-        const data = response?.data?.data?.products;
+        const data =
+          response?.data?.data?.products ||
+          (Array.isArray(response?.data?.data) ? response.data.data : []);
 
-        if (data?.length > 0) {
+        if (isMounted && data?.length > 0) {
+          globalProductCache = data;
           setProducts(data);
-        } else if (Array.isArray(response?.data?.data)) {
-          setProducts(response.data.data);
         }
       } catch (error) {
         console.error("Lỗi khi tải sản phẩm từ API:", error.message);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchProducts();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // =========================
@@ -107,170 +141,179 @@ function ProductsContent() {
       const selectedCat = filters.category.toLowerCase().trim();
 
       result = result.filter((product) => {
-        const pType = detectProductType(product);
+        const prodType = detectProductType(product);
+        const name = (product.name || "").toLowerCase();
         const catSlug = (product.categorySlug || "").toLowerCase();
         const catName = (product.categoryName || "").toLowerCase();
-        const prodName = (product.name || "").toLowerCase();
 
-        // 1. Laptop
+        // 1. Nhóm Laptop
         if (
           selectedCat === "laptop-cu" ||
           selectedCat === "laptop cũ" ||
-          selectedCat === "laptop" ||
-          selectedCat === "laptop-gaming" ||
-          selectedCat === "laptop-van-phong" ||
-          selectedCat === "macbook"
+          selectedCat === "laptop"
         ) {
-          return pType === PRODUCT_TYPES.LAPTOP || catSlug.includes("laptop") || catName.includes("laptop");
+          return prodType === PRODUCT_TYPES.LAPTOP;
         }
 
-        // 2. PC Cũ / Trọn bộ
+        // 2. Nhóm PC
         if (
           selectedCat === "pc-cu" ||
           selectedCat === "pc cũ" ||
-          selectedCat === "pc" ||
-          selectedCat === "pc-gaming" ||
-          selectedCat === "pc-do-hoa" ||
-          selectedCat === "pc-van-phong"
+          selectedCat === "pc"
         ) {
-          return pType === PRODUCT_TYPES.PC || catSlug.includes("pc-") || catName.includes("pc");
+          return prodType === PRODUCT_TYPES.PC;
         }
 
-        // 3. Màn hình
+        // 3. Nhóm Màn hình máy tính
         if (
           selectedCat === "man-hinh" ||
           selectedCat === "màn hình" ||
-          selectedCat === "monitor" ||
-          selectedCat === "24-inch" ||
-          selectedCat === "27-inch" ||
-          selectedCat === "32-inch"
+          selectedCat === "màn hình máy tính"
         ) {
-          return pType === PRODUCT_TYPES.MONITOR;
+          return prodType === PRODUCT_TYPES.MONITOR;
         }
 
-        // 4. PSU - Nguồn máy tính (Chỉ lấy sản phẩm Nguồn rời, KHÔNG lấy bộ máy tính có ghi nguồn)
-        if (
-          selectedCat === "psu-nguon-may-tinh" ||
-          selectedCat === "psu - nguồn máy tính" ||
-          selectedCat === "psu" ||
-          selectedCat === "nguon" ||
-          selectedCat === "850w" ||
-          selectedCat === "750w" ||
-          selectedCat === "650w"
-        ) {
-          return pType === PRODUCT_TYPES.PSU;
-        }
-
-        // 5. Mainboard - Bo mạch chủ (Chỉ lấy Mainboard rời)
+        // 4. Nhóm Mainboard
         if (
           selectedCat === "mainboard-bo-mach-chu" ||
-          selectedCat === "mainboard - bo mạch chủ" ||
           selectedCat === "mainboard" ||
-          selectedCat === "b760" ||
-          selectedCat === "z790" ||
-          selectedCat === "b650"
+          selectedCat === "bo mạch chủ"
         ) {
-          return pType === PRODUCT_TYPES.MAINBOARD;
+          return prodType === PRODUCT_TYPES.MAINBOARD;
         }
 
-        // 6. VGA - Card màn hình (Chỉ lấy VGA rời)
+        // 5. Nhóm Nguồn (PSU)
         if (
-          selectedCat === "vga-card-man-hinh" ||
-          selectedCat === "vga - card màn hình" ||
-          selectedCat === "vga" ||
-          selectedCat === "card-man-hinh"
+          selectedCat === "psu-nguon-may-tinh" ||
+          selectedCat === "psu" ||
+          selectedCat === "nguồn máy tính" ||
+          selectedCat === "nguồn"
         ) {
-          return pType === PRODUCT_TYPES.VGA;
+          return prodType === PRODUCT_TYPES.PSU;
         }
 
-        // 7. CPU - Bộ vi xử lý (Chỉ lấy CPU rời)
+        // 6. Nhóm CPU
         if (
           selectedCat === "cpu-bo-vi-xu-ly" ||
-          selectedCat === "cpu - bộ vi xử lý" ||
-          selectedCat === "cpu"
+          selectedCat === "cpu" ||
+          selectedCat === "bộ vi xử lý"
         ) {
-          return pType === PRODUCT_TYPES.CPU;
+          return prodType === PRODUCT_TYPES.CPU;
         }
 
-        // 8. RAM - Bộ nhớ trong (Chỉ lấy thanh RAM rời)
+        // 7. Nhóm Card màn hình (VGA)
+        if (
+          selectedCat === "vga-card-man-hinh" ||
+          selectedCat === "vga" ||
+          selectedCat === "card màn hình"
+        ) {
+          return prodType === PRODUCT_TYPES.VGA;
+        }
+
+        // 8. Nhóm RAM
         if (
           selectedCat === "ram-bo-nho-trong" ||
-          selectedCat === "ram - bộ nhớ trong" ||
-          selectedCat === "ram"
+          selectedCat === "ram" ||
+          selectedCat === "bộ nhớ trong"
         ) {
-          return pType === PRODUCT_TYPES.RAM;
+          return prodType === PRODUCT_TYPES.RAM;
         }
 
-        // 9. Ổ cứng HDD - SSD (Chỉ lấy ổ cứng rời)
+        // 9. Nhóm Ổ cứng (SSD / HDD)
         if (
           selectedCat === "o-cung-hdd-ssd" ||
-          selectedCat === "ổ cứng hdd - ssd" ||
           selectedCat === "ssd" ||
-          selectedCat === "hdd"
+          selectedCat === "hdd" ||
+          selectedCat === "ổ cứng"
         ) {
-          return pType === PRODUCT_TYPES.SSD;
+          return prodType === PRODUCT_TYPES.STORAGE;
         }
 
-        // 10. Case - Vỏ máy tính (Chỉ lấy vỏ Case rời)
+        // 10. Nhóm Vỏ Case
         if (
           selectedCat === "case-vo-may-tinh" ||
-          selectedCat === "case - vỏ máy tính" ||
-          selectedCat === "case"
+          selectedCat === "case" ||
+          selectedCat === "vỏ case" ||
+          selectedCat === "vỏ máy tính"
         ) {
-          return pType === PRODUCT_TYPES.CASE;
+          return prodType === PRODUCT_TYPES.CASE;
         }
 
-        // 11. Chuột Gaming
+        // 11. Nhóm Chuột
         if (selectedCat === "chuot" || selectedCat === "chuột") {
-          return (
-            (pType === PRODUCT_TYPES.GEAR || catSlug.includes("chuot")) &&
-            (prodName.includes("chuột") || prodName.includes("mouse"))
-          );
+          return prodType === PRODUCT_TYPES.MOUSE;
         }
 
-        // 12. Bàn phím Gaming
+        // 12. Nhóm Bàn phím
         if (selectedCat === "ban-phim" || selectedCat === "bàn phím") {
-          return (
-            (pType === PRODUCT_TYPES.GEAR || catSlug.includes("ban-phim")) &&
-            (prodName.includes("bàn phím") || prodName.includes("keyboard"))
-          );
+          return prodType === PRODUCT_TYPES.KEYBOARD;
         }
 
-        // 13. Tản nhiệt Cooling
+        // 13. Nhóm Tản nhiệt
         if (
           selectedCat === "tan-nhiet-cooling" ||
-          selectedCat === "tản nhiệt cooling" ||
-          selectedCat === "tan-nhiet" ||
-          selectedCat === "tản nhiệt"
+          selectedCat === "tản nhiệt" ||
+          selectedCat === "cooling"
         ) {
-          return pType === PRODUCT_TYPES.COOLER;
+          return prodType === PRODUCT_TYPES.COOLER;
         }
 
-        // Khớp tuyệt đối theo categorySlug
-        return catSlug === selectedCat || catName === selectedCat;
+        // Khớp fallback chung theo categorySlug hoặc categoryName
+        return (
+          catSlug.includes(selectedCat) ||
+          catName.includes(selectedCat) ||
+          selectedCat.includes(catSlug) ||
+          selectedCat.includes(catName)
+        );
       });
     }
 
-    // BRAND
+    // BRANDS
     if (filters.brands.length > 0) {
-      result = result.filter((product) =>
-        filters.brands.some(
-          (b) =>
-            (product.brand || "").toLowerCase() === b.toLowerCase() ||
-            (product.name || "").toLowerCase().includes(b.toLowerCase()),
-        ),
-      );
+      result = result.filter((product) => {
+        const prodBrand = (product.brand || "").toLowerCase();
+        const prodName = (product.name || "").toLowerCase();
+
+        return filters.brands.some((b) => {
+          const brandKey = b.toLowerCase();
+          return (
+            prodBrand.includes(brandKey) ||
+            prodName.includes(brandKey) ||
+            brandKey.includes(prodBrand)
+          );
+        });
+      });
     }
 
-    // DISCOUNT
-    if (filters.promotions.includes("discount")) {
-      result = result.filter(
-        (product) => Number(product.discountPercent || 0) > 0,
-      );
+    // PROMOTIONS
+    if (filters.promotions.length > 0) {
+      if (filters.promotions.includes("discount")) {
+        result = result.filter(
+          (product) =>
+            Number(product.discountPercent || 0) > 0 ||
+            Number(product.originalPrice || 0) > Number(product.price || 0) ||
+            product.isFlashSale,
+        );
+      }
+
+      if (filters.promotions.includes("hot")) {
+        result = result.filter(
+          (product) =>
+            product.isHot ||
+            product.isFeatured ||
+            Number(product.soldCount || 0) > 10,
+        );
+      }
     }
 
     // SORT
     switch (sort) {
+      case "newest":
+        result.sort(
+          (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
+        );
+        break;
+
       case "price-low":
         result.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
         break;
@@ -384,7 +427,14 @@ function ProductsContent() {
               onClear={handleClearFilters}
             />
 
-            {paginatedProducts.length > 0 ? (
+            {/* PRODUCT GRID OR SKELETON */}
+            {loading && products.length === 0 ? (
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
+                {Array.from({ length: 8 }).map((_, idx) => (
+                  <ProductCardSkeleton key={idx} />
+                ))}
+              </div>
+            ) : paginatedProducts.length > 0 ? (
               <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
                 {paginatedProducts.map((product) => (
                   <ProductCard
@@ -414,12 +464,15 @@ function ProductsContent() {
               </div>
             )}
 
+            {/* PAGINATION */}
             {totalPages > 1 && (
-              <ProductPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
+              <div className="mt-8">
+                <ProductPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
             )}
           </div>
         </div>
@@ -432,9 +485,9 @@ export default function ProductsPage() {
   return (
     <Suspense
       fallback={
-        <main className="flex min-h-screen items-center justify-center bg-[#f8f9fa] pt-20">
-          <p className="font-semibold text-gray-500">Đang tải sản phẩm...</p>
-        </main>
+        <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+          <div className="w-8 h-8 border-3 border-[#eb1c24] border-t-transparent rounded-full animate-spin"></div>
+        </div>
       }
     >
       <ProductsContent />
