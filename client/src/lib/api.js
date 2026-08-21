@@ -82,6 +82,8 @@ export const categoryAPI = {
 
 export const authAPI = {
   register: (data) => apiClient.post("/auth/register", data),
+  verifyRegistrationOtp: (data) => apiClient.post("/auth/verify-registration-otp", data),
+  resendVerificationOtp: (data) => apiClient.post("/auth/resend-verification-otp", data),
   login: (data) => apiClient.post("/auth/login", data),
   googleLogin: (data) => apiClient.post("/auth/google", data),
   forgotPassword: (data) => apiClient.post("/auth/forgot-password", data),
@@ -97,16 +99,18 @@ export const feedbackAPI = {
   getAll: (params) => apiClient.get("/feedbacks", { params }),
 };
 
-export const wishlistAPI = {
-  get: () => apiClient.get("/wishlist"),
-  sync: (items) => apiClient.post("/wishlist/sync", { items }),
+export const cartAPI = {
+  get: () => apiClient.get("/cart"),
+  sync: (items) => apiClient.post("/cart/sync", { items }),
   addItem: (productId, quantity = 1) =>
-    apiClient.post("/wishlist/item", { productId, quantity }),
+    apiClient.post("/cart/items", { productId, quantity }),
   updateQuantity: (productId, quantity) =>
-    apiClient.put(`/wishlist/item/${productId}`, { quantity }),
-  removeItem: (productId) => apiClient.delete(`/wishlist/item/${productId}`),
-  clear: () => apiClient.delete("/wishlist"),
+    apiClient.put(`/cart/items/${productId}`, { quantity }),
+  removeItem: (productId) => apiClient.delete(`/cart/items/${productId}`),
+  clear: () => apiClient.delete("/cart/clear"),
 };
+
+export const wishlistAPI = cartAPI;
 
 export const newsAPI = {
   getAll: (params) => apiClient.get("/news", { params }),

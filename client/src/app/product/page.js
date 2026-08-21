@@ -40,9 +40,7 @@ function ProductsContent() {
       brands: brandParam ? [brandParam] : prev.brands,
       promotions: isFlashSaleParam === "true" ? ["discount"] : prev.promotions,
     }));
-    if (searchParam) {
-      setSearch(searchParam);
-    }
+    setSearch(searchParam || "");
     setCurrentPage(1);
   }, [categoryParam, searchParam, isFlashSaleParam, brandParam]);
 
@@ -80,6 +78,7 @@ function ProductsContent() {
     // SEARCH
     if (search.trim()) {
       const keyword = search.toLowerCase().trim();
+      const parts = keyword.split(/[\s-]+/).filter(Boolean);
 
       result = result.filter((product) => {
         const name = product.name?.toLowerCase() || "";
@@ -87,13 +86,11 @@ function ProductsContent() {
         const category = (product.categoryName || "").toLowerCase();
         const sku = (product.sku || "").toLowerCase();
         const shortDesc = (product.shortDescription || "").toLowerCase();
+        const fullText = `${name} ${brand} ${category} ${sku} ${shortDesc}`;
 
         return (
-          name.includes(keyword) ||
-          brand.includes(keyword) ||
-          category.includes(keyword) ||
-          sku.includes(keyword) ||
-          shortDesc.includes(keyword)
+          fullText.includes(keyword) ||
+          parts.every((part) => fullText.includes(part))
         );
       });
     }
@@ -312,6 +309,10 @@ function ProductsContent() {
   };
 
   const handleFilterChange = (newFilters) => {
+    // Khi chọn danh mục mới trên Sidebar hoặc chuyển đổi danh mục, tự động làm mới thanh tìm kiếm
+    if (newFilters.category !== filters.category) {
+      setSearch("");
+    }
     setFilters(newFilters);
     setCurrentPage(1);
   };
@@ -365,7 +366,9 @@ function ProductsContent() {
 
             <ActiveFilters
               filters={filters}
+              search={search}
               onFilterChange={handleFilterChange}
+              onClearSearch={() => handleSearch("")}
               onClear={handleClearFilters}
             />
 

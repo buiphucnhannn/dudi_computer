@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { wishlistAPI } from "@/lib/api";
+import { cartAPI } from "@/lib/api";
 
 // Helper lưu vào localStorage
 const saveCartToStorage = (items) => {
@@ -23,32 +23,36 @@ const getLocalCart = () => {
   return [];
 };
 
-// Async Thunk: Đồng bộ giỏ hàng / danh sách yêu thích khi Đăng nhập (Auto-Merge)
-export const syncWishlistWithCloud = createAsyncThunk(
-  "cart/syncWishlistWithCloud",
+// Async Thunk: Đồng bộ giỏ hàng khi Đăng nhập (Auto-Merge)
+export const syncCartWithCloud = createAsyncThunk(
+  "cart/syncCartWithCloud",
   async (_, { getState, rejectWithValue }) => {
     try {
       const localItems = getState().cart.items || getLocalCart();
-      const res = await wishlistAPI.sync(localItems);
+      const res = await cartAPI.sync(localItems);
       return res.data?.data || [];
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Lỗi đồng bộ Wishlist");
+      return rejectWithValue(error.response?.data?.message || "Lỗi đồng bộ giỏ hàng");
     }
   }
 );
 
-// Async Thunk: Tải Wishlist từ Cloud khi vào app nếu đã đăng nhập
-export const fetchCloudWishlist = createAsyncThunk(
-  "cart/fetchCloudWishlist",
+export const syncWishlistWithCloud = syncCartWithCloud;
+
+// Async Thunk: Tải Giỏ hàng từ Cloud khi vào app nếu đã đăng nhập
+export const fetchCloudCart = createAsyncThunk(
+  "cart/fetchCloudCart",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await wishlistAPI.get();
+      const res = await cartAPI.get();
       return res.data?.data || [];
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Lỗi tải Wishlist");
+      return rejectWithValue(error.response?.data?.message || "Lỗi tải giỏ hàng");
     }
   }
 );
+
+export const fetchCloudWishlist = fetchCloudCart;
 
 // Async Thunk: Thêm sản phẩm (Optimistic Update + Cloud Sync)
 export const addToCartAsync = createAsyncThunk(
@@ -61,7 +65,7 @@ export const addToCartAsync = createAsyncThunk(
     const isAuthenticated = getState().auth?.isAuthenticated;
     if (isAuthenticated && product?._id) {
       try {
-        await wishlistAPI.addItem(product._id, quantity);
+        await cartAPI.addItem(product._id, quantity);
       } catch (err) {
         console.warn("Lỗi sync thêm sản phẩm lên cloud:", err);
       }
@@ -78,7 +82,7 @@ export const updateQuantityAsync = createAsyncThunk(
     const isAuthenticated = getState().auth?.isAuthenticated;
     if (isAuthenticated && productId) {
       try {
-        await wishlistAPI.updateQuantity(productId, quantity);
+        await cartAPI.updateQuantity(productId, quantity);
       } catch (err) {
         console.warn("Lỗi sync số lượng lên cloud:", err);
       }
@@ -95,7 +99,7 @@ export const removeFromCartAsync = createAsyncThunk(
     const isAuthenticated = getState().auth?.isAuthenticated;
     if (isAuthenticated && productId) {
       try {
-        await wishlistAPI.removeItem(productId);
+        await cartAPI.removeItem(productId);
       } catch (err) {
         console.warn("Lỗi sync xóa sản phẩm lên cloud:", err);
       }
@@ -112,7 +116,7 @@ export const clearCartAsync = createAsyncThunk(
     const isAuthenticated = getState().auth?.isAuthenticated;
     if (isAuthenticated) {
       try {
-        await wishlistAPI.clear();
+        await cartAPI.clear();
       } catch (err) {
         console.warn("Lỗi sync xóa toàn bộ lên cloud:", err);
       }

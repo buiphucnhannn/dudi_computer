@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   ChevronRight,
   Scale,
-  Heart,
+  ShoppingCart,
   Eye,
   Cpu,
   HardDrive,
@@ -43,12 +43,13 @@ export default function CategoryProductBox({
   const { addToCompare, isComparing } = useCompare();
   const cartItems = useSelector(selectCartItems) || [];
 
-  const handleToggleFavorite = (e, item) => {
+  const handleToggleCart = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
-    const isFav = cartItems.some((i) => i._id === item._id);
-    if (isFav) {
-      dispatch(removeFromCartAsync(item._id));
+    const isCart = cartItems.some((i) => (i._id || i.id || i.slug) === (item._id || item.id || item.slug));
+    const prodId = item._id || item.id || item.slug;
+    if (isCart) {
+      dispatch(removeFromCartAsync(prodId));
     } else {
       dispatch(addToCartAsync({ product: item, quantity: 1 }));
     }
@@ -341,13 +342,15 @@ export default function CategoryProductBox({
                       <Scale className="w-[18px] h-[18px]" />
                     </button>
                     <button
-                      onClick={(e) => handleToggleFavorite(e, item)}
+                      onClick={(e) => handleToggleCart(e, item)}
                       className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                        isFav ? "text-red-500 bg-red-50" : "hover:text-red-500 hover:bg-gray-100"
+                        cartItems.some((i) => (i._id || i.id || i.slug) === (item._id || item.id || item.slug))
+                          ? "text-[#eb1c24] bg-red-50"
+                          : "hover:text-[#eb1c24] hover:bg-gray-100"
                       }`}
-                      title="Yêu thích"
+                      title="Thêm vào giỏ hàng"
                     >
-                      <Heart className={`w-[18px] h-[18px] ${isFav ? "fill-current" : ""}`} />
+                      <ShoppingCart className="w-[18px] h-[18px]" />
                     </button>
                   </div>
                 </div>

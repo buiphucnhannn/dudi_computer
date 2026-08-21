@@ -21,6 +21,40 @@ export const PRODUCT_TYPES = {
 };
 
 /**
+ * Get human-friendly label for a product type
+ */
+export const getProductTypeLabel = (type) => {
+  switch (type) {
+    case PRODUCT_TYPES.PC:
+      return "Bộ máy tính PC";
+    case PRODUCT_TYPES.LAPTOP:
+      return "Laptop";
+    case PRODUCT_TYPES.MONITOR:
+      return "Màn hình máy tính";
+    case PRODUCT_TYPES.MAINBOARD:
+      return "Bo mạch chủ (Mainboard)";
+    case PRODUCT_TYPES.PSU:
+      return "Nguồn máy tính (PSU)";
+    case PRODUCT_TYPES.VGA:
+      return "Card màn hình (VGA)";
+    case PRODUCT_TYPES.CPU:
+      return "Bộ vi xử lý (CPU)";
+    case PRODUCT_TYPES.RAM:
+      return "Bộ nhớ trong (RAM)";
+    case PRODUCT_TYPES.SSD:
+      return "Ổ cứng (SSD / HDD)";
+    case PRODUCT_TYPES.CASE:
+      return "Vỏ máy tính (Case)";
+    case PRODUCT_TYPES.COOLER:
+      return "Tản nhiệt (Cooling)";
+    case PRODUCT_TYPES.GEAR:
+      return "Phụ kiện / Gaming Gear";
+    default:
+      return "Sản phẩm công nghệ";
+  }
+};
+
+/**
  * Identify product category type from categoryName, categorySlug, or product title
  */
 export const detectProductType = (product) => {

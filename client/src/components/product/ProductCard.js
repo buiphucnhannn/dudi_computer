@@ -32,7 +32,7 @@ export default function ProductCard({ product }) {
 
   if (!product) return null;
 
-  const isFav = cartItems.some((i) => (i._id || i.id) === (product._id || product.id));
+  const isCart = cartItems.some((i) => (i._id || i.id || i.slug) === (product._id || product.id || product.slug));
   const isComp = isComparing(product.slug || product._id || product.id);
 
   const thumbnail =
@@ -50,11 +50,11 @@ export default function ProductCard({ product }) {
     dispatch(addToCart({ product, quantity: 1 }));
   };
 
-  const handleToggleFavorite = (e) => {
+  const handleToggleCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const prodId = product._id || product.id;
-    if (isFav) {
+    const prodId = product._id || product.id || product.slug;
+    if (isCart) {
       dispatch(removeFromCartAsync(prodId));
     } else {
       dispatch(addToCartAsync({ product, quantity: 1 }));
@@ -98,7 +98,7 @@ export default function ProductCard({ product }) {
       <div className="absolute top-2 right-2 z-20 flex items-center gap-1">
         <button
           onClick={handleToggleCompare}
-          className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs ${
+          className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${
             isComp
               ? "bg-red-600 text-white"
               : "bg-white/80 hover:bg-white text-gray-700 hover:text-red-600"
@@ -108,15 +108,15 @@ export default function ProductCard({ product }) {
           <Scale className="w-3.5 h-3.5" />
         </button>
         <button
-          onClick={handleToggleFavorite}
-          className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs ${
-            isFav
-              ? "bg-red-600 text-white"
+          onClick={handleToggleCart}
+          className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${
+            isCart
+              ? "bg-red-600 text-white shadow-sm"
               : "bg-white/80 hover:bg-white text-gray-700 hover:text-red-600"
           }`}
-          title="Yêu thích"
+          title={isCart ? "Đã có trong giỏ hàng (Bấm để xóa)" : "Thêm vào giỏ hàng"}
         >
-          <Heart className={`w-3.5 h-3.5 ${isFav ? "fill-current" : ""}`} />
+          <ShoppingCart className="w-3.5 h-3.5" />
         </button>
       </div>
 

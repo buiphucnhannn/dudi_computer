@@ -10,7 +10,7 @@ const UNEXPANDED_ITEMS = [
   { name: "PC Cũ", slug: "pc-cu", icon: "https://zcomputer.vn/categories/icon2.png", bgColor: "bg-blue-100/90" },
   { name: "Chuột", slug: "chuot", icon: "https://zcomputer.vn/categories/icon3.png", bgColor: "bg-green-100/90" },
   { name: "Bàn phím", slug: "ban-phim", icon: "https://zcomputer.vn/categories/icon4.png", bgColor: "bg-purple-100/90" },
-  { name: "Màn Hình", slug: "man-hinh", icon: "https://zcomputer.vn/categories/icon5.png", bgColor: "bg-orange-100/90" },
+  { name: "Màn hình máy tính", slug: "man-hinh", icon: "https://zcomputer.vn/categories/icon5.png", bgColor: "bg-orange-100/90" },
   { name: "CASE - Vỏ máy tính", slug: "case-vo-may-tinh", icon: "https://zcomputer.vn/categories/icon6.png", bgColor: "bg-teal-100/90" },
   { name: "CPU - Bộ vi xử lý", slug: "cpu-bo-vi-xu-ly", icon: "https://zcomputer.vn/categories/icon7.png", bgColor: "bg-cyan-100/90" },
 ];
@@ -21,7 +21,7 @@ const EXPANDED_ROW_1 = [
   { name: "PC Cũ", slug: "pc-cu", icon: "https://zcomputer.vn/categories/icon2.png", bgColor: "bg-blue-100/90" },
   { name: "Chuột", slug: "chuot", icon: "https://zcomputer.vn/categories/icon3.png", bgColor: "bg-green-100/90" },
   { name: "Bàn phím", slug: "ban-phim", icon: "https://zcomputer.vn/categories/icon4.png", bgColor: "bg-purple-100/90" },
-  { name: "Màn Hình", slug: "man-hinh", icon: "https://zcomputer.vn/categories/icon5.png", bgColor: "bg-orange-100/90" },
+  { name: "Màn hình máy tính", slug: "man-hinh", icon: "https://zcomputer.vn/categories/icon5.png", bgColor: "bg-orange-100/90" },
   { name: "CASE - Vỏ máy tính", slug: "case-vo-may-tinh", icon: "https://zcomputer.vn/categories/icon6.png", bgColor: "bg-teal-100/90" },
   { name: "CPU - Bộ vi xử lý", slug: "cpu-bo-vi-xu-ly", icon: "https://zcomputer.vn/categories/icon7.png", bgColor: "bg-cyan-100/90" },
   { name: "PSU - Nguồn máy tính", slug: "psu-nguon-may-tinh", icon: "https://zcomputer.vn/categories/icon8.png", bgColor: "bg-red-100/90" },

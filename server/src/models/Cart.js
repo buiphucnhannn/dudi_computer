@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const wishlistItemSchema = new mongoose.Schema(
+const cartItemSchema = new mongoose.Schema(
   {
     product: {
       type: mongoose.Schema.Types.ObjectId,
@@ -21,7 +21,7 @@ const wishlistItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const wishlistSchema = new mongoose.Schema(
+const cartSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -31,15 +31,15 @@ const wishlistSchema = new mongoose.Schema(
       index: true,
     },
     items: {
-      type: [wishlistItemSchema],
+      type: [cartItemSchema],
       default: [],
       validate: [
         (val) => val.length <= 100,
-        "Danh sách yêu thích tối đa 100 sản phẩm",
+        "Giỏ hàng tối đa 100 sản phẩm",
       ],
     },
   },
   { timestamps: true }
 );
 
-export const Wishlist = mongoose.model("Wishlist", wishlistSchema);
+export const Cart = mongoose.model("Cart", cartSchema);

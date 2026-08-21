@@ -77,7 +77,7 @@ function CompareContent() {
   // Tải danh sách tất cả sản phẩm phục vụ Modal tìm kiếm
   useEffect(() => {
     productAPI
-      .getAll({ limit: 100 })
+      .getAll({ limit: 500 })
       .then((res) => {
         if (res.data?.data?.products) {
           setAllProducts(res.data.data.products);
@@ -392,10 +392,10 @@ function CompareContent() {
                     <Plus size={28} />
                   </span>
                   <span className="text-xs font-extrabold uppercase text-slate-700">
-                    Thêm sản phẩm
+                    Thêm thiết bị
                   </span>
                   <span className="text-[11px] text-slate-400 mt-1">
-                    Chọn máy khác để đối chiếu
+                    Chọn thiết bị khác để đối chiếu
                   </span>
                 </button>
               )}

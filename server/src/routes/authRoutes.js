@@ -1,6 +1,8 @@
 import { Router } from "express";
 import {
   registerUser,
+  verifyRegistrationOtp,
+  resendVerificationOtp,
   loginUser,
   googleAuth,
   refreshAccessToken,
@@ -21,6 +23,8 @@ import {
 const router = Router();
 
 router.post("/register", registerLimiter, registerUser);
+router.post("/verify-registration-otp", resetPasswordLimiter, verifyRegistrationOtp);
+router.post("/resend-verification-otp", forgotPasswordLimiter, resendVerificationOtp);
 router.post("/login", authLoginLimiter, loginUser);
 router.post("/google", authLoginLimiter, googleAuth);
 router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);

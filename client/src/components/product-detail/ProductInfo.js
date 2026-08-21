@@ -49,17 +49,17 @@ const ProductInfo = ({ product }) => {
       });
   }, []);
 
-  const isFavorite = cartItems.some(
+  const isCart = cartItems.some(
     (item) =>
       (product?._id && item._id === product._id) ||
       (product?.id && (item.id === product.id || item._id === product.id)) ||
       (product?.slug && item.slug === product.slug)
   );
 
-  const handleToggleFavorite = () => {
+  const handleToggleCart = () => {
     if (!product) return;
     const productId = product._id || product.id || product.slug;
-    if (isFavorite) {
+    if (isCart) {
       dispatch(removeFromCartAsync(productId));
     } else {
       dispatch(addToCartAsync({ product, quantity: 1 }));
@@ -454,27 +454,27 @@ const ProductInfo = ({ product }) => {
               : "So sánh"}
           </button>
 
-          {/* YÊU THÍCH */}
+          {/* CART TOGGLE */}
           <button
             type="button"
-            onClick={handleToggleFavorite}
+            onClick={handleToggleCart}
             className={`
               flex h-11 flex-1 items-center
               justify-center gap-2 rounded-lg
               border-2 border-red-600
               px-3 text-xs font-bold uppercase transition
               cursor-pointer sm:text-sm
-              ${isFavorite
+              ${isCart
                 ? "bg-red-600 text-white shadow-sm hover:bg-red-700"
                 : "bg-transparent text-red-600 hover:bg-red-50"
               }
             `}
           >
-            <Heart
+            <ShoppingCart
               size={17}
-              className={isFavorite ? "fill-white text-white" : "text-red-600"}
+              className={isCart ? "text-white" : "text-red-600"}
             />
-            {isFavorite ? "Đã ưa thích" : "Ưa thích"}
+            {isCart ? "Đã trong giỏ" : "Thêm vào giỏ"}
           </button>
         </div>
 

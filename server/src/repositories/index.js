@@ -3,5 +3,5 @@ export { userRepository } from "./userRepository.js";
 export { productRepository } from "./productRepository.js";
 export { categoryRepository } from "./categoryRepository.js";
 export { feedbackRepository } from "./feedbackRepository.js";
-export { wishlistRepository } from "./wishlistRepository.js";
+export { cartRepository } from "./cartRepository.js";
 export { newsRepository } from "./newsRepository.js";

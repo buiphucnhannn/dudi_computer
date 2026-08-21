@@ -13,6 +13,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { detectProductType, getProductTypeLabel } from "@/lib/specParser";
 
 const ProductComparisonModal = ({
   isOpen,
@@ -36,7 +37,7 @@ const ProductComparisonModal = ({
   }, [isOpen]);
 
   // =====================================================
-  // PRODUCT ID
+  // PRODUCT ID & TARGET TYPE
   // =====================================================
 
   const getProductId = (product) => {
@@ -58,8 +59,18 @@ const ProductComparisonModal = ({
       .filter(Boolean);
   }, [selectedProducts]);
 
+  // Xác định loại sản phẩm đối chiếu (PC, Màn hình, Mainboard, Laptop,...)
+  const referenceProduct =
+    currentProduct ||
+    (selectedProducts && selectedProducts.length > 0
+      ? selectedProducts[0]
+      : null);
+
+  const targetType = referenceProduct ? detectProductType(referenceProduct) : null;
+  const targetTypeLabel = targetType ? getProductTypeLabel(targetType) : null;
+
   // =====================================================
-  // FILTER PRODUCTS
+  // FILTER PRODUCTS (CHỈ LỌC SẢN PHẨM CÙNG LOẠI)
   // =====================================================
 
   const filteredProducts = useMemo(() => {
@@ -79,14 +90,22 @@ const ProductComparisonModal = ({
         return false;
       }
 
-      // Không hiển thị sản phẩm đã chọn
+      // Không hiển thị sản phẩm đã chọn trong danh sách so sánh
       if (
         selectedIds.includes(productId)
       ) {
         return false;
       }
 
-      // Không search
+      // CHỈ HIỂN THỊ SẢN PHẨM CÙNG LOẠI (Bộ máy tính vs Bộ máy tính, Màn hình vs Màn hình,...)
+      if (targetType) {
+        const prodType = detectProductType(product);
+        if (prodType !== targetType) {
+          return false;
+        }
+      }
+
+      // Không có từ khóa tìm kiếm -> lấy tất cả sản phẩm cùng loại
       if (!value) {
         return true;
       }
@@ -103,10 +122,15 @@ const ProductComparisonModal = ({
         product?.brand || ""
       ).toLowerCase();
 
+      const shortDesc = String(
+        product?.shortDescription || ""
+      ).toLowerCase();
+
       return (
         name.includes(value) ||
         sku.includes(value) ||
-        brand.includes(value)
+        brand.includes(value) ||
+        shortDesc.includes(value)
       );
     });
   }, [
@@ -114,6 +138,7 @@ const ProductComparisonModal = ({
     keyword,
     currentProductId,
     selectedIds,
+    targetType,
   ]);
 
   // =====================================================
@@ -244,13 +269,25 @@ const ProductComparisonModal = ({
             </div>
 
             <div>
-              <h2 className="text-base font-bold text-slate-900 sm:text-lg">
-                Thêm sản phẩm so sánh
-              </h2>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-base font-bold text-slate-900 sm:text-lg">
+                  Thêm sản phẩm so sánh
+                </h2>
+                {targetTypeLabel && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100/80 text-red-700 font-bold text-[11px] border border-red-200">
+                    {targetTypeLabel}
+                  </span>
+                )}
+              </div>
 
               <p className="mt-0.5 text-xs text-slate-500">
-                Chọn sản phẩm bạn muốn so
-                sánh
+                {targetTypeLabel ? (
+                  <span>
+                    Chỉ hiển thị các sản phẩm cùng loại: <strong className="text-slate-800">{targetTypeLabel}</strong> ({filteredProducts.length} sản phẩm)
+                  </span>
+                ) : (
+                  "Chọn sản phẩm bạn muốn so sánh"
+                )}
               </p>
             </div>
           </div>

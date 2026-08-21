@@ -43,9 +43,9 @@ const ProductComparisonBar = ({
 
   const getProductId = (product) => {
     return (
+      product?.slug ||
       product?._id ||
-      product?.id ||
-      product?.slug
+      product?.id
     );
   };
 
@@ -153,15 +153,16 @@ const ProductComparisonBar = ({
 
                 <button
                   type="button"
-                  onClick={() =>
-                    onRemove?.(productId)
-                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemove?.(product);
+                  }}
                   aria-label="Xóa sản phẩm"
                   className="
                     absolute
                     -right-2
                     -top-2
-                    z-10
+                    z-20
                     flex
                     h-6
                     w-6
@@ -173,6 +174,7 @@ const ProductComparisonBar = ({
                     shadow-sm
                     transition
                     hover:bg-red-700
+                    cursor-pointer
                   "
                 >
                   <X size={14} />
@@ -276,7 +278,7 @@ const ProductComparisonBar = ({
                   <Plus size={16} />
                 </div>
 
-                Thêm máy
+                Thêm thiết bị
               </div>
             </button>
           )}

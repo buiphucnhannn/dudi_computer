@@ -5,7 +5,7 @@ const CATEGORY_NAMES = {
   "pc-cu": "PC Cũ",
   "chuot": "Chuột",
   "ban-phim": "Bàn phím",
-  "man-hinh": "Màn Hình",
+  "man-hinh": "Màn hình máy tính",
   "case-vo-may-tinh": "CASE - Vỏ máy tính",
   "cpu-bo-vi-xu-ly": "CPU - Bộ vi xử lý",
   "psu-nguon-may-tinh": "PSU - Nguồn máy tính",
@@ -16,11 +16,18 @@ const CATEGORY_NAMES = {
   "vga-card-man-hinh": "VGA - Card màn hình",
 };
 
-export default function ActiveFilters({ filters, onFilterChange, onClear }) {
+export default function ActiveFilters({
+  filters,
+  search = "",
+  onFilterChange,
+  onClearSearch,
+  onClear,
+}) {
   const hasFilters =
-    filters.category ||
-    filters.brands.length > 0 ||
-    filters.promotions.length > 0;
+    Boolean(search?.trim()) ||
+    Boolean(filters.category) ||
+    (filters.brands && filters.brands.length > 0) ||
+    (filters.promotions && filters.promotions.length > 0);
 
   if (!hasFilters) {
     return null;
@@ -45,6 +52,7 @@ export default function ActiveFilters({ filters, onFilterChange, onClear }) {
 
   return (
     <div className="mb-5 flex flex-wrap items-center gap-2">
+      {/* Category Tag */}
       {filters.category && (
         <button
           onClick={() =>
@@ -53,39 +61,51 @@ export default function ActiveFilters({ filters, onFilterChange, onClear }) {
               category: "",
             })
           }
-          className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-[#dc2626] cursor-pointer"
+          className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-[#dc2626] cursor-pointer hover:bg-red-100 transition-colors"
         >
           {categoryLabel}
           <X className="h-3 w-3" />
         </button>
       )}
 
-      {filters.brands.map((brand) => (
+      {/* Search Query Tag */}
+      {search && search.trim() && (
+        <button
+          onClick={onClearSearch}
+          className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-[#dc2626] cursor-pointer hover:bg-red-100 transition-colors"
+        >
+          Từ khóa: {search}
+          <X className="h-3 w-3" />
+        </button>
+      )}
+
+      {/* Brands */}
+      {filters.brands?.map((brand) => (
         <button
           key={brand}
           onClick={() => removeBrand(brand)}
-          className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-[#dc2626]"
+          className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-[#dc2626] cursor-pointer hover:bg-red-100 transition-colors"
         >
           {brand}
           <X className="h-3 w-3" />
         </button>
       ))}
 
-      {filters.promotions.map((promotion) => (
+      {/* Promotions */}
+      {filters.promotions?.map((promotion) => (
         <button
           key={promotion}
           onClick={() => removePromotion(promotion)}
-          className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-[#dc2626]"
+          className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-[#dc2626] cursor-pointer hover:bg-red-100 transition-colors"
         >
           {promotion === "discount" ? "Đang giảm giá" : "Hot Sale"}
-
           <X className="h-3 w-3" />
         </button>
       ))}
 
       <button
         onClick={onClear}
-        className="ml-1 text-xs font-bold text-gray-500 hover:text-[#dc2626]"
+        className="ml-1 text-xs font-bold text-gray-500 hover:text-[#dc2626] cursor-pointer transition-colors"
       >
         Xóa tất cả
       </button>

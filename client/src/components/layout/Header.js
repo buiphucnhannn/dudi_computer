@@ -9,6 +9,7 @@ import {
   PhoneCall,
   MapPin,
   Heart,
+  ShoppingCart,
   Menu,
   ChevronDown,
   ChevronRight,
@@ -28,7 +29,6 @@ import {
   Sparkles,
   LogOut,
   TrendingUp,
-  ShoppingCart,
   Scale,
   RefreshCw,
   Users,
@@ -107,7 +107,7 @@ const NAV_CATEGORIES = [
     hasSub: false,
   },
   {
-    name: "Màn Hình",
+    name: "Màn hình máy tính",
     slug: "man-hinh",
     icon: Monitor,
     hasSub: true,
@@ -611,14 +611,14 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Wishlist / Cart */}
+          {/* Cart */}
           <div className="flex items-center gap-1 sm:gap-2">
             <Link
               href="/cart"
               className="relative p-2 text-gray-700 hover:text-[#eb1c24] transition-colors flex items-center gap-1"
-              title="Sản phẩm yêu thích / Giỏ hàng"
+              title="Giỏ hàng"
             >
-              <Heart className="w-6 h-6" />
+              <ShoppingCart className="w-6 h-6" />
               {mounted && totalItems > 0 && (
                 <span className="absolute top-0 right-0 bg-[#eb1c24] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                   {totalItems}
@@ -847,7 +847,7 @@ export default function Header() {
                     <div key={cat.slug} className="group/item relative flex-1 flex flex-col justify-center">
                       <div className="px-2 py-0.5 flex items-center">
                         <Link
-                          href={`/${cat.slug}`}
+                          href={`/tat-ca-san-pham?category=${cat.slug}`}
                           className="flex w-full items-center justify-between px-3 py-1.5 transition-all duration-200 rounded-lg text-gray-700 hover:bg-[#eb1c24] hover:text-white group-hover/item:bg-[#eb1c24] group-hover/item:text-white"
                         >
                           <div className="flex items-center gap-2.5">
@@ -873,22 +873,29 @@ export default function Header() {
                             {cat.subGroups.map((group) => (
                               <div key={group.title} className="flex flex-col min-w-[210px] flex-1">
                                 <Link
-                                  href={`/${group.slug}`}
+                                  href={`/tat-ca-san-pham?category=${cat.slug}`}
                                   className="font-bold text-gray-900 mb-2.5 hover:text-[#eb1c24] transition-colors text-[13px] border-b pb-1.5 border-red-100 uppercase"
                                 >
                                   {group.title}
                                 </Link>
                                 <div className="flex flex-col gap-1">
-                                  {group.items.map((brand) => (
-                                    <Link
-                                      key={brand}
-                                      href={`/product?search=${encodeURIComponent(brand)}`}
-                                      className="group/link text-xs font-semibold text-gray-600 hover:text-[#eb1c24] hover:bg-red-50 hover:translate-x-0.5 px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-2"
-                                    >
-                                      <span className="w-1.5 h-1.5 rounded-full bg-red-400 group-hover/link:bg-[#eb1c24] transition-all shrink-0"></span>
-                                      {brand}
-                                    </Link>
-                                  ))}
+                                  {group.items.map((brand) => {
+                                    const cleanKeyword = brand
+                                      .replace(/^Màn\s+hình\s+/i, "")
+                                      .replace(/^Laptop\s+/i, "")
+                                      .replace(/^Nguồn\s+/i, "")
+                                      .trim();
+                                    return (
+                                      <Link
+                                        key={brand}
+                                        href={`/tat-ca-san-pham?category=${cat.slug}&search=${encodeURIComponent(cleanKeyword || brand)}`}
+                                        className="group/link text-xs font-semibold text-gray-600 hover:text-[#eb1c24] hover:bg-red-50 hover:translate-x-0.5 px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-2"
+                                      >
+                                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 group-hover/link:bg-[#eb1c24] transition-all shrink-0"></span>
+                                        {brand}
+                                      </Link>
+                                    );
+                                  })}
                                 </div>
                               </div>
                             ))}
@@ -1144,11 +1151,11 @@ export default function Header() {
               className="p-2.5 bg-gray-50 hover:bg-red-50 rounded-xl flex items-center gap-2.5 transition-colors border border-gray-100"
             >
               <div className="w-8 h-8 rounded-lg bg-red-100/70 text-[#eb1c24] flex items-center justify-center shrink-0">
-                <Heart className="w-4 h-4" />
+                <ShoppingCart className="w-4 h-4" />
               </div>
               <div className="min-w-0">
                 <span className="text-xs font-bold text-gray-800 block leading-tight">
-                  Ưa thích & Giỏ
+                  Giỏ hàng
                 </span>
                 <span className="text-[10px] text-gray-400">
                   {mounted && totalItems > 0 ? `${totalItems} món` : "0 sản phẩm"}
@@ -1229,7 +1236,7 @@ export default function Header() {
                           setExpandedCategory(isExpanded ? null : cat.slug);
                         } else {
                           setMobileMenuOpen(false);
-                          router.push(`/product?category=${cat.slug}`);
+                          router.push(`/tat-ca-san-pham?category=${cat.slug}`);
                         }
                       }}
                       className={`flex items-center justify-between p-2.5 text-xs font-bold rounded-xl transition-colors cursor-pointer ${
@@ -1259,23 +1266,30 @@ export default function Header() {
                         {cat.subGroups?.map((group) => (
                           <div key={group.title} className="py-1">
                             <Link
-                              href={`/product?category=${cat.slug}`}
+                              href={`/tat-ca-san-pham?category=${cat.slug}`}
                               onClick={() => setMobileMenuOpen(false)}
                               className="font-bold text-gray-900 hover:text-[#eb1c24] text-[11px] uppercase block mb-1.5"
                             >
                               {group.title}
                             </Link>
                             <div className="grid grid-cols-2 gap-1">
-                              {group.items.map((item) => (
-                                <Link
-                                  key={item}
-                                  href={`/product?search=${encodeURIComponent(item)}`}
-                                  onClick={() => setMobileMenuOpen(false)}
-                                  className="text-[11px] text-gray-600 hover:text-[#eb1c24] hover:bg-white px-2 py-1 rounded transition-colors"
-                                >
-                                  • {item}
-                                </Link>
-                              ))}
+                              {group.items.map((item) => {
+                                const cleanKeyword = item
+                                  .replace(/^Màn\s+hình\s+/i, "")
+                                  .replace(/^Laptop\s+/i, "")
+                                  .replace(/^Nguồn\s+/i, "")
+                                  .trim();
+                                return (
+                                  <Link
+                                    key={item}
+                                    href={`/tat-ca-san-pham?category=${cat.slug}&search=${encodeURIComponent(cleanKeyword || item)}`}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="text-[11px] text-gray-600 hover:text-[#eb1c24] hover:bg-white px-2 py-1 rounded transition-colors"
+                                  >
+                                    • {item}
+                                  </Link>
+                                );
+                              })}
                             </div>
                           </div>
                         ))}

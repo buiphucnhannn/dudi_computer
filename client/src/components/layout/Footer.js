@@ -88,7 +88,7 @@ export default function Footer() {
             <ul className="space-y-3 text-[13px] text-white/60 font-medium">
               <li><Link href="/tat-ca-san-pham?category=pc-cu" className="hover:text-[#eb1c24] transition-colors">PC Cũ</Link></li>
               <li><Link href="/tat-ca-san-pham?category=laptop-cu" className="hover:text-[#eb1c24] transition-colors">Laptop Cũ</Link></li>
-              <li><Link href="/tat-ca-san-pham?category=man-hinh" className="hover:text-[#eb1c24] transition-colors">Màn Hình Cũ</Link></li>
+              <li><Link href="/tat-ca-san-pham?category=man-hinh" className="hover:text-[#eb1c24] transition-colors">Màn hình máy tính</Link></li>
               <li><Link href="/tat-ca-san-pham" className="hover:text-[#eb1c24] transition-colors">Linh Kiện Cũ</Link></li>
               <li><Link href="/test-man-hinh" className="hover:text-[#eb1c24] transition-colors">Công Cụ Test</Link></li>
             </ul>

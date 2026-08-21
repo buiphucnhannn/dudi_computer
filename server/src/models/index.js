@@ -7,5 +7,5 @@ export { Job } from "./Job.js";
 export { News } from "./News.js";
 export { Contact } from "./Contact.js";
 export { Feedback } from "./Feedback.js";
-export { Wishlist } from "./Wishlist.js";
+export { Cart } from "./Cart.js";
 export { Otp } from "./Otp.js";

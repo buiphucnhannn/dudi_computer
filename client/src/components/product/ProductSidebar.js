@@ -3,7 +3,7 @@ import FilterGroup from "./FilterGroup";
 const categories = [
   { label: "Laptop Cũ", value: "laptop-cu" },
   { label: "PC Cũ", value: "pc-cu" },
-  { label: "Màn Hình", value: "man-hinh" },
+  { label: "Màn hình máy tính", value: "man-hinh" },
   { label: "Mainboard - Bo mạch chủ", value: "mainboard-bo-mach-chu" },
   { label: "PSU - Nguồn máy tính", value: "psu-nguon-may-tinh" },
   { label: "CPU - Bộ vi xử lý", value: "cpu-bo-vi-xu-ly" },

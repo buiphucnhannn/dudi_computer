@@ -7,6 +7,8 @@ import ProductComparisonBar from "@/components/product-detail/ProductComparisonB
 import ProductComparisonModal from "@/components/product-detail/ProductComparisonModal";
 import { productAPI } from "@/lib/api";
 
+import { detectProductType, getProductTypeLabel } from "@/lib/specParser";
+
 const CompareContext = createContext(null);
 
 export const useCompare = () => {
@@ -39,8 +41,8 @@ export const CompareProvider = ({ children }) => {
       }
     } catch (_) {}
 
-    // Tải danh sách sản phẩm thực tế từ Database API phục vụ modal so sánh
-    productAPI.getAll({ limit: 100 })
+    // Tải danh sách toàn bộ sản phẩm thực tế từ Database API phục vụ modal so sánh
+    productAPI.getAll({ limit: 500 })
       .then((res) => {
         if (res.data?.data?.products) {
           setAllProducts(res.data.data.products);
@@ -60,20 +62,56 @@ export const CompareProvider = ({ children }) => {
     } catch (_) {}
   };
 
+  const isSameProduct = (item, target) => {
+    if (!item || !target) return false;
+    if (typeof target === "object") {
+      const targetSlug = target.slug;
+      const targetId = target._id || target.id;
+      const itemSlug = item.slug;
+      const itemId = item._id || item.id;
+      return Boolean(
+        (targetSlug && itemSlug && targetSlug === itemSlug) ||
+        (targetId && itemId && String(targetId) === String(itemId)) ||
+        (targetSlug && itemId && targetSlug === String(itemId)) ||
+        (targetId && itemSlug && String(targetId) === itemSlug)
+      );
+    }
+    const targetStr = String(target);
+    return Boolean(
+      (item.slug && item.slug === targetStr) ||
+      (item._id && String(item._id) === targetStr) ||
+      (item.id && String(item.id) === targetStr)
+    );
+  };
+
   const getProductId = (product) => {
     return product?.slug || product?._id || product?.id;
   };
 
   const addToCompare = useCallback(
     (product) => {
-      const prodId = getProductId(product);
-      const exists = compareItems.some((item) => getProductId(item) === prodId);
+      const exists = compareItems.some((item) => isSameProduct(item, product));
 
       if (exists) {
-        const filtered = compareItems.filter((item) => getProductId(item) !== prodId);
+        const filtered = compareItems.filter((item) => !isSameProduct(item, product));
         saveItems(filtered);
-        toast?.showToast?.("Đã bỏ sản phẩm khỏi danh sách so sánh", "info");
         return;
+      }
+
+      // Kiểm tra chỉ so sánh các sản phẩm CÙNG LOẠI
+      if (compareItems.length > 0) {
+        const currentType = detectProductType(compareItems[0]);
+        const newType = detectProductType(product);
+
+        if (currentType !== newType) {
+          const currentLabel = getProductTypeLabel(currentType);
+          const newLabel = getProductTypeLabel(newType);
+          toast?.showToast?.(
+            `Chỉ có thể so sánh sản phẩm cùng loại (${currentLabel}). Vui lòng xóa danh sách hoặc chọn ${currentLabel}.`,
+            "warning"
+          );
+          return;
+        }
       }
 
       if (compareItems.length >= 3) {
@@ -83,14 +121,13 @@ export const CompareProvider = ({ children }) => {
 
       const updated = [...compareItems, product];
       saveItems(updated);
-      toast?.showToast?.("Đã thêm vào danh sách so sánh", "success");
     },
     [compareItems, toast]
   );
 
   const removeFromCompare = useCallback(
-    (productId) => {
-      const filtered = compareItems.filter((item) => getProductId(item) !== productId);
+    (productOrId) => {
+      const filtered = compareItems.filter((item) => !isSameProduct(item, productOrId));
       saveItems(filtered);
     },
     [compareItems]
@@ -101,8 +138,8 @@ export const CompareProvider = ({ children }) => {
   }, []);
 
   const isComparing = useCallback(
-    (productId) => {
-      return compareItems.some((item) => getProductId(item) === productId);
+    (productOrId) => {
+      return compareItems.some((item) => isSameProduct(item, productOrId));
     },
     [compareItems]
   );

@@ -18,19 +18,44 @@ const getRefreshCookieOptions = () => ({
 
 export const registerUser = async (req, res, next) => {
   try {
-    const { user, accessToken, refreshToken } = await authService.register(req.body);
+    const result = await authService.register(req.body);
 
     return res
-      .status(201)
+      .status(200)
+      .json(new ApiResponse(200, result, result.message));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyRegistrationOtp = async (req, res, next) => {
+  try {
+    const { user, accessToken, refreshToken, message } =
+      await authService.verifyRegistrationOtp(req.body);
+
+    return res
+      .status(200)
       .cookie("accessToken", accessToken, getAccessCookieOptions())
       .cookie("refreshToken", refreshToken, getRefreshCookieOptions())
       .json(
         new ApiResponse(
-          201,
+          200,
           { user, accessToken, refreshToken },
-          "Đăng ký tài khoản thành công"
+          message
         )
       );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resendVerificationOtp = async (req, res, next) => {
+  try {
+    const result = await authService.resendVerificationOtp(req.body);
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, result, result.message));
   } catch (error) {
     next(error);
   }
@@ -126,7 +151,7 @@ export const logoutUser = async (req, res, next) => {
 
 export const getProfile = async (req, res, next) => {
   try {
-    const user = await authService.getProfile(req.user._id);
+    const user = await authService.getCurrentUser(req.user._id);
     return res
       .status(200)
       .json(new ApiResponse(200, user, "Lấy thông tin người dùng thành công"));

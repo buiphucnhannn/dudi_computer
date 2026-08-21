@@ -30,23 +30,23 @@ export default function SimilarProductCard({ product }) {
   const { showToast } = useToast();
 
   const productId = product.id || product._id || product.slug;
-  const isFavorite = cartItems.some(
-    (item) => item.id === productId || item.slug === product.slug
+  const isCart = cartItems.some(
+    (item) => item.id === productId || item._id === productId || item.slug === product.slug
   );
 
   const href = `/product-detail?slug=${encodeURIComponent(
     product.slug || productId
   )}`;
 
-  const handleToggleFavorite = (e) => {
+  const handleToggleCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (isFavorite) {
+    if (isCart) {
       dispatch(removeFromCartAsync(productId));
       showToast({
         title: "Đã xóa",
-        message: `Đã bỏ "${product.name}" khỏi danh sách ưa thích`,
+        message: `Đã bỏ "${product.name}" khỏi giỏ hàng`,
         type: "info",
       });
     } else {
@@ -62,25 +62,30 @@ export default function SimilarProductCard({ product }) {
         })
       );
       showToast({
-        title: "Đã thêm",
-        message: `Đã thêm "${product.name}" vào danh sách ưa thích`,
+        title: "Thành công",
+        message: `Đã thêm "${product.name}" vào giỏ hàng`,
         type: "success",
       });
     }
   };
 
+  const discount = product.discount || 0;
+
   return (
     <article
       className={`
         group relative flex flex-col overflow-hidden rounded-2xl
-        border border-slate-200 bg-white shadow-xs
-        transition-all duration-300 hover:-translate-y-1
-        hover:border-red-500/50 hover:shadow-xl h-full
-        ${product.outOfStock ? "opacity-85" : ""}
+        border bg-white transition-all duration-300
+        hover:-translate-y-1 hover:shadow-xl
+        ${
+          product.isHot
+            ? "border-red-200/80 shadow-red-500/5 hover:border-red-400"
+            : "border-slate-200/80 shadow-slate-900/5 hover:border-slate-300"
+        }
       `}
     >
-      {/* Image Container */}
-      <div className="relative aspect-square w-full bg-slate-50 p-4 overflow-hidden rounded-t-2xl">
+      {/* ── TOP BADGES & ACTIONS ── */}
+      <div className="relative aspect-4/3 w-full overflow-hidden bg-gradient-to-b from-slate-50 to-white p-4">
         <Link href={href} className="block w-full h-full">
           <img
             src={product.image || product.thumbnail}
@@ -98,39 +103,32 @@ export default function SimilarProductCard({ product }) {
         </Link>
 
         {/* Discount Badge */}
-        {product.discount > 0 && (
-          <div
-            className={`
-              absolute left-3 top-3 rounded-md
-              bg-red-600 px-2 py-1
-              text-[11px] font-black uppercase
-              text-white shadow-xs
-              ${product.outOfStock ? "opacity-60" : ""}
-            `}
-          >
-            Giảm {product.discount}%
-          </div>
+        {discount > 0 && (
+          <span className="absolute left-3 top-3 z-20 rounded-full bg-red-600 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-white shadow-sm">
+            -{discount}%
+          </span>
         )}
 
-        {/* Favorite Button */}
+        {/* Cart Toggle Button */}
         <button
           type="button"
-          aria-label="Thêm vào danh sách ưa thích"
-          onClick={handleToggleFavorite}
+          aria-label="Thêm vào giỏ hàng"
+          onClick={handleToggleCart}
           className={`
             absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center
             rounded-full bg-white/90 backdrop-blur-xs shadow-xs
             transition-all duration-200 hover:scale-110 cursor-pointer
             ${
-              isFavorite
-                ? "bg-red-50 text-red-600"
-                : "text-slate-400 hover:text-red-600"
+              isCart
+                ? "bg-red-600 text-white shadow-sm"
+                : "text-slate-500 hover:text-red-600"
             }
           `}
+          title={isCart ? "Đã có trong giỏ hàng (Bấm để bỏ)" : "Thêm vào giỏ hàng"}
         >
-          <Heart
+          <ShoppingCart
             className={`w-4 h-4 transition-colors ${
-              isFavorite ? "fill-red-600 text-red-600" : ""
+              isCart ? "text-white" : ""
             }`}
           />
         </button>

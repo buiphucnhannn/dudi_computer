@@ -74,7 +74,7 @@ export default function CategorySidebar() {
       hasSub: false,
     },
     {
-      name: "Màn Hình",
+      name: "Màn hình máy tính",
       slug: "man-hinh",
       icon: Monitor,
       hasSub: true,
@@ -165,7 +165,7 @@ export default function CategorySidebar() {
             <div key={cat.slug} className="group relative flex-1 flex flex-col justify-center" tabIndex={0}>
               <div className="px-2 py-0.5 h-full flex items-center">
                 <Link
-                  href={`/product?category=${cat.slug}`}
+                  href={`/tat-ca-san-pham?category=${cat.slug}`}
                   className="flex w-full items-center justify-between px-3 py-2 transition-all duration-200 rounded-lg text-gray-700 hover:bg-[#eb1c24] hover:text-white group-hover:bg-[#eb1c24] group-hover:text-white"
                 >
                   <div className="flex items-center gap-2.5">
@@ -191,22 +191,29 @@ export default function CategorySidebar() {
                     {cat.subGroups.map((group) => (
                       <div key={group.title} className="flex flex-col min-w-[200px] flex-1">
                         <Link
-                          href={`/product?category=${group.slug}`}
+                          href={`/tat-ca-san-pham?category=${cat.slug}`}
                           className="font-bold text-gray-900 mb-2.5 hover:text-[#eb1c24] transition-colors text-[13px] border-b pb-1.5 border-red-100 uppercase"
                         >
                           {group.title}
                         </Link>
                         <div className="flex flex-col gap-1">
-                          {group.items.map((brand) => (
-                            <Link
-                              key={brand}
-                              href={`/product?search=${encodeURIComponent(brand)}`}
-                              className="group/link text-xs font-semibold text-gray-600 hover:text-[#eb1c24] hover:bg-red-50 hover:translate-x-1 px-2.5 py-1 rounded-md transition-all flex items-center gap-2"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-red-400 group-hover/link:bg-[#eb1c24] transition-all shrink-0"></span>
-                              {brand}
-                            </Link>
-                          ))}
+                          {group.items.map((brand) => {
+                            const cleanKeyword = brand
+                              .replace(/^Màn\s+hình\s+/i, "")
+                              .replace(/^Laptop\s+/i, "")
+                              .replace(/^Nguồn\s+/i, "")
+                              .trim();
+                            return (
+                              <Link
+                                key={brand}
+                                href={`/tat-ca-san-pham?category=${cat.slug}&search=${encodeURIComponent(cleanKeyword || brand)}`}
+                                className="group/link text-xs font-semibold text-gray-600 hover:text-[#eb1c24] hover:bg-red-50 hover:translate-x-1 px-2.5 py-1 rounded-md transition-all flex items-center gap-2"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-400 group-hover/link:bg-[#eb1c24] transition-all shrink-0"></span>
+                                {brand}
+                              </Link>
+                            );
+                          })}
                         </div>
                       </div>
                     ))}
