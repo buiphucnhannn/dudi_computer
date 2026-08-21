@@ -178,19 +178,7 @@ function ProductDetailContent() {
                 </div>
               </div>
 
-              {/* =================================================
-                  PRODUCT HIGHLIGHTS
-
-                  Cấu hình nổi bật
-                  Hỗ trợ thanh toán
-                  Hỗ trợ trả góp
-              ================================================= */}
-
-              <ProductHighlights
-                product={product}
-              />
-
-              {/* ================= SPECIFICATIONS ================= */}
+              {/* ================= SPECIFICATIONS & DESCRIPTION ================= */}
 
               <ProductSpecifications
                 product={product}

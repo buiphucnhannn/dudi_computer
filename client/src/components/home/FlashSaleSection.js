@@ -13,8 +13,15 @@ import {
   CircuitBoard,
   Layers,
   ArrowRight,
+  Monitor,
+  Maximize2,
+  Sparkles,
+  ShieldCheck,
+  Wifi,
+  Clock,
 } from "lucide-react";
 import { formatVND } from "@/lib/utils";
+import { getProductCardBadges } from "@/lib/specParser";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addToCartAsync,
@@ -384,36 +391,38 @@ export default function FlashSaleSection({ products = [] }) {
                 </div>
 
                 {/* Specs 2x2 Box */}
-                <div className="bg-gray-50 rounded-xl p-2.5 grid grid-cols-2 gap-2 text-[10px] text-gray-600 mb-3 border border-gray-100">
-                  <div
-                    className="flex items-center gap-1.5 truncate"
-                    title="Intel Core i5 / i7"
-                  >
-                    <Cpu className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span className="truncate">Intel / AMD CPU</span>
-                  </div>
-                  <div
-                    className="flex items-center gap-1.5 truncate"
-                    title="RAM 16GB / 32GB"
-                  >
-                    <Layers className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span className="truncate">16GB / 32GB RAM</span>
-                  </div>
-                  <div
-                    className="flex items-center gap-1.5 truncate"
-                    title="Mainboard Pro"
-                  >
-                    <CircuitBoard className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span className="truncate">Mainboard Pro</span>
-                  </div>
-                  <div
-                    className="flex items-center gap-1.5 truncate"
-                    title="VGA RTX Series"
-                  >
-                    <HardDrive className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span className="truncate">SSD NVMe Siêu Tốc</span>
-                  </div>
-                </div>
+                {(() => {
+                  const badges = getProductCardBadges(item);
+
+                  const renderIcon = (iconName) => {
+                    const props = { className: "w-3.5 h-3.5 text-gray-400 shrink-0" };
+                    switch (iconName) {
+                      case "Cpu": return <Cpu {...props} />;
+                      case "Layers": return <Layers {...props} />;
+                      case "HardDrive": return <HardDrive {...props} />;
+                      case "CircuitBoard": return <CircuitBoard {...props} />;
+                      case "Monitor": return <Monitor {...props} />;
+                      case "Maximize2": return <Maximize2 {...props} />;
+                      case "Zap": return <Zap {...props} />;
+                      case "Sparkles": return <Sparkles {...props} />;
+                      case "ShieldCheck": return <ShieldCheck {...props} />;
+                      case "Wifi": return <Wifi {...props} />;
+                      case "Clock": return <Clock {...props} />;
+                      default: return <Sparkles {...props} />;
+                    }
+                  };
+
+                  return (
+                    <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-600 mb-2.5 border border-gray-100 min-h-[58px]">
+                      {badges.map((b, idx) => (
+                        <div key={idx} className="flex items-center gap-1 truncate" title={b.title || b.label}>
+                          {renderIcon(b.icon)}
+                          <span className="truncate font-medium">{b.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
 
                 {/* Views & Add button */}
                 <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100">

@@ -2,10 +2,27 @@
 
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { ShoppingCart, Eye, ShieldCheck, Scale, Heart } from "lucide-react";
+import {
+  ShoppingCart,
+  Eye,
+  ShieldCheck,
+  Scale,
+  Heart,
+  Cpu,
+  Layers,
+  HardDrive,
+  CircuitBoard,
+  Monitor,
+  Maximize2,
+  Zap,
+  Sparkles,
+  Wifi,
+  Clock,
+} from "lucide-react";
 import { formatVND } from "@/lib/utils";
 import { addToCart, addToCartAsync, removeFromCartAsync, selectCartItems } from "@/redux/slices/cartSlice";
 import { useCompare } from "@/components/common/CompareContext";
+import { getProductCardBadges } from "@/lib/specParser";
 
 export default function ProductCard({ product }) {
   const dispatch = useDispatch();
@@ -126,11 +143,45 @@ export default function ProductCard({ product }) {
 
           {/* Product Name */}
           <h3
-            className="text-xs sm:text-[13px] font-bold text-gray-800 group-hover:text-[#dc2626] transition-colors line-clamp-2 min-h-[36px] sm:min-h-[38px] leading-snug"
+            className="text-xs sm:text-[13px] font-bold text-gray-800 group-hover:text-[#dc2626] transition-colors line-clamp-2 min-h-[36px] sm:min-h-[38px] leading-snug mb-2"
             title={product.name}
           >
             {product.name}
           </h3>
+
+          {/* 4 Specs Chips Grid */}
+          {(() => {
+            const badges = getProductCardBadges(product);
+
+            const renderIcon = (iconName) => {
+              const props = { className: "w-3.5 h-3.5 text-gray-400 shrink-0" };
+              switch (iconName) {
+                case "Cpu": return <Cpu {...props} />;
+                case "Layers": return <Layers {...props} />;
+                case "HardDrive": return <HardDrive {...props} />;
+                case "CircuitBoard": return <CircuitBoard {...props} />;
+                case "Monitor": return <Monitor {...props} />;
+                case "Maximize2": return <Maximize2 {...props} />;
+                case "Zap": return <Zap {...props} />;
+                case "Sparkles": return <Sparkles {...props} />;
+                case "ShieldCheck": return <ShieldCheck {...props} />;
+                case "Wifi": return <Wifi {...props} />;
+                case "Clock": return <Clock {...props} />;
+                default: return <Sparkles {...props} />;
+              }
+            };
+
+            return (
+              <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-600 mb-2 border border-gray-100 min-h-[56px]">
+                {badges.map((b, idx) => (
+                  <div key={idx} className="flex items-center gap-1 truncate" title={b.title || b.label}>
+                    {renderIcon(b.icon)}
+                    <span className="truncate font-medium">{b.label}</span>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Price & Actions */}

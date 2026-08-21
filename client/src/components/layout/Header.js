@@ -975,7 +975,7 @@ export default function Header() {
             {/* Thu cũ đổi mới */}
             <li className="shrink-0">
               <Link
-                href="/trade-in"
+                href="/thu-cu-doi-moi"
                 className="py-3 md:py-[14px] block text-white hover:text-[#eb1c24] transition-colors uppercase"
               >
                 THU CŨ ĐỔI MỚI
@@ -985,7 +985,7 @@ export default function Header() {
             {/* Giới thiệu bạn bè */}
             <li className="shrink-0">
               <Link
-                href="/referral"
+                href="/gioi-thieu-ban-be"
                 className="py-3 md:py-[14px] block text-white hover:text-[#eb1c24] transition-colors uppercase font-bold"
               >
                 GIỚI THIỆU BẠN BÈ
@@ -1002,7 +1002,7 @@ export default function Header() {
                 <ul className="py-2 text-[13px] font-bold">
                   <li>
                     <Link
-                      href="/keyboard-test"
+                      href="/test-ban-phim"
                       className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase"
                     >
                       Test Bàn Phím
@@ -1010,7 +1010,7 @@ export default function Header() {
                   </li>
                   <li>
                     <Link
-                      href="/screen-test"
+                      href="/test-man-hinh"
                       className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase"
                     >
                       Test Màn Hình
@@ -1018,7 +1018,7 @@ export default function Header() {
                   </li>
                   <li>
                     <Link
-                      href="/peripherals-test"
+                      href="/test-loa-micro-webcam"
                       className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 uppercase"
                     >
                       Test Loa, Micro, Webcam
@@ -1295,7 +1295,7 @@ export default function Header() {
 
             <div className="space-y-1 text-xs font-semibold text-gray-700">
               <Link
-                href="/trade-in"
+                href="/thu-cu-doi-moi"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
               >
@@ -1307,7 +1307,7 @@ export default function Header() {
               </Link>
 
               <Link
-                href="/referral"
+                href="/gioi-thieu-ban-be"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
               >
@@ -1319,7 +1319,7 @@ export default function Header() {
               </Link>
 
               <Link
-                href="/store-locations"
+                href="/he-thong-cua-hang"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
               >
@@ -1331,7 +1331,7 @@ export default function Header() {
               </Link>
 
               <Link
-                href="/warranty-policy"
+                href="/chinh-sach-bao-hanh"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
               >
@@ -1343,7 +1343,7 @@ export default function Header() {
               </Link>
 
               <Link
-                href="/return-policy"
+                href="/chinh-sach-doi-tra"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
               >
@@ -1355,7 +1355,7 @@ export default function Header() {
               </Link>
 
               <Link
-                href="/shipping-policy"
+                href="/chinh-sach-van-chuyen"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
               >
@@ -1367,7 +1367,7 @@ export default function Header() {
               </Link>
 
               <Link
-                href="/privacy-policy"
+                href="/chinh-sach-bao-mat"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
               >
@@ -1379,7 +1379,7 @@ export default function Header() {
               </Link>
 
               <Link
-                href="/payment-policy"
+                href="/chinh-sach-thanh-toan"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
               >

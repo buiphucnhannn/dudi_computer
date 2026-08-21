@@ -13,8 +13,13 @@ const categorySchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
+      index: true,
     },
     image: {
+      type: String,
+      default: "",
+    },
+    icon: {
       type: String,
       default: "",
     },
@@ -27,8 +32,9 @@ const categorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       default: null,
+      index: true,
     },
-    // Dùng cho trang Build PC (cpu, mainboard, ram, vga, ssd, hdd, psu, case, cooler, monitor, keyboard, mouse)
+    // Dùng cho trang Build PC (cpu, mainboard, ram, vga, ssd, hdd, psu, case, cooler, monitor, gear)
     pcPartType: {
       type: String,
       enum: [
@@ -47,8 +53,25 @@ const categorySchema = new mongoose.Schema(
       ],
       default: "none",
     },
+    order: {
+      type: Number,
+      default: 0,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
 export const Category = mongoose.model("Category", categorySchema);

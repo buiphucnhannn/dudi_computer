@@ -90,7 +90,7 @@ export default function Footer() {
               <li><Link href="/product?category=laptop-cu" className="hover:text-[#eb1c24] transition-colors">Laptop Cũ</Link></li>
               <li><Link href="/product?category=man-hinh" className="hover:text-[#eb1c24] transition-colors">Màn Hình Cũ</Link></li>
               <li><Link href="/product" className="hover:text-[#eb1c24] transition-colors">Linh Kiện Cũ</Link></li>
-              <li><Link href="/screen-test" className="hover:text-[#eb1c24] transition-colors">Công Cụ Test</Link></li>
+              <li><Link href="/test-man-hinh" className="hover:text-[#eb1c24] transition-colors">Công Cụ Test</Link></li>
             </ul>
           </div>
 
@@ -116,9 +116,9 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3 text-[13px] text-white/60 font-medium">
               <li><Link href="/lien-he" className="hover:text-[#eb1c24] transition-colors">Liên Hệ</Link></li>
-              <li><Link href="/news" className="hover:text-[#eb1c24] transition-colors">Tin Tức</Link></li>
+              <li><Link href="/tin-tuc" className="hover:text-[#eb1c24] transition-colors">Tin Tức</Link></li>
               <li><Link href="/tuyen-dung" className="hover:text-[#eb1c24] transition-colors">Tuyển Dụng</Link></li>
-              <li><Link href="/store-locations" className="hover:text-[#eb1c24] transition-colors">Hệ Thống Cửa Hàng</Link></li>
+              <li><Link href="/he-thong-cua-hang" className="hover:text-[#eb1c24] transition-colors">Hệ Thống Cửa Hàng</Link></li>
               <li><Link href="/ve-chung-toi" className="hover:text-[#eb1c24] transition-colors">Giới Thiệu Về ZCOMPUTER</Link></li>
             </ul>
           </div>

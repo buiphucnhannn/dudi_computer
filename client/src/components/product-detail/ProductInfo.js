@@ -83,41 +83,7 @@ const ProductInfo = ({ product }) => {
   // =====================================================
 
   const specs = parseProductSpecs(product);
-
-  const highlights = [
-    {
-      label: "CPU",
-      value: specs.cpu,
-    },
-    {
-      label: "RAM",
-      value: specs.ram,
-    },
-    {
-      label: "Ổ CỨNG",
-      value: specs.ssd,
-    },
-    {
-      label: "CARD MÀN HÌNH",
-      value: specs.vga,
-    },
-    {
-      label: "MAINBOARD",
-      value: specs.mainboard,
-    },
-    {
-      label: "NGUỒN",
-      value: specs.psu,
-    },
-    {
-      label: "COOLER",
-      value: specs.cooler,
-    },
-    {
-      label: "CASE",
-      value: specs.caseBox,
-    },
-  ];
+  const highlights = specs.highlights || [];
 
   // =====================================================
   // PRICE

@@ -15,8 +15,15 @@ import {
   CircuitBoard,
   Sparkles,
   Flame,
+  Monitor,
+  Maximize2,
+  Zap,
+  ShieldCheck,
+  Wifi,
+  Clock,
 } from "lucide-react";
 import { formatVND } from "@/lib/utils";
+import { getProductCardBadges } from "@/lib/specParser";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addToCartAsync,
@@ -147,34 +154,6 @@ export default function FeaturedProductsSection({ products = [] }) {
     return "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
   };
 
-  // Trích xuất 4 thông số cấu hình hiển thị trong thẻ sản phẩm
-  const extractSpecs = (item) => {
-    const name = item.name || "";
-    let cpu = item.specs?.cpu || item.specifications?.cpu || "";
-    let ram = item.specs?.ram || item.specifications?.ram || "";
-    let storage = item.specs?.storage || item.specifications?.storage || item.specs?.ssd || "";
-    let gpu = item.specs?.gpu || item.specifications?.gpu || item.specs?.vga || "";
-
-    if (!cpu) {
-      const cpuMatch = name.match(/(i[3579][-\s]\w+|ryzen\s*\d\s*\w+|core\s*ultra\s*\d|m[1234]\s*(pro|max)?)/i);
-      cpu = cpuMatch ? cpuMatch[0] : (name.includes("i5") ? "Intel Core i5" : name.includes("i7") ? "Intel Core i7" : "Intel / AMD");
-    }
-    if (!ram) {
-      const ramMatch = name.match(/(\d+GB\s*(DDR[45]|RAM)?)/i);
-      ram = ramMatch ? ramMatch[0] : "16GB RAM";
-    }
-    if (!storage) {
-      const ssdMatch = name.match(/(SSD\s*\d+(GB|TB)|\d+(GB|TB)\s*SSD|NVMe\s*\d+(GB|TB))/i);
-      storage = ssdMatch ? ssdMatch[0] : (name.includes("B760") ? "MSI PRO B760M" : name.includes("B650") ? "ASUS B650M" : "512GB SSD");
-    }
-    if (!gpu) {
-      const gpuMatch = name.match(/(RTX\s*\d{4}(\s*Ti|\s*Super)?|GTX\s*\d{4}|RX\s*\d{4}|Intel\s*Iris|Radeon)/i);
-      gpu = gpuMatch ? gpuMatch[0] : (name.includes("RTX 3060") ? "RTX 3060 12GB" : name.includes("RTX 4060") ? "RTX 4060 8GB" : "Card đồ họa rời");
-    }
-
-    return { cpu, ram, storage, gpu };
-  };
-
   return (
     <section className="bg-gradient-to-b from-amber-100/70 via-amber-50/50 to-yellow-100/60 rounded-[2.5rem] p-4 sm:p-7 md:p-9 border-[3px] md:border-4 border-amber-300 shadow-xl relative overflow-hidden mb-10 sm:mb-14 md:mb-16">
       {/* Background Glowing Blobs */}
@@ -242,7 +221,6 @@ export default function FeaturedProductsSection({ products = [] }) {
             const detailHref = `/product-detail?slug=${encodeURIComponent(
               item.slug || item._id || item.id
             )}`;
-            const specs = extractSpecs(item);
 
             return (
               <div
@@ -356,24 +334,38 @@ export default function FeaturedProductsSection({ products = [] }) {
                   </div>
 
                   {/* 4 Specs Chips Grid (Khối mô tả cấu hình 2x2) */}
-                  <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-600 mb-2.5 border border-gray-100">
-                    <div className="flex items-center gap-1 truncate" title={specs.cpu}>
-                      <Cpu className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                      <span className="truncate">{specs.cpu}</span>
-                    </div>
-                    <div className="flex items-center gap-1 truncate" title={specs.ram}>
-                      <Layers className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                      <span className="truncate">{specs.ram}</span>
-                    </div>
-                    <div className="flex items-center gap-1 truncate" title={specs.storage}>
-                      <CircuitBoard className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                      <span className="truncate">{specs.storage}</span>
-                    </div>
-                    <div className="flex items-center gap-1 truncate" title={specs.gpu}>
-                      <Sparkles className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                      <span className="truncate">{specs.gpu}</span>
-                    </div>
-                  </div>
+                  {(() => {
+                    const badges = getProductCardBadges(item);
+
+                    const renderIcon = (iconName) => {
+                      const props = { className: "w-3.5 h-3.5 text-gray-400 shrink-0" };
+                      switch (iconName) {
+                        case "Cpu": return <Cpu {...props} />;
+                        case "Layers": return <Layers {...props} />;
+                        case "HardDrive": return <HardDrive {...props} />;
+                        case "CircuitBoard": return <CircuitBoard {...props} />;
+                        case "Monitor": return <Monitor {...props} />;
+                        case "Maximize2": return <Maximize2 {...props} />;
+                        case "Zap": return <Zap {...props} />;
+                        case "Sparkles": return <Sparkles {...props} />;
+                        case "ShieldCheck": return <ShieldCheck {...props} />;
+                        case "Wifi": return <Wifi {...props} />;
+                        case "Clock": return <Clock {...props} />;
+                        default: return <Sparkles {...props} />;
+                      }
+                    };
+
+                    return (
+                      <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-600 mb-2.5 border border-gray-100 min-h-[58px]">
+                        {badges.map((b, idx) => (
+                          <div key={idx} className="flex items-center gap-1 truncate" title={b.title || b.label}>
+                            {renderIcon(b.icon)}
+                            <span className="truncate font-medium">{b.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Footer View Count */}

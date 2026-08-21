@@ -25,18 +25,23 @@ class ProductRepository extends BaseRepository {
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
+        { shortName: { $regex: search, $options: "i" } },
+        { sku: { $regex: search, $options: "i" } },
         { brand: { $regex: search, $options: "i" } },
         { categoryName: { $regex: search, $options: "i" } },
+        { shortDescription: { $regex: search, $options: "i" } },
+        { tags: { $in: [new RegExp(search, "i")] } },
       ];
     }
 
-    // Lọc theo Category ID hoặc Category Name
+    // Lọc theo Category ID hoặc Category Slug / Category Name chính xác
     if (categoryId) {
       query.category = categoryId;
     } else if (categoryName && categoryName !== "all") {
       query.$or = [
-        { categoryName: { $regex: categoryName, $options: "i" } },
-        { name: { $regex: categoryName, $options: "i" } },
+        { categorySlug: categoryName },
+        { categoryName: { $regex: new RegExp(`^${categoryName}$`, "i") } },
+        { categorySlug: { $regex: categoryName, $options: "i" } },
       ];
     }
 

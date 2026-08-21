@@ -2,25 +2,47 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
+    // Tên đầy đủ của sản phẩm
     name: {
       type: String,
       required: [true, "Tên sản phẩm là bắt buộc"],
       trim: true,
     },
+    // Tên rút gọn thanh lịch, gọn gàng dùng cho tiêu đề hiển thị
+    shortName: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    // Mã SKU quản lý kho chuẩn Enterprise
+    sku: {
+      type: String,
+      trim: true,
+      uppercase: true,
+      sparse: true,
+      index: true,
+    },
+    // Slug URL thân thiện SEO
     slug: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
+      trim: true,
+      index: true,
     },
+    // Thương hiệu
     brand: {
       type: String,
       default: "ZCOMPUTER",
       trim: true,
+      index: true,
     },
+    // Danh mục liên kết
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
+      index: true,
     },
     categoryName: {
       type: String,
@@ -29,11 +51,14 @@ const productSchema = new mongoose.Schema(
     categorySlug: {
       type: String,
       default: "laptop-cu",
+      index: true,
     },
+    // Giá bán & Khuyến mãi
     price: {
       type: Number,
       required: [true, "Giá bán là bắt buộc"],
       min: 0,
+      index: true,
     },
     originalPrice: {
       type: Number,
@@ -47,11 +72,17 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    // Quản lý tồn kho
     stock: {
       type: Number,
       default: 10,
       min: 0,
     },
+    soldCount: {
+      type: Number,
+      default: 0,
+    },
+    // Hình ảnh
     images: {
       type: [String],
       default: [],
@@ -60,16 +91,44 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    // Mô tả & Đánh giá
+    shortDescription: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     description: {
       type: String,
       default: "",
     },
+    // Thông số kỹ thuật có cấu trúc (Structured Specifications)
+    specs: {
+      cpu: { type: String, default: "" },
+      ram: { type: String, default: "" },
+      storage: { type: String, default: "" },
+      gpu: { type: String, default: "" },
+      screen: { type: String, default: "" },
+      mainboard: { type: String, default: "" },
+      psu: { type: String, default: "" },
+      cooler: { type: String, default: "" },
+      caseBox: { type: String, default: "" },
+      size: { type: String, default: "" },
+      resolution: { type: String, default: "" },
+      refreshRate: { type: String, default: "" },
+      panel: { type: String, default: "" },
+      wattage: { type: String, default: "" },
+      efficiency: { type: String, default: "" },
+      chipset: { type: String, default: "" },
+      socket: { type: String, default: "" },
+    },
+    // Mảng thuộc tính linh hoạt mở rộng
     specifications: [
       {
-        name: { type: String },
-        value: { type: String },
+        name: { type: String, required: true },
+        value: { type: String, required: true },
       },
     ],
+    // Bảo hành & Tình trạng
     warranty: {
       type: String,
       default: "Bảo hành 3 - 12 Tháng",
@@ -78,15 +137,24 @@ const productSchema = new mongoose.Schema(
       type: String,
       enum: ["in_stock", "out_of_stock", "pre_order"],
       default: "in_stock",
+      index: true,
     },
+    condition: {
+      type: String,
+      default: "Chính hãng",
+    },
+    // Nhãn nổi bật
     isHot: {
       type: Boolean,
       default: false,
+      index: true,
     },
     isFlashSale: {
       type: Boolean,
       default: false,
+      index: true,
     },
+    // Thống kê & Đánh giá
     views: {
       type: Number,
       default: 0,
@@ -95,11 +163,29 @@ const productSchema = new mongoose.Schema(
       average: { type: Number, default: 5 },
       count: { type: Number, default: 0 },
     },
+    tags: {
+      type: [String],
+      default: [],
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
-// Tự động tính discountPercent và thumbnail
+// Fulltext Search Index
+productSchema.index({
+  name: "text",
+  shortName: "text",
+  sku: "text",
+  brand: "text",
+  categoryName: "text",
+  tags: "text",
+});
+
+// Middleware tính toán trước khi lưu
 productSchema.pre("save", function (next) {
   if (this.originalPrice && this.originalPrice > this.price) {
     this.discountPercent = Math.round(
@@ -108,6 +194,9 @@ productSchema.pre("save", function (next) {
   }
   if (!this.thumbnail && this.images && this.images.length > 0) {
     this.thumbnail = this.images[0];
+  }
+  if (!this.shortName) {
+    this.shortName = this.name;
   }
   next();
 });
