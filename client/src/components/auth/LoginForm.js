@@ -635,7 +635,7 @@ export default function LoginForm() {
             {/* OTP Form */}
             <form onSubmit={handleVerifyOtpSubmit} className="space-y-6">
               <div
-                className="flex items-center justify-between gap-2 sm:gap-2.5 max-w-[340px] mx-auto"
+                className="flex items-center justify-between gap-1.5 sm:gap-2.5 max-w-[340px] mx-auto w-full"
                 onPaste={handleOtpPaste}
               >
                 {otpDigits.map((digit, index) => (
@@ -650,7 +650,7 @@ export default function LoginForm() {
                     onChange={(e) => handleOtpChange(index, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(index, e)}
                     disabled={otpLoading}
-                    className={`w-11 h-13 sm:w-12 sm:h-14 text-center font-black text-xl sm:text-2xl rounded-xl border-2 transition-all outline-none ${
+                    className={`w-9 h-11 sm:w-11 sm:h-13 md:w-12 md:h-14 text-center font-black text-lg sm:text-2xl rounded-lg sm:rounded-xl border-2 transition-all outline-none shrink ${
                       digit
                         ? "border-[#dc2626] bg-red-50/40 text-gray-900 shadow-xs"
                         : "border-gray-200 bg-white text-gray-900 focus:border-[#dc2626] focus:ring-2 focus:ring-red-500/20"

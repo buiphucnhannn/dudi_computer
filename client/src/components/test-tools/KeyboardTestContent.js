@@ -437,8 +437,8 @@ export default function KeyboardTestContent() {
             </div>
 
             {/* Bàn Phím 3 Cụm Chuẩn (Tách biệt rõ ràng với gap-8) */}
-            <div className="w-full flex items-center justify-center overflow-x-auto xl:overflow-visible py-1">
-              <div className="flex items-start gap-8 justify-center bg-[#0a0d13] p-4 sm:p-5 rounded-2xl border border-gray-800/60 shadow-inner">
+            <div className="w-full flex items-center justify-start xl:justify-center overflow-x-auto xl:overflow-visible py-2 px-1">
+              <div className="flex items-start gap-8 justify-center bg-[#0a0d13] p-4 sm:p-5 rounded-2xl border border-gray-800/60 shadow-inner shrink-0 xl:shrink">
                 {/* 1. Cụm Chính (Alphanumeric 60% Block - Chuẩn xác 684px tuyệt đối) */}
                 <div className="flex flex-col gap-1.5 w-[684px] shrink-0">
                   {/* Hàng 1 (Function Row: Esc, F1-F12 căn chuẩn khít 684px) */}

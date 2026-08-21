@@ -212,26 +212,26 @@ export default function CategoryProductBox({
   };
 
   return (
-    <section className="bg-white p-5 sm:p-7 md:p-8 rounded-[2.5rem] border-[3px] md:border-4 border-[#eb1c24] shadow-md space-y-5 mb-10 sm:mb-14 md:mb-16">
+    <section className="bg-white p-3.5 sm:p-7 md:p-8 rounded-2xl sm:rounded-[2.5rem] border-2 sm:border-[3px] md:border-4 border-[#eb1c24] shadow-md space-y-4 sm:space-y-5 mb-8 sm:mb-14 md:mb-16">
       {/* Box Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-gray-100">
         <div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tight">
+          <h2 className="text-lg sm:text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tight">
             {title}
           </h2>
-          <div className="w-20 sm:w-24 h-1.5 bg-[#eb1c24] rounded-full mt-1.5 shadow-xs"></div>
+          <div className="w-16 sm:w-24 h-1 sm:h-1.5 bg-[#eb1c24] rounded-full mt-1.5 shadow-xs"></div>
         </div>
 
         {/* Filter Pills (chỉ hiển thị nếu danh mục có tabs) */}
         {tabs.length > 0 && (
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.slug;
               return (
                 <button
                   key={tab.slug}
                   onClick={() => setActiveTab(tab.slug)}
-                  className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  className={`px-3.5 sm:px-5 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                     isActive
                       ? "bg-[#eb1c24] text-white shadow-xs"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -259,7 +259,7 @@ export default function CategoryProductBox({
           Đang cập nhật thêm sản phẩm thuộc mục này...
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4.5">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {filteredProducts.map((item, index) => {
             const discountPercent =
               item.discountPercent ||
@@ -280,7 +280,7 @@ export default function CategoryProductBox({
             return (
               <div
                 key={item._id || item.id || index}
-                className="bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group/card relative"
+                className="bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group/card relative"
               >
                 {/* Product Image */}
                 <Link

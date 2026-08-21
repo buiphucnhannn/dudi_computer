@@ -269,7 +269,7 @@ export default function FlashSaleSection({ products = [] }) {
         </div>
 
         {/* Product Cards Row with gentle elevation & thin red border on hover */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
           {flashSaleItems.map((item) => {
             const discountPercent =
               item.discountPercent ||
@@ -287,7 +287,7 @@ export default function FlashSaleSection({ products = [] }) {
             return (
               <div
                 key={item._id}
-                className="bg-white rounded-2xl border border-gray-200/90 shadow-2xs hover:border-[#eb1c24] hover:shadow-[0_12px_28px_rgba(235,28,36,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-3"
+                className="bg-white rounded-xl sm:rounded-2xl border border-gray-200/90 shadow-2xs hover:border-[#eb1c24] hover:shadow-[0_12px_28px_rgba(235,28,36,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-2.5 sm:p-3"
               >
                 <Link
                   href={detailHref}

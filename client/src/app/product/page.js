@@ -30,7 +30,14 @@ function ProductsContent() {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const productsPerPage = 12;
+
+  // Active filter count for badge
+  const activeFilterCount =
+    (filters.category ? 1 : 0) +
+    filters.brands.length +
+    filters.promotions.length;
 
   // Sync URL search params with state
   useEffect(() => {
@@ -347,11 +354,14 @@ function ProductsContent() {
           />
         </div>
         <div className="flex gap-6">
-          {/* SIDEBAR */}
+          {/* SIDEBAR (Desktop & Mobile Drawer) */}
           <ProductSidebar
             filters={filters}
             products={products}
             onFilterChange={handleFilterChange}
+            isMobileOpen={isMobileFilterOpen}
+            onCloseMobile={() => setIsMobileFilterOpen(false)}
+            onClearFilters={handleClearFilters}
           />
 
           {/* CONTENT */}
@@ -360,6 +370,8 @@ function ProductsContent() {
               productCount={filteredProducts.length}
               sort={sort}
               onSortChange={handleSort}
+              onOpenMobileFilters={() => setIsMobileFilterOpen(true)}
+              activeFilterCount={activeFilterCount}
             />
 
             <ProductSearch value={search} onChange={handleSearch} />
