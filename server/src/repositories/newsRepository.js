@@ -2,7 +2,9 @@ import { News } from "../models/News.js";
 
 export const newsRepository = {
   find: async (query = {}, options = {}) => {
-    const { page = 1, limit = 10, sort = { createdAt: -1 } } = options;
+    const page = Math.max(1, Number(options.page) || 1);
+    const limit = Math.max(1, Math.min(100, Number(options.limit) || 10));
+    const sort = options.sort || { createdAt: -1 };
     const skip = (page - 1) * limit;
 
     const [items, total] = await Promise.all([
@@ -11,12 +13,12 @@ export const newsRepository = {
     ]);
 
     return {
-      items,
+      items: items || [],
       pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total,
-        totalPages: Math.ceil(total / limit),
+        page,
+        limit,
+        total: total || 0,
+        totalPages: Math.ceil((total || 0) / limit) || 1,
       },
     };
   },

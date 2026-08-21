@@ -1,7 +1,7 @@
 import { ShieldCheck, RefreshCw, FileText, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 
 export const metadata = {
-  title: "Quy định bảo hành - ZCOMPUTER",
+  title: "Chính Sách Bảo Hành",
   description: "Chính sách và quy định bảo hành, đổi trả sản phẩm tại ZCOMPUTER.",
 };
 

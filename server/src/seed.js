@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { Product } from "./models/Product.js";
 import { Category } from "./models/Category.js";
 import { News } from "./models/News.js";
+import { Job } from "./models/Job.js";
 
 export const CATEGORIES_DATA = [
   { name: "Laptop Cũ", slug: "laptop-cu", pcPartType: "none", description: "Laptop cũ chính hãng giá rẻ, like new 99% nguyên zin chưa qua sửa chữa" },
@@ -9225,13 +9226,88 @@ export const PRODUCTS_DATA = [
   }
 ];
 
+export const JOBS_DATA = [
+  {
+    title: "Kỹ Thuật Viên Lắp Ráp & Cài Đặt PC Gaming",
+    slug: "ky-thuat-vien-lap-rap-cai-dat-pc-gaming",
+    department: "Kỹ thuật",
+    location: "Thủ Đức / Bình Thạnh, TP.HCM",
+    salary: "8.000.000đ - 14.000.000đ + Thưởng",
+    type: "Toàn thời gian",
+    experience: "Dưới 1 năm / Được đào tạo",
+    quantity: 3,
+    description: "- Lắp ráp, đi dây (cable management) thẩm mỹ cho các dàn máy PC Gaming, Workstation.\n- Cài đặt hệ điều hành Windows, phần mềm, driver và tối ưu hóa hệ thống cho khách hàng.\n- Kiểm tra, test linh kiện (Main, CPU, RAM, VGA, Nguồn) và hỗ trợ xử lý bảo hành.",
+    requirements: [
+      "Đam mê phần cứng máy tính và linh kiện PC.",
+      "Cẩn thận, tỉ mỉ, có trách nhiệm trong công việc.",
+      "Ưu tiên ứng viên có kinh nghiệm lắp ráp PC, đi dây thẩm mỹ hoặc am hiểu BIOS/Windows.",
+      "Chưa có nhiều kinh nghiệm sẽ được kỹ thuật viên trưởng kèm cặp đào tạo trực tiếp.",
+    ],
+    benefits: [
+      "Lương cứng cạnh tranh + thưởng theo số lượng máy lắp + KPIs.",
+      "Được tiếp xúc và trải nghiệm trực tiếp các linh kiện công nghệ cao cấp nhất (RTX 4090, i9 14900K,...).",
+      "Thưởng lễ, Tết, lương tháng 13, xét duyệt tăng lương định kỳ 6 tháng/lần.",
+      "Môi trường làm việc trẻ trung, hòa đồng, năng động.",
+    ],
+    isActive: true,
+    order: 1,
+  },
+  {
+    title: "Nhân Viên Tư Vấn Bán Hàng PC & Laptop (Showroom / Online)",
+    slug: "nhan-vien-tu-van-ban-hang-pc-laptop",
+    department: "Kinh doanh",
+    location: "Chi nhánh Thủ Đức / Bình Thạnh",
+    salary: "9.000.000đ - 18.000.000đ (Lương + Hoa hồng)",
+    type: "Toàn thời gian",
+    experience: "Không yêu cầu / Đam mê công nghệ",
+    quantity: 2,
+    description: "- Đón tiếp, lắng nghe nhu cầu và tư vấn cấu hình PC/Laptop phù hợp với ngân sách của khách hàng tại Showroom.\n- Trả lời tin nhắn tư vấn và chốt đơn trên Fanpage/Zalo/Website.\n- Chăm sóc khách hàng sau bán hàng và phối hợp bộ phận kỹ thuật bàn giao máy.",
+    requirements: [
+      "Giao tiếp tốt, nhanh nhẹn, thái độ nhiệt tình, thân thiện.",
+      "Có hiểu biết cơ bản về cấu hình PC, Laptop Gaming, đồ họa văn phòng.",
+      "Chăm chỉ, trung thực, có tinh thần cầu tiến.",
+    ],
+    benefits: [
+      "Thu nhập hấp dẫn không giới hạn: Lương cứng + % Hoa hồng doanh số cao + Thưởng nóng.",
+      "Được đào tạo kỹ năng bán hàng, kiến thức phần cứng chuyên sâu.",
+      "Môi trường thân thiện, hỗ trợ nhau cùng phát triển.",
+    ],
+    isActive: true,
+    order: 2,
+  },
+  {
+    title: "Content Creator / Reviewer Công Nghệ & Media",
+    slug: "content-creator-reviewer-cong-nghe",
+    department: "Marketing",
+    location: "TP. Thủ Đức, TP.HCM",
+    salary: "10.000.000đ - 20.000.000đ",
+    type: "Toàn thời gian",
+    experience: "Từ 1 năm",
+    quantity: 1,
+    description: "- Lên ý tưởng kịch bản, quay dựng video ngắn (TikTok, YouTube Shorts, Reels) review PC Gaming, Laptop, góc setup công nghệ.\n- Viết bài viết đánh giá công nghệ, thủ thuật build PC trên Website và Fanpage.",
+    requirements: [
+      "Tự tin trước ống kính, giọng nói lưu loát, truyền cảm.",
+      "Biết sử dụng cơ bản các phần mềm dựng video (CapCut, Premiere Pro,...).",
+      "Bắt trend nhanh, đam mê thế giới công nghệ máy tính.",
+    ],
+    benefits: [
+      "Lương cứng + Thưởng hiệu quả video (View/Engagement).",
+      "Trực tiếp unbox và review các siêu phẩm PC, linh kiện mới nhất.",
+      "Thoải mái sáng tạo ý tưởng không gò bó.",
+    ],
+    isActive: true,
+    order: 3,
+  },
+];
+
 export const performSeed = async (customProducts = PRODUCTS_DATA) => {
   try {
     console.log("[Seed] Bắt đầu làm sạch dữ liệu cũ trong MongoDB...");
     await Product.deleteMany({});
     await Category.deleteMany({});
     await News.deleteMany({});
-    console.log("[Seed] Đã dọn dẹp Category, News và Product.");
+    await Job.deleteMany({});
+    console.log("[Seed] Đã dọn dẹp Category, News, Job và Product.");
 
     const createdCategories = await Category.insertMany(CATEGORIES_DATA);
     console.log(`[Seed] Đã tạo thành công ${createdCategories.length} danh mục.`);
@@ -9296,12 +9372,17 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
       };
     });
 
+    await Job.deleteMany({});
+    const createdJobs = await Job.insertMany(JOBS_DATA);
+    console.log(`[Seed] Đã nạp thành công ${createdJobs.length} vị trí tuyển dụng vào MongoDB.`);
+
     const insertedProducts = await Product.insertMany(productsToInsert);
     console.log(`🎉 [Seed Thành Công] Đã nạp thành công ${insertedProducts.length} sản phẩm vào MongoDB!`);
 
     return {
       categories: createdCategories.length,
       news: createdNews.length,
+      jobs: createdJobs.length,
       products: insertedProducts.length,
     };
   } catch (error) {

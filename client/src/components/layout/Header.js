@@ -1173,7 +1173,7 @@ export default function Header() {
             </Link>
 
             <Link
-              href="/student-promotion"
+              href="/back-to-school"
               onClick={() => setMobileMenuOpen(false)}
               className="p-2.5 bg-red-50/60 hover:bg-red-100/60 rounded-xl flex items-center gap-2.5 transition-colors border border-red-100 col-span-2"
             >

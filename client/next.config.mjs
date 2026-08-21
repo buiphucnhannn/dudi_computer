@@ -60,6 +60,10 @@ const nextConfig = {
         destination: "/forgot-password",
       },
       {
+        source: "/gioi-thieu-ban-be",
+        destination: "/referral",
+      },
+      {
         source: "/he-thong-cua-hang",
         destination: "/store-locations",
       },
@@ -90,6 +94,42 @@ const nextConfig = {
       {
         source: "/test-loa-micro-webcam",
         destination: "/peripherals-test",
+      },
+      {
+        source: "/huong-dan-tra-gop",
+        destination: "/installment-guide",
+      },
+      {
+        source: "/tra-gop",
+        destination: "/installment-guide",
+      },
+      {
+        source: "/lien-he",
+        destination: "/contact",
+      },
+      {
+        source: "/tuyen-dung",
+        destination: "/careers",
+      },
+      {
+        source: "/ve-chung-toi",
+        destination: "/about",
+      },
+      {
+        source: "/gioi-thieu",
+        destination: "/about",
+      },
+      {
+        source: "/thu-cu-doi-moi",
+        destination: "/trade-in",
+      },
+      {
+        source: "/thu-mua-cu",
+        destination: "/trade-in",
+      },
+      {
+        source: "/student-promotion",
+        destination: "/back-to-school",
       },
     ];
   },

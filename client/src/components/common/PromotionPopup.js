@@ -38,7 +38,7 @@ export default function PromotionPopup() {
 
                 {/* Banner Link to Student Promotion */}
                 <Link
-                    href="/student-promotion"
+                    href="/back-to-school"
                     onClick={() => setOpen(false)}
                     className="block overflow-hidden rounded-xl shadow-2xl transition-transform duration-300 hover:scale-[1.01] cursor-pointer"
                 >

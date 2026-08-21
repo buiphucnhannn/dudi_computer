@@ -1,7 +1,7 @@
 import { CreditCard, Banknote, Landmark } from "lucide-react";
 
 export const metadata = {
-  title: "Chính sách thanh toán - ZCOMPUTER",
+  title: "Chính Sách Thanh Toán",
   description: "Các phương thức thanh toán an toàn và tiện lợi tại ZCOMPUTER.",
 };
 

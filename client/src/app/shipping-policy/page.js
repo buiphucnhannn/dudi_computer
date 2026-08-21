@@ -1,7 +1,7 @@
 import { Truck, Clock, AlertTriangle, CheckSquare, Mail, Phone } from "lucide-react";
 
 export const metadata = {
-  title: "Chính sách vận chuyển - ZCOMPUTER",
+  title: "Chính Sách Vận Chuyển & Giao Hàng",
   description: "Chính sách vận chuyển, giao nhận hàng hóa của ZCOMPUTER.",
 };
 

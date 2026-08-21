@@ -1,7 +1,7 @@
 import { Shield, MapPin, Phone, Mail } from "lucide-react";
 
 export const metadata = {
-  title: "Chính sách bảo mật - ZCOMPUTER",
+  title: "Chính Sách Bảo Mật",
   description: "Chính sách bảo mật thông tin khách hàng của ZCOMPUTER.",
 };
 

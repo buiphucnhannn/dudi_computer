@@ -5,6 +5,8 @@ import productRoutes from "./productRoutes.js";
 import feedbackRoutes from "./feedbackRoutes.js";
 import wishlistRoutes from "./wishlistRoutes.js";
 import newsRoutes from "./newsRoutes.js";
+import contactRoutes from "./contactRoutes.js";
+import jobRoutes from "./jobRoutes.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
 const router = Router();
@@ -22,5 +24,7 @@ router.use("/products", productRoutes);
 router.use("/feedbacks", feedbackRoutes);
 router.use("/wishlist", wishlistRoutes);
 router.use("/news", newsRoutes);
+router.use("/contacts", contactRoutes);
+router.use("/jobs", jobRoutes);
 
 export default router;

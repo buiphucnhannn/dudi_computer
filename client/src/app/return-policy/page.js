@@ -1,7 +1,7 @@
   import { RefreshCw, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
 
 export const metadata = {
-  title: "Chính sách đổi trả - ZCOMPUTER",
+  title: "Chính Sách Đổi Trả Sản Phẩm",
   description: "Quy định về đổi trả sản phẩm, hoàn tiền tại ZCOMPUTER.",
 };
 

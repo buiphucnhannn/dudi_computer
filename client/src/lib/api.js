@@ -113,3 +113,13 @@ export const newsAPI = {
   getBySlug: (slug) => apiClient.get(`/news/${slug}`),
   getFeatured: (limit = 4) => apiClient.get("/news/featured", { params: { limit } }),
 };
+
+export const contactAPI = {
+  create: (data) => apiClient.post("/contacts", data),
+  getAll: (params) => apiClient.get("/contacts", { params }),
+};
+
+export const jobAPI = {
+  getAll: (params) => apiClient.get("/jobs", { params }),
+  getBySlug: (slug) => apiClient.get(`/jobs/${slug}`),
+};

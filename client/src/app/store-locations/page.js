@@ -2,7 +2,7 @@ import Link from "next/link";
 import { MapPin, Phone, Clock, ArrowRight, ExternalLink } from "lucide-react";
 
 export const metadata = {
-  title: "Hệ thống cửa hàng | ZCOMPUTER",
+  title: "Hệ Thống Showroom Cửa Hàng",
   description:
     "Ghé thăm trực tiếp các showroom của ZCOMPUTER để trải nghiệm tận tay những dàn PC siêu khủng và các thiết bị công nghệ hiện đại nhất.",
 };

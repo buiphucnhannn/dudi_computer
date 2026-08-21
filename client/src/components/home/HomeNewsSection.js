@@ -44,7 +44,7 @@ export default function HomeNewsSection() {
         </div>
 
         <Link
-          href="/tin-tuc"
+          href="/news"
           className="text-xs font-bold text-[#eb1c24] hover:underline flex items-center gap-1 shrink-0 self-start sm:self-auto"
         >
           <span>Xem tất cả bài viết</span>
@@ -74,18 +74,18 @@ export default function HomeNewsSection() {
           {news.map((item) => (
             <Link
               key={item._id || item.slug}
-              href={`/tin-tuc/${item.slug}`}
+              href={`/news/${item.slug}`}
               className="group flex flex-col bg-white rounded-2xl border border-gray-200/80 p-3 shadow-2xs hover:shadow-xl hover:border-[#eb1c24] hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden"
             >
               {/* Image */}
               <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden mb-3 bg-slate-100">
                 <img
-                  src={item.thumbnail || "/post-1.webp"}
+                  src={item.thumbnail || "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&auto=format&fit=crop&q=80"}
                   alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                   onError={(e) => {
-                    e.currentTarget.src = "/post-1.webp";
+                    e.currentTarget.src = "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&auto=format&fit=crop&q=80";
                   }}
                 />
               </div>
@@ -115,7 +115,7 @@ export default function HomeNewsSection() {
       {/* Bottom Button */}
       <div className="mt-8 flex justify-center">
         <Link
-          href="/tin-tuc"
+          href="/news"
           className="bg-[#eb1c24] hover:bg-[#d01720] text-white font-bold text-xs sm:text-sm px-8 py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:scale-102 cursor-pointer"
         >
           <span>XEM THÊM BÀI VIẾT & TIN TỨC</span>

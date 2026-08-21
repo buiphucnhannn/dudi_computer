@@ -7,7 +7,10 @@ import { ToastProvider } from "@/components/common/ToastContext";
 import { CompareProvider } from "@/components/common/CompareContext";
 import PromotionPopup from "@/components/common/PromotionPopup";
 export const metadata = {
-  title: "ZCOMPUTER - PC Gaming, Laptop, Workstation",
+  title: {
+    default: "ZCOMPUTER - PC Gaming, Laptop, Workstation",
+    template: "%s | ZCOMPUTER",
+  },
   description:
     "ZCOMPUTER chuyên cung cấp PC Gaming, Laptop, Workstation uy tín giá rẻ tại TP.HCM. Hàng chính hãng, bảo hành chu đáo, hỗ trợ trả góp 0%.",
   icons: {
