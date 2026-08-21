@@ -20,6 +20,15 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 
+// Health Check Endpoint (Dành cho UptimeRobot ping giữ server luôn thức 24/7)
+app.get(["/", "/health"], (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    message: "ZComputer API Server is awake and running",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Apply Global Rate Limiting to all /api routes
 app.use("/api", globalLimiter);
 
