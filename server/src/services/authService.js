@@ -396,12 +396,13 @@ class AuthService {
   }
 
   async updateProfile(userId, { name, phone, address, avatar }) {
-    const updatedUser = await userRepository.update(userId, {
-      name,
-      phone,
-      address,
-      avatar,
-    });
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (phone !== undefined) updateData.phone = phone;
+    if (address !== undefined) updateData.address = address;
+    if (avatar !== undefined) updateData.avatar = avatar;
+
+    const updatedUser = await userRepository.updateById(userId, updateData);
 
     if (!updatedUser) {
       throw new ApiError(404, "Không tìm thấy người dùng");

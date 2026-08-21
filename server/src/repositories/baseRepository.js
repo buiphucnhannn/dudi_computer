@@ -45,6 +45,10 @@ export class BaseRepository {
     return await this.model.findByIdAndUpdate(id, updateData, options).exec();
   }
 
+  async update(id, updateData, options = { new: true }) {
+    return await this.updateById(id, updateData, options);
+  }
+
   async deleteById(id) {
     return await this.model.findByIdAndDelete(id).exec();
   }
