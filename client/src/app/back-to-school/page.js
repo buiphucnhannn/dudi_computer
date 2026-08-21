@@ -279,7 +279,7 @@ export default function BackToSchoolPage() {
             </p>
 
             <Link
-              href="/all"
+              href="/tat-ca-san-pham"
               className="group relative inline-flex items-center justify-center gap-3 bg-white text-black px-10 sm:px-12 py-4 sm:py-5 rounded-full font-black text-sm sm:text-base uppercase tracking-widest hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_rgba(220,38,38,0.6)] overflow-hidden"
             >
               <span className="relative z-10 flex items-center gap-3 group-hover:text-white transition-colors duration-300">

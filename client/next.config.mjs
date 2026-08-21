@@ -189,7 +189,15 @@ const nextConfig = {
 
       // 13. Sản phẩm & Chi tiết sản phẩm
       {
+        source: "/tat-ca-san-pham",
+        destination: "/product",
+      },
+      {
         source: "/san-pham",
+        destination: "/product",
+      },
+      {
+        source: "/all",
         destination: "/product",
       },
       {

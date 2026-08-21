@@ -233,7 +233,7 @@ export default function FlashSaleSection({ products = [] }) {
 
         {/* Action Button */}
         <Link
-          href="/product?isFlashSale=true"
+          href="/tat-ca-san-pham?isFlashSale=true"
           className="w-full text-center bg-white hover:bg-red-50 text-[#eb1c24] font-black text-xs sm:text-sm py-3 rounded-xl transition-all shadow-sm uppercase tracking-wider block"
         >
           XEM TẤT CẢ

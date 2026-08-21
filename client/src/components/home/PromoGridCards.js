@@ -38,7 +38,7 @@ export default function PromoGridCards() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
         {/* Card 2: BACK TO SCHOOL */}
         <Link
-          href="/product"
+          href="/back-to-school"
           className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 h-full min-h-[160px]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

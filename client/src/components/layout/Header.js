@@ -907,7 +907,7 @@ export default function Header() {
             {/* Tất cả sản phẩm */}
             <li className="shrink-0">
               <Link
-                href="/product"
+                href="/tat-ca-san-pham"
                 className="flex items-center gap-1 py-3 md:py-[14px] text-white hover:text-[#eb1c24] transition-all duration-300"
               >
                 <span className="uppercase relative inline-block">
@@ -1204,7 +1204,7 @@ export default function Header() {
 
             {/* Link to all products */}
             <Link
-              href="/product"
+              href="/tat-ca-san-pham"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-between p-2.5 rounded-xl font-bold text-xs text-[#eb1c24] bg-red-50/70 hover:bg-red-100 transition-colors mb-1.5"
             >

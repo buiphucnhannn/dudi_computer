@@ -43,7 +43,7 @@ export default function HeroSection() {
                 {/* CTA */}
                 <div className="flex flex-col items-center gap-6">
                     <Link
-                        href="/product"
+                        href="/tat-ca-san-pham"
                         className="group relative flex items-center gap-2 overflow-hidden rounded-md bg-[#b70011] px-10 py-4 text-base font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:bg-[#93000b] hover:shadow-[0_0_20px_rgba(183,0,17,0.6)]"
                     >
                         <span className="relative z-10">

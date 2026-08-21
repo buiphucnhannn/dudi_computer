@@ -205,7 +205,7 @@ export default function SimilarProducts({ products = defaultProducts }) {
           {/* Navigation Controls */}
           <div className="flex items-center gap-2.5 self-end sm:self-auto">
             <Link
-              href="/product"
+              href="/tat-ca-san-pham"
               className="text-xs font-bold text-slate-600 hover:text-red-600 flex items-center gap-1 mr-2 transition-colors"
             >
               <span>Xem tất cả</span>

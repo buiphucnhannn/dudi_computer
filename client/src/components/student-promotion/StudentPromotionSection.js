@@ -93,7 +93,7 @@ export default function StudentPromotionSection() {
                     </p>
 
                     <Link
-                        href="/product"
+                        href="/tat-ca-san-pham"
                         className="group mx-auto flex w-fit items-center gap-2 rounded-full border border-white bg-white px-8 py-3 text-base font-bold text-black transition-all duration-300 hover:bg-transparent hover:text-white"
                     >
                         <span>XEM SẢN PHẨM</span>
