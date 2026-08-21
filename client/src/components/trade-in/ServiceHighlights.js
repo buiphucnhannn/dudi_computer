@@ -40,7 +40,7 @@ export default function ServiceHighlights() {
           <div className="mb-6 h-1 w-24 bg-red-600" />
 
           <p className="max-w-2xl text-base leading-relaxed text-gray-500 md:text-lg">
-            Từ máy cũ, đến máy nguyên seal, ZComputer đều thu mua với giá tốt
+            Từ máy cũ, đến máy nguyên seal, DUDI SOFTWARE đều thu mua với giá tốt
             nhất thị trường, đảm bảo quyền lợi tối đa cho khách hàng.
           </p>
         </div>

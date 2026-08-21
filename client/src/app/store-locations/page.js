@@ -4,7 +4,7 @@ import { MapPin, Phone, Clock, ArrowRight, ExternalLink } from "lucide-react";
 export const metadata = {
   title: "Hệ Thống Showroom Cửa Hàng",
   description:
-    "Ghé thăm trực tiếp các showroom của ZCOMPUTER để trải nghiệm tận tay những dàn PC siêu khủng và các thiết bị công nghệ hiện đại nhất.",
+    "Ghé thăm trực tiếp các showroom của DUDI SOFTWARE để trải nghiệm tận tay những dàn PC siêu khủng và các thiết bị công nghệ hiện đại nhất.",
 };
 
 const STORES = [
@@ -14,7 +14,7 @@ const STORES = [
     address:
       "23 Đường số 1, Khu phố 61, Phường Linh Xuân (Phường Linh Tây cũ), TP.Hồ Chí Minh",
     mapQuery: "https://maps.google.com/?q=23+Đường+số+1+Linh+Xuân+Thủ+Đức",
-    hotline: "0977 334 415",
+    hotline: "(+84) 909 163 821",
     workingHours: "09:30 - 19:30 (Thứ 2 - Chủ Nhật)",
     embedUrl:
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.4658576162583!2d106.74981366590865!3d10.852128230492767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752722e4c10833%3A0x6ac88810b4b7dee!2sZ%20Computer-%20Pc%20Gaming-Laptop-Workstation!5e0!3m2!1svi!2sus!4v1781670020621!5m2!1svi!2sus",
@@ -26,7 +26,7 @@ const STORES = [
       "47/86B Bùi Đình Tuý, Phường 14, Q. Bình Thạnh, TP. Hồ Chí Minh",
     mapQuery:
       "https://maps.google.com/?q=47/86B+Bùi+Đình+Tuý+Phường+14+Bình+Thạnh",
-    hotline: "0977 334 415",
+    hotline: "(+84) 909 163 821",
     workingHours: "09:30 - 19:30 (Thứ 2 - Chủ Nhật)",
     embedUrl:
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.072361586463!2d106.70468187588394!3d10.805769858649997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317529000263c50f%3A0x1694f4d065ba8f53!2zWkNPTVBVVEVSLULDjE5IIFRI4bqgTkg!5e0!3m2!1svi!2sus!4v1782088223445!5m2!1svi!2sus",
@@ -52,7 +52,7 @@ export default function StoreLocationsPage() {
         {/* Page Header */}
         <div className="text-center mb-10 sm:mb-12">
           <h1 className="text-3xl sm:text-[36px] lg:text-[40px] font-black text-gray-900 uppercase tracking-tight">
-            HỆ THỐNG <span className="text-[#eb1c24]">ZCOMPUTER</span>
+            HỆ THỐNG <span className="text-[#eb1c24]">DUDI SOFTWARE</span>
           </h1>
           <p className="text-sm sm:text-[15px] text-gray-600 mt-2.5 max-w-2xl mx-auto leading-relaxed font-medium">
             Ghé thăm trực tiếp các showroom của chúng tôi để trải nghiệm tận tay

@@ -41,7 +41,7 @@ const BuyContactModal = ({ isOpen, onClose }) => {
           <div className="flex flex-col gap-4">
             {/* Hotline */}
             <a
-              href="tel:0977334415"
+              href="tel:0909163821"
               className="group flex items-center gap-4 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100"
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-100">
@@ -54,7 +54,7 @@ const BuyContactModal = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="text-xl font-bold text-gray-900 transition-colors group-hover:text-[#E52320]">
-                  0977 334 415
+                  (+84) 909 163 821
                 </div>
               </div>
             </a>

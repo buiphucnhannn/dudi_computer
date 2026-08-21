@@ -133,7 +133,7 @@ export default function NewsDetailPage() {
           <div className="flex flex-wrap items-center gap-4 md:gap-6 text-gray-300 text-xs md:text-sm font-medium">
             <div className="flex items-center gap-1.5 md:gap-2">
               <User size={14} className="md:w-4 md:h-4 text-[#eb1c24]" />
-              <span>{article.authorName || "Admin ZComputer"}</span>
+              <span>{article.authorName || "Admin DUDI SOFTWARE"}</span>
             </div>
             <div className="flex items-center gap-1.5 md:gap-2">
               <Calendar size={15} />
@@ -180,7 +180,7 @@ export default function NewsDetailPage() {
               <div className="flex items-center gap-2 flex-wrap">
                 <Tag className="w-4 h-4 text-gray-400 shrink-0" />
                 <span className="text-xs font-bold text-gray-500">Từ khóa:</span>
-                {(article.tags && article.tags.length > 0 ? article.tags : ["zcomputer", "laptop cu", "pc"]).map(
+                {(article.tags && article.tags.length > 0 ? article.tags : ["dudisoftware", "laptop cu", "pc"]).map(
                   (tag, idx) => (
                     <span
                       key={idx}
@@ -214,11 +214,11 @@ export default function NewsDetailPage() {
                 Tư Vấn Build PC & Mua Laptop Cũ Giá Tốt Nhất
               </h4>
               <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-                ZCOMPUTER cam kết máy zin 100%, bảo hành 1 đổi 1 chu đáo, hỗ trợ trả góp 0% duyệt nhanh.
+                DUDI SOFTWARE cam kết máy zin 100%, bảo hành 1 đổi 1 chu đáo, hỗ trợ trả góp 0% duyệt nhanh.
               </p>
               <div className="flex items-center justify-center gap-2 w-full bg-[#eb1c24] text-white font-bold text-xs py-3 rounded-xl shadow-xs select-none pointer-events-none cursor-default">
                 <PhoneCall className="w-4 h-4" />
-                <span>HOTLINE: 0977 334 415</span>
+                <span>HOTLINE: (+84) 909 163 821</span>
               </div>
             </div>
 

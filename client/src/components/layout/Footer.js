@@ -17,48 +17,48 @@ export default function Footer() {
           {/* Cột 1: Thông tin thương hiệu + Fanpage Facebook Widget */}
           <div className="md:col-span-6 lg:col-span-3 pr-0 lg:pr-4 space-y-4">
             {/* Logo trắng bo góc */}
-            <Link href="/" className="inline-block bg-white px-5 py-3 rounded-2xl shadow-md hover:opacity-95 transition-opacity">
-              <div className="flex items-center gap-2.5 select-none">
+            <Link href="/" className="inline-block bg-white px-4 py-2.5 rounded-2xl shadow-md hover:opacity-95 transition-opacity">
+              <div className="flex items-center gap-2 select-none">
                 <img
-                  src="https://zcomputer.vn/logo-main.png"
-                  alt="ZCOMPUTER Logo"
-                  className="h-11 w-auto object-contain"
+                  src="/images/dudi/dudisoftware4.png"
+                  alt="DUDI SOFTWARE Logo"
+                  className="h-10 w-10 object-contain rounded-xl"
                 />
-                <div className="flex items-center font-serif tracking-tight select-none">
-                  <span className="text-[#eb1c24] text-[36px] font-black leading-none pb-[2px]">
-                    Z
-                  </span>
-                  <div className="flex flex-col justify-center ml-1 font-sans">
-                    <span className="text-[#0B1527] text-[19px] font-black leading-[0.8]">
-                      COMPUTER
+                <div className="flex flex-col justify-center select-none">
+                  <div className="flex items-baseline">
+                    <span className="text-[#eb1c24] text-[18px] font-black leading-none tracking-tight font-sans">
+                      DUDI
                     </span>
-                    <span className="text-[6px] font-black text-[#eb1c24] uppercase mt-1 tracking-tight">
-                      PC GAMING - LAPTOP - WORKSTATION
+                    <span className="text-[#0B1527] text-[12px] font-black leading-none ml-1 tracking-wider font-sans">
+                      SOFTWARE
                     </span>
                   </div>
+                  <span className="text-[6px] font-black text-[#eb1c24] uppercase mt-1 tracking-tight">
+                    PC GAMING - LAPTOP - WORKSTATION
+                  </span>
                 </div>
               </div>
             </Link>
 
             <p className="text-[13px] text-white/70 leading-relaxed font-normal">
-              ZCOMPUTER - Hệ thống chuyên cung cấp PC, Laptop Cũ / Like New uy tín, chất lượng cao với mức giá tốt nhất tại khu vực TP.HCM.
+              DUDI SOFTWARE - Hệ thống chuyên cung cấp PC, Laptop Cũ / Like New uy tín, chất lượng cao với mức giá tốt nhất tại khu vực TP.HCM.
             </p>
 
             {/* Fanpage Facebook Card Widget */}
             <div className="space-y-2 pt-2">
               <span className="text-[11px] font-bold uppercase text-white/80 block tracking-wider">
-                THEO DÕI ZCOMPUTER TẠI
+                THEO DÕI DUDI SOFTWARE TẠI
               </span>
               <div className="bg-white text-gray-900 p-3.5 rounded-2xl shadow-md border border-gray-100 space-y-3">
                 <div className="flex items-center gap-3">
                   <img
-                    src="https://zcomputer.vn/logo-main.png"
-                    alt="ZComputer Avatar"
+                    src="/images/dudi/dudisoftware2.png"
+                    alt="DUDI SOFTWARE Avatar"
                     className="w-10 h-10 rounded-full border border-gray-200 p-0.5 object-contain shrink-0"
                   />
                   <div>
                     <h5 className="text-[12.5px] font-bold text-gray-900 leading-tight">
-                      Z Computer : Gaming.Nox.Office - All for your PC
+                      DUDI Software : Gaming.Nox.Office - All for your PC
                     </h5>
                     <span className="text-[11px] text-gray-500 block mt-0.5 font-medium">
                       3.185 người theo dõi
@@ -245,7 +245,7 @@ export default function Footer() {
       <div className="w-full bg-[#050608] border-t border-white/5 py-8 text-center text-xs text-white/50 space-y-2 relative z-20">
         <div className="container mx-auto px-4 space-y-2">
           <h5 className="font-black text-white text-sm uppercase tracking-wide">
-            CÔNG TY TNHH TM DV ZCOM
+            CÔNG TY CỔ PHẦN CÔNG NGHỆ DUDI SOFTWARE
           </h5>
           <p className="text-[12.5px] text-white/60">
             <strong>Mã số GPKD:</strong> 0317130199 - Cấp bởi Sở Kế Hoạch và Đầu Tư TP. Hồ Chí Minh.
@@ -254,10 +254,10 @@ export default function Footer() {
             <strong>Địa chỉ Trụ Sở:</strong> 23 Đường số 1, Khu phố 61, Phường Linh Xuân, TP. Thủ Đức, TP.HCM.
           </p>
           <p className="text-[12.5px] text-white/60">
-            <strong>Email:</strong> truong.zvncomputer@gmail.com | <strong>Hotline:</strong> 0977 334 415
+            <strong>Email:</strong> contact@dudisoftware.com | <strong>Hotline:</strong> (+84) 909 163 821
           </p>
           <div className="pt-3 text-[12px] text-white/40">
-            © 2026 <strong>ZCOMPUTER</strong>. All rights reserved.
+            © 2026 <strong>DUDI SOFTWARE</strong>. All rights reserved.
           </div>
         </div>
       </div>

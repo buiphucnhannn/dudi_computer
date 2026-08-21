@@ -70,12 +70,12 @@ export default function CareersContent() {
               <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight mb-6">
                 TUYỂN DỤNG{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#eb1c24] via-red-500 to-orange-400">
-                  ZCOMPUTER
+                  DUDI SOFTWARE
                 </span>
               </h1>
               <div className="w-24 h-1 bg-gradient-to-r from-[#eb1c24] to-orange-500 mx-auto mb-8 rounded-full shadow-[0_0_15px_rgba(235,28,36,0.6)]" />
               <p className="text-gray-300 text-sm md:text-base lg:text-lg leading-relaxed">
-                Gia nhập đội ngũ ZComputer ngay hôm nay! Chúng tôi luôn tìm kiếm những con người đam mê công nghệ, nhiệt huyết và khát khao khẳng định bản thân.
+                Gia nhập đội ngũ DUDI SOFTWARE ngay hôm nay! Chúng tôi luôn tìm kiếm những con người đam mê công nghệ, nhiệt huyết và khát khao khẳng định bản thân.
               </p>
             </div>
           </div>
@@ -253,7 +253,7 @@ export default function CareersContent() {
                           {/* Action Button to send CV email */}
                           <div className="pt-4 flex flex-wrap items-center gap-4">
                             <a
-                              href={`mailto:truong.zvncomputer@gmail.com?subject=${encodeURIComponent(
+                              href={`mailto:contact@dudisoftware.com?subject=${encodeURIComponent(
                                 `[Ứng tuyển ${job.title}] - [Họ và tên]`
                               )}`}
                               className="px-6 py-3 bg-[#eb1c24] hover:bg-[#d01720] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 transition-all hover:scale-102"
@@ -262,7 +262,7 @@ export default function CareersContent() {
                               <span>Nộp hồ sơ ngay cho vị trí này</span>
                             </a>
                             <span className="text-xs text-gray-400">
-                              (Email: truong.zvncomputer@gmail.com)
+                              (Email: contact@dudisoftware.com)
                             </span>
                           </div>
                         </div>
@@ -285,10 +285,10 @@ export default function CareersContent() {
               <p className="text-gray-300 max-w-2xl mx-auto mb-8 text-sm sm:text-base leading-relaxed">
                 Gửi CV của bạn về địa chỉ Email:{" "}
                 <a
-                  href="mailto:truong.zvncomputer@gmail.com"
+                  href="mailto:contact@dudisoftware.com"
                   className="font-bold text-[#eb1c24] hover:underline"
                 >
-                  truong.zvncomputer@gmail.com
+                  contact@dudisoftware.com
                 </a>
                 <br />
                 Tiêu đề Email ghi rõ:{" "}
@@ -298,8 +298,8 @@ export default function CareersContent() {
               </p>
               <p className="text-xs sm:text-sm text-gray-400 italic">
                 Mọi thắc mắc vui lòng liên hệ Hotline Nhân sự:{" "}
-                <a href="tel:0977334415" className="text-white hover:underline font-bold">
-                  0977.334.415
+                <a href="tel:0909163821" className="text-white hover:underline font-bold">
+                  (+84) 909 163 821
                 </a>
               </p>
             </div>

@@ -4,7 +4,7 @@ export default function ProductBanner() {
       <div className="relative mx-auto max-w-[1600px] overflow-hidden rounded-2xl shadow-xs">
         <img
           src="/banner.webp"
-          alt="ZComputer - Khuyến mãi sản phẩm"
+          alt="DUDI SOFTWARE - Khuyến mãi sản phẩm"
           className="block h-[140px] w-full object-cover object-center sm:h-[200px] md:h-[260px] lg:h-[300px]"
         />
 

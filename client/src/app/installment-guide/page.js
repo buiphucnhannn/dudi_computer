@@ -9,7 +9,7 @@ import {
 
 export const metadata = {
   title: "Hướng Dẫn Trả Góp 0% Lãi Suất",
-  description: "Hướng dẫn chi tiết thủ tục mua máy tính, laptop trả góp 0% qua thẻ tín dụng và công ty tài chính tại ZCOMPUTER.",
+  description: "Hướng dẫn chi tiết thủ tục mua máy tính, laptop trả góp 0% qua thẻ tín dụng và công ty tài chính tại DUDI SOFTWARE.",
 };
 
 export default function InstallmentGuidePage() {
@@ -46,7 +46,7 @@ export default function InstallmentGuidePage() {
               </div>
 
               <p className="text-gray-600 mb-6 md:ml-[52px]">
-                ZCOMPUTER hợp tác cùng các công ty tài chính hàng đầu để mang đến cho khách hàng dịch vụ trả góp tốt nhất với lãi suất cực kỳ cạnh tranh và thủ tục xét duyệt siêu tốc.
+                DUDI SOFTWARE hợp tác cùng các công ty tài chính hàng đầu để mang đến cho khách hàng dịch vụ trả góp tốt nhất với lãi suất cực kỳ cạnh tranh và thủ tục xét duyệt siêu tốc.
               </p>
 
               <div className="grid md:grid-cols-2 gap-6 md:ml-[52px]">
@@ -238,7 +238,7 @@ export default function InstallmentGuidePage() {
                       Chọn sản phẩm &amp; gói trả góp
                     </h3>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                      Quý khách chọn sản phẩm ưng ý tại website ZCOMPUTER. Chọn &quot;Mua trả góp&quot;, lựa chọn công ty tài chính, mức trả trước và số tháng trả góp phù hợp.
+                      Quý khách chọn sản phẩm ưng ý tại website DUDI SOFTWARE. Chọn &quot;Mua trả góp&quot;, lựa chọn công ty tài chính, mức trả trước và số tháng trả góp phù hợp.
                     </p>
                   </div>
                 </div>
@@ -253,7 +253,7 @@ export default function InstallmentGuidePage() {
                       Đăng ký &amp; Tư vấn
                     </h3>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                      Liên hệ nhân viên tư vấn của ZCOMPUTER để được hỗ trợ hồ sơ và giải đáp thắc mắc cho quý khách.
+                      Liên hệ nhân viên tư vấn của DUDI SOFTWARE để được hỗ trợ hồ sơ và giải đáp thắc mắc cho quý khách.
                     </p>
                   </div>
                 </div>
@@ -268,7 +268,7 @@ export default function InstallmentGuidePage() {
                       Xét duyệt hồ sơ
                     </h3>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                      Khách hàng mang giấy tờ bản gốc đến trực tiếp cửa hàng ZCOMPUTER. Quá trình xét duyệt diễn ra rất nhanh chóng từ 15-30 phút.
+                      Khách hàng mang giấy tờ bản gốc đến trực tiếp cửa hàng DUDI SOFTWARE. Quá trình xét duyệt diễn ra rất nhanh chóng từ 15-30 phút.
                     </p>
                   </div>
                 </div>
@@ -326,7 +326,7 @@ export default function InstallmentGuidePage() {
                   <div className="w-1.5 h-1.5 rounded-full bg-[#cc2222] mt-2 shrink-0"></div>
                   <span>
                     Để được hỗ trợ chi tiết, quý khách vui lòng liên hệ Hotline:{" "}
-                    <strong className="text-[#cc2222]">0977.334.415</strong>
+                    <strong className="text-[#cc2222]">(+84) 909 163 821</strong>
                   </span>
                 </li>
               </ul>

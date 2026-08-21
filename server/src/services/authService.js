@@ -145,7 +145,7 @@ class AuthService {
       user: loggedInUser,
       accessToken,
       refreshToken,
-      message: "Xác thực tài khoản thành công! Chào mừng bạn đến với ZCOMPUTER.",
+      message: "Xác thực tài khoản thành công! Chào mừng bạn đến với DUDI SOFTWARE.",
     };
   }
 

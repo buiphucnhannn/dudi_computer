@@ -19,7 +19,7 @@ const ReferralCTA = () => {
         </h2>
 
         <p className="max-w-2xl text-base leading-6 text-slate-500 md:text-lg">
-          Kết nối với đội ngũ hỗ trợ của ZCOMPUTER qua Zalo để đăng ký đối tác
+          Kết nối với đội ngũ hỗ trợ của DUDI SOFTWARE qua Zalo để đăng ký đối tác
           và bắt đầu gửi thông tin khách hàng. Cơ hội gia tăng thu nhập không
           giới hạn đang chờ bạn!
         </p>

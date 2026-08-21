@@ -2,7 +2,7 @@ import { CreditCard, Banknote, Landmark } from "lucide-react";
 
 export const metadata = {
   title: "Chính Sách Thanh Toán",
-  description: "Các phương thức thanh toán an toàn và tiện lợi tại ZCOMPUTER.",
+  description: "Các phương thức thanh toán an toàn và tiện lợi tại DUDI SOFTWARE.",
 };
 
 export default function PaymentPolicyPage() {
@@ -19,7 +19,7 @@ export default function PaymentPolicyPage() {
               CHÍNH SÁCH THANH TOÁN
             </h1>
             <p className="text-gray-300 text-xs sm:text-sm mt-1 font-medium">
-              Hướng dẫn thanh toán an toàn, bảo mật tại ZCOMPUTER
+              Hướng dẫn thanh toán an toàn, bảo mật tại DUDI SOFTWARE
             </p>
           </div>
         </div>
@@ -65,7 +65,7 @@ export default function PaymentPolicyPage() {
                           Tên tài khoản:
                         </span>
                         <strong className="text-sm sm:text-base md:text-lg text-gray-900 font-bold">
-                          CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ ZCOM
+                          CÔNG TY CỔ PHẦN CÔNG NGHỆ DUDI SOFTWARE
                         </strong>
                       </li>
                       <li className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 border-b border-gray-200 pb-2.5">

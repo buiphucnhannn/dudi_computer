@@ -6,14 +6,14 @@ const steps = [
     icon: Share2,
     title: "Chia Sẻ & Giới Thiệu",
     description:
-      "Gửi thông tin bạn bè có nhu cầu mua sắm qua Zalo hoặc Fanpage cho ZCOMPUTER.",
+      "Gửi thông tin bạn bè có nhu cầu mua sắm qua Zalo hoặc Fanpage cho DUDI SOFTWARE.",
   },
   {
     number: "02",
     icon: ShoppingBag,
     title: "Mua Sắm Thành Công",
     description:
-      "Nhân viên ZCOMPUTER tư vấn, chốt đơn và giao hàng thành công cho người được giới thiệu.",
+      "Nhân viên DUDI SOFTWARE tư vấn, chốt đơn và giao hàng thành công cho người được giới thiệu.",
   },
   {
     number: "03",

@@ -30,7 +30,7 @@ export default function ServiceFeatures() {
       icon: Headphones,
       iconColor: "text-[#6c5ce7]",
       title: "Hỗ trợ 24/7",
-      desc: "0977.334.415",
+      desc: "0909.163.821",
     },
   ];
 

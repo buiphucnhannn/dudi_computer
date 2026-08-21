@@ -2,7 +2,7 @@ import { Truck, Clock, AlertTriangle, CheckSquare, Mail, Phone } from "lucide-re
 
 export const metadata = {
   title: "Chính Sách Vận Chuyển & Giao Hàng",
-  description: "Chính sách vận chuyển, giao nhận hàng hóa của ZCOMPUTER.",
+  description: "Chính sách vận chuyển, giao nhận hàng hóa của DUDI SOFTWARE.",
 };
 
 export default function ShippingPolicyPage() {
@@ -19,7 +19,7 @@ export default function ShippingPolicyPage() {
               CHÍNH SÁCH VẬN CHUYỂN
             </h1>
             <p className="text-white/80 text-xs sm:text-sm mt-1 font-medium">
-              Áp dụng cho tất cả đơn hàng tại ZCOMPUTER
+              Áp dụng cho tất cả đơn hàng tại DUDI SOFTWARE
             </p>
           </div>
         </div>
@@ -127,11 +127,11 @@ export default function ShippingPolicyPage() {
                 </li>
                 <li className="flex gap-2">
                   <span className="text-[#eb1c24] font-bold">–</span>
-                  <span>zcomputer.vn có trách nhiệm cung cấp đầy đủ và chính xác các chứng từ liên quan đến hàng hóa.</span>
+                  <span>dudisoftware.com có trách nhiệm cung cấp đầy đủ và chính xác các chứng từ liên quan đến hàng hóa.</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-[#eb1c24] font-bold">–</span>
-                  <span>Tất cả các đơn hàng đều được đóng gói sẵn sàng trước khi vận chuyển, được niêm phong bởi zcomputer.vn.</span>
+                  <span>Tất cả các đơn hàng đều được đóng gói sẵn sàng trước khi vận chuyển, được niêm phong bởi dudisoftware.com.</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-[#eb1c24] font-bold">–</span>
@@ -139,7 +139,7 @@ export default function ShippingPolicyPage() {
                 </li>
                 <li className="flex gap-2">
                   <span className="text-[#eb1c24] font-bold">–</span>
-                  <span>Sau khi khách hàng xác nhận, ZCOMPUTER sẽ xuất hóa đơn điện tử và gửi qua email.</span>
+                  <span>Sau khi khách hàng xác nhận, DUDI SOFTWARE sẽ xuất hóa đơn điện tử và gửi qua email.</span>
                 </li>
               </ul>
             </div>
@@ -175,14 +175,14 @@ export default function ShippingPolicyPage() {
                 <p className="font-bold text-gray-900">Liên hệ hỗ trợ:</p>
                 <p className="text-sm text-gray-600 flex items-center gap-2">
                   📧 Email:{" "}
-                  <a href="mailto:truong.zvncomputer@gmail.com" className="text-[#eb1c24] font-medium hover:underline">
-                    truong.zvncomputer@gmail.com
+                  <a href="mailto:contact@dudisoftware.com" className="text-[#eb1c24] font-medium hover:underline">
+                    contact@dudisoftware.com
                   </a>
                 </p>
                 <p className="text-sm text-gray-600 flex items-center gap-2">
                   📞 Hotline:{" "}
                   <span className="text-[#eb1c24] font-medium">
-                    0977 334 415
+                    (+84) 909 163 821
                   </span>
                 </p>
               </div>

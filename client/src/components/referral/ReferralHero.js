@@ -44,7 +44,7 @@ const ReferralHero = () => {
             </h1>
 
             <p className="max-w-xl text-base leading-6 text-slate-500 md:text-lg">
-              Trở thành đối tác của ZCOMPUTER ngay hôm nay. Giới thiệu bạn bè
+              Trở thành đối tác của DUDI SOFTWARE ngay hôm nay. Giới thiệu bạn bè
               mua sắm PC, Laptop thành công và nhận ngay hoa hồng tiền mặt lên
               đến <span className="font-bold text-red-700">500.000 VNĐ</span>{" "}
               cho mỗi đơn hàng. Không giới hạn số lượng!

@@ -2,7 +2,7 @@ import { ShieldCheck, RefreshCw, FileText, AlertTriangle, CheckCircle2, XCircle 
 
 export const metadata = {
   title: "Chính Sách Bảo Hành",
-  description: "Chính sách và quy định bảo hành, đổi trả sản phẩm tại ZCOMPUTER.",
+  description: "Chính sách và quy định bảo hành, đổi trả sản phẩm tại DUDI SOFTWARE.",
 };
 
 export default function WarrantyPolicyPage() {
@@ -21,10 +21,10 @@ export default function WarrantyPolicyPage() {
               <ShieldCheck className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-3 sm:mb-4">
-              QUY ĐỊNH BẢO HÀNH TẠI <span className="text-[#eb1c24]">ZCOMPUTER</span>
+              QUY ĐỊNH BẢO HÀNH TẠI <span className="text-[#eb1c24]">DUDI SOFTWARE</span>
             </h1>
             <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-medium">
-              Đảm bảo quyền lợi tối đa cho khách hàng khi mua sắm tại ZComputer.
+              Đảm bảo quyền lợi tối đa cho khách hàng khi mua sắm tại DUDI SOFTWARE.
             </p>
           </div>
         </div>
@@ -122,7 +122,7 @@ export default function WarrantyPolicyPage() {
                 </h2>
               </div>
               <p className="text-gray-500 mb-5 sm:mb-6 sm:ml-[52px] italic text-xs sm:text-sm">
-                (Khách hàng lưu ý) Z Computer xin phép từ chối bảo hành đối với các trường hợp:
+                (Khách hàng lưu ý) DUDI SOFTWARE xin phép từ chối bảo hành đối với các trường hợp:
               </p>
               <ul className="space-y-4 text-gray-600 sm:ml-[52px] text-sm sm:text-[15px] leading-relaxed">
                 <li className="flex items-start gap-2.5">

@@ -15,8 +15,8 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "Giới Thiệu Về ZCOMPUTER - Chất Lượng Thực, Giá Trị Thực",
-  description: "ZCOMPUTER chuyên cung cấp các dòng máy PC, Laptop Gaming, Workstation uy tín giá rẻ tại TP.HCM.",
+  title: "Giới Thiệu Về DUDI SOFTWARE - Chất Lượng Thực, Giá Trị Thực",
+  description: "DUDI SOFTWARE chuyên cung cấp các dòng máy PC, Laptop Gaming, Workstation uy tín giá rẻ tại TP.HCM.",
 };
 
 export default function AboutPage() {
@@ -70,7 +70,7 @@ export default function AboutPage() {
           <div className="relative w-full h-[320px] sm:h-[420px] md:h-[550px] lg:h-[650px] overflow-hidden">
             <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#0b0e14] to-transparent z-10 pointer-events-none" />
             <img
-              alt="ZCOMPUTER Storefront Showroom"
+              alt="DUDI SOFTWARE Storefront Showroom"
               src="/storefront-hero.jpg"
               className="w-full h-full object-cover object-[center_20%]"
             />
@@ -88,17 +88,17 @@ export default function AboutPage() {
               <div className="space-y-6 flex-1 max-w-[530px] w-full">
                 <div>
                   <h2 className="text-3xl md:text-4xl lg:text-[44px] font-black text-gray-900 uppercase leading-tight tracking-tight mb-3">
-                    Về ZCOMPUTER
+                    Về DUDI SOFTWARE
                   </h2>
                   <div className="w-24 h-1.5 bg-[#eb1c24] rounded-full shadow-[0_0_12px_rgba(235,28,36,0.6)]" />
                 </div>
                 
                 <p className="text-gray-700 text-base md:text-[17.5px] leading-[1.8] text-justify">
-                  <strong className="text-gray-900 font-bold">ZCOMPUTER</strong> được thành lập với mục tiêu mang đến cho khách hàng những sản phẩm PC và Laptop chất lượng cao với mức giá vô cùng hợp lý. Chúng tôi tự hào là điểm đến tin cậy của học sinh, sinh viên, dân văn phòng và anh em game thủ tại khu vực TP.HCM.
+                  <strong className="text-gray-900 font-bold">DUDI SOFTWARE</strong> được thành lập với mục tiêu mang đến cho khách hàng những sản phẩm PC và Laptop chất lượng cao với mức giá vô cùng hợp lý. Chúng tôi tự hào là điểm đến tin cậy của học sinh, sinh viên, dân văn phòng và anh em game thủ tại khu vực TP.HCM.
                 </p>
                 
                 <p className="text-gray-700 text-base md:text-[17.5px] leading-[1.8] text-justify">
-                  Với phương châm <strong className="text-gray-900 font-bold">&quot;Chất lượng thực - Giá trị thực&quot;</strong>, ZCOMPUTER chuyên cung cấp các dòng máy PC, Laptop Cũ / Like New được kiểm định kỹ thuật khắt khe. Chúng tôi hiểu rằng, một chiếc máy tính tốt không nhất thiết phải đắt tiền nhất, mà là chiếc máy tính đáp ứng hoàn hảo nhất nhu cầu và ngân sách của bạn.
+                  Với phương châm <strong className="text-gray-900 font-bold">&quot;Chất lượng thực - Giá trị thực&quot;</strong>, DUDI SOFTWARE chuyên cung cấp các dòng máy PC, Laptop Cũ / Like New được kiểm định kỹ thuật khắt khe. Chúng tôi hiểu rằng, một chiếc máy tính tốt không nhất thiết phải đắt tiền nhất, mà là chiếc máy tính đáp ứng hoàn hảo nhất nhu cầu và ngân sách của bạn.
                 </p>
               </div>
 
@@ -214,7 +214,7 @@ export default function AboutPage() {
                 Hệ thống showroom
               </h2>
               <p className="text-gray-500 mt-2 text-sm sm:text-base">
-                Trực tiếp trải nghiệm sức mạnh công nghệ tại các chi nhánh của ZCOMPUTER
+                Trực tiếp trải nghiệm sức mạnh công nghệ tại các chi nhánh của DUDI SOFTWARE
               </p>
             </div>
 
@@ -299,7 +299,7 @@ export default function AboutPage() {
                 Bạn cần tìm một bộ máy tính phù hợp?
               </h2>
               <p className="text-white/90 text-sm sm:text-base mb-8 max-w-xl mx-auto relative z-10 leading-relaxed font-normal">
-                Hãy liên hệ ngay với ZCOMPUTER để được tư vấn cấu hình tối ưu nhất cho nhu cầu học tập, làm việc và giải trí của bạn.
+                Hãy liên hệ ngay với DUDI SOFTWARE để được tư vấn cấu hình tối ưu nhất cho nhu cầu học tập, làm việc và giải trí của bạn.
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
@@ -307,10 +307,10 @@ export default function AboutPage() {
                   className="flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-[#eb1c24] rounded-xl font-black text-base shadow-lg select-none cursor-default"
                 >
                   <Phone className="w-5 h-5" />
-                  <span>0977 334 415</span>
+                  <span>(+84) 909 163 821</span>
                 </div>
                 <a
-                  href="mailto:truong.zvncomputer@gmail.com"
+                  href="mailto:contact@dudisoftware.com"
                   className="flex items-center justify-center gap-2 px-7 py-3.5 bg-black/25 text-white rounded-xl font-bold text-base hover:bg-black/40 transition-all border border-white/20 backdrop-blur-sm hover:-translate-y-0.5"
                 >
                   <Mail className="w-5 h-5" />

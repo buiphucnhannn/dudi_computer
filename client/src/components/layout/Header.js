@@ -381,38 +381,38 @@ export default function Header() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-1.5 shrink-0 group relative"
+          className="flex items-center gap-2 shrink-0 group relative"
         >
           <img
-            src="https://zcomputer.vn/logo-main.png"
-            alt="ZComputer Logo"
-            className="h-11 w-11 sm:h-[54px] sm:w-[54px] object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-md"
+            src="/images/dudi/dudisoftware4.png"
+            alt="DUDI SOFTWARE Logo"
+            className="h-10 w-10 sm:h-[50px] sm:w-[50px] object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-md rounded-xl"
           />
-          <div className="flex items-center font-serif tracking-tight select-none">
-            <span className="text-[#eb1c24] text-[40px] sm:text-[50px] font-black leading-none pb-[2px]">
-              Z
-            </span>
-            <div className="flex flex-col justify-center ml-0.5 sm:ml-1 mt-[2px]">
-              <span className="text-[#0B1527] text-[20px] sm:text-[25px] font-black leading-[0.8] tracking-normal font-sans">
-                COMPUTER
+          <div className="flex flex-col justify-center select-none">
+            <div className="flex items-baseline">
+              <span className="text-[#eb1c24] text-[20px] sm:text-[25px] font-black leading-none tracking-tight font-sans">
+                DUDI
               </span>
-              <div className="flex justify-between items-center w-full mt-[3px] font-sans">
-                <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] uppercase tracking-tight">
-                  PC GAMING
-                </span>
-                <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] tracking-tight">
-                  -
-                </span>
-                <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] uppercase tracking-tight">
-                  LAPTOP
-                </span>
-                <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] tracking-tight">
-                  -
-                </span>
-                <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] uppercase tracking-tight">
-                  WORKSTATION
-                </span>
-              </div>
+              <span className="text-[#0B1527] text-[13px] sm:text-[16px] font-black leading-none ml-1 tracking-wider font-sans">
+                SOFTWARE
+              </span>
+            </div>
+            <div className="flex justify-between items-center w-full mt-[3px] font-sans">
+              <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] uppercase tracking-tight">
+                PC GAMING
+              </span>
+              <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] tracking-tight">
+                -
+              </span>
+              <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] uppercase tracking-tight">
+                LAPTOP
+              </span>
+              <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] tracking-tight">
+                -
+              </span>
+              <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] uppercase tracking-tight">
+                WORKSTATION
+              </span>
             </div>
           </div>
         </Link>
@@ -589,8 +589,8 @@ export default function Header() {
                 <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wide">
                   HOTLINE MUA HÀNG
                 </span>
-                <span className="text-[15px] font-black text-[#eb1c24] leading-tight">
-                  0977 334 415
+                <span className="text-[14px] font-black text-[#eb1c24] leading-tight">
+                  (+84) 909 163 821
                 </span>
               </div>
             </div>
@@ -1067,13 +1067,13 @@ export default function Header() {
             className="flex items-center gap-2"
           >
             <img
-              src="https://zcomputer.vn/logo-main.png"
-              alt="ZComputer Logo"
-              className="h-8 w-8 object-contain"
+              src="/images/dudi/dudisoftware4.png"
+              alt="DUDI SOFTWARE Logo"
+              className="h-8 w-8 object-contain rounded-lg"
             />
             <div className="flex flex-col">
-              <span className="text-xs font-black text-gray-900 leading-tight">
-                ZCOMPUTER
+              <span className="text-xs font-black text-gray-900 leading-tight tracking-tight">
+                DUDI SOFTWARE
               </span>
               <span className="text-[9px] font-bold text-[#eb1c24] tracking-tight">
                 PC & LAPTOP GAMING
@@ -1410,11 +1410,11 @@ export default function Header() {
         {/* Drawer Footer / Hotline */}
         <div className="p-3.5 border-t border-gray-100 bg-gray-50/90 shrink-0">
           <a
-            href="tel:0977334415"
+            href="tel:0909163821"
             className="flex items-center justify-center gap-2 py-2.5 px-4 bg-[#eb1c24] text-white rounded-xl font-bold text-xs shadow-xs hover:bg-[#c9121a] transition-colors"
           >
             <PhoneCall className="w-4 h-4" />
-            <span>HOTLINE: 0977 334 415</span>
+            <span>HOTLINE: (+84) 909 163 821</span>
           </a>
         </div>
       </aside>

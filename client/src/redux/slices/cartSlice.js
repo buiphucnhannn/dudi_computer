@@ -4,14 +4,14 @@ import { cartAPI } from "@/lib/api";
 // Helper lưu vào localStorage
 const saveCartToStorage = (items) => {
   if (typeof window !== "undefined") {
-    localStorage.setItem("zcomputer_cart", JSON.stringify(items));
+    localStorage.setItem("dudi_cart", JSON.stringify(items));
   }
 };
 
 // Helper đọc từ localStorage
 const getLocalCart = () => {
   if (typeof window !== "undefined") {
-    const saved = localStorage.getItem("zcomputer_cart");
+    const saved = localStorage.getItem("dudi_cart") || localStorage.getItem("zcomputer_cart");
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -194,6 +194,7 @@ export const cartSlice = createSlice({
     resetCartOnLogout: (state) => {
       state.items = [];
       if (typeof window !== "undefined") {
+        localStorage.removeItem("dudi_cart");
         localStorage.removeItem("zcomputer_cart");
       }
     },

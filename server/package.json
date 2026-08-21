@@ -1,7 +1,7 @@
 {
-  "name": "zcomputer-server",
+  "name": "dudi-software-server",
   "version": "1.0.0",
-  "description": "Backend RESTful API for ZComputer Clone",
+  "description": "Backend RESTful API for DUDI SOFTWARE",
   "main": "src/server.js",
   "type": "module",
   "scripts": {

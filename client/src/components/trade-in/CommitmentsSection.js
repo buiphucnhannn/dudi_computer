@@ -42,7 +42,7 @@ export default function CommitmentsSection() {
             <div className="relative h-[400px] overflow-hidden rounded-xl border border-gray-200 bg-gray-100 md:h-[500px]">
               <img
                 src="screen.webp"
-                alt="ZComputer thu mua"
+                alt="DUDI SOFTWARE thu mua"
                 className="h-full w-full"
               />
 

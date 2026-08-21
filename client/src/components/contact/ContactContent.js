@@ -105,12 +105,12 @@ export default function ContactContent() {
               <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight mb-6">
                 LIÊN HỆ{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#eb1c24] via-red-500 to-orange-400">
-                  ZCOMPUTER
+                  DUDI SOFTWARE
                 </span>
               </h1>
               <div className="w-24 h-1 bg-gradient-to-r from-[#eb1c24] to-orange-500 mx-auto mb-8 rounded-full shadow-[0_0_15px_rgba(235,28,36,0.6)]" />
               <p className="text-gray-300 text-sm md:text-base lg:text-lg leading-relaxed">
-                Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn. Đừng ngần ngại liên hệ với ZComputer qua các kênh dưới đây hoặc để lại tin nhắn cho chúng tôi.
+                Chúng tôi luôn sẵn sàng lắng nghe và giải đáp mọi thắc mắc của bạn. Đừng ngần ngại liên hệ với DUDI SOFTWARE qua các kênh dưới đây hoặc để lại tin nhắn cho chúng tôi.
               </p>
             </div>
           </div>
@@ -138,16 +138,12 @@ export default function ContactContent() {
                       </div>
                       <div>
                         <h4 className="font-bold text-gray-900 mb-1">
-                          Chi nhánh Thủ Đức
-                        </h4>
-                        <p className="text-gray-600 text-sm leading-relaxed mb-3">
-                          23 Đường số 1, Phường Linh Xuân, Thủ Đức, TP.HCM
-                        </p>
-                        <h4 className="font-bold text-gray-900 mb-1">
-                          Chi nhánh Bình Thạnh
+                          Hệ thống cửa hàng
                         </h4>
                         <p className="text-gray-600 text-sm leading-relaxed">
-                          47/86B Bùi Đình Tuý, Phường 14, Q. Bình Thạnh, TP.HCM
+                          <strong>Showroom 1:</strong> 23 Đường số 1, Khu phố 61, Phường Linh Xuân, TP. Thủ Đức, TP.HCM
+                          <br />
+                          <strong>Showroom 2:</strong> 47/86B Bùi Đình Tuý, Phường 14, Q. Bình Thạnh, TP.HCM
                         </p>
                       </div>
                     </div>
@@ -162,10 +158,10 @@ export default function ContactContent() {
                           Hotline tư vấn
                         </h4>
                         <a
-                          href="tel:0977334415"
+                          href="tel:0909163821"
                           className="text-gray-600 text-sm leading-relaxed font-bold text-[#eb1c24] text-lg hover:underline block"
                         >
-                          0977 334 415
+                          (+84) 909 163 821
                         </a>
                       </div>
                     </div>
@@ -180,10 +176,10 @@ export default function ContactContent() {
                           Email hỗ trợ
                         </h4>
                         <a
-                          href="mailto:truong.zvncomputer@gmail.com"
+                          href="mailto:contact@dudisoftware.com"
                           className="text-gray-600 text-sm leading-relaxed hover:text-[#eb1c24] transition-colors break-all"
                         >
-                          truong.zvncomputer@gmail.com
+                          contact@dudisoftware.com
                         </a>
                       </div>
                     </div>

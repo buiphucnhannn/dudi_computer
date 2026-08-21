@@ -89,7 +89,7 @@ export default function NewsContent() {
             </span>
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto text-sm md:text-xl font-medium">
-            Nơi cập nhật những xu hướng công nghệ mới nhất, đánh giá chân thực và các mẹo vặt hữu ích từ ZCOMPUTER.
+            Nơi cập nhật những xu hướng công nghệ mới nhất, đánh giá chân thực và các mẹo vặt hữu ích từ DUDI SOFTWARE.
           </p>
         </div>
       </div>

@@ -17,7 +17,7 @@ const RelatedProducts = ({ products = [] }) => {
             const thumbnail =
               product.thumbnail ||
               product.images?.[0] ||
-              "https://zcomputer.vn/logo-main.png";
+              "/images/dudi/dudisoftware1.png";
             const href = `/product-detail?slug=${encodeURIComponent(
               product.slug || product._id,
             )}`;

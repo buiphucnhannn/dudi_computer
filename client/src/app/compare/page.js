@@ -21,11 +21,11 @@ const getProductName = (product) => {
 };
 
 const getProductImage = (product) => {
-  if (!product) return "https://zcomputer.vn/logo-main.png";
+  if (!product) return "/images/dudi/dudisoftware1.png";
   if (Array.isArray(product.images) && product.images.length > 0) {
     return product.images[0]?.url || product.images[0] || product.thumbnail;
   }
-  return product.thumbnail || product.image || "https://zcomputer.vn/logo-main.png";
+  return product.thumbnail || product.image || "/images/dudi/dudisoftware1.png";
 };
 
 const getPrice = (product) => {

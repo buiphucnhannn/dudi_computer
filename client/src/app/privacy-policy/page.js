@@ -2,7 +2,7 @@ import { Shield, MapPin, Phone, Mail } from "lucide-react";
 
 export const metadata = {
   title: "Chính Sách Bảo Mật",
-  description: "Chính sách bảo mật thông tin khách hàng của ZCOMPUTER.",
+  description: "Chính sách bảo mật thông tin khách hàng của DUDI SOFTWARE.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -104,7 +104,7 @@ export default function PrivacyPolicyPage() {
             <div className="sm:ml-11">
               <div className="p-4 bg-blue-50 rounded-xl border-l-4 border-blue-400">
                 <p className="text-gray-700">
-                  Dữ liệu cá nhân của khách hàng sẽ được lưu trữ cho đến khi có yêu cầu hủy bỏ hoặc tự khách hàng đăng nhập và thực hiện hủy bỏ. Còn lại trong mọi trường hợp thông tin cá nhân khách hàng sẽ được bảo mật trên máy chủ của zcomputer.vn
+                  Dữ liệu cá nhân của khách hàng sẽ được lưu trữ cho đến khi có yêu cầu hủy bỏ hoặc tự khách hàng đăng nhập và thực hiện hủy bỏ. Còn lại trong mọi trường hợp thông tin cá nhân khách hàng sẽ được bảo mật trên máy chủ của dudisoftware.com
                 </p>
               </div>
             </div>
@@ -157,7 +157,7 @@ export default function PrivacyPolicyPage() {
             </div>
             <div className="sm:ml-11 space-y-2.5 text-gray-600">
               <p>
-                <strong className="text-gray-900 font-bold">Tên doanh nghiệp:</strong> CÔNG TY TNHH TM DV ZCOM
+                <strong className="text-gray-900 font-bold">Tên doanh nghiệp:</strong> CÔNG TY CỔ PHẦN CÔNG NGHỆ DUDI SOFTWARE
               </p>
               <p>
                 <strong className="text-gray-900 font-bold">Thông tin:</strong> Thành lập và hoạt động theo Giấy chứng nhận đăng ký thuế số 0317130199 do Chi cục Thuế thành phố Thủ Đức cấp ngày 18/01/2022
@@ -166,10 +166,10 @@ export default function PrivacyPolicyPage() {
                 <MapPin className="w-4 h-4 text-gray-500 shrink-0 mt-1" />
                 <div className="flex flex-col gap-1">
                   <span>
-                    <strong className="text-gray-900 font-bold">Chi nhánh 1:</strong> 23 Đường số 1, Khu phố 61, Phường Linh Xuân (Phường Linh Tây cũ), TP.Hồ Chí Minh
+                    <strong className="text-gray-900 font-bold">Showroom 1:</strong> 23 Đường số 1, Khu phố 61, Phường Linh Xuân, TP.Thủ Đức, TP.Hồ Chí Minh
                   </span>
                   <span>
-                    <strong className="text-gray-900 font-bold">Chi nhánh 2:</strong> 47/86B Bùi Đình Tuý, Phường 14, Bình Thạnh, Hồ Chí Minh
+                    <strong className="text-gray-900 font-bold">Showroom 2:</strong> 47/86B Bùi Đình Tuý, Phường 14, Bình Thạnh, TP.Hồ Chí Minh
                   </span>
                 </div>
               </div>
@@ -194,13 +194,13 @@ export default function PrivacyPolicyPage() {
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-[#eb1c24] shrink-0" />
                   <span>
-                    Gọi điện trực tiếp về số điện thoại: <strong className="text-gray-900 font-bold">0977334415</strong>
+                    Gọi điện trực tiếp về số điện thoại: <strong className="text-gray-900 font-bold">(+84) 909 163 821</strong>
                   </span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-[#eb1c24] shrink-0" />
                   <span>
-                    Gửi mail: <strong className="text-gray-900 font-bold">truong.zvncomputer@gmail.com</strong>
+                    Gửi mail: <strong className="text-gray-900 font-bold">contact@dudisoftware.com</strong>
                   </span>
                 </li>
               </ul>
@@ -214,7 +214,7 @@ export default function PrivacyPolicyPage() {
                   Liên quan đến việc thông tin cá nhân bị sử dụng sai mục đích hoặc phạm vi đã thông báo:
                 </p>
                 <p>
-                  Tại zcomputer.vn, việc bảo vệ thông tin cá nhân của bạn là rất quan trọng, bạn được đảm bảo rằng thông tin cung cấp cho chúng tôi sẽ được bảo mật. zcomputer.vn cam kết không chia sẻ, bán hoặc cho thuê thông tin cá nhân của bạn cho bất kỳ người nào khác. zcomputer.vn cam kết chỉ sử dụng các thông tin của bạn vào các trường hợp sau:
+                  Tại dudisoftware.com, việc bảo vệ thông tin cá nhân của bạn là rất quan trọng, bạn được đảm bảo rằng thông tin cung cấp cho chúng tôi sẽ được bảo mật. dudisoftware.com cam kết không chia sẻ, bán hoặc cho thuê thông tin cá nhân của bạn cho bất kỳ người nào khác. dudisoftware.com cam kết chỉ sử dụng các thông tin của bạn vào các trường hợp sau:
                 </p>
                 <ul className="space-y-2 pl-2">
                   <li className="flex gap-2">
@@ -231,7 +231,7 @@ export default function PrivacyPolicyPage() {
                   </li>
                 </ul>
                 <p>
-                  zcomputer.vn hiểu rằng quyền lợi của bạn trong việc bảo vệ thông tin cá nhân cũng chính là trách nhiệm của chúng tôi nên trong bất kỳ trường hợp có thắc mắc, góp ý nào liên quan đến chính sách bảo mật của zcomputer.vn, và liên quan đến việc thông tin cá nhân bị sử dụng sai mục đích hoặc phạm vi đã thông báo vui lòng liên hệ qua số hotline <strong className="text-gray-900 font-bold">0977334415</strong> hoặc email: <strong className="text-gray-900 font-bold">truong.zvncomputer@gmail.com</strong> để xử lý và làm việc trực tiếp với khách hàng.
+                  dudisoftware.com hiểu rằng quyền lợi của bạn trong việc bảo vệ thông tin cá nhân cũng chính là trách nhiệm của chúng tôi nên trong bất kỳ trường hợp có thắc mắc, góp ý nào liên quan đến chính sách bảo mật của dudisoftware.com, và liên quan đến việc thông tin cá nhân bị sử dụng sai mục đích hoặc phạm vi đã thông báo vui lòng liên hệ qua số hotline <strong className="text-gray-900 font-bold">(+84) 909 163 821</strong> hoặc email: <strong className="text-gray-900 font-bold">contact@dudisoftware.com</strong> để xử lý và làm việc trực tiếp với khách hàng.
                 </p>
               </div>
             </div>

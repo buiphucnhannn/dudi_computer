@@ -30,7 +30,7 @@ export default function ContactCTA() {
         <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
           {/* Hotline */}
           <a
-            href="tel:0977334415"
+            href="tel:0909163821"
             className="group flex w-full items-center justify-center gap-3 rounded-lg border border-red-600 bg-white px-8 py-5 text-red-600 shadow-[0_0_15px_rgba(220,38,38,0.15)] transition-all hover:bg-red-600 hover:text-white hover:shadow-[0_0_25px_rgba(220,38,38,0.4)] sm:w-auto"
           >
             <PhoneCall
@@ -44,14 +44,14 @@ export default function ContactCTA() {
               </span>
 
               <span className="mt-1 block text-2xl font-black leading-none">
-                0977 334 415
+                (+84) 909 163 821
               </span>
             </div>
           </a>
 
           {/* Zalo */}
           <a
-            href="https://zalo.me/0977334415"
+            href="https://zalo.me/0909163821"
             target="_blank"
             rel="noreferrer"
             className="flex w-full items-center justify-center gap-3 rounded-lg bg-[#0068FF] px-8 py-5 text-white transition-colors hover:bg-[#0052cc] sm:w-auto"

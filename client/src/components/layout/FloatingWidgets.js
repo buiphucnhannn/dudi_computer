@@ -62,8 +62,8 @@ export default function FloatingWidgets() {
         <span className="absolute inset-0 rounded-full bg-[#eb1c24]/55 animate-ripple pointer-events-none"></span>
         <div
           className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shadow-md select-none cursor-default z-10"
-          title="Hotline: 0977 334 415"
-          aria-label="Hotline: 0977 334 415"
+          title="Hotline: (+84) 909 163 821"
+          aria-label="Hotline: (+84) 909 163 821"
         >
           <svg
             className="w-5 h-5 stroke-white fill-none stroke-[2.2] stroke-linecap-round stroke-linejoin-round"

@@ -110,7 +110,7 @@ const StoreSystem = ({
                   tracking-tight
                 "
               >
-                Hệ thống cửa hàng ZCOMPUTER
+                Hệ thống cửa hàng DUDI SOFTWARE
               </h2>
 
               <Send
@@ -308,7 +308,7 @@ const StoreSystem = ({
                       drop-shadow-[0_0_8px_rgba(220,38,38,0.25)]
                     "
                   >
-                    0977.334.415
+                    (+84) 909 163 821
                   </span>
                 </p>
               </div>
@@ -348,7 +348,7 @@ const StoreSystem = ({
                 <p className="text-body-lg text-gray-200">
                   Email:
                   <span className="text-white font-semibold ml-2 break-all">
-                    truong.zvncomputer@gmail.com
+                    contact@dudisoftware.com
                   </span>
                 </p>
               </div>

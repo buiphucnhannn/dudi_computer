@@ -12,7 +12,7 @@ export const authSlice = createSlice({
     // Tải thông tin người dùng từ localStorage khi khởi động
     initAuthFromStorage: (state) => {
       if (typeof window !== "undefined") {
-        const userStr = localStorage.getItem("zcomputer_user");
+        const userStr = localStorage.getItem("dudi_user") || localStorage.getItem("zcomputer_user");
         if (userStr) {
           try {
             state.user = JSON.parse(userStr);
@@ -32,8 +32,9 @@ export const authSlice = createSlice({
 
       if (typeof window !== "undefined") {
         if (user) {
-          localStorage.setItem("zcomputer_user", JSON.stringify(user));
+          localStorage.setItem("dudi_user", JSON.stringify(user));
         } else {
+          localStorage.removeItem("dudi_user");
           localStorage.removeItem("zcomputer_user");
         }
       }
@@ -45,6 +46,7 @@ export const authSlice = createSlice({
       state.isAuthenticated = false;
 
       if (typeof window !== "undefined") {
+        localStorage.removeItem("dudi_user");
         localStorage.removeItem("zcomputer_user");
       }
     },

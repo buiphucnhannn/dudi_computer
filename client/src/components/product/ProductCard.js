@@ -38,7 +38,7 @@ export default function ProductCard({ product }) {
   const thumbnail =
     product.thumbnail ||
     product.images?.[0] ||
-    "https://zcomputer.vn/logo-main.png";
+    "/images/dudi/dudisoftware1.png";
 
   const detailHref = `/product-detail?slug=${encodeURIComponent(
     product.slug || product._id,

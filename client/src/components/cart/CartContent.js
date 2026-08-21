@@ -143,7 +143,7 @@ export default function CartContent() {
                         <img
                           src={
                             item.thumbnail ||
-                            "https://zcomputer.vn/logo-main.png"
+                            "/images/dudi/dudisoftware1.png"
                           }
                           alt={item.name}
                           className="w-full h-full object-contain"
@@ -296,7 +296,7 @@ export default function CartContent() {
                       GỌI HOTLINE
                     </span>
                     <strong className="text-sm font-black text-gray-900">
-                      0977 334 415
+                      (+84) 909 163 821
                     </strong>
                   </div>
                 </div>

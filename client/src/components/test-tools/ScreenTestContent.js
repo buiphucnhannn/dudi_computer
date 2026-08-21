@@ -555,10 +555,10 @@ export default function ScreenTestContent() {
             Kiểm tra độ sắc nét và chống nhòe viền chữ
           </h4>
           <p style={{ fontSize: "10px" }} className="text-gray-800">
-            Size 10px: The quick brown fox jumps over the lazy dog. Máy tính ZComputer chất lượng đỉnh cao.
+            Size 10px: The quick brown fox jumps over the lazy dog. Máy tính DUDI SOFTWARE chất lượng đỉnh cao.
           </p>
-          <p style={{ fontSize: "12px" }} className="text-gray-800">
-            Size 12px: The quick brown fox jumps over the lazy dog. Máy tính ZComputer chất lượng đỉnh cao.
+          <p className="text-[12px] leading-relaxed">
+            Size 12px: The quick brown fox jumps over the lazy dog. Máy tính DUDI SOFTWARE chất lượng đỉnh cao.
           </p>
           <p style={{ fontSize: "14px", fontWeight: "bold" }} className="text-gray-900">
             Size 14px Bold: The quick brown fox jumps over the lazy dog.

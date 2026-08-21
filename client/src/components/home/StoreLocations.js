@@ -13,8 +13,8 @@ export default function StoreLocations() {
         {/* Cột trái: Thông tin showroom */}
         <div>
           <h3 className="text-xl md:text-2xl font-black text-white uppercase mb-6 flex items-center gap-3 tracking-tight">
-            <span>HỆ THỐNG CỬA HÀNG ZCOMPUTER</span>
-            {/* SVG Máy bay giấy chính thức từ zcomputer.vn xoay 45 độ */}
+            <span>HỆ THỐNG CỬA HÀNG DUDI SOFTWARE</span>
+            {/* SVG Máy bay giấy xoay 45 độ */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -56,7 +56,7 @@ export default function StoreLocations() {
               <span>
                 Hotline Hỗ Trợ:{" "}
                 <span className="text-[#eb1c24] font-bold text-lg ml-1">
-                  0977.334.415
+                  (+84) 909 163 821
                 </span>
               </span>
             </p>
@@ -65,7 +65,7 @@ export default function StoreLocations() {
             <p className="flex items-center gap-3">
               <Mail className="text-[#eb1c24] fill-[#eb1c24]/20 w-4 h-4 shrink-0" />
               <span>
-                Email: <strong className="text-white ml-1 font-semibold">truong.zvncomputer@gmail.com</strong>
+                Email: <strong className="text-white ml-1 font-semibold">contact@dudisoftware.com</strong>
               </span>
             </p>
           </div>

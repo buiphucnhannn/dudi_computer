@@ -58,6 +58,7 @@ apiClient.interceptors.response.use(
         processQueue(refreshError, null);
         // Xóa thông tin profile client nếu refresh token hết hạn
         if (typeof window !== "undefined") {
+          localStorage.removeItem("dudi_user");
           localStorage.removeItem("zcomputer_user");
         }
         return Promise.reject(refreshError);

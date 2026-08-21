@@ -126,7 +126,7 @@ export default function HeroSlider() {
             >
               <img
                 src={img}
-                alt={`ZComputer Banner ${idx + 1}`}
+                alt={`DUDI SOFTWARE Banner ${idx + 1}`}
                 className={`w-full h-full object-cover select-none pointer-events-none transition-transform ease-out ${
                   isHovered && isActive ? "scale-105 duration-[6000ms]" : "scale-100 duration-[3000ms]"
                 }`}

@@ -762,7 +762,7 @@ export const parseProductSpecs = (product) => {
           { name: "Nguồn máy tính (PSU)", detail: psu, warranty: w },
           { name: "Tản nhiệt (Cooling)", detail: cooler, warranty: w },
           { name: "Vỏ Case / Khung vỏ", detail: caseBox, warranty: w },
-          { name: "Thương hiệu", detail: product.brand || (isLaptop ? "ASUS / Dell / Lenovo" : "ZComputer Build"), warranty: "-" },
+          { name: "Thương hiệu", detail: product.brand || (isLaptop ? "ASUS / Dell / Lenovo" : "DUDI SOFTWARE Build"), warranty: "-" },
           { name: "Tình trạng", detail: product.status === "out_of_stock" ? "Hết hàng" : "Còn hàng (Like New 99% / Mới 100%)", warranty: "-" },
         ],
         highlights: [

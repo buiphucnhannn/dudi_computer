@@ -18,7 +18,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 z-0 flex justify-end">
         <img
           src="https://lh3.googleusercontent.com/aida/AP1WRLtMLMfeCGf63qqXlG_LVppdzNPWp7UMNo0gtnXzgKoyC53Znoq8iaw-3-oj7HXiFLHrxt618dG3UQnKbmBH5w7ulEt9p85skBLOkQMq-mIxrzUkYKvRrYqqIEQn_yl4M2znqVY8-syfZKtaA1QFlV_GOTrCveK3bYtji8gCK-nTTzK0C1z8NJ25ub4bLtDBIvDEt2pRxj3w2Lr2ococ5eUTNr0jo59q14hiThMDYDXJi4JAaSeeN8uh60DH"
-          alt="ZComputer Gaming"
+          alt="DUDI SOFTWARE Gaming"
           className="h-full w-full object-cover opacity-80 md:w-3/4"
         />
 
@@ -48,7 +48,7 @@ export default function HeroSection() {
 
           {/* Description */}
           <p className="mt-2 max-w-lg text-lg font-light leading-relaxed text-gray-600">
-            ZComputer thu mua Laptop & PC Gaming cũ với{" "}
+            DUDI SOFTWARE thu mua Laptop & PC Gaming cũ với{" "}
             <strong className="font-semibold text-gray-900">giá cực tốt</strong>
             . Đặc biệt trợ giá lên đời thêm tới{" "}
             <strong className="text-xl font-bold text-red-600">
@@ -60,7 +60,7 @@ export default function HeroSection() {
           {/* Buttons */}
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <a
-              href="tel:0977334415"
+              href="tel:0909163821"
               className="group inline-flex items-center justify-center gap-2 rounded bg-red-600 px-8 py-4 text-sm font-bold uppercase tracking-wide text-white shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-all hover:bg-red-700 hover:shadow-[0_0_30px_rgba(220,38,38,0.5)]"
             >
               <Phone

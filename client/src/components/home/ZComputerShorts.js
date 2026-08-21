@@ -8,25 +8,25 @@ export default function ZComputerShorts() {
       id: 1,
       title: "Review PC Gaming i5 13400F RTX 4060",
       thumbnail: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80",
-      handle: "@zcomputer_official",
+      handle: "@dudisoftware",
     },
     {
       id: 2,
       title: "Mở hộp Lenovo Legion Y7000P 2025",
       thumbnail: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=500&auto=format&fit=crop&q=80",
-      handle: "@zcomputer_official",
+      handle: "@dudisoftware",
     },
     {
       id: 3,
       title: "Test game Black Myth Wukong trên RTX 4070",
       thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=500&auto=format&fit=crop&q=80",
-      handle: "@zcomputer_official",
+      handle: "@dudisoftware",
     },
     {
       id: 4,
       title: "Hướng dẫn chọn mua Laptop Cũ Like New",
       thumbnail: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&auto=format&fit=crop&q=80",
-      handle: "@zcomputer_official",
+      handle: "@dudisoftware",
     },
   ];
 
@@ -40,7 +40,7 @@ export default function ZComputerShorts() {
         <div className="flex items-center gap-2.5">
           <div className="w-0 h-0 border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent border-l-[16px] border-l-[#eb1c24]" />
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 uppercase tracking-tight">
-            ZCOMPUTER <span className="text-[#eb1c24]">SHORT</span>
+            DUDI SOFTWARE <span className="text-[#eb1c24]">SHORT</span>
           </h2>
         </div>
         <div className="w-20 h-1.5 bg-[#eb1c24] rounded-full mt-2.5 shadow-sm"></div>
@@ -69,9 +69,9 @@ export default function ZComputerShorts() {
                 <div className="relative">
                   <div className="w-8 h-8 rounded-full bg-white p-0.5 shadow-md flex items-center justify-center">
                     <img
-                      src="https://zcomputer.vn/logo-main.png"
-                      alt="ZComputer Logo"
-                      className="w-full h-full object-contain"
+                      src="/images/dudi/dudisoftware2.png"
+                      alt="DUDI SOFTWARE Logo"
+                      className="w-full h-full object-contain rounded-full"
                     />
                   </div>
                   {/* Red Live indicator dot */}
@@ -79,7 +79,7 @@ export default function ZComputerShorts() {
                 </div>
                 <div className="text-left">
                   <h3 className="text-[11px] sm:text-xs font-bold leading-tight drop-shadow-xs">
-                    ZComputer Short
+                    DUDI Software Short
                   </h3>
                   <span className="text-[9px] sm:text-[10px] text-gray-300 block">
                     {s.handle}
@@ -101,7 +101,7 @@ export default function ZComputerShorts() {
                 TikTok <span className="font-bold text-white">{s.handle}</span>
               </div>
               <a
-                href="https://tiktok.com/@zcomputer_official"
+                href="https://tiktok.com/@dudisoftware"
                 target="_blank"
                 rel="noreferrer"
                 className="w-full bg-black/60 hover:bg-[#eb1c24] backdrop-blur-md text-white text-xs font-bold py-2 px-4 rounded-full flex items-center justify-center gap-1 transition-all duration-300 shadow-md group-hover:bg-[#eb1c24]"

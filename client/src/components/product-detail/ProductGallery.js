@@ -65,7 +65,7 @@ const ProductGallery = ({ product }) => {
   const images =
     rawImages.length > 0
       ? rawImages
-      : ["https://zcomputer.vn/logo-main.png"];
+      : ["/images/dudi/dudisoftware1.png"];
 
   const activeIndex = Math.min(
     selectedImage,

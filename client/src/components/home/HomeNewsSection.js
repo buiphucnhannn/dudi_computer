@@ -39,7 +39,7 @@ export default function HomeNewsSection() {
             </h2>
           </div>
           <p className="text-xs text-gray-500 mt-1 pl-4">
-            Cập nhật kiến thức, thủ thuật và tin tức công nghệ mới nhất từ ZComputer
+            Cập nhật kiến thức, thủ thuật và tin tức công nghệ mới nhất từ DUDI SOFTWARE
           </p>
         </div>
 

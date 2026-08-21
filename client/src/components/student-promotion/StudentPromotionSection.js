@@ -86,7 +86,7 @@ export default function StudentPromotionSection() {
 
                     <p className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-white/60">
                         Khởi đầu chặng đường học tập với những sản phẩm
-                        công nghệ chất lượng nhất. Đội ngũ ZCOMPUTER luôn
+                        công nghệ chất lượng nhất. Đội ngũ DUDI SOFTWARE luôn
                         tận tâm đồng hành, sẵn sàng tư vấn giải pháp và cấu
                         hình tối ưu, đáp ứng trọn vẹn mọi nhu cầu cá nhân
                         của khách hàng.

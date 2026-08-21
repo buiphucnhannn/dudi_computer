@@ -7,7 +7,7 @@ import ShowroomSection from "@/components/referral/ShowroomSection";
 
 export const metadata = {
   title: "Giới Thiệu Bạn Bè - Nhận Quà Liền Tay",
-  description: "Chương trình giới thiệu bạn bè mua PC, Laptop nhận voucher và hoa hồng hấp dẫn tại ZCOMPUTER.",
+  description: "Chương trình giới thiệu bạn bè mua PC, Laptop nhận voucher và hoa hồng hấp dẫn tại DUDI SOFTWARE.",
 };
 
 export default function Page() {

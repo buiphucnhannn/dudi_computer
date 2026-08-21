@@ -6,7 +6,7 @@ import ContactCTA from "@/components/trade-in/ContactCTA";
 
 export const metadata = {
   title: "Thu Cũ Đổi Mới PC, Laptop Trợ Giá Cao Nhất",
-  description: "Dịch vụ thu mua máy cũ, nâng cấp PC, Laptop đời mới trợ giá hấp dẫn nhất tại ZCOMPUTER.",
+  description: "Dịch vụ thu mua máy cũ, nâng cấp PC, Laptop đời mới trợ giá hấp dẫn nhất tại DUDI SOFTWARE.",
 };
 
 export default function Page() {

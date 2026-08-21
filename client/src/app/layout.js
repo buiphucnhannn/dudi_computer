@@ -8,13 +8,13 @@ import { CompareProvider } from "@/components/common/CompareContext";
 import PromotionPopup from "@/components/common/PromotionPopup";
 export const metadata = {
   title: {
-    default: "ZCOMPUTER - PC Gaming, Laptop, Workstation",
-    template: "%s | ZCOMPUTER",
+    default: "DUDI SOFTWARE - PC Gaming, Laptop, Workstation",
+    template: "%s | DUDI SOFTWARE",
   },
   description:
-    "ZCOMPUTER chuyên cung cấp PC Gaming, Laptop, Workstation uy tín giá rẻ tại TP.HCM. Hàng chính hãng, bảo hành chu đáo, hỗ trợ trả góp 0%.",
+    "DUDI SOFTWARE chuyên cung cấp PC Gaming, Laptop, Workstation uy tín giá rẻ tại TP.HCM. Hàng chính hãng, bảo hành chu đáo, hỗ trợ trả góp 0%.",
   icons: {
-    icon: "https://zcomputer.vn/logo-main.png",
+    icon: "/favicon.ico",
   },
 };
 

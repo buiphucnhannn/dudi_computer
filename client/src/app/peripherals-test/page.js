@@ -2,7 +2,7 @@ import PeripheralsTestContent from "@/components/test-tools/PeripheralsTestConte
 
 export const metadata = {
   title: "Kiểm Tra Loa, Micro, Webcam Online",
-  description: "Công cụ test âm thanh stereo loa, micro thu âm và camera webcam online miễn phí tại ZCOMPUTER.",
+  description: "Công cụ test âm thanh stereo loa, micro thu âm và camera webcam online miễn phí tại DUDI SOFTWARE.",
 };
 
 export default function PeripheralsTestPage() {

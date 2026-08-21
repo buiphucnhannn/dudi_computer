@@ -9,7 +9,7 @@ const ProductSpecifications = ({ product }) => {
   const specsData = parseProductSpecs(product);
   const items = specsData.items || [];
   const type = detectProductType(product);
-  const name = product.name || "Sản phẩm ZCOMPUTER";
+  const name = product.name || "Sản phẩm DUDI SOFTWARE";
 
   return (
     <div className="space-y-6">
@@ -82,7 +82,7 @@ const ProductSpecifications = ({ product }) => {
             {type === PRODUCT_TYPES.LAPTOP && (
               <>
                 <p>
-                  Sở hữu thiết kế hiện đại, bền bỉ cùng hệ thống phần cứng mạnh mẽ được kiểm định kỹ lưỡng 24 bước tiêu chuẩn tại ZCOMPUTER. Khả năng đa nhiệm mượt mà, tốc độ xử lý nhanh chóng giúp bạn hoàn thành mọi tác vụ từ văn phòng, lập trình cho đến đồ họa và chơi game một cách trơn tru nhất.
+                  Sở hữu thiết kế hiện đại, bền bỉ cùng hệ thống phần cứng mạnh mẽ được kiểm định kỹ lưỡng 24 bước tiêu chuẩn tại DUDI SOFTWARE. Khả năng đa nhiệm mượt mà, tốc độ xử lý nhanh chóng giúp bạn hoàn thành mọi tác vụ từ văn phòng, lập trình cho đến đồ họa và chơi game một cách trơn tru nhất.
                 </p>
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
                   <h4 className="font-bold text-slate-900 flex items-center gap-2">
@@ -102,7 +102,7 @@ const ProductSpecifications = ({ product }) => {
             {type === PRODUCT_TYPES.PC && (
               <>
                 <p>
-                  Bộ máy tính được đội ngũ kỹ thuật viên ZCOMPUTER tuyển chọn linh kiện tương thích 100%, đi dây thẩm mỹ và tối ưu luồng gió làm mát. Cỗ máy sẵn sàng cân tốt các tựa game đình đám (PUBG, Valorant, CS2, GTA V, Black Myth: Wukong) cũng như các phần mềm thiết kế đồ họa 2D/3D (Photoshop, Premiere, AutoCAD, SolidWorks).
+                  Bộ máy tính được đội ngũ kỹ thuật viên DUDI SOFTWARE tuyển chọn linh kiện tương thích 100%, đi dây thẩm mỹ và tối ưu luồng gió làm mát. Cỗ máy sẵn sàng cân tốt các tựa game đình đám (PUBG, Valorant, CS2, GTA V, Black Myth: Wukong) cũng như các phần mềm thiết kế đồ họa 2D/3D (Photoshop, Premiere, AutoCAD, SolidWorks).
                 </p>
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
                   <h4 className="font-bold text-slate-900 flex items-center gap-2">
@@ -176,11 +176,11 @@ const ProductSpecifications = ({ product }) => {
               </>
             )}
 
-            {/* Cam kết ZCOMPUTER */}
+            {/* Cam kết DUDI SOFTWARE */}
             <div className="p-4 bg-red-50/70 rounded-xl border border-red-200/80 mt-4 flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-[#eb1c24] shrink-0 mt-0.5" />
               <div className="text-xs sm:text-sm text-slate-800 space-y-1">
-                <span className="font-bold text-[#eb1c24] block">CAM KẾT CHẤT LƯỢNG TẠI ZCOMPUTER:</span>
+                <span className="font-bold text-[#eb1c24] block">CAM KẾT CHẤT LƯỢNG TẠI DUDI SOFTWARE:</span>
                 <p>
                   100% sản phẩm được kiểm tra kỹ thuật nghiêm ngặt trước khi giao hàng. Hỗ trợ 1 đổi 1 trong thời gian đầu nếu phát sinh lỗi phần cứng, bảo hành chu đáo tận tâm và hỗ trợ kỹ thuật trọn đời máy.
                 </p>

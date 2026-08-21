@@ -31,7 +31,7 @@ class CartService {
               : {}),
             name: matched.name,
             slug: matched.slug,
-            brand: matched.brand || "ZCOMPUTER",
+            brand: matched.brand || "DUDI SOFTWARE",
             price: matched.price,
             originalPrice: matched.originalPrice || matched.price,
             discountPrice: matched.price,
@@ -40,9 +40,9 @@ class CartService {
             images:
               matched.images && matched.images.length > 0
                 ? matched.images
-                : ["https://zcomputer.vn/logo-main.png"],
+                : ["/images/dudi/dudisoftware1.png"],
             thumbnail:
-              matched.thumbnail || matched.images?.[0] || "https://zcomputer.vn/logo-main.png",
+              matched.thumbnail || matched.images?.[0] || "/images/dudi/dudisoftware1.png",
             warranty: matched.warranty || "Bảo hành 3 - 12 Tháng",
             status: "in_stock",
           });
@@ -73,7 +73,7 @@ class CartService {
           price: p.price,
           originalPrice: p.originalPrice || p.price,
           images: p.images || [],
-          thumbnail: p.thumbnail || p.images?.[0] || "https://zcomputer.vn/logo-main.png",
+          thumbnail: p.thumbnail || p.images?.[0] || "/images/dudi/dudisoftware1.png",
           quantity: item.quantity || 1,
           addedAt: item.addedAt,
           specs: p.specs || {},

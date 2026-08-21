@@ -323,7 +323,7 @@ export default function CategoryProductBox({
                 {/* Brand & Action Icons */}
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                   <span className="font-black text-gray-900 uppercase tracking-wider text-[11px]">
-                    {item.brand || "ZCOMPUTER"}
+                    {item.brand || "DUDI SOFTWARE"}
                   </span>
                   <div className="flex items-center gap-1.5 text-gray-400">
                     <button

@@ -1,8 +1,8 @@
-  import { RefreshCw, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
+import { RefreshCw, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
 
 export const metadata = {
   title: "Chính Sách Đổi Trả Sản Phẩm",
-  description: "Quy định về đổi trả sản phẩm, hoàn tiền tại ZCOMPUTER.",
+  description: "Quy định về đổi trả sản phẩm, hoàn tiền tại DUDI SOFTWARE.",
 };
 
 export default function ReturnPolicyPage() {
@@ -19,7 +19,7 @@ export default function ReturnPolicyPage() {
               CHÍNH SÁCH ĐỔI TRẢ
             </h1>
             <p className="text-gray-300 text-xs sm:text-sm mt-1 font-medium">
-              Đảm bảo quyền lợi tối đa cho khách hàng mua sắm tại ZCOMPUTER
+              Đảm bảo quyền lợi tối đa cho khách hàng mua sắm tại DUDI SOFTWARE
             </p>
           </div>
         </div>
@@ -44,7 +44,7 @@ export default function ReturnPolicyPage() {
                 Sản phẩm phải còn đầy đủ hộp, phụ kiện, sách hướng dẫn, và quà tặng kèm theo (nếu có).
               </li>
               <li>
-                Phải có hóa đơn mua hàng hoặc phiếu bảo hành hợp lệ của ZCOMPUTER.
+                Phải có hóa đơn mua hàng hoặc phiếu bảo hành hợp lệ của DUDI SOFTWARE.
               </li>
             </ul>
           </section>
@@ -77,14 +77,14 @@ export default function ReturnPolicyPage() {
               <div className="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200">
                 <p className="font-bold text-gray-900">Bước 1: Liên hệ hỗ trợ</p>
                 <p className="text-gray-600 mt-1">
-                  Khách hàng gọi Hotline: <strong className="text-gray-900 font-bold">0977 334 415</strong> để thông báo tình trạng lỗi.
+                  Khách hàng gọi Hotline: <strong className="text-gray-900 font-bold">(+84) 909 163 821</strong> để thông báo tình trạng lỗi.
                 </p>
               </div>
 
               <div className="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200">
                 <p className="font-bold text-gray-900">Bước 2: Gửi trả sản phẩm</p>
                 <p className="text-gray-600 mt-1">
-                  Gửi sản phẩm kèm toàn bộ phụ kiện về địa chỉ cửa hàng ZCOMPUTER gần nhất.
+                  Gửi sản phẩm kèm toàn bộ phụ kiện về địa chỉ cửa hàng DUDI SOFTWARE gần nhất.
                 </p>
               </div>
 

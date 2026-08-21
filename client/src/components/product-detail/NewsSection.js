@@ -4,21 +4,21 @@ const news = [
       'Cách Kiểm Tra Laptop Cũ Từ A-Z: Mua Máy "Ngon" Không Sợ Bị Lừa',
     category: "Tin tức công nghệ",
     image: "/post-3.webp",
-    href: "https://zcomputer.vn/tin-tuc/huong-dan-cach-kiem-tra-laptop-cu-tu-a-z-mua-may-ngon-khong-so-bi-lua",
+    href: "/news",
   },
   {
     title:
       "Cách Kiểm Tra Win Bản Quyền Hay Win Lậu Chính Xác 100%",
     category: "Thủ thuật máy tính",
     image: "/post-2.webp",
-    href: "https://zcomputer.vn/tin-tuc/cach-kiem-tra-win-lau-hay-win-ban-quyen",
+    href: "/news",
   },
   {
     title:
-      "Mua Laptop Cũ Ở Đâu Uy Tín? 5 Lý Do Khách Hàng Tuyệt Đối Tin Tưởng ZComputer",
+      "Mua Laptop Cũ Ở Đâu Uy Tín? 5 Lý Do Khách Hàng Tuyệt Đối Tin Tưởng DUDI SOFTWARE",
     category: "Về chúng tôi",
     image: "/post-1.webp",
-    href: "https://zcomputer.vn/tin-tuc/mua-laptop-cu-o-dau-uy-tin-5-ly-do-khach-hang-tuyet-doi-tin-tuong-zcomputer",
+    href: "/news",
   },
 ];
 

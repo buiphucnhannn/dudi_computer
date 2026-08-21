@@ -31,7 +31,7 @@ export default function ValuePropositionSection() {
                     <h2 className="text-2xl font-semibold text-white">
                         Tiêu Chuẩn{" "}
                         <span className="text-[#b70011]">
-                            ZComputer
+                            DUDI SOFTWARE
                         </span>
                     </h2>
 

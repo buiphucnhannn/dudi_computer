@@ -392,7 +392,7 @@ function ProductsContent() {
         <div className="mb-6 overflow-hidden rounded-2xl shadow-xs">
           <img
             src="/banner.webp"
-            alt="ZComputer - Sản phẩm"
+            alt="DUDI SOFTWARE - Sản phẩm"
             className="block h-[140px] w-full object-cover sm:h-[200px] lg:h-[280px]"
           />
         </div>

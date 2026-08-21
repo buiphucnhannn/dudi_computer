@@ -31,7 +31,7 @@ const WhyChooseUs = () => {
       {/* Title */}
       <h2 className="flex items-center gap-2 text-lg font-extrabold leading-tight text-slate-900">
         <span className="h-6 w-1 shrink-0 rounded-sm bg-red-600" />
-        <span>VÌ SAO NÊN CHỌN ZCOMPUTER?</span>
+        <span>VÌ SAO NÊN CHỌN DUDI SOFTWARE?</span>
       </h2>
 
       {/* Reasons */}

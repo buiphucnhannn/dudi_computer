@@ -189,17 +189,17 @@ const StoreInfo = () => {
           </div>
 
           <p className="text-[11px] leading-relaxed opacity-90 mb-3">
-            Đội ngũ kỹ thuật viên ZComputer luôn sẵn sàng
+            Đội ngũ kỹ thuật viên DUDI SOFTWARE luôn sẵn sàng
             hỗ trợ bạn.
           </p>
 
           <a
-            href="tel:0977334415"
+            href="tel:0909163821"
             className="flex items-center justify-center gap-2 w-full bg-white text-red-600 rounded-lg py-2.5 text-xs font-bold hover:bg-slate-100 transition-colors"
           >
             <Phone size={14} />
 
-            0977.334.415
+            (+84) 909 163 821
           </a>
         </div>
       </div>
