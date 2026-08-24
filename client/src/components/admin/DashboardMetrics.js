@@ -95,14 +95,14 @@ export default function DashboardMetrics() {
 
           <div className="my-3">
             <span className="text-2xl font-black text-slate-900">
-              {metrics.todayRevenue}
+              {metrics?.todayRevenue || metrics?.todayRevenueFormatted || "0₫"}
             </span>
           </div>
 
           <div className="flex items-center gap-1.5 text-xs">
             <span className="flex items-center font-bold text-emerald-600">
               <ArrowUpRight className="h-3.5 w-3.5" />
-              {metrics.revenueGrowth}
+              {metrics?.revenueGrowth || "+0%"}
             </span>
             <span className="text-slate-400 font-medium">so với hôm qua</span>
           </div>
@@ -121,13 +121,16 @@ export default function DashboardMetrics() {
 
           <div className="my-3">
             <span className="text-2xl font-black text-slate-900">
-              {metrics.todayOrders}
+              {metrics?.todayOrders ?? metrics?.todayOrdersCount ?? 0}
             </span>
           </div>
 
           <div className="flex items-center gap-1.5 text-xs">
             <span className="text-slate-500 font-medium">
-              Đang chờ xử lý: <strong className="text-slate-800 font-bold">{metrics.pendingOrders} đơn</strong>
+              Đang chờ xử lý:{" "}
+              <strong className="text-slate-800 font-bold">
+                {metrics?.pendingOrders ?? metrics?.pendingOrdersCount ?? 0} đơn
+              </strong>
             </span>
           </div>
         </div>
@@ -148,7 +151,7 @@ export default function DashboardMetrics() {
 
           <div className="my-3">
             <span className="text-2xl font-black text-slate-900">
-              {metrics.lowStockItems}
+              {metrics?.lowStockItems ?? metrics?.lowStockCount ?? lowStockList.length}
             </span>
           </div>
 
