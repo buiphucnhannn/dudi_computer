@@ -27,7 +27,7 @@ export default function ProductPagination({
           onClick={() => setCurrentPage(page)}
           className={`flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold transition-all cursor-pointer ${
             currentPage === page
-              ? "bg-slate-900 text-white shadow-xs"
+              ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/20 font-black"
               : "border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 shadow-2xs"
           }`}
         >

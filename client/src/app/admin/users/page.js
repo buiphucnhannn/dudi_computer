@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Users,
   Search,
@@ -20,9 +20,12 @@ import {
   ShoppingBag,
   Clock,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { apiClient } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
 
 export default function AdminUsersPage() {
   const [customers, setCustomers] = useState([]);
@@ -37,10 +40,11 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [authTypeFilter, setAuthTypeFilter] = useState("all");
-  const [roleFilter, setRoleFilter] = useState("all");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   // Confirm Modal State
   const [confirmState, setConfirmState] = useState({
@@ -72,17 +76,17 @@ export default function AdminUsersPage() {
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      // 1. Lấy danh sách khách hàng
+      // 1. Lấy danh sách khách hàng (chỉ lấy tài khoản khách hàng)
       let url = `/users?search=${encodeURIComponent(searchTerm)}`;
       if (statusFilter !== "all") url += `&status=${statusFilter}`;
       if (authTypeFilter !== "all") url += `&authType=${authTypeFilter}`;
-      if (roleFilter !== "all") url += `&role=${roleFilter}`;
 
       const res = await apiClient.get(url);
       const json = res.data;
       if (json.statusCode === 200 || json.success) {
         const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
-        setCustomers(items);
+        // Đảm bảo không load bất kỳ tài khoản admin nào vào giao diện
+        setCustomers(items.filter((c) => c.role !== "admin"));
       }
 
       // 2. Lấy thống kê
@@ -101,12 +105,20 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchCustomers();
-  }, [statusFilter, authTypeFilter, roleFilter]);
+  }, [statusFilter, authTypeFilter]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    setCurrentPage(1);
     fetchCustomers();
   };
+
+  // Phân trang
+  const totalPages = Math.ceil(customers.length / pageSize) || 1;
+  const paginatedCustomers = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return customers.slice(start, start + pageSize);
+  }, [customers, currentPage, pageSize]);
 
   // Mở Custom Modal xác nhận Khóa / Mở khóa
   const handleToggleStatus = (id, currentStatus, name) => {
@@ -195,29 +207,27 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
-        <div className="flex items-center gap-3.5">
-          <div className="p-3 rounded-2xl bg-red-50 text-[#eb1c24] border border-red-100 shadow-xs shrink-0">
-            <Users className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-              Quản Lý Khách Hàng & Tài Khoản
-            </h1>
-            <p className="text-xs text-slate-500 mt-0.5 font-medium">
-              Theo dõi danh sách người dùng, kiểm soát trạng thái hoạt động và lịch sử đăng nhập
-            </p>
-          </div>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-slate-900">
+            Quản lý khách hàng
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium max-w-2xl">
+            Theo dõi danh sách người dùng, kiểm soát trạng thái hoạt động và lịch sử mua sắm của khách hàng.
+          </p>
         </div>
 
-        <button
-          onClick={fetchCustomers}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold transition shadow-2xs cursor-pointer self-start sm:self-auto"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[#eb1c24]" : ""}`} />
-          <span>Làm mới</span>
-        </button>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <button
+            onClick={fetchCustomers}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 shadow-2xs transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
+            title="Làm mới"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[#eb1c24]" : ""}`} />
+            <span>Làm mới</span>
+          </button>
+        </div>
       </div>
 
       {/* KPI Stats Cards */}
@@ -227,7 +237,7 @@ export default function AdminUsersPage() {
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
               Tổng Khách Hàng
             </span>
-            <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
+            <div className="p-2 rounded-xl bg-red-50 text-[#eb1c24]">
               <Users className="w-4 h-4" />
             </div>
           </div>
@@ -285,7 +295,7 @@ export default function AdminUsersPage() {
 
       {/* Filters & Search Form */}
       <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
-        <div className="sm:col-span-4 relative">
+        <div className="sm:col-span-6 relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -294,18 +304,6 @@ export default function AdminUsersPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-red-500 transition shadow-2xs"
           />
-        </div>
-
-        <div className="sm:col-span-3">
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
-          >
-            <option value="all">Tất cả vai trò</option>
-            <option value="user">Khách hàng (User)</option>
-            <option value="admin">Quản trị viên (Admin)</option>
-          </select>
         </div>
 
         <div className="sm:col-span-3">
@@ -320,7 +318,7 @@ export default function AdminUsersPage() {
           </select>
         </div>
 
-        <div className="sm:col-span-2">
+        <div className="sm:col-span-3">
           <select
             value={authTypeFilter}
             onChange={(e) => setAuthTypeFilter(e.target.value)}
@@ -340,44 +338,41 @@ export default function AdminUsersPage() {
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-black uppercase tracking-wider text-slate-500">
                 <th className="py-3.5 px-4 w-12 text-center whitespace-nowrap">STT</th>
-                <th className="py-3.5 px-4 min-w-[220px] whitespace-nowrap text-left">Tài Khoản & Người Dùng</th>
-                <th className="py-3.5 px-4 w-56 text-center whitespace-nowrap">Liên Hệ (Email / SĐT)</th>
-                <th className="py-3.5 px-4 w-32 text-center whitespace-nowrap">Vai Trò</th>
+                <th className="py-3.5 px-4 min-w-[240px] whitespace-nowrap text-left">Tài Khoản & Người Dùng</th>
+                <th className="py-3.5 px-4 min-w-[220px] text-center whitespace-nowrap">Liên Hệ (Email / SĐT)</th>
                 <th className="py-3.5 px-4 w-36 text-center whitespace-nowrap">Hình Thức</th>
-                <th className="py-3.5 px-4 w-36 text-center whitespace-nowrap">Ngày Tham Gia</th>
+                <th className="py-3.5 px-4 w-40 text-center whitespace-nowrap">Ngày Tham Gia</th>
                 <th className="py-3.5 px-4 w-36 text-center whitespace-nowrap">Trạng Thái</th>
-                <th className="py-3.5 px-4 w-28 text-center whitespace-nowrap">Thao Tác</th>
+                <th className="py-3.5 px-4 w-32 text-center whitespace-nowrap">Thao Tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={7} className="py-12 text-center text-slate-400">
                     <RefreshCw className="w-6 h-6 animate-spin mx-auto text-[#eb1c24] mb-2" />
                     Đang tải danh sách tài khoản...
                   </td>
                 </tr>
-              ) : customers.length === 0 ? (
+              ) : paginatedCustomers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={7} className="py-12 text-center text-slate-400">
                     Không tìm thấy tài khoản nào phù hợp với điều kiện tìm kiếm.
                   </td>
                 </tr>
               ) : (
-                customers.map((c, idx) => (
+                paginatedCustomers.map((c, idx) => (
                   <tr key={c._id} className="hover:bg-slate-50/70 transition group">
                     <td className="py-3.5 px-4 text-center text-slate-400 font-mono font-medium whitespace-nowrap">
-                      {idx + 1}
+                      {(currentPage - 1) * pageSize + idx + 1}
                     </td>
                     <td className="py-3.5 px-4 text-left whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-xs shrink-0 text-white ${
-                          c.role === "admin" ? "bg-[#eb1c24]" : "bg-slate-900"
-                        }`}>
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-xs shrink-0 bg-red-50 text-[#eb1c24] border border-red-100">
                           {c.name ? c.name.charAt(0).toUpperCase() : "U"}
                         </div>
                         <div className="min-w-0">
-                          <div className="font-bold text-slate-900 group-hover:text-[#eb1c24] transition truncate max-w-[180px] flex items-center gap-1.5">
+                          <div className="font-bold text-slate-900 group-hover:text-[#eb1c24] transition truncate max-w-[200px] flex items-center gap-1.5">
                             <span>{c.name}</span>
                           </div>
                           <div className="text-[10.5px] text-slate-400 font-mono">
@@ -388,7 +383,7 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <div className="inline-flex flex-col items-center">
-                        <div className="flex items-center gap-1 text-slate-700 font-medium truncate max-w-[180px]">
+                        <div className="flex items-center gap-1 text-slate-700 font-medium truncate max-w-[200px]">
                           <Mail className="w-3 h-3 text-slate-400 shrink-0" />
                           <span>{c.email}</span>
                         </div>
@@ -397,17 +392,6 @@ export default function AdminUsersPage() {
                           <span>{c.phone || "Chưa cập nhật SĐT"}</span>
                         </div>
                       </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      {c.role === "admin" ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-red-100 text-[#eb1c24] font-black text-[10px] tracking-wider border border-red-200">
-                          ADMIN
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 font-bold text-[10.5px]">
-                          Khách Hàng
-                        </span>
-                      )}
                     </td>
                     <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       {c.authType === "google" ? (
@@ -423,7 +407,7 @@ export default function AdminUsersPage() {
                     <td className="py-3.5 px-4 text-center whitespace-nowrap text-slate-600 font-medium">
                       <div className="inline-flex items-center gap-1.5">
                         <Calendar className="w-3 h-3 text-slate-400" />
-                        <span>{new Date(c.createdAt).toLocaleDateString("vi-VN")}</span>
+                        <span>{formatDate(c.createdAt)}</span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4 text-center whitespace-nowrap">
@@ -449,33 +433,29 @@ export default function AdminUsersPage() {
                           <Eye className="w-4 h-4" />
                         </button>
 
-                        {c.role !== "admin" && (
-                          <>
-                            <button
-                              onClick={() => handleToggleStatus(c._id, c.status, c.name)}
-                              className={`p-1.5 rounded-lg border transition cursor-pointer ${
-                                c.status === "banned"
-                                  ? "border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                                  : "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100"
-                              }`}
-                              title={c.status === "banned" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
-                            >
-                              {c.status === "banned" ? (
-                                <Unlock className="w-4 h-4" />
-                              ) : (
-                                <Ban className="w-4 h-4" />
-                              )}
-                            </button>
+                        <button
+                          onClick={() => handleToggleStatus(c._id, c.status, c.name)}
+                          className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                            c.status === "banned"
+                              ? "border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                              : "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100"
+                          }`}
+                          title={c.status === "banned" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
+                        >
+                          {c.status === "banned" ? (
+                            <Unlock className="w-4 h-4" />
+                          ) : (
+                            <Ban className="w-4 h-4" />
+                          )}
+                        </button>
 
-                            <button
-                              onClick={() => handleDeleteCustomer(c._id, c.name)}
-                              className="p-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition cursor-pointer"
-                              title="Xóa vĩnh viễn khách hàng"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
+                        <button
+                          onClick={() => handleDeleteCustomer(c._id, c.name)}
+                          className="p-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition cursor-pointer"
+                          title="Xóa vĩnh viễn khách hàng"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -484,6 +464,55 @@ export default function AdminUsersPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Thanh Phân Trang */}
+        {customers.length > 0 && (
+          <div className="p-4 bg-white flex flex-col sm:flex-row gap-3 items-center justify-between border-t border-slate-100">
+            <span className="text-xs text-slate-500 font-medium">
+              Hiển thị{" "}
+              <strong className="text-slate-800 font-bold">
+                {customers.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}-
+                {Math.min(currentPage * pageSize, customers.length)}
+              </strong>{" "}
+              trong tổng số{" "}
+              <strong className="text-slate-800 font-bold">{customers.length}</strong> khách hàng
+            </span>
+
+            <div className="flex items-center gap-1">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
+                title="Trang trước"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-8 h-8 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    page === currentPage
+                      ? "bg-[#eb1c24] text-white shadow-xs"
+                      : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
+                title="Trang sau"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal Chi Tiết Khách Hàng (Hỗ trợ Click Outside & Phím ESC) */}
@@ -503,7 +532,7 @@ export default function AdminUsersPage() {
           >
             <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-lg shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-[#eb1c24] text-white flex items-center justify-center font-black text-lg shadow-md shadow-red-600/20">
                   {selectedCustomer.name ? selectedCustomer.name.charAt(0).toUpperCase() : "U"}
                 </div>
                 <div>
@@ -552,7 +581,7 @@ export default function AdminUsersPage() {
                         <div>
                           <div className="font-bold text-slate-900">Mã đơn: #{ord._id.slice(-6)}</div>
                           <div className="text-[11px] text-slate-400">
-                            {new Date(ord.createdAt).toLocaleDateString("vi-VN")}
+                            {formatDate(ord.createdAt)}
                           </div>
                         </div>
                         <div className="text-right">
@@ -578,7 +607,7 @@ export default function AdminUsersPage() {
               <button
                 type="button"
                 onClick={() => setIsDetailModalOpen(false)}
-                className="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] text-white font-bold text-xs shadow-md shadow-red-600/20 transition cursor-pointer"
               >
                 Đóng
               </button>

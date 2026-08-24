@@ -225,7 +225,7 @@ export default function OrdersPage() {
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-slate-800 cursor-pointer active:scale-98 whitespace-nowrap"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98 whitespace-nowrap"
           >
             <Plus className="h-4 w-4 stroke-[2.5] shrink-0" />
             <span className="whitespace-nowrap">Tạo đơn hàng mới</span>

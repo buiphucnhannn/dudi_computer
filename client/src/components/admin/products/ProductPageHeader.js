@@ -26,7 +26,7 @@ export default function ProductPageHeader({ onAddProduct, onExport }) {
 
         <button
           onClick={onAddProduct}
-          className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-xs transition hover:bg-slate-800 cursor-pointer active:scale-98"
+          className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98"
         >
           <Plus className="h-4 w-4 stroke-[2.5]" />
           <span>Thêm sản phẩm</span>

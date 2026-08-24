@@ -9011,9 +9011,9 @@ export const PRODUCTS_DATA = [
     "categoryName": "PC Cũ",
     "categorySlug": "pc-cu",
     "price": 12900000,
-    "originalPrice": 140000000,
+    "originalPrice": 14000000,
     "discountPrice": 12900000,
-    "discountPercent": 91,
+    "discountPercent": 8,
     "stock": 20,
     "thumbnail": "https://zcomputer.vn/uploads/image-1781946019503-423417348.jpg",
     "images": [

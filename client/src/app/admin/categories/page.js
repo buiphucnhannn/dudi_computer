@@ -26,6 +26,8 @@ import {
   ExternalLink,
   Package,
   Building2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { apiClient } from "@/lib/api";
@@ -85,6 +87,8 @@ export default function AdminCategoriesAndBrandsPage() {
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [categorySearchTerm, setCategorySearchTerm] = useState("");
   const [selectedGroupFilter, setSelectedGroupFilter] = useState("all");
+  const [categoryPage, setCategoryPage] = useState(1);
+  const categoryPageSize = 6;
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [categoryModalMode, setCategoryModalMode] = useState("create");
@@ -106,6 +110,8 @@ export default function AdminCategoriesAndBrandsPage() {
   const [loadingBrands, setLoadingBrands] = useState(true);
   const [brandSearchTerm, setBrandSearchTerm] = useState("");
   const [brandStatusFilter, setBrandStatusFilter] = useState("all");
+  const [brandPage, setBrandPage] = useState(1);
+  const brandPageSize = 8;
 
   const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
   const [brandModalMode, setBrandModalMode] = useState("create");
@@ -402,9 +408,19 @@ export default function AdminCategoriesAndBrandsPage() {
       .filter(Boolean);
   }, [rootCategories, categories, selectedGroupFilter, categorySearchTerm]);
 
+  const totalCategoryPages = Math.ceil(categoryTree.length / categoryPageSize) || 1;
+  const paginatedCategoryTree = useMemo(() => {
+    const start = (categoryPage - 1) * categoryPageSize;
+    return categoryTree.slice(start, start + categoryPageSize);
+  }, [categoryTree, categoryPage, categoryPageSize]);
+
   const filteredBrands = useMemo(() => {
     const query = brandSearchTerm.toLowerCase().trim();
     return brands.filter((b) => {
+      if (brandStatusFilter !== "all") {
+        if (brandStatusFilter === "active" && !b.isActive) return false;
+        if (brandStatusFilter === "inactive" && b.isActive) return false;
+      }
       if (query) {
         const matchName = b.name?.toLowerCase().includes(query);
         const matchOrigin = b.origin?.toLowerCase().includes(query);
@@ -412,7 +428,13 @@ export default function AdminCategoriesAndBrandsPage() {
       }
       return true;
     });
-  }, [brands, brandSearchTerm]);
+  }, [brands, brandSearchTerm, brandStatusFilter]);
+
+  const totalBrandPages = Math.ceil(filteredBrands.length / brandPageSize) || 1;
+  const paginatedBrands = useMemo(() => {
+    const start = (brandPage - 1) * brandPageSize;
+    return filteredBrands.slice(start, start + brandPageSize);
+  }, [filteredBrands, brandPage, brandPageSize]);
 
   return (
     <div className="space-y-6">
@@ -434,100 +456,94 @@ export default function AdminCategoriesAndBrandsPage() {
         </div>
       )}
 
-      {/* Header with Segmented Tabs */}
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="p-3 rounded-2xl bg-red-50 text-[#eb1c24] border border-red-100 shadow-xs shrink-0">
-              <FolderTree className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                Danh Mục & Thương Hiệu Sản Phẩm
-              </h1>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                Tổ chức phân cấp gọn gàng theo cây thư mục và quản lý thương hiệu độc lập
-              </p>
-            </div>
-          </div>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-slate-900">
+            Danh mục & Thương hiệu
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium max-w-2xl">
+            Tổ chức phân cấp gọn gàng theo cây thư mục và quản lý thương hiệu sản phẩm của DUDI SOFTWARE.
+          </p>
+        </div>
 
-          <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 shrink-0">
+          <button
+            onClick={() => {
+              fetchCategories();
+              fetchBrands();
+            }}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 shadow-2xs transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
+            title="Làm mới toàn bộ"
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${
+                loadingCategories || loadingBrands ? "animate-spin text-[#eb1c24]" : ""
+              }`}
+            />
+            <span>Làm mới</span>
+          </button>
+          {mainTab === "categories" ? (
             <button
-              onClick={() => {
-                fetchCategories();
-                fetchBrands();
-              }}
-              className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition shadow-2xs cursor-pointer"
-              title="Làm mới toàn bộ"
+              onClick={handleOpenCreateCategory}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98"
             >
-              <RefreshCw
-                className={`w-4 h-4 ${
-                  loadingCategories || loadingBrands ? "animate-spin text-[#eb1c24]" : ""
-                }`}
-              />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Thêm danh mục</span>
             </button>
-            {mainTab === "categories" ? (
-              <button
-                onClick={handleOpenCreateCategory}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#eb1c24] hover:bg-[#c9121a] text-white text-xs sm:text-sm font-bold shadow-lg shadow-red-600/20 transition cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Thêm Danh Mục Mới</span>
-              </button>
-            ) : (
-              <button
-                onClick={handleOpenCreateBrand}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#eb1c24] hover:bg-[#c9121a] text-white text-xs sm:text-sm font-bold shadow-lg shadow-red-600/20 transition cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Thêm Nhãn Hàng</span>
-              </button>
-            )}
-          </div>
+          ) : (
+            <button
+              onClick={handleOpenCreateBrand}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Thêm nhãn hàng</span>
+            </button>
+          )}
         </div>
+      </div>
 
-        {/* 2 Tab Switcher */}
-        <div className="flex items-center gap-3 border-t border-slate-100 pt-4">
-          <button
-            type="button"
-            onClick={() => setMainTab("categories")}
-            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition cursor-pointer ${
-              mainTab === "categories"
-                ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/25"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/60"
+      {/* 2 Tab Switcher */}
+      <div className="flex items-center gap-2.5">
+        <button
+          type="button"
+          onClick={() => setMainTab("categories")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+            mainTab === "categories"
+              ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/20"
+              : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 shadow-2xs"
+          }`}
+        >
+          <FolderTree className="w-4 h-4" />
+          <span>Danh Mục Sản Phẩm</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold ${
+              mainTab === "categories" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
             }`}
           >
-            <FolderTree className="w-4 h-4" />
-            <span>Danh Mục Sản Phẩm</span>
-            <span
-              className={`px-2 py-0.5 rounded-full text-xs font-mono font-bold ${
-                mainTab === "categories" ? "bg-white/25 text-white" : "bg-slate-300/80 text-slate-700"
-              }`}
-            >
-              {categories.length}
-            </span>
-          </button>
+            {categories.length}
+          </span>
+        </button>
 
-          <button
-            type="button"
-            onClick={() => setMainTab("brands")}
-            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition cursor-pointer ${
-              mainTab === "brands"
-                ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/25"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/60"
+        <button
+          type="button"
+          onClick={() => setMainTab("brands")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+            mainTab === "brands"
+              ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/20"
+              : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 shadow-2xs"
+          }`}
+        >
+          <Building2 className="w-4 h-4" />
+          <span>Thương Hiệu / Nhãn Hàng</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold ${
+              mainTab === "brands" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
             }`}
           >
-            <Building2 className="w-4 h-4" />
-            <span>Thương Hiệu / Nhãn Hàng</span>
-            <span
-              className={`px-2 py-0.5 rounded-full text-xs font-mono font-bold ${
-                mainTab === "brands" ? "bg-white/25 text-white" : "bg-slate-300/80 text-slate-700"
-              }`}
-            >
-              {brands.length}
-            </span>
-          </button>
-        </div>
+            {brands.length}
+          </span>
+        </button>
       </div>
 
       {/* ========================================================================= */}
@@ -585,24 +601,25 @@ export default function AdminCategoriesAndBrandsPage() {
                         Đang tải danh mục...
                       </td>
                     </tr>
-                  ) : categoryTree.length === 0 ? (
+                  ) : paginatedCategoryTree.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-12 text-center text-slate-400">
                         Không tìm thấy danh mục nào phù hợp.
                       </td>
                     </tr>
                   ) : (
-                    categoryTree.map((group, groupIdx) => {
+                    paginatedCategoryTree.map((group, groupIdx) => {
                       const root = group.root;
                       const children = group.children;
                       const RootIcon = getCategoryIcon(root);
+                      const actualIdx = (categoryPage - 1) * categoryPageSize + groupIdx + 1;
 
                       return (
                         <Fragment key={root._id}>
                           {/* 1. DÒNG DANH MỤC GỐC */}
                           <tr className="bg-gradient-to-r from-red-50/50 via-slate-50/70 to-white border-y border-red-100/70 font-bold hover:bg-red-50/70 transition">
                             <td className="py-3.5 px-4 text-center text-[#eb1c24] font-mono font-black whitespace-nowrap">
-                              #{groupIdx + 1}
+                              #{actualIdx}
                             </td>
                             <td className="py-3.5 px-4 whitespace-nowrap text-left">
                               <div className="flex items-center gap-3">
@@ -667,7 +684,7 @@ export default function AdminCategoriesAndBrandsPage() {
                                 className="hover:bg-slate-50/80 transition group border-b border-slate-100 last:border-b-0"
                               >
                                 <td className="py-3 px-4 text-center text-slate-400 font-mono font-medium text-[11px] whitespace-nowrap">
-                                  {groupIdx + 1}.{cIdx + 1}
+                                  {actualIdx}.{cIdx + 1}
                                 </td>
                                 <td className="py-3 px-4 whitespace-nowrap text-left">
                                   <div className="flex items-center gap-2 pl-6">
@@ -740,6 +757,55 @@ export default function AdminCategoriesAndBrandsPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Thanh Phân Trang Danh Mục Đồng Bộ */}
+            {categoryTree.length > 0 && (
+              <div className="p-4 bg-white flex flex-col sm:flex-row gap-3 items-center justify-between border-t border-slate-100">
+                <span className="text-xs text-slate-500 font-medium">
+                  Hiển thị{" "}
+                  <strong className="text-slate-800 font-bold">
+                    {categoryTree.length === 0 ? 0 : (categoryPage - 1) * categoryPageSize + 1}-
+                    {Math.min(categoryPage * categoryPageSize, categoryTree.length)}
+                  </strong>{" "}
+                  trong tổng số{" "}
+                  <strong className="text-slate-800 font-bold">{categoryTree.length}</strong> nhóm danh mục
+                </span>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    disabled={categoryPage === 1}
+                    onClick={() => setCategoryPage((prev) => Math.max(prev - 1, 1))}
+                    className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
+                    title="Trang trước"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+
+                  {Array.from({ length: totalCategoryPages }, (_, index) => index + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCategoryPage(page)}
+                      className={`w-8 h-8 rounded-xl text-xs font-bold transition cursor-pointer ${
+                        page === categoryPage
+                          ? "bg-[#eb1c24] text-white shadow-xs"
+                          : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button
+                    disabled={categoryPage === totalCategoryPages}
+                    onClick={() => setCategoryPage((prev) => Math.min(prev + 1, totalCategoryPages))}
+                    className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
+                    title="Trang sau"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -804,10 +870,18 @@ export default function AdminCategoriesAndBrandsPage() {
                         Không tìm thấy thương hiệu nào phù hợp.
                       </td>
                     </tr>
+                  ) : paginatedBrands.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="py-12 text-center text-slate-400">
+                        Không tìm thấy thương hiệu nào phù hợp.
+                      </td>
+                    </tr>
                   ) : (
-                    filteredBrands.map((b, idx) => (
+                    paginatedBrands.map((b, idx) => (
                       <tr key={b._id} className="hover:bg-slate-50/80 transition group">
-                        <td className="py-3.5 px-4 text-center text-slate-400 font-mono font-medium whitespace-nowrap">{idx + 1}</td>
+                        <td className="py-3.5 px-4 text-center text-slate-400 font-mono font-medium whitespace-nowrap">
+                          {(brandPage - 1) * brandPageSize + idx + 1}
+                        </td>
                         <td className="py-3.5 px-4 whitespace-nowrap text-left">
                           <span className="font-bold text-slate-900 group-hover:text-[#eb1c24] transition text-sm">
                             {b.name}
@@ -882,6 +956,55 @@ export default function AdminCategoriesAndBrandsPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Thanh Phân Trang Nhãn Hàng Đồng Bộ */}
+            {filteredBrands.length > 0 && (
+              <div className="p-4 bg-white flex flex-col sm:flex-row gap-3 items-center justify-between border-t border-slate-100">
+                <span className="text-xs text-slate-500 font-medium">
+                  Hiển thị{" "}
+                  <strong className="text-slate-800 font-bold">
+                    {filteredBrands.length === 0 ? 0 : (brandPage - 1) * brandPageSize + 1}-
+                    {Math.min(brandPage * brandPageSize, filteredBrands.length)}
+                  </strong>{" "}
+                  trong tổng số{" "}
+                  <strong className="text-slate-800 font-bold">{filteredBrands.length}</strong> nhãn hàng
+                </span>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    disabled={brandPage === 1}
+                    onClick={() => setBrandPage((prev) => Math.max(prev - 1, 1))}
+                    className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
+                    title="Trang trước"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+
+                  {Array.from({ length: totalBrandPages }, (_, index) => index + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setBrandPage(page)}
+                      className={`w-8 h-8 rounded-xl text-xs font-bold transition cursor-pointer ${
+                        page === brandPage
+                          ? "bg-[#eb1c24] text-white shadow-xs"
+                          : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button
+                    disabled={brandPage === totalBrandPages}
+                    onClick={() => setBrandPage((prev) => Math.min(prev + 1, totalBrandPages))}
+                    className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
+                    title="Trang sau"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

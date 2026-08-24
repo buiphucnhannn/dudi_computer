@@ -16,6 +16,7 @@ import {
   Check,
 } from "lucide-react";
 import { newsAPI } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
 
 export default function NewsDetailPage() {
   const params = useParams();
@@ -138,7 +139,7 @@ export default function NewsDetailPage() {
             <div className="flex items-center gap-1.5 md:gap-2">
               <Calendar size={15} />
               <span>
-                {new Date(article.createdAt).toLocaleDateString("vi-VN")}
+                {formatDate(article.createdAt)}
               </span>
             </div>
             <div className="flex items-center gap-1.5 md:gap-2">
@@ -253,7 +254,7 @@ export default function NewsDetailPage() {
                         </h4>
                         <p className="text-[11px] text-gray-400 flex items-center gap-1">
                           <Calendar size={12} />
-                          <span>{new Date(rel.createdAt).toLocaleDateString("vi-VN")}</span>
+                          <span>{formatDate(rel.createdAt)}</span>
                         </p>
                       </div>
                     </Link>

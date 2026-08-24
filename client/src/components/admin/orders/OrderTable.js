@@ -92,7 +92,7 @@ export default function OrderTable({ orders, onSelectOrder, isLoading }) {
                 {/* Customer */}
                 <td className="py-4 px-6 text-left whitespace-nowrap">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-2xs shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-red-50 text-[#eb1c24] border border-red-100 flex items-center justify-center font-bold text-xs shadow-2xs shrink-0">
                       {order.initials}
                     </div>
 

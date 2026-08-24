@@ -170,7 +170,7 @@ export default function DashboardMetrics() {
 
           <button
             onClick={() => setShowOrderModal(true)}
-            className="mb-2 flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-slate-800 cursor-pointer active:scale-98 whitespace-nowrap"
+            className="mb-2 flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-3 py-2 text-xs font-bold text-white shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98 whitespace-nowrap"
           >
             <Plus className="h-4 w-4 shrink-0 stroke-[2.5]" />
             <span className="whitespace-nowrap">Tạo đơn hàng mới</span>
@@ -207,7 +207,7 @@ export default function DashboardMetrics() {
           >
             <div className="flex items-center justify-between border-b border-slate-150 pb-3 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-slate-900 text-white rounded-xl">
+                <div className="p-2 bg-red-50 text-[#eb1c24] border border-red-100 rounded-xl">
                   <PackagePlus className="h-4 w-4" />
                 </div>
                 <div>
@@ -331,7 +331,7 @@ export default function DashboardMetrics() {
                 <button
                   type="submit"
                   disabled={!selectedProduct}
-                  className="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-slate-800 disabled:opacity-50 cursor-pointer"
+                  className="rounded-xl bg-[#eb1c24] px-5 py-2 text-xs font-bold text-white shadow-md shadow-red-600/20 hover:bg-[#d6131b] disabled:opacity-50 cursor-pointer"
                 >
                   Xác nhận nhập kho
                 </button>
@@ -400,7 +400,7 @@ export default function DashboardMetrics() {
 
                       <button
                         onClick={() => restockProduct(item._id || item.id || item.sku, 10)}
-                        className="flex items-center gap-1 rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-slate-800 transition cursor-pointer"
+                        className="flex items-center gap-1 rounded-xl bg-[#eb1c24] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#d6131b] shadow-xs transition cursor-pointer"
                       >
                         <Package className="h-3.5 w-3.5" />
                         <span>+10 Nhập nhanh</span>

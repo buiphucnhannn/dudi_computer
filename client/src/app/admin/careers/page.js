@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Briefcase,
   Plus,
@@ -26,8 +26,11 @@ import {
   Flame,
   Award,
   Layers,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
+import { formatDate } from "@/lib/utils";
 import { jobAPI, apiClient } from "@/lib/api";
 
 const generateSlug = (text) => {
@@ -69,6 +72,8 @@ export default function AdminCareersPage() {
   const [saving, setSaving] = useState(false);
   const [isSlugManual, setIsSlugManual] = useState(false);
   const [toast, setToast] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
 
   // Confirm Modal State
   const [confirmState, setConfirmState] = useState({
@@ -147,7 +152,14 @@ export default function AdminCareersPage() {
 
   useEffect(() => {
     fetchJobs();
+    setCurrentPage(1);
   }, [selectedDept, selectedStatus]);
+
+  const totalPages = Math.ceil(jobs.length / pageSize) || 1;
+  const paginatedJobs = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return jobs.slice(start, start + pageSize);
+  }, [jobs, currentPage, pageSize]);
 
   const handleTitleChange = (title) => {
     setFormData((prev) => ({
@@ -309,59 +321,53 @@ export default function AdminCareersPage() {
         </div>
       )}
 
-      {/* Header with Quick Stat Cards */}
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 shadow-xs">
-              <Briefcase className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                Quản Lý Tuyển Dụng Việc Làm
-              </h1>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                Đăng tin tìm kiếm nhân tài cho các vị trí kỹ thuật PC, bán hàng và vận hành hệ thống
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <button
-              onClick={fetchJobs}
-              className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition shadow-2xs cursor-pointer"
-              title="Làm mới"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-blue-600" : ""}`} />
-            </button>
-            <button
-              onClick={handleOpenCreate}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold shadow-lg shadow-blue-600/20 transition cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Đăng Tin Mới</span>
-            </button>
-          </div>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-slate-900">
+            Tuyển dụng việc làm
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium max-w-2xl">
+            Đăng tin tìm kiếm nhân tài cho các vị trí kỹ thuật PC, bán hàng và vận hành hệ thống tại DUDI SOFTWARE.
+          </p>
         </div>
 
-        {/* 4 Mini Stat Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100">
-          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/60">
-            <div className="text-[11px] font-bold text-slate-500">Tổng Vị Trí</div>
-            <div className="text-xl font-black text-slate-900 mt-0.5">{stats.total}</div>
-          </div>
-          <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-100">
-            <div className="text-[11px] font-bold text-emerald-700">Đang Tuyển Dụng</div>
-            <div className="text-xl font-black text-emerald-600 mt-0.5">{stats.active}</div>
-          </div>
-          <div className="p-3.5 rounded-2xl bg-red-50/70 border border-red-100">
-            <div className="text-[11px] font-bold text-[#eb1c24]">Vị Trí Hot</div>
-            <div className="text-xl font-black text-[#eb1c24] mt-0.5">{stats.hot}</div>
-          </div>
-          <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-100">
-            <div className="text-[11px] font-bold text-amber-700">Đã / Sắp Hết Hạn</div>
-            <div className="text-xl font-black text-amber-600 mt-0.5">{stats.expired}</div>
-          </div>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <button
+            onClick={fetchJobs}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 shadow-2xs transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
+            title="Làm mới"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[#eb1c24]" : ""}`} />
+            <span>Làm mới</span>
+          </button>
+          <button
+            onClick={handleOpenCreate}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <span>Đăng tin mới</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 4 Mini Stat Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
+          <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tổng Vị Trí</div>
+          <div className="text-xl font-black text-slate-900 mt-1">{stats.total}</div>
+        </div>
+        <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
+          <div className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">Đang Tuyển Dụng</div>
+          <div className="text-xl font-black text-emerald-600 mt-1">{stats.active}</div>
+        </div>
+        <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
+          <div className="text-[11px] font-bold text-[#eb1c24] uppercase tracking-wider">Vị Trí Hot</div>
+          <div className="text-xl font-black text-[#eb1c24] mt-1">{stats.hot}</div>
+        </div>
+        <div className="p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
+          <div className="text-[11px] font-bold text-amber-600 uppercase tracking-wider">Đã / Sắp Hết Hạn</div>
+          <div className="text-xl font-black text-amber-600 mt-1">{stats.expired}</div>
         </div>
       </div>
 
@@ -375,7 +381,7 @@ export default function AdminCareersPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && fetchJobs()}
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-blue-500 transition shadow-2xs"
+            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-red-500 transition shadow-2xs"
           />
         </div>
 
@@ -383,7 +389,7 @@ export default function AdminCareersPage() {
           <select
             value={selectedDept}
             onChange={(e) => setSelectedDept(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 font-semibold focus:outline-hidden focus:border-blue-500 transition shadow-2xs"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 font-semibold focus:outline-hidden focus:border-red-500 transition shadow-2xs cursor-pointer"
           >
             <option value="all">Tất cả phòng ban</option>
             {DEPARTMENTS.map((dept) => (
@@ -398,7 +404,7 @@ export default function AdminCareersPage() {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 font-semibold focus:outline-hidden focus:border-blue-500 transition shadow-2xs"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 font-semibold focus:outline-hidden focus:border-red-500 transition shadow-2xs cursor-pointer"
           >
             <option value="all">Tất cả trạng thái</option>
             <option value="active">Đang tuyển</option>
@@ -427,28 +433,29 @@ export default function AdminCareersPage() {
               {loading ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-slate-400 whitespace-nowrap">
-                    <RefreshCw className="w-6 h-6 animate-spin mx-auto text-blue-600 mb-2" />
+                    <RefreshCw className="w-6 h-6 animate-spin mx-auto text-[#eb1c24] mb-2" />
                     Đang tải danh sách tuyển dụng...
                   </td>
                 </tr>
-              ) : jobs.length === 0 ? (
+              ) : paginatedJobs.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-slate-400 whitespace-nowrap">
                     Chưa có vị trí tuyển dụng nào phù hợp.
                   </td>
                 </tr>
               ) : (
-                jobs.map((job, idx) => {
+                paginatedJobs.map((job, idx) => {
                   const isExpired = job.deadline && new Date(job.deadline) < new Date();
+                  const itemIndex = (currentPage - 1) * pageSize + idx + 1;
 
                   return (
                     <tr key={job._id} className="hover:bg-slate-50/70 transition group">
                       <td className="py-3.5 px-4 text-center text-slate-400 font-mono font-medium whitespace-nowrap">
-                        {idx + 1}
+                        {itemIndex}
                       </td>
                       <td className="py-3.5 px-4 text-left whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-slate-900 group-hover:text-blue-600 transition text-xs sm:text-sm">
+                          <span className="font-bold text-slate-900 group-hover:text-[#eb1c24] transition text-xs sm:text-sm">
                             {job.title}
                           </span>
                           {job.isHot && (
@@ -507,7 +514,7 @@ export default function AdminCareersPage() {
                         {job.deadline ? (
                           <>
                             <div className="text-[11.5px] whitespace-nowrap">
-                              {new Date(job.deadline).toLocaleDateString("vi-VN")}
+                              {formatDate(job.deadline)}
                             </div>
                             <div className="text-[10.5px] whitespace-nowrap">
                               {isExpired ? (
@@ -563,6 +570,55 @@ export default function AdminCareersPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Thanh Phân Trang Đồng Bộ */}
+        {jobs.length > 0 && (
+          <div className="p-4 bg-white flex flex-col sm:flex-row gap-3 items-center justify-between border-t border-slate-100">
+            <span className="text-xs text-slate-500 font-medium">
+              Hiển thị{" "}
+              <strong className="text-slate-800 font-bold">
+                {jobs.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}-
+                {Math.min(currentPage * pageSize, jobs.length)}
+              </strong>{" "}
+              trong tổng số{" "}
+              <strong className="text-slate-800 font-bold">{jobs.length}</strong> vị trí tuyển dụng
+            </span>
+
+            <div className="flex items-center gap-1">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
+                title="Trang trước"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-8 h-8 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    page === currentPage
+                      ? "bg-[#eb1c24] text-white shadow-xs"
+                      : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
+                title="Trang sau"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal Soạn Thảo / Chỉnh Sửa Tin Tuyển Dụng */}
@@ -583,7 +639,7 @@ export default function AdminCareersPage() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-blue-100 text-blue-600">
+                <div className="p-2 rounded-xl bg-red-100 text-[#eb1c24]">
                   <Briefcase className="w-5 h-5" />
                 </div>
                 <div>
@@ -884,7 +940,7 @@ export default function AdminCareersPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition shadow-md shadow-blue-600/20 disabled:opacity-50 cursor-pointer flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] text-white font-bold transition shadow-md shadow-red-600/20 disabled:opacity-50 cursor-pointer flex items-center gap-2"
                 >
                   {saving ? (
                     <>

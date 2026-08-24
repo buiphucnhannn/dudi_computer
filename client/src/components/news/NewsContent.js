@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Eye, ChevronRight, Search, Newspaper } from "lucide-react";
 import { newsAPI } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
 
 const CATEGORIES = [
   "Tất cả",
@@ -212,7 +213,7 @@ export default function NewsContent() {
                         <div className="flex items-center gap-1.5">
                           <Calendar className="w-4 h-4 text-[#eb1c24]" />
                           <span>
-                            {new Date(featuredArticle.createdAt).toLocaleDateString("vi-VN")}
+                            {formatDate(featuredArticle.createdAt)}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -288,7 +289,7 @@ export default function NewsContent() {
                           <div className="flex items-center justify-between text-[11px] text-gray-400 mb-2.5">
                             <div className="flex items-center gap-1.5">
                               <Calendar className="w-3.5 h-3.5" />
-                              <span>{new Date(item.createdAt).toLocaleDateString("vi-VN")}</span>
+                              <span>{formatDate(item.createdAt)}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Eye className="w-3.5 h-3.5" />

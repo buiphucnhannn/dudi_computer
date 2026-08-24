@@ -29,6 +29,16 @@ export const promotionRepository = {
     };
   },
 
+  findOne: async (query = {}, options = {}) => {
+    let q = Promotion.findOne(query)
+      .populate("appliedCategories", "name slug")
+      .populate("appliedProducts", "name shortName slug thumbnail price originalPrice");
+    if (options.sort) {
+      q = q.sort(options.sort);
+    }
+    return await q.lean();
+  },
+
   findById: async (id) => {
     return await Promotion.findById(id)
       .populate("appliedCategories", "name slug")

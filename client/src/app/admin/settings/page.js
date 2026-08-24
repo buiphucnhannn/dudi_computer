@@ -8,11 +8,11 @@ export default function SettingsPage() {
       {/* Page Header */}
       <div className="flex flex-col gap-1">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-slate-900">
-          Cài đặt tài khoản
+          Cài đặt hệ thống
         </h1>
 
-        <p className="text-xs sm:text-sm text-slate-500 font-medium">
-          Quản lý tài khoản quản trị, thiết lập hệ thống, thông báo và bảo mật.
+        <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-2xl">
+          Quản lý tài khoản quản trị, thiết lập hệ thống, thông báo và bảo mật tại DUDI SOFTWARE.
         </p>
       </div>
 

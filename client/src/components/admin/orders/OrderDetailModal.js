@@ -63,12 +63,22 @@ export default function OrderDetailModal({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 sm:p-4 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-3xl max-h-[92vh] flex flex-col rounded-2xl border border-slate-200 bg-white shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+      {/* Backdrop Layer - Bấm ra ngoài để đóng */}
+      <div
+        className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative z-10 w-full max-w-3xl max-h-[92vh] flex flex-col rounded-2xl border border-slate-200 bg-white shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden"
+      >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-150 px-5 sm:px-6 py-4 bg-slate-50/60">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white shrink-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-[#eb1c24] border border-red-100 shrink-0 shadow-2xs">
               <FileText className="h-5 w-5" />
             </div>
             <div>
@@ -126,7 +136,7 @@ export default function OrderDetailModal({
                     onClick={() => onUpdateStatus?.(order.id, st.key)}
                     className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold border transition cursor-pointer ${
                       isActive
-                        ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                        ? "bg-[#eb1c24] text-white border-[#eb1c24] shadow-xs"
                         : `bg-white text-slate-700 border-slate-200 ${st.color}`
                     }`}
                   >
@@ -291,7 +301,7 @@ export default function OrderDetailModal({
                 });
                 onClose();
               }}
-              className="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-slate-800 shadow-xs transition cursor-pointer"
+              className="rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-5 py-2 text-xs font-bold text-white shadow-md shadow-red-600/20 transition cursor-pointer"
             >
               Gửi thông báo khách
             </button>

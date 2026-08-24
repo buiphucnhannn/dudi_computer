@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { apiClient } from "@/lib/api";
 import ConfirmModal from "@/components/admin/ConfirmModal";
+import { formatDate } from "@/lib/utils";
 
 // Hàm tạo slug chuẩn SEO không dấu
 const generateSlug = (text) => {
@@ -860,103 +861,97 @@ export default function AdminNewsPage() {
         </div>
       )}
 
-      {/* Header & Segmented Tabs Navigation */}
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="p-3 rounded-2xl bg-red-50 text-[#eb1c24] border border-red-100 shadow-xs shrink-0">
-              <Newspaper className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                Quản Lý Tin Tức & Chuyên Mục
-              </h1>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                Soạn thảo bài viết công nghệ, chia sẻ thủ thuật và quản trị cây chuyên mục tin tức
-              </p>
-            </div>
-          </div>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-slate-900">
+            Tin tức & Bài viết
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium max-w-2xl">
+            Soạn thảo bài viết công nghệ, chia sẻ thủ thuật và quản trị cây chuyên mục tin tức của DUDI SOFTWARE.
+          </p>
+        </div>
 
-          <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 shrink-0">
+          <button
+            onClick={() => {
+              fetchNews();
+              fetchCategories();
+              setArticlePage(1);
+              setCategoryPage(1);
+            }}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 shadow-2xs transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
+            title="Làm mới toàn bộ dữ liệu"
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${
+                loadingArticles || loadingCategories ? "animate-spin text-[#eb1c24]" : ""
+              }`}
+            />
+            <span>Làm mới</span>
+          </button>
+
+          {activeTab === "articles" ? (
             <button
-              onClick={() => {
-                fetchNews();
-                fetchCategories();
-                setArticlePage(1);
-                setCategoryPage(1);
-              }}
-              className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition shadow-2xs cursor-pointer"
-              title="Làm mới toàn bộ dữ liệu"
+              onClick={handleOpenCreateArticle}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98"
             >
-              <RefreshCw
-                className={`w-4 h-4 ${
-                  loadingArticles || loadingCategories ? "animate-spin text-[#eb1c24]" : ""
-                }`}
-              />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Viết bài mới</span>
             </button>
-
-            {activeTab === "articles" ? (
-              <button
-                onClick={handleOpenCreateArticle}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#eb1c24] hover:bg-[#c9121a] text-white text-xs sm:text-sm font-bold shadow-lg shadow-red-600/20 transition cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Viết Bài Mới</span>
-              </button>
-            ) : (
-              <button
-                onClick={handleOpenCreateCategory}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#eb1c24] hover:bg-[#c9121a] text-white text-xs sm:text-sm font-bold shadow-lg shadow-red-600/20 transition cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Thêm Chuyên Mục</span>
-              </button>
-            )}
-          </div>
+          ) : (
+            <button
+              onClick={handleOpenCreateCategory}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Thêm chuyên mục</span>
+            </button>
+          )}
         </div>
+      </div>
 
-        {/* 2 Tab Switcher Đồng Bộ Tông Đỏ Thương Hiệu Chuẩn */}
-        <div className="flex items-center gap-3 border-t border-slate-100 pt-4">
-          <button
-            type="button"
-            onClick={() => setActiveTab("articles")}
-            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition cursor-pointer ${
-              activeTab === "articles"
-                ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/25"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/60"
+      {/* 2 Tab Switcher */}
+      <div className="flex items-center gap-2.5">
+        <button
+          type="button"
+          onClick={() => setActiveTab("articles")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+            activeTab === "articles"
+              ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/20"
+              : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 shadow-2xs"
+          }`}
+        >
+          <Newspaper className="w-4 h-4" />
+          <span>Danh Sách Bài Viết</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold ${
+              activeTab === "articles" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
             }`}
           >
-            <Newspaper className="w-4 h-4" />
-            <span>Danh Sách Bài Viết</span>
-            <span
-              className={`px-2 py-0.5 rounded-full text-xs font-mono font-bold ${
-                activeTab === "articles" ? "bg-white/25 text-white" : "bg-slate-300/80 text-slate-700"
-              }`}
-            >
-              {articles.length}
-            </span>
-          </button>
+            {articles.length}
+          </span>
+        </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("categories")}
-            className={`flex items-center gap-2.5 px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition cursor-pointer ${
-              activeTab === "categories"
-                ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/25"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/60"
+        <button
+          type="button"
+          onClick={() => setActiveTab("categories")}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+            activeTab === "categories"
+              ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/20"
+              : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 shadow-2xs"
+          }`}
+        >
+          <FolderTree className="w-4 h-4" />
+          <span>Quản Lý Chuyên Mục</span>
+          <span
+            className={`px-2 py-0.5 rounded-full text-[11px] font-mono font-bold ${
+              activeTab === "categories" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
             }`}
           >
-            <FolderTree className="w-4 h-4" />
-            <span>Quản Lý Chuyên Mục</span>
-            <span
-              className={`px-2 py-0.5 rounded-full text-xs font-mono font-bold ${
-                activeTab === "categories" ? "bg-white/25 text-white" : "bg-slate-300/80 text-slate-700"
-              }`}
-            >
-              {categories.length}
-            </span>
-          </button>
-        </div>
+            {categories.length}
+          </span>
+        </button>
       </div>
 
       {/* ========================================================================= */}
@@ -1087,7 +1082,7 @@ export default function AdminNewsPage() {
                           <td className="py-3.5 px-4 text-center text-slate-600 font-medium whitespace-nowrap text-xs">
                             <div className="inline-flex items-center gap-1.5">
                               <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                              <span>{new Date(art.createdAt).toLocaleDateString("vi-VN")}</span>
+                              <span>{formatDate(art.createdAt)}</span>
                             </div>
                           </td>
 
@@ -1494,7 +1489,7 @@ export default function AdminNewsPage() {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={thumbnailMode === "url" && Boolean(articleForm.thumbnail.trim())}
-                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs text-xs"
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] text-white font-bold transition shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-red-600/20 text-xs"
                     title={
                       thumbnailMode === "url" && Boolean(articleForm.thumbnail.trim())
                         ? "Vui lòng xóa URL trước nếu muốn tải ảnh từ máy"

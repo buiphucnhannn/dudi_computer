@@ -169,7 +169,7 @@ export default function AccountSettings() {
         <div className="flex flex-col md:flex-row gap-6 items-start">
           {/* Avatar */}
           <div className="flex flex-col items-center gap-3 w-full md:w-auto">
-            <div className="relative w-28 h-28 rounded-2xl overflow-hidden bg-slate-900 border-2 border-slate-200 shadow-md flex items-center justify-center text-white text-3xl font-black">
+            <div className="relative w-28 h-28 rounded-2xl overflow-hidden bg-[#eb1c24] border-2 border-red-200 shadow-md shadow-red-600/20 flex items-center justify-center text-white text-3xl font-black">
               {currentUser?.avatar ? (
                 <img
                   src={currentUser.avatar}
@@ -275,7 +275,7 @@ export default function AccountSettings() {
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-300 text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-xl shadow-xs transition cursor-pointer active:scale-98"
+            className="flex items-center gap-2 bg-[#eb1c24] hover:bg-[#d6131b] disabled:bg-slate-300 text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-xl shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98"
           >
             {saving ? (
               <>

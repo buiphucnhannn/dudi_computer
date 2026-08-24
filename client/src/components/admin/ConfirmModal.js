@@ -62,7 +62,7 @@ export default function ConfirmModal({
       case "success":
         return "bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/25";
       default:
-        return "bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-900/25";
+        return "bg-[#eb1c24] hover:bg-[#d6131b] text-white shadow-lg shadow-red-600/25";
     }
   };
 

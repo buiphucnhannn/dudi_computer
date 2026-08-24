@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Calendar, ChevronRight, Newspaper } from "lucide-react";
 import { newsAPI } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
 
 export default function HomeNewsSection() {
   const [news, setNews] = useState([]);
@@ -98,7 +99,7 @@ export default function HomeNewsSection() {
                 <div className="flex items-center gap-1 shrink-0">
                   <Calendar className="w-3.5 h-3.5" />
                   <span>
-                    {new Date(item.createdAt).toLocaleDateString("vi-VN")}
+                    {formatDate(item.createdAt)}
                   </span>
                 </div>
               </div>

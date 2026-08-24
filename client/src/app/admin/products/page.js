@@ -361,8 +361,18 @@ export default function AdminProductsPage() {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          {/* Backdrop Layer - Bấm ra ngoài để đóng */}
+          <div
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setDeleteConfirmProduct(null)}
+            aria-hidden="true"
+          />
+
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative z-10 w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+          >
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-100">
                 <AlertTriangle className="h-6 w-6" />

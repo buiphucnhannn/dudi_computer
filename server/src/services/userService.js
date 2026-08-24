@@ -3,17 +3,15 @@ import { Order } from "../models/Order.js";
 import { ApiError } from "../utils/apiError.js";
 
 export const userService = {
-  // Lấy danh sách tài khoản khách hàng (Chỉ lấy role: "user")
+  // Lấy danh sách tài khoản khách hàng (Chỉ lấy tài khoản khách hàng, loại trừ admin)
   getCustomers: async (params = {}) => {
     const page = Math.max(1, Number(params.page) || 1);
     const limit = Math.max(1, Math.min(100, Number(params.limit) || 15));
     const skip = (page - 1) * limit;
 
-    const query = {};
-
-    if (params.role && params.role !== "all") {
-      query.role = params.role;
-    }
+    const query = {
+      role: { $ne: "admin" },
+    };
 
     if (params.search) {
       query.$or = [
@@ -52,14 +50,15 @@ export const userService = {
     };
   },
 
-  // Thống kê tổng quan khách hàng
+  // Thống kê tổng quan khách hàng (Chỉ tính tài khoản khách hàng)
   getCustomerStats: async () => {
+    const customerFilter = { role: { $ne: "admin" } };
     const [total, active, banned, googleCount, localCount] = await Promise.all([
-      User.countDocuments({}),
-      User.countDocuments({ status: "active" }),
-      User.countDocuments({ status: "banned" }),
-      User.countDocuments({ authType: "google" }),
-      User.countDocuments({ authType: "local" }),
+      User.countDocuments(customerFilter),
+      User.countDocuments({ ...customerFilter, status: "active" }),
+      User.countDocuments({ ...customerFilter, status: "banned" }),
+      User.countDocuments({ ...customerFilter, authType: "google" }),
+      User.countDocuments({ ...customerFilter, authType: "local" }),
     ]);
 
     return {

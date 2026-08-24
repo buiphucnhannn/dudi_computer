@@ -15,22 +15,21 @@ import {
   ShoppingCart,
   ShoppingBag,
   AlertTriangle,
-  Settings,
   LogOut,
   ExternalLink,
   Package,
   Truck,
   MessageCircle,
   Clock,
-  Store,
   Briefcase,
 } from "lucide-react";
 import { notificationAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
 import { selectCurrentUser, logoutUser } from "@/redux/slices/authSlice";
+import { formatDate } from "@/lib/utils";
 
 function formatTimeAgo(dateString) {
-  if (!dateString) return "Vừa xong";
+  if (!dateString) return "";
   const date = new Date(dateString);
   const now = new Date();
   const diffInSeconds = Math.floor((now - date) / 1000);
@@ -42,7 +41,7 @@ function formatTimeAgo(dateString) {
   if (diffInHours < 24) return `${diffInHours} giờ trước`;
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays < 30) return `${diffInDays} ngày trước`;
-  return date.toLocaleDateString("vi-VN");
+  return formatDate(date);
 }
 
 export default function AdminHeader({ onToggleSidebar }) {
@@ -220,16 +219,6 @@ export default function AdminHeader({ onToggleSidebar }) {
           <Search className="h-4 w-4" />
         </button>
 
-        {/* Quick Back to Store Button on Header */}
-        <Link
-          href="/"
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-red-50 hover:border-red-200 text-slate-700 hover:text-[#eb1c24] text-xs font-bold transition-all shadow-2xs"
-          title="Về trang bán hàng"
-        >
-          <Store className="h-4 w-4 text-[#eb1c24]" />
-          <span>Về Cửa Hàng</span>
-        </Link>
-
         {/* Notifications Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
@@ -239,7 +228,7 @@ export default function AdminHeader({ onToggleSidebar }) {
             }}
             className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition cursor-pointer ${
               showNotifications
-                ? "bg-slate-900 text-white"
+                ? "bg-[#eb1c24] text-white shadow-xs"
                 : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
             }`}
             title="Thông báo hệ thống"
@@ -376,7 +365,7 @@ export default function AdminHeader({ onToggleSidebar }) {
                 onClick={() => setShowUserMenu(false)}
                 className="flex items-center gap-2.5 px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-red-50/60 rounded-xl transition-all"
               >
-                <Store className="h-4 w-4 text-gray-500 shrink-0" />
+                <ExternalLink className="h-4 w-4 text-gray-500 shrink-0" />
                 <span>Về trang bán hàng</span>
               </Link>
 
@@ -389,14 +378,6 @@ export default function AdminHeader({ onToggleSidebar }) {
                 <span>Hồ sơ cá nhân</span>
               </Link>
 
-              <Link
-                href="/admin/settings"
-                onClick={() => setShowUserMenu(false)}
-                className="flex items-center gap-2.5 px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all"
-              >
-                <Settings className="h-4 w-4 text-gray-500 shrink-0" />
-                <span>Cài đặt hệ thống</span>
-              </Link>
 
               <div className="pt-1 border-t border-slate-100">
                 <button

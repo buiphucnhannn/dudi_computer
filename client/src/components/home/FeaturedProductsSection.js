@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import {
   ChevronLeft,
@@ -23,6 +23,11 @@ import {
   Clock,
 } from "lucide-react";
 import { formatVND } from "@/lib/utils";
+import {
+  getProductDiscountInfo,
+  sortProductsByPriority,
+  getProductImage,
+} from "@/lib/productHelpers";
 import { getProductCardBadges } from "@/lib/specParser";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -47,66 +52,71 @@ export default function FeaturedProductsSection({ products = [] }) {
     { id: "laptop", name: "Laptop" },
   ];
 
-  const filteredProducts = products.filter((p) => {
-    if (activeTab === "all") return true;
-    const catSlug = (p.categorySlug || "").toLowerCase();
-    const cat = (p.categoryName || "").toLowerCase();
-    const name = (p.name || "").toLowerCase();
+  const filteredProducts = useMemo(() => {
+    const list = products.filter((p) => {
+      if (activeTab === "all") return true;
+      const catSlug = (p.categorySlug || "").toLowerCase();
+      const cat = (p.categoryName || "").toLowerCase();
+      const name = (p.name || "").toLowerCase();
 
-    if (activeTab === "pc") {
-      if (
-        name.startsWith("mainboard") ||
-        name.startsWith("nguồn") ||
-        name.startsWith("card màn hình") ||
-        name.startsWith("ram") ||
-        name.startsWith("ssd") ||
-        name.startsWith("màn hình") ||
-        name.startsWith("laptop") ||
-        catSlug === "mainboard-bo-mach-chu" ||
-        catSlug === "psu-nguon-may-tinh" ||
-        catSlug === "vga-card-man-hinh" ||
-        catSlug === "cpu-bo-vi-xu-ly" ||
-        catSlug === "man-hinh" ||
-        catSlug.includes("laptop") ||
-        catSlug === "macbook"
-      ) {
-        return false;
+      if (activeTab === "pc") {
+        if (
+          name.startsWith("mainboard") ||
+          name.startsWith("nguồn") ||
+          name.startsWith("card màn hình") ||
+          name.startsWith("ram") ||
+          name.startsWith("ssd") ||
+          name.startsWith("màn hình") ||
+          name.startsWith("laptop") ||
+          catSlug === "mainboard-bo-mach-chu" ||
+          catSlug === "psu-nguon-may-tinh" ||
+          catSlug === "vga-card-man-hinh" ||
+          catSlug === "cpu-bo-vi-xu-ly" ||
+          catSlug === "man-hinh" ||
+          catSlug.includes("laptop") ||
+          catSlug === "macbook"
+        ) {
+          return false;
+        }
+        return (
+          catSlug === "pc-cu" ||
+          catSlug === "pc-gaming" ||
+          catSlug === "pc-do-hoa" ||
+          catSlug === "pc-van-phong" ||
+          name.startsWith("bộ máy") ||
+          name.startsWith("pc ") ||
+          name.startsWith("máy tính để bàn") ||
+          name.startsWith("máy tính aio")
+        );
       }
-      return (
-        catSlug === "pc-cu" ||
-        catSlug === "pc-gaming" ||
-        catSlug === "pc-do-hoa" ||
-        catSlug === "pc-van-phong" ||
-        name.startsWith("bộ máy") ||
-        name.startsWith("pc ") ||
-        name.startsWith("máy tính để bàn") ||
-        name.startsWith("máy tính aio")
-      );
-    }
 
-    if (activeTab === "laptop") {
-      if (
-        name.startsWith("bộ máy") ||
-        name.startsWith("pc ") ||
-        name.startsWith("mainboard") ||
-        name.startsWith("nguồn") ||
-        catSlug.includes("pc-") ||
-        catSlug === "mainboard-bo-mach-chu"
-      ) {
-        return false;
+      if (activeTab === "laptop") {
+        if (
+          name.startsWith("bộ máy") ||
+          name.startsWith("pc ") ||
+          name.startsWith("mainboard") ||
+          name.startsWith("nguồn") ||
+          catSlug.includes("pc-") ||
+          catSlug === "mainboard-bo-mach-chu"
+        ) {
+          return false;
+        }
+        return (
+          catSlug.includes("laptop") ||
+          catSlug === "macbook" ||
+          cat.includes("laptop") ||
+          name.startsWith("laptop") ||
+          name.startsWith("macbook") ||
+          name.includes("thinkpad") ||
+          name.includes("legion")
+        );
       }
-      return (
-        catSlug.includes("laptop") ||
-        catSlug === "macbook" ||
-        cat.includes("laptop") ||
-        name.startsWith("laptop") ||
-        name.startsWith("macbook") ||
-        name.includes("thinkpad") ||
-        name.includes("legion")
-      );
-    }
-    return true;
-  });
+      return true;
+    });
+
+    // Sắp xếp theo độ ưu tiên: FlashSale / Hot / Giảm giá nhiều nhất -> Mới nhất -> Nhiều lượt xem
+    return sortProductsByPriority(list);
+  }, [activeTab, products]);
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
@@ -136,7 +146,9 @@ export default function FeaturedProductsSection({ products = [] }) {
   const handleToggleCart = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
-    const isCart = cartItems.some((i) => (i._id || i.id || i.slug) === (item._id || item.id || item.slug));
+    const isCart = cartItems.some(
+      (i) => (i._id || i.id || i.slug) === (item._id || item.id || item.slug)
+    );
     const prodId = item._id || item.id || item.slug;
     if (isCart) {
       dispatch(removeFromCartAsync(prodId));
@@ -155,16 +167,22 @@ export default function FeaturedProductsSection({ products = [] }) {
     }
   };
 
-  const getProductImage = (item) => {
-    if (item.thumbnail && item.thumbnail.startsWith("http"))
-      return item.thumbnail;
-    if (item.thumbnail) return `https://zcomputer.vn${item.thumbnail}`;
-    if (item.images && item.images.length > 0) {
-      if (item.images[0].startsWith("http")) return item.images[0];
-      return `https://zcomputer.vn${item.images[0]}`;
+  const renderSpecIcon = (iconName) => {
+    const props = { className: "w-3.5 h-3.5 text-gray-400 shrink-0" };
+    switch (iconName) {
+      case "Cpu": return <Cpu {...props} />;
+      case "Layers": return <Layers {...props} />;
+      case "HardDrive": return <HardDrive {...props} />;
+      case "CircuitBoard": return <CircuitBoard {...props} />;
+      case "Monitor": return <Monitor {...props} />;
+      case "Maximize2": return <Maximize2 {...props} />;
+      case "Zap": return <Zap {...props} />;
+      case "Sparkles": return <Sparkles {...props} />;
+      case "ShieldCheck": return <ShieldCheck {...props} />;
+      case "Wifi": return <Wifi {...props} />;
+      case "Clock": return <Clock {...props} />;
+      default: return <Sparkles {...props} />;
     }
-    if (item.image && item.image.startsWith("http")) return item.image;
-    return "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
   };
 
   return (
@@ -212,24 +230,25 @@ export default function FeaturedProductsSection({ products = [] }) {
           <ChevronLeft className="w-6 h-6" />
         </button>
 
-        {/* Horizontal Smooth Scroll Track: exactly 4 cards fit on desktop (25% - gap) */}
+        {/* Horizontal Smooth Scroll Track */}
         <div
           ref={sliderRef}
           className="flex overflow-x-auto gap-4 py-2 px-1 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
           {filteredProducts.map((item) => {
-            const discountPercent =
-              item.discountPercent ||
-              (item.originalPrice > item.price
-                ? Math.round(
-                    ((item.originalPrice - item.price) / item.originalPrice) *
-                      100,
-                  )
-                : 5);
-            const originalPrice =
-              item.originalPrice || Math.round(item.price * 1.05);
+            const {
+              price,
+              originalPrice,
+              discountPercent,
+              hasDiscount,
+              isFlashSale,
+              showHotSaleBadge,
+            } = getProductDiscountInfo(item);
+
             const imgSrc = getProductImage(item);
-            const isFav = cartItems.some((i) => (i._id || i.id) === (item._id || item.id));
+            const isFav = cartItems.some(
+              (i) => (i._id || i.id) === (item._id || item.id)
+            );
             const isComp = isComparing(item.slug || item._id || item.id);
             const detailHref = `/product-detail?slug=${encodeURIComponent(
               item.slug || item._id || item.id
@@ -246,18 +265,20 @@ export default function FeaturedProductsSection({ products = [] }) {
                     href={detailHref}
                     className="block relative aspect-square w-full rounded-xl overflow-hidden border-2 border-red-500 mb-3 bg-white group/img p-2"
                   >
-                    {/* Top Left Discount Badge */}
-                    {discountPercent > 0 && (
+                    {/* Top Left Discount Badge (Chỉ hiện khi có giảm giá thật) */}
+                    {hasDiscount && (
                       <div className="absolute top-2 left-2 z-20 bg-[#eb1c24] text-white text-[11px] font-black px-2 py-0.5 rounded shadow-sm">
                         Giảm {discountPercent}%
                       </div>
                     )}
 
                     {/* Top Right '🔥 HOT SALE' Badge */}
-                    <div className="absolute top-2 right-2 z-20 bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
-                      <Flame className="w-3 h-3 fill-white" />
-                      <span>HOT SALE</span>
-                    </div>
+                    {showHotSaleBadge && (
+                      <div className="absolute top-2 right-2 z-20 bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
+                        <Flame className="w-3 h-3 fill-white" />
+                        <span>{isFlashSale ? "FLASH SALE" : "HOT SALE"}</span>
+                      </div>
+                    )}
 
                     <img
                       src={imgSrc}
@@ -270,6 +291,13 @@ export default function FeaturedProductsSection({ products = [] }) {
                       }}
                     />
 
+                    {/* Watermark góc dưới bên trái */}
+                    <div className="absolute bottom-1 left-2 pointer-events-none opacity-85 z-20">
+                      <span className="text-[9px] font-black text-[#eb1c24] tracking-tight uppercase">
+                        DUDI SOFTWARE
+                      </span>
+                    </div>
+
                     {/* Center Hover Pill */}
                     <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover/card:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
                       <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover/card:scale-100 transition-all duration-300 whitespace-nowrap">
@@ -279,10 +307,10 @@ export default function FeaturedProductsSection({ products = [] }) {
                     </div>
                   </Link>
 
-                  {/* Brand & Action Icons (Cân so sánh + Trái tim yêu thích) */}
-                  <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
+                  {/* Brand & Action Icons */}
+                  <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                     <span className="font-black text-gray-900 uppercase tracking-wider text-[11px]">
-                      {item.brand || "CUSTOM"}
+                      {item.brand || "ZCOMPUTER"}
                     </span>
                     <div className="flex items-center gap-1.5 text-gray-400">
                       <button
@@ -298,89 +326,82 @@ export default function FeaturedProductsSection({ products = [] }) {
                         }`}
                         title="So sánh sản phẩm"
                       >
-                        <Scale className="w-[18px] h-[18px]" />
+                        <Scale className="w-4 h-4" />
                       </button>
                       <button
                         onClick={(e) => handleToggleCart(e, item)}
                         className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                          cartItems.some((i) => (i._id || i.id || i.slug) === (item._id || item.id || item.slug))
+                          isFav
                             ? "text-[#eb1c24] bg-red-50"
                             : "hover:text-[#eb1c24] hover:bg-gray-100"
                         }`}
-                        title="Thêm vào giỏ hàng"
+                        title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
                       >
-                        <ShoppingCart className="w-[18px] h-[18px]" />
+                        <ShoppingCart className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Title */}
+                  {/* Product Title */}
                   <Link
                     href={detailHref}
-                    className="font-bold text-xs sm:text-[13px] text-gray-900 hover:text-[#eb1c24] group-hover/card:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors block"
+                    className="font-bold text-xs sm:text-[13px] text-gray-900 hover:text-[#eb1c24] group-hover/card:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors"
                     title={item.name}
                   >
                     {item.name}
                   </Link>
 
                   {/* Price Box */}
-                  <div className="mb-2.5">
-                    {originalPrice > item.price && (
-                      <div className="text-xs text-gray-400 line-through mb-0.5">
+                  <div className="mb-3">
+                    {hasDiscount && (
+                      <div className="text-xs text-gray-400 line-through">
                         {formatVND(originalPrice)}
                       </div>
                     )}
                     <div className="flex items-baseline gap-2">
                       <span className="text-base sm:text-lg font-black text-[#eb1c24]">
-                        {formatVND(item.price)}
+                        {formatVND(price)}
                       </span>
-                      {discountPercent > 0 && (
-                        <span className="text-xs font-bold text-[#eb1c24]">
+                      {hasDiscount && (
+                        <span className="text-[11px] font-black text-[#eb1c24] bg-red-50 border border-red-100 px-1.5 py-0.5 rounded">
                           -{discountPercent}%
                         </span>
                       )}
                     </div>
                   </div>
-
-                  {/* 4 Specs Chips Grid (Khối mô tả cấu hình 2x2) */}
-                  {(() => {
-                    const badges = getProductCardBadges(item);
-
-                    const renderIcon = (iconName) => {
-                      const props = { className: "w-3.5 h-3.5 text-gray-400 shrink-0" };
-                      switch (iconName) {
-                        case "Cpu": return <Cpu {...props} />;
-                        case "Layers": return <Layers {...props} />;
-                        case "HardDrive": return <HardDrive {...props} />;
-                        case "CircuitBoard": return <CircuitBoard {...props} />;
-                        case "Monitor": return <Monitor {...props} />;
-                        case "Maximize2": return <Maximize2 {...props} />;
-                        case "Zap": return <Zap {...props} />;
-                        case "Sparkles": return <Sparkles {...props} />;
-                        case "ShieldCheck": return <ShieldCheck {...props} />;
-                        case "Wifi": return <Wifi {...props} />;
-                        case "Clock": return <Clock {...props} />;
-                        default: return <Sparkles {...props} />;
-                      }
-                    };
-
-                    return (
-                      <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-600 mb-2.5 border border-gray-100 min-h-[58px]">
-                        {badges.map((b, idx) => (
-                          <div key={idx} className="flex items-center gap-1 truncate" title={b.title || b.label}>
-                            {renderIcon(b.icon)}
-                            <span className="truncate font-medium">{b.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })()}
                 </div>
 
-                {/* Footer View Count */}
-                <div className="pt-2 border-t border-gray-100 flex items-center justify-center text-[10.5px] text-gray-400 gap-1.5">
-                  <Eye className="w-3.5 h-3.5 text-gray-400" />
-                  <span>{item.views || 70} lượt xem</span>
+                {/* Specs 2x2 Grid trích xuất từ specs DB */}
+                {(() => {
+                  const badges = getProductCardBadges(item);
+                  return (
+                    <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[9.5px] sm:text-[10px] text-gray-600 mb-2 border border-gray-100 min-h-[50px]">
+                      {badges.map((b, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-1 truncate"
+                          title={b.title || b.label}
+                        >
+                          {renderSpecIcon(b.icon)}
+                          <span className="truncate font-medium">{b.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+
+                {/* Card Footer: Views & Order Link */}
+                <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100">
+                  <span className="flex items-center gap-1">
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>{item.views || 68} lượt xem</span>
+                  </span>
+                  <Link
+                    href={detailHref}
+                    className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                  >
+                    + Mua ngay
+                  </Link>
                 </div>
               </div>
             );

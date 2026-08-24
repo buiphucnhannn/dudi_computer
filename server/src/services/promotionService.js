@@ -3,6 +3,47 @@ import { Product } from "../models/Product.js";
 import { ApiError } from "../utils/apiError.js";
 
 export const promotionService = {
+  // Lấy Flash Sale promotion đang chạy (cho trang chủ)
+  getFlashSalePromotion: async () => {
+    const now = new Date();
+    let flashSale = await promotionRepository.findOne(
+      {
+        isActive: true,
+        isFlashSale: true,
+        startDate: { $lte: now },
+        endDate: { $gte: now },
+      },
+      { sort: { priority: -1, updatedAt: -1 } }
+    );
+
+    if (!flashSale) {
+      flashSale = await promotionRepository.findOne(
+        {
+          isActive: true,
+          startDate: { $lte: now },
+          endDate: { $gte: now },
+        },
+        { sort: { priority: -1, updatedAt: -1 } }
+      );
+    }
+
+    if (!flashSale) {
+      return null;
+    }
+
+    // Lấy danh sách sản phẩm áp dụng Flash Sale
+    const productIds = await promotionService._getAffectedProductIds(flashSale);
+    const products = await Product.find({ _id: { $in: productIds } })
+      .select("-description")
+      .limit(20)
+      .lean();
+
+    return {
+      promotion: flashSale,
+      products: products,
+    };
+  },
+
   // Lấy chiến dịch đang active (cho trang public)
   getActivePromotions: async (params = {}) => {
     const now = new Date();
