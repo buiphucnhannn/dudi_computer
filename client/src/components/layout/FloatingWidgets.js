@@ -57,13 +57,14 @@ export default function FloatingWidgets() {
           </button>
         </div>
 
-      {/* 3. Nút Hotline Đỏ (Lan tỏa 1 tầng màu đỏ, không kích hoạt gọi điện) */}
+      {/* 3. Nút Hotline Đỏ (Kích hoạt cuộc gọi trực tiếp) */}
       <div className="relative flex items-center justify-center">
         <span className="absolute inset-0 rounded-full bg-[#eb1c24]/55 animate-ripple pointer-events-none"></span>
-        <div
-          className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shadow-md select-none cursor-default z-10"
-          title="Hotline: (+84) 909 163 821"
-          aria-label="Hotline: (+84) 909 163 821"
+        <a
+          href="tel:0909163821"
+          className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-300 cursor-pointer z-10"
+          title="Gọi Hotline: (+84) 909 163 821"
+          aria-label="Gọi Hotline: (+84) 909 163 821"
         >
           <svg
             className="w-5 h-5 stroke-white fill-none stroke-[2.2] stroke-linecap-round stroke-linejoin-round"
@@ -73,34 +74,34 @@ export default function FloatingWidgets() {
             <path d="M14.05 2a9 9 0 0 1 8 7.94" />
             <path d="M14.05 6A5 5 0 0 1 18 10" />
           </svg>
-        </div>
+        </a>
       </div>
 
-      {/* 4. Nút Zalo Xanh Dương (Gắn link zalo.me chung) */}
+      {/* 4. Nút Zalo Xanh Dương (Gắn link Zalo DUDI Software) */}
       <div className="relative flex items-center justify-center">
         <span className="absolute inset-0 rounded-full bg-[#0068ff]/50 animate-ripple pointer-events-none"></span>
         <a
-          href="https://zalo.me"
+          href="https://zalo.me/2871243904030074512"
           target="_blank"
           rel="noreferrer"
           className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#0068ff] hover:brightness-110 text-white flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105 cursor-pointer font-black text-[12.5px] tracking-tight z-10"
-          title="Zalo Web"
-          aria-label="Zalo Web"
+          title="Zalo DUDI Software"
+          aria-label="Zalo DUDI Software"
         >
           Zalo
         </a>
       </div>
 
-      {/* 5. Nút Messenger Xanh Dương (Gắn link Messenger chung) */}
+      {/* 5. Nút Facebook / Messenger Xanh Dương */}
       <div className="relative flex items-center justify-center">
         <span className="absolute inset-0 rounded-full bg-[#1877f2]/50 animate-ripple pointer-events-none"></span>
         <a
-          href="https://messenger.com"
+          href="https://www.facebook.com/dudi.websitechuyennghiep"
           target="_blank"
           rel="noreferrer"
           className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#1877f2] hover:brightness-110 text-white flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105 cursor-pointer z-10"
-          title="Messenger"
-          aria-label="Messenger"
+          title="Facebook DUDI Software"
+          aria-label="Facebook DUDI Software"
         >
           <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24">
             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />

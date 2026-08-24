@@ -275,7 +275,7 @@ export default function BackToSchoolPage() {
             </h2>
             
             <p className="text-zinc-300 text-base sm:text-xl md:text-2xl mb-12 max-w-3xl mx-auto font-medium leading-relaxed">
-              Khởi đầu chặng đường học tập với những sản phẩm công nghệ chất lượng nhất. Đội ngũ ZCOMPUTER luôn tận tâm đồng hành, sẵn sàng tư vấn giải pháp và cấu hình tối ưu, đáp ứng trọn vẹn mọi nhu cầu cá nhân của khách hàng.
+              Khởi đầu chặng đường học tập với những sản phẩm công nghệ chất lượng nhất. Đội ngũ DUDI SOFTWARE luôn tận tâm đồng hành, sẵn sàng tư vấn giải pháp và cấu hình tối ưu, đáp ứng trọn vẹn mọi nhu cầu cá nhân của khách hàng.
             </p>
 
             <Link

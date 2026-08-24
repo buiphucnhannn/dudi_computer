@@ -19,7 +19,7 @@ export default function PromoGridCards() {
           </h2>
         </div>
         <a
-          href="https://m.me/dudisoftware"
+          href="https://www.facebook.com/dudi.websitechuyennghiep"
           target="_blank"
           rel="noreferrer"
           className="bg-white text-[#eb1c24] font-bold text-xs px-4 py-2 rounded-lg w-fit shadow-xs group-hover:bg-yellow-400 group-hover:text-red-900 transition-colors flex items-center gap-2"

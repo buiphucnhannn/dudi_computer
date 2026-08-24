@@ -12,24 +12,24 @@ const STORES = [
     id: "thu-duc",
     name: "Chi nhánh Thủ Đức",
     address:
-      "23 Đường số 1, Khu phố 61, Phường Linh Xuân (Phường Linh Tây cũ), TP.Hồ Chí Minh",
-    mapQuery: "https://maps.google.com/?q=23+Đường+số+1+Linh+Xuân+Thủ+Đức",
+      "49/2 Đường 14, Phường Thủ Đức, TP.Hồ Chí Minh",
+    mapQuery: "https://maps.google.com/?q=49/2+Đường+14+Phường+Thủ+Đức+TP+Hồ+Chí+Minh",
     hotline: "(+84) 909 163 821",
     workingHours: "09:30 - 19:30 (Thứ 2 - Chủ Nhật)",
     embedUrl:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.4658576162583!2d106.74981366590865!3d10.852128230492767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752722e4c10833%3A0x6ac88810b4b7dee!2sZ%20Computer-%20Pc%20Gaming-Laptop-Workstation!5e0!3m2!1svi!2sus!4v1781670020621!5m2!1svi!2sus",
+      "https://maps.google.com/maps?q=49/2%20%C4%90%C6%B0%E1%BB%9Dng%2014,%20Ph%C6%B0%E1%BB%9Dng%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed",
   },
   {
-    id: "binh-thanh",
-    name: "Chi nhánh Bình Thạnh",
+    id: "xuan-hoa",
+    name: "Chi nhánh Nguyễn Thị Minh Khai",
     address:
-      "47/86B Bùi Đình Tuý, Phường 14, Q. Bình Thạnh, TP. Hồ Chí Minh",
+      "232 Đường Nguyễn Thị Minh Khai, Phường Xuân Hòa, TP.Hồ Chí Minh",
     mapQuery:
-      "https://maps.google.com/?q=47/86B+Bùi+Đình+Tuý+Phường+14+Bình+Thạnh",
+      "https://maps.google.com/?q=232+Đường+Nguyễn+Thị+Minh+Khai+Phường+Xuân+Hòa+TP+Hồ+Chí+Minh",
     hotline: "(+84) 909 163 821",
     workingHours: "09:30 - 19:30 (Thứ 2 - Chủ Nhật)",
     embedUrl:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.072361586463!2d106.70468187588394!3d10.805769858649997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317529000263c50f%3A0x1694f4d065ba8f53!2zWkNPTVBVVEVSLULDjE5IIFRI4bqgTkg!5e0!3m2!1svi!2sus!4v1782088223445!5m2!1svi!2sus",
+      "https://maps.google.com/maps?q=232%20%C4%90%C6%B0%E1%BB%9Dng%20Nguy%E1%BB%85n%20Th%E1%BB%8B%20Minh%20Khai,%20Ph%C6%B0%E1%BB%9Dng%20Xu%C3%A2n%20H%C3%B2a,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed",
   },
 ];
 
@@ -91,7 +91,7 @@ export default function StoreLocationsPage() {
                         href={store.mapQuery}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-xs sm:text-[13px] text-[#eb1c24] font-bold hover:underline inline-flex items-center gap-1 mt-1.5 transition-colors"
+                        className="text-xs sm:text-[13px] text-[#eb1c24] font-bold hover:underline inline-flex items-center gap-1 mt-1.5 transition-colors cursor-pointer"
                       >
                         <span>Mở Google Maps</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -108,9 +108,12 @@ export default function StoreLocationsPage() {
                       <span className="block text-[11px] sm:text-[12px] font-bold text-gray-400 uppercase tracking-wider">
                         Hotline tư vấn
                       </span>
-                      <p className="text-sm sm:text-base text-gray-900 font-bold mt-0.5">
+                      <a
+                        href="tel:0909163821"
+                        className="text-sm sm:text-base text-gray-900 hover:text-[#eb1c24] font-bold mt-0.5 block transition-colors cursor-pointer"
+                      >
                         {store.hotline}
-                      </p>
+                      </a>
                     </div>
                   </div>
 

@@ -141,9 +141,9 @@ export default function ContactContent() {
                           Hệ thống cửa hàng
                         </h4>
                         <p className="text-gray-600 text-sm leading-relaxed">
-                          <strong>Showroom 1:</strong> 23 Đường số 1, Khu phố 61, Phường Linh Xuân, TP. Thủ Đức, TP.HCM
+                          <strong>Showroom 1:</strong> 49/2 Đường 14, Phường Thủ Đức, TP.Hồ Chí Minh
                           <br />
-                          <strong>Showroom 2:</strong> 47/86B Bùi Đình Tuý, Phường 14, Q. Bình Thạnh, TP.HCM
+                          <strong>Showroom 2:</strong> 232 Đường Nguyễn Thị Minh Khai, Phường Xuân Hòa, TP.Hồ Chí Minh
                         </p>
                       </div>
                     </div>
@@ -218,7 +218,7 @@ export default function ContactContent() {
                     <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3">
                       <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                       <p className="text-xs sm:text-sm font-medium">
-                        Cảm ơn quý khách đã gửi thông tin liên hệ! Đội ngũ tư vấn ZCOMPUTER đã tiếp nhận và sẽ liên hệ hỗ trợ quý khách trong thời gian sớm nhất.
+                        Cảm ơn quý khách đã gửi thông tin liên hệ! Đội ngũ tư vấn DUDI SOFTWARE đã tiếp nhận và sẽ liên hệ hỗ trợ quý khách trong thời gian sớm nhất.
                       </p>
                     </div>
                   )}

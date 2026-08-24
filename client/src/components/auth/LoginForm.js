@@ -163,7 +163,7 @@ export default function LoginForm() {
 
       showToast({
         title: "Đăng nhập thành công!",
-        message: `Chào mừng ${user?.name || "bạn"} đã quay trở lại ZCOMPUTER!`,
+        message: `Chào mừng ${user?.name || "bạn"} đã quay trở lại DUDI SOFTWARE!`,
         type: "success",
       });
 
@@ -368,7 +368,7 @@ export default function LoginForm() {
 
       showToast({
         title: "Kích hoạt tài khoản thành công!",
-        message: `Chào mừng ${user?.name || "bạn"} đã quay trở lại ZCOMPUTER!`,
+        message: `Chào mừng ${user?.name || "bạn"} đã quay trở lại DUDI SOFTWARE!`,
         type: "success",
         duration: 5000,
       });

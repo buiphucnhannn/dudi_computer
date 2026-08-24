@@ -157,19 +157,19 @@ export default function PrivacyPolicyPage() {
             </div>
             <div className="sm:ml-11 space-y-2.5 text-gray-600">
               <p>
-                <strong className="text-gray-900 font-bold">Tên doanh nghiệp:</strong> CÔNG TY CỔ PHẦN CÔNG NGHỆ DUDI SOFTWARE
+                <strong className="text-gray-900 font-bold">Tên doanh nghiệp:</strong> CÔNG TY TNHH GIẢI PHÁP PHẦN MỀM DUDI
               </p>
               <p>
-                <strong className="text-gray-900 font-bold">Thông tin:</strong> Thành lập và hoạt động theo Giấy chứng nhận đăng ký thuế số 0317130199 do Chi cục Thuế thành phố Thủ Đức cấp ngày 18/01/2022
+                <strong className="text-gray-900 font-bold">Thông tin:</strong> Thành lập và hoạt động theo Giấy chứng nhận đăng ký doanh nghiệp / Mã số thuế số 0319641544 do Sở Kế hoạch và Đầu tư TP. Hồ Chí Minh cấp
               </p>
               <div className="flex items-start gap-2 pt-1">
                 <MapPin className="w-4 h-4 text-gray-500 shrink-0 mt-1" />
                 <div className="flex flex-col gap-1">
                   <span>
-                    <strong className="text-gray-900 font-bold">Showroom 1:</strong> 23 Đường số 1, Khu phố 61, Phường Linh Xuân, TP.Thủ Đức, TP.Hồ Chí Minh
+                    <strong className="text-gray-900 font-bold">Showroom 1:</strong> 49/2 Đường 14, Phường Thủ Đức, TP.Hồ Chí Minh
                   </span>
                   <span>
-                    <strong className="text-gray-900 font-bold">Showroom 2:</strong> 47/86B Bùi Đình Tuý, Phường 14, Bình Thạnh, TP.Hồ Chí Minh
+                    <strong className="text-gray-900 font-bold">Showroom 2:</strong> 232 Đường Nguyễn Thị Minh Khai, Phường Xuân Hòa, TP.Hồ Chí Minh
                   </span>
                 </div>
               </div>
@@ -194,13 +194,19 @@ export default function PrivacyPolicyPage() {
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-[#eb1c24] shrink-0" />
                   <span>
-                    Gọi điện trực tiếp về số điện thoại: <strong className="text-gray-900 font-bold">(+84) 909 163 821</strong>
+                    Gọi điện trực tiếp về số điện thoại:{" "}
+                    <a href="tel:0909163821" className="text-gray-900 font-bold hover:text-[#eb1c24] transition-colors">
+                      (+84) 909 163 821
+                    </a>
                   </span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-[#eb1c24] shrink-0" />
                   <span>
-                    Gửi mail: <strong className="text-gray-900 font-bold">contact@dudisoftware.com</strong>
+                    Gửi mail:{" "}
+                    <a href="mailto:contact@dudisoftware.com" className="text-gray-900 font-bold hover:text-[#eb1c24] transition-colors">
+                      contact@dudisoftware.com
+                    </a>
                   </span>
                 </li>
               </ul>

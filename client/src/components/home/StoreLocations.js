@@ -32,7 +32,7 @@ export default function StoreLocations() {
             <p className="flex items-start gap-3">
               <MapPin className="text-[#eb1c24] fill-[#eb1c24]/20 mt-1 shrink-0 w-4 h-4" />
               <span>
-                <strong className="text-white font-bold">Showroom 1:</strong> 23 Đường số 1, Khu phố 61, Phường Linh Xuân, TP. Thủ Đức, TP.HCM
+                <strong className="text-white font-bold">Showroom 1:</strong> 49/2 Đường 14, Phường Thủ Đức, TP.Hồ Chí Minh
               </span>
             </p>
 
@@ -40,7 +40,7 @@ export default function StoreLocations() {
             <p className="flex items-start gap-3">
               <MapPin className="text-[#eb1c24] fill-[#eb1c24]/20 mt-1 shrink-0 w-4 h-4" />
               <span>
-                <strong className="text-white font-bold">Showroom 2:</strong> 47/86B Bùi Đình Tuý, Phường 14, Q. Bình Thạnh, TP.HCM
+                <strong className="text-white font-bold">Showroom 2:</strong> 232 Đường Nguyễn Thị Minh Khai, Phường Xuân Hòa, TP.Hồ Chí Minh
               </span>
             </p>
 
@@ -55,9 +55,12 @@ export default function StoreLocations() {
               <Phone className="text-[#eb1c24] fill-[#eb1c24]/20 w-4 h-4 shrink-0" />
               <span>
                 Hotline Hỗ Trợ:{" "}
-                <span className="text-[#eb1c24] font-bold text-lg ml-1">
+                <a
+                  href="tel:0909163821"
+                  className="text-[#eb1c24] hover:text-white font-bold text-lg ml-1 transition-colors underline-offset-4 hover:underline cursor-pointer"
+                >
                   (+84) 909 163 821
-                </span>
+                </a>
               </span>
             </p>
 
@@ -65,7 +68,13 @@ export default function StoreLocations() {
             <p className="flex items-center gap-3">
               <Mail className="text-[#eb1c24] fill-[#eb1c24]/20 w-4 h-4 shrink-0" />
               <span>
-                Email: <strong className="text-white ml-1 font-semibold">contact@dudisoftware.com</strong>
+                Email:{" "}
+                <a
+                  href="mailto:contact@dudisoftware.com"
+                  className="text-white ml-1 font-semibold hover:text-[#eb1c24] transition-colors"
+                >
+                  contact@dudisoftware.com
+                </a>
               </span>
             </p>
           </div>
@@ -81,7 +90,7 @@ export default function StoreLocations() {
             </div>
             <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900">
               <a
-                href="https://maps.google.com/?q=23+Đường+số+1+Linh+Xuân+Thủ+Đức"
+                href="https://maps.google.com/?q=49/2+Đường+14+Phường+Thủ+Đức+TP+Hồ+Chí+Minh"
                 target="_blank"
                 rel="noreferrer"
                 className="absolute top-2.5 left-2.5 z-20 bg-white/95 hover:bg-white text-gray-800 text-[11px] font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1 shadow-md transition-all hover:scale-105 cursor-pointer"
@@ -90,7 +99,7 @@ export default function StoreLocations() {
               </a>
               <iframe
                 title="Bản đồ chỉ đường đến chi nhánh Thủ Đức"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.4658576162583!2d106.74981366590865!3d10.852128230492767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752722e4c10833%3A0x6ac88810b4b7dee!2sZ%20Computer-%20Pc%20Gaming-Laptop-Workstation!5e0!3m2!1svi!2sus!4v1781670020621!5m2!1svi!2sus"
+                src="https://maps.google.com/maps?q=49/2%20%C4%90%C6%B0%E1%BB%9Dng%2014,%20Ph%C6%B0%E1%BB%9Dng%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -102,15 +111,15 @@ export default function StoreLocations() {
             </div>
           </div>
 
-          {/* Map 2: Chi nhánh Bình Thạnh */}
+          {/* Map 2: Chi nhánh Nguyễn Thị Minh Khai */}
           <div className="group/map">
             <div className="text-sm font-bold text-white mb-3 flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-[#eb1c24] animate-pulse"></div>
-              <span>Chi nhánh Bình Thạnh</span>
+              <span>Chi nhánh Nguyễn Thị Minh Khai</span>
             </div>
             <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900">
               <a
-                href="https://maps.google.com/?q=47/86B+Bùi+Đình+Tuý+Phường+14+Bình+Thạnh"
+                href="https://maps.google.com/?q=232+Đường+Nguyễn+Thị+Minh+Khai+Phường+Xuân+Hòa+TP+Hồ+Chí+Minh"
                 target="_blank"
                 rel="noreferrer"
                 className="absolute top-2.5 left-2.5 z-20 bg-white/95 hover:bg-white text-gray-800 text-[11px] font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1 shadow-md transition-all hover:scale-105 cursor-pointer"
@@ -118,8 +127,8 @@ export default function StoreLocations() {
                 <span>Maps</span> <ExternalLink className="w-3 h-3 text-blue-600" />
               </a>
               <iframe
-                title="Bản đồ chỉ đường đến chi nhánh Bình Thạnh"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.072361586463!2d106.70468187588394!3d10.805769858649997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317529000263c50f%3A0x1694f4d065ba8f53!2zWkNPTVBVVEVSLULDjE5IIFRI4bqgTkg!5e0!3m2!1svi!2sus!4v1782088223445!5m2!1svi!2sus"
+                title="Bản đồ chỉ đường đến chi nhánh Nguyễn Thị Minh Khai"
+                src="https://maps.google.com/maps?q=232%20%C4%90%C6%B0%E1%BB%9Dng%20Nguy%E1%BB%85n%20Th%E1%BB%8B%20Minh%20Khai,%20Ph%C6%B0%E1%BB%9Dng%20Xu%C3%A2n%20H%C3%B2a,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

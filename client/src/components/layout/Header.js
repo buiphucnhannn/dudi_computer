@@ -581,8 +581,11 @@ export default function Header() {
         <div className="flex items-center justify-end gap-2 sm:gap-4 shrink-0">
           {/* Hotline */}
           <div className="hidden xl:flex items-center gap-3 border-r pr-3 border-gray-200">
-            <div className="flex items-center gap-2 select-none cursor-default">
-              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-[#eb1c24]">
+            <a
+              href="tel:0909163821"
+              className="flex items-center gap-2 group cursor-pointer hover:opacity-85 transition-opacity"
+            >
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-[#eb1c24] group-hover:scale-105 transition-transform">
                 <PhoneCall className="w-5 h-5" />
               </div>
               <div className="flex flex-col">
@@ -593,7 +596,7 @@ export default function Header() {
                   (+84) 909 163 821
                 </span>
               </div>
-            </div>
+            </a>
 
             {/* Showroom */}
             <Link href="/store-locations" className="flex items-center gap-2 group cursor-pointer">

@@ -255,7 +255,7 @@ export default function RegisterForm() {
 
       showToast({
         title: "Kích hoạt tài khoản thành công!",
-        message: `Chào mừng ${user?.name || "bạn"} đã gia nhập ZCOMPUTER!`,
+        message: `Chào mừng ${user?.name || "bạn"} đã gia nhập DUDI SOFTWARE!`,
         type: "success",
         duration: 5000,
       });

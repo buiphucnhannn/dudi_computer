@@ -227,11 +227,11 @@ export default function AboutPage() {
                     <div className="w-12 h-12 bg-[#eb1c24] text-white rounded-full flex items-center justify-center font-black text-xl shadow-md shadow-red-500/30">
                       1
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900">Chi nhánh 1 (Trụ sở)</h3>
+                    <h3 className="text-xl font-bold text-gray-900">Chi nhánh Thủ Đức</h3>
                   </div>
                   <p className="flex items-start gap-3 text-gray-600 text-sm sm:text-base leading-relaxed mb-6">
                     <MapPin className="w-5 h-5 text-[#eb1c24] shrink-0 mt-1" />
-                    <span>23 Đường số 1, Khu phố 61, Phường Linh Xuân (Phường Linh Tây cũ), TP.Thủ Đức, TP.Hồ Chí Minh</span>
+                    <span>49/2 Đường 14, Phường Thủ Đức, TP.Hồ Chí Minh</span>
                   </p>
                 </div>
                 
@@ -239,7 +239,7 @@ export default function AboutPage() {
                 <div className="rounded-xl overflow-hidden border border-gray-100 shadow-inner h-[180px] w-full relative">
                   <iframe
                     title="Bản đồ chỉ đường đến Chi nhánh Thủ Đức"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.4658576162583!2d106.74981366590865!3d10.852128230492767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752722e4c10833%3A0x6ac88810b4b7dee!2sZ%20Computer-%20Pc%20Gaming-Laptop-Workstation!5e0!3m2!1svi!2sus!4v1781670020621!5m2!1svi!2sus"
+                    src="https://maps.google.com/maps?q=49/2%20%C4%90%C6%B0%E1%BB%9Dng%2014,%20Ph%C6%B0%E1%BB%9Dng%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
@@ -259,19 +259,19 @@ export default function AboutPage() {
                     <div className="w-12 h-12 bg-[#eb1c24] text-white rounded-full flex items-center justify-center font-black text-xl shadow-md shadow-red-500/30">
                       2
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900">Chi nhánh 2</h3>
+                    <h3 className="text-xl font-bold text-gray-900">Chi nhánh Nguyễn Thị Minh Khai</h3>
                   </div>
                   <p className="flex items-start gap-3 text-gray-600 text-sm sm:text-base leading-relaxed mb-6">
                     <MapPin className="w-5 h-5 text-[#eb1c24] shrink-0 mt-1" />
-                    <span>47/86B Bùi Đình Tuý, Phường 14, Quận Bình Thạnh, TP.Hồ Chí Minh</span>
+                    <span>232 Đường Nguyễn Thị Minh Khai, Phường Xuân Hòa, TP.Hồ Chí Minh</span>
                   </p>
                 </div>
                 
                 {/* Map 2 */}
                 <div className="rounded-xl overflow-hidden border border-gray-100 shadow-inner h-[180px] w-full relative">
                   <iframe
-                    title="Bản đồ chỉ đường đến Chi nhánh Bình Thạnh"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.072361586463!2d106.70468187588394!3d10.805769858649997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317529000263c50f%3A0x1694f4d065ba8f53!2zWkNPTVBVVEVSLULDjE5IIFRI4bqgTkg!5e0!3m2!1svi!2sus!4v1782088223445!5m2!1svi!2sus"
+                    title="Bản đồ chỉ đường đến Chi nhánh Nguyễn Thị Minh Khai"
+                    src="https://maps.google.com/maps?q=232%20%C4%90%C6%B0%E1%BB%9Dng%20Nguy%E1%BB%85n%20Th%E1%BB%8B%20Minh%20Khai,%20Ph%C6%B0%E1%BB%9Dng%20Xu%C3%A2n%20H%C3%B2a,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
@@ -303,12 +303,13 @@ export default function AboutPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
-                <div
-                  className="flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-[#eb1c24] rounded-xl font-black text-base shadow-lg select-none cursor-default"
+                <a
+                  href="tel:0909163821"
+                  className="flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-[#eb1c24] rounded-xl font-black text-base shadow-lg hover:bg-gray-100 transition-all hover:-translate-y-0.5 cursor-pointer"
                 >
                   <Phone className="w-5 h-5" />
                   <span>(+84) 909 163 821</span>
-                </div>
+                </a>
                 <a
                   href="mailto:contact@dudisoftware.com"
                   className="flex items-center justify-center gap-2 px-7 py-3.5 bg-black/25 text-white rounded-xl font-bold text-base hover:bg-black/40 transition-all border border-white/20 backdrop-blur-sm hover:-translate-y-0.5"

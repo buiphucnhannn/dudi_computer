@@ -286,29 +286,32 @@ export default function CartContent() {
                   sau:
                 </p>
 
-                {/* Option 1: Hotline (Không kích hoạt cuộc gọi khi nhấn) */}
-                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-center gap-3.5 select-none cursor-default">
-                  <div className="w-10 h-10 bg-red-100 text-[#dc2626] rounded-full flex items-center justify-center shrink-0">
+                {/* Option 1: Hotline */}
+                <a
+                  href="tel:0909163821"
+                  className="p-3 bg-gray-50 hover:bg-red-50/60 rounded-lg border border-gray-200 flex items-center gap-3.5 transition-all group cursor-pointer"
+                >
+                  <div className="w-10 h-10 bg-red-100 text-[#dc2626] rounded-full flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Phone className="w-4 h-4" />
                   </div>  
                   <div>
                     <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">
                       GỌI HOTLINE
                     </span>
-                    <strong className="text-sm font-black text-gray-900">
+                    <strong className="text-sm font-black text-gray-900 group-hover:text-[#dc2626] transition-colors">
                       (+84) 909 163 821
                     </strong>
                   </div>
-                </div>
+                </a>
 
                 {/* Option 2: Zalo */}
                 <a
-                  href="https://zalo.me"
+                  href="https://zalo.me/2871243904030074512"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3 bg-gray-50 hover:bg-blue-50/60 rounded-lg border border-gray-200 flex items-center gap-3.5 transition-all group cursor-pointer"
                 >
-                  <div className="w-10 h-10 bg-blue-100 text-[#0068ff] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-blue-100 text-[#0068ff] rounded-full flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <MessageCircle className="w-4 h-4" />
                   </div>
                   <div>
@@ -321,14 +324,14 @@ export default function CartContent() {
                   </div>
                 </a>
 
-                {/* Option 3: Messenger */}
+                {/* Option 3: Messenger / Facebook */}
                 <a
-                  href="https://messenger.com"
+                  href="https://www.facebook.com/dudi.websitechuyennghiep"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3 bg-gray-50 hover:bg-blue-50/60 rounded-lg border border-gray-200 flex items-center gap-3.5 transition-all group cursor-pointer"
                 >
-                  <div className="w-10 h-10 bg-indigo-100 text-[#0084ff] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-indigo-100 text-[#0084ff] rounded-full flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <MessageSquare className="w-4 h-4" />
                   </div>
                   <div>

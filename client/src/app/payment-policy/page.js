@@ -65,7 +65,7 @@ export default function PaymentPolicyPage() {
                           Tên tài khoản:
                         </span>
                         <strong className="text-sm sm:text-base md:text-lg text-gray-900 font-bold">
-                          CÔNG TY CỔ PHẦN CÔNG NGHỆ DUDI SOFTWARE
+                          CÔNG TY TNHH GIẢI PHÁP PHẦN MỀM DUDI
                         </strong>
                       </li>
                       <li className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 border-b border-gray-200 pb-2.5">

@@ -12,16 +12,16 @@ const stores = [
   {
     name: "Chi nhánh Thủ Đức",
     address:
-      "23 Đường số 1, Kp 61, P. Linh Xuân, Thủ Đức, TP.HCM",
+      "49/2 Đường 14, Phường Thủ Đức, TP.HCM",
     mapUrl:
-      "https://www.google.com/maps?cid=480909348043455982&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAMYASAF&hl=vi&source=embed",
+      "https://maps.google.com/?q=49/2+Đường+14+Phường+Thủ+Đức+TP+Hồ+Chí+Minh",
   },
   {
-    name: "Chi nhánh Bình Thạnh",
+    name: "Chi nhánh Nguyễn Thị Minh Khai",
     address:
-      "47/86B Bùi Đình Tuý, P. 14, Q. Bình Thạnh, TP.HCM",
+      "232 Đường Nguyễn Thị Minh Khai, P. Xuân Hòa, TP.HCM",
     mapUrl:
-      "https://www.google.com/maps?cid=1627194541284691795&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAMYASAF&hl=vi&source=embed",
+      "https://maps.google.com/?q=232+Đường+Nguyễn+Thị+Minh+Khai+Phường+Xuân+Hòa+TP+Hồ+Chí+Minh",
   },
 ];
 
