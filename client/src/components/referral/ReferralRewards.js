@@ -36,7 +36,7 @@ const rewards = [
 
 const ReferralRewards = () => {
   return (
-    <section className="relative overflow-hidden bg-white py-24">
+    <section id="the-le-nhan-qua" className="relative overflow-hidden bg-white py-24 scroll-mt-16">
       {/* Pattern */}
       <div
         className="absolute inset-0 opacity-5"

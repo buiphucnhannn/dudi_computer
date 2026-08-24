@@ -418,11 +418,12 @@ function ProductsContent() {
   return (
     <main className="w-full bg-[#f8f9fa] min-h-screen">
       <div className="mx-auto max-w-[1600px] px-3 py-5 sm:px-4 lg:px-6">
-        <div className="mb-6 overflow-hidden rounded-2xl shadow-xs">
+        {/* BANNER PROMOTION */}
+        <div className="mb-6 overflow-hidden rounded-2xl shadow-xs border border-slate-200/80 bg-white">
           <img
             src="/banner.webp"
-            alt="DUDI SOFTWARE - Sản phẩm"
-            className="block h-[140px] w-full object-cover sm:h-[200px] lg:h-[280px]"
+            alt="DUDI SOFTWARE - Khuyến mãi Back To School"
+            className="block w-full h-auto aspect-[16/9] object-cover object-center"
           />
         </div>
         <div className="flex gap-6">

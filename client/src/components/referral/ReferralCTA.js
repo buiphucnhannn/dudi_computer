@@ -24,10 +24,15 @@ const ReferralCTA = () => {
           giới hạn đang chờ bạn!
         </p>
 
-        <button className="flex items-center justify-center gap-3 rounded-sm bg-red-700 px-12 py-5 text-lg font-bold uppercase tracking-wider text-white shadow-lg transition duration-300 hover:-translate-y-1 hover:bg-red-800">
-          <MessageCircle className="h-7 w-7" />
-          Liên Hệ Zalo Ngay
-        </button>
+        <a
+          href="https://zalo.me/2871243904030074512"
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center justify-center gap-3 rounded-xl bg-red-700 hover:bg-red-800 px-12 py-5 text-base sm:text-lg font-bold uppercase tracking-wider text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
+        >
+          <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7" />
+          <span>Liên Hệ Zalo Ngay</span>
+        </a>
       </div>
     </section>
   );
