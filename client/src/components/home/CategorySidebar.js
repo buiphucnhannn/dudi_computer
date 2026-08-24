@@ -157,25 +157,25 @@ export default function CategorySidebar() {
   ];
 
   return (
-    <div className="hidden lg:flex flex-col w-full relative z-30 h-[590px] xl:h-[610px]">
+    <div className="hidden lg:flex flex-col w-full relative z-30 h-full">
       <div className="relative bg-white shadow-xs border border-t-0 border-gray-200/90 py-1 w-full h-full flex flex-col justify-between rounded-b-2xl">
         {categories.map((cat) => {
           const Icon = cat.icon;
           return (
-            <div key={cat.slug} className="group relative flex-1 flex flex-col justify-center" tabIndex={0}>
+            <div key={cat.slug} className="group relative flex-1 flex flex-col justify-center min-h-0" tabIndex={0}>
               <div className="px-2 py-0.5 h-full flex items-center">
                 <Link
                   href={`/tat-ca-san-pham?category=${cat.slug}`}
-                  className="flex w-full items-center justify-between px-3 py-2 transition-all duration-200 rounded-lg text-gray-700 hover:bg-[#eb1c24] hover:text-white group-hover:bg-[#eb1c24] group-hover:text-white"
+                  className="flex w-full items-center justify-between px-2.5 xl:px-3 py-1.5 transition-all duration-200 rounded-lg text-gray-700 hover:bg-[#eb1c24] hover:text-white group-hover:bg-[#eb1c24] group-hover:text-white"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors" />
-                    <span className="text-[13.5px] font-bold group-hover:text-white transition-colors">
+                  <div className="flex items-center gap-2 xl:gap-2.5">
+                    <Icon className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors shrink-0" />
+                    <span className="text-[12.5px] xl:text-[13.5px] font-bold group-hover:text-white transition-colors truncate">
                       {cat.name}
                     </span>
                   </div>
                   {cat.hasSub && (
-                    <ChevronRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-colors" />
+                    <ChevronRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-white transition-colors shrink-0" />
                   )}
                 </Link>
               </div>

@@ -109,7 +109,7 @@ export default function HeroSlider() {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="relative rounded-2xl overflow-hidden shadow-xs bg-[#050505] aspect-[16/9] md:aspect-[16/8] lg:aspect-auto lg:h-[590px] xl:h-[610px] w-full h-full group select-none cursor-grab active:cursor-grabbing"
+      className="relative rounded-2xl overflow-hidden shadow-xs bg-[#050505] aspect-[2/1] w-full h-full group select-none cursor-grab active:cursor-grabbing"
     >
       {/* Khung chứa các slide cố định 100% không xê dịch, chuyển đổi bằng hiệu ứng Fade 1500ms mượt mà */}
       <div className="relative w-full h-full">
@@ -127,7 +127,7 @@ export default function HeroSlider() {
               <img
                 src={img}
                 alt={`DUDI SOFTWARE Banner ${idx + 1}`}
-                className={`w-full h-full object-cover select-none pointer-events-none transition-transform ease-out ${
+                className={`w-full h-full object-cover object-center select-none pointer-events-none transition-transform ease-out ${
                   isHovered && isActive ? "scale-105 duration-[6000ms]" : "scale-100 duration-[3000ms]"
                 }`}
                 loading={idx === 0 ? "eager" : "lazy"}
