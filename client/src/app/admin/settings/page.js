@@ -1,9 +1,6 @@
 "use client";
 
 import AccountSettings from "@/components/admin/settings/AccountSettings";
-import SystemSettings from "@/components/admin/settings/SystemSettings";
-import NotificationSettings from "@/components/admin/settings/NotificationSettings";
-import SecuritySettings from "@/components/admin/settings/SecuritySettings";
 
 export default function SettingsPage() {
   return (
@@ -11,7 +8,7 @@ export default function SettingsPage() {
       {/* Page Header */}
       <div className="flex flex-col gap-1">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-slate-900">
-          Cài đặt hệ thống
+          Cài đặt tài khoản
         </h1>
 
         <p className="text-xs sm:text-sm text-slate-500 font-medium">
@@ -22,9 +19,6 @@ export default function SettingsPage() {
       {/* Settings Sections */}
       <div className="grid grid-cols-1 gap-6">
         <AccountSettings />
-        <SystemSettings />
-        <NotificationSettings />
-        <SecuritySettings />
       </div>
     </div>
   );

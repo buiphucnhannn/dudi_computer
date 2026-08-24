@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   DollarSign,
@@ -13,9 +13,10 @@ import {
   X,
   CheckCircle2,
   Package,
+  Layers,
 } from "lucide-react";
 import { useDashboard } from "./DashboardContext";
-import CreateOrderModal, { CATALOG_PRODUCTS } from "./orders/CreateOrderModal";
+import CreateOrderModal from "./orders/CreateOrderModal";
 
 export default function DashboardMetrics() {
   const {
@@ -31,10 +32,25 @@ export default function DashboardMetrics() {
   const [showLowStockModal, setShowLowStockModal] = useState(false);
 
   const [inventoryForm, setInventoryForm] = useState({
-    sku: "ROG-STRIX-4090",
-    quantity: 5,
-    supplier: "ASUS Việt Nam",
+    sku: "",
+    quantity: 10,
+    supplier: "Kho DUDI Logistics",
   });
+
+  // Tự động set sản phẩm mặc định khi mở modal hoặc khi stockItems tải xong
+  useEffect(() => {
+    if (stockItems && stockItems.length > 0) {
+      setInventoryForm((prev) => {
+        if (!prev.sku || !stockItems.some((i) => (i._id || i.sku || i.id) === prev.sku)) {
+          return {
+            ...prev,
+            sku: stockItems[0]._id || stockItems[0].sku || stockItems[0].id,
+          };
+        }
+        return prev;
+      });
+    }
+  }, [stockItems]);
 
   const lowStockList = stockItems.filter((i) => i.stock <= 3);
 
@@ -42,11 +58,17 @@ export default function DashboardMetrics() {
     await createOrder(orderData);
   };
 
-  const handleRestockSubmit = (e) => {
+  const handleRestockSubmit = async (e) => {
     e.preventDefault();
-    restockProduct(inventoryForm.sku, inventoryForm.quantity);
+    if (!inventoryForm.sku) return;
+    await restockProduct(inventoryForm.sku, inventoryForm.quantity);
     setShowInventoryModal(false);
   };
+
+  // Sản phẩm hiện đang được chọn trong dropdown nhập kho
+  const selectedProduct = stockItems.find(
+    (i) => (i._id || i.sku || i.id) === inventoryForm.sku
+  );
 
   return (
     <section className="relative">
@@ -58,92 +80,105 @@ export default function DashboardMetrics() {
         </div>
       )}
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {/* Metric 1: Revenue */}
-        <div className="group relative flex h-[140px] flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:shadow-md">
-          <div className="relative z-10 flex items-start justify-between">
-            <div>
-              <h3 className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-500">
-                Doanh thu hôm nay
-              </h3>
-              <div className="text-2xl font-black tracking-tight text-slate-900">
-                {metrics.todayRevenueFormatted}
-              </div>
-            </div>
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-900 border border-slate-200 transition-transform group-hover:scale-110">
+      {/* 4 Dashboard Metric Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Metric 1: Doanh thu hôm nay */}
+        <div className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Doanh thu hôm nay
+            </span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-800">
               <DollarSign className="h-5 w-5" />
             </div>
           </div>
-          <div className="relative z-10 flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
-            <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
-            <span>{metrics.revenueGrowth} so với hôm qua</span>
+
+          <div className="my-3">
+            <span className="text-2xl font-black text-slate-900">
+              {metrics.todayRevenue}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="flex items-center font-bold text-emerald-600">
+              <ArrowUpRight className="h-3.5 w-3.5" />
+              {metrics.revenueGrowth}
+            </span>
+            <span className="text-slate-400 font-medium">so với hôm qua</span>
           </div>
         </div>
 
-        {/* Metric 2: New Orders */}
-        <Link
-          href="/admin/orders"
-          className="group relative flex h-[140px] flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:shadow-md cursor-pointer"
-        >
-          <div className="relative z-10 flex items-start justify-between">
-            <div>
-              <h3 className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-500">
-                Đơn hàng hôm nay
-              </h3>
-              <div className="text-2xl font-black tracking-tight text-slate-900">
-                {metrics.todayOrdersCount}
-              </div>
-            </div>
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-900 border border-slate-200 transition-transform group-hover:scale-110">
+        {/* Metric 2: Đơn hàng mới */}
+        <div className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:shadow-md">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Đơn hàng hôm nay
+            </span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
               <ShoppingBag className="h-5 w-5" />
             </div>
           </div>
-          <div className="relative z-10 flex items-center gap-1.5 text-xs font-semibold text-slate-500 group-hover:text-red-600 transition">
-            <Minus className="h-4 w-4" />
-            <span>Xem quản lý đơn hàng &rarr;</span>
-          </div>
-        </Link>
 
-        {/* Metric 3: Low stock */}
-        <div
-          onClick={() => setShowLowStockModal(true)}
-          className="group relative flex h-[140px] flex-col justify-between overflow-hidden rounded-2xl border border-red-100 bg-red-50/30 p-5 shadow-xs transition hover:shadow-md cursor-pointer hover:border-red-300"
-        >
-          <div className="relative z-10 flex items-start justify-between">
-            <div>
-              <h3 className="mb-1 text-xs font-bold uppercase tracking-wider text-red-600">
-                Sắp hết hàng
-              </h3>
-              <div className="text-2xl font-black tracking-tight text-red-600">
-                {metrics.lowStockCount}
-              </div>
-            </div>
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-50 text-red-600 border border-red-200 transition-transform group-hover:scale-110">
-              <AlertTriangle className="h-5 w-5" />
-            </div>
+          <div className="my-3">
+            <span className="text-2xl font-black text-slate-900">
+              {metrics.todayOrders}
+            </span>
           </div>
-          <div className="relative z-10 flex items-center gap-1 text-xs font-bold text-red-600 group-hover:underline">
-            <span>Bấm để xem danh sách ({lowStockList.length}) &rarr;</span>
+
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-slate-500 font-medium">
+              Đang chờ xử lý: <strong className="text-slate-800 font-bold">{metrics.pendingOrders} đơn</strong>
+            </span>
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="flex h-[140px] flex-col justify-center gap-2.5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs">
+        {/* Metric 3: Cảnh báo tồn kho */}
+        <div
+          onClick={() => setShowLowStockModal(true)}
+          className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition hover:shadow-md cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 group-hover:text-red-600 transition">
+              Cảnh báo hết hàng
+            </span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-50 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
+          </div>
+
+          <div className="my-3">
+            <span className="text-2xl font-black text-slate-900">
+              {metrics.lowStockItems}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-xs text-red-600 font-bold group-hover:underline">
+            <span>Xem chi tiết danh sách ({lowStockList.length}) &rarr;</span>
+          </div>
+        </div>
+
+        {/* Metric 4: Thao tác nhanh */}
+        <div className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+          <div className="mb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Thao tác nhanh
+            </span>
+          </div>
+
           <button
             onClick={() => setShowOrderModal(true)}
-            className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-xs transition hover:bg-slate-800 cursor-pointer active:scale-98"
+            className="mb-2 flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-slate-800 cursor-pointer active:scale-98 whitespace-nowrap"
           >
-            <Plus className="h-4 w-4 stroke-[2.5]" />
-            <span>Tạo đơn mới</span>
+            <Plus className="h-4 w-4 shrink-0 stroke-[2.5]" />
+            <span className="whitespace-nowrap">Tạo đơn hàng mới</span>
           </button>
 
           <button
             onClick={() => setShowInventoryModal(true)}
-            className="flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-800 shadow-2xs transition hover:bg-slate-100 cursor-pointer active:scale-98"
+            className="flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-800 shadow-2xs transition hover:bg-slate-100 cursor-pointer active:scale-98 whitespace-nowrap"
           >
-            <PackagePlus className="h-4 w-4" />
-            <span>Nhập kho nhanh</span>
+            <PackagePlus className="h-4 w-4 shrink-0" />
+            <span className="whitespace-nowrap">Nhập kho nhanh</span>
           </button>
         </div>
       </div>
@@ -155,20 +190,28 @@ export default function DashboardMetrics() {
         onSubmitOrder={handleOrderSubmit}
       />
 
-      {/* Modal 2: Nhập kho nhanh */}
+      {/* Modal 2: Nhập kho nhanh (Sử dụng Data thật từ Database) */}
       {showInventoryModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-150 pb-3 mb-4">
-              <div className="flex items-center gap-2">
-                <PackagePlus className="h-5 w-5 text-slate-900" />
-                <h3 className="text-base font-bold text-slate-900">
-                  Nhập kho hàng nhanh
-                </h3>
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-slate-900 text-white rounded-xl">
+                  <PackagePlus className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    Nhập kho hàng nhanh
+                  </h3>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Cập nhật số lượng tồn kho trực tiếp
+                  </p>
+                </div>
               </div>
+
               <button
                 onClick={() => setShowInventoryModal(false)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
+                className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -176,57 +219,94 @@ export default function DashboardMetrics() {
 
             <form onSubmit={handleRestockSubmit} className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-slate-700 mb-1 block">
-                  Chọn sản phẩm cần nhập
+                <label className="text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+                  <Package className="h-3.5 w-3.5 text-slate-400" />
+                  <span>Chọn sản phẩm</span>
                 </label>
                 <select
                   value={inventoryForm.sku}
                   onChange={(e) =>
                     setInventoryForm({ ...inventoryForm, sku: e.target.value })
                   }
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
                 >
-                  {CATALOG_PRODUCTS.map((item) => (
-                    <option key={item.sku} value={item.sku}>
-                      {item.name} ({item.sku})
-                    </option>
-                  ))}
+                  {stockItems.length === 0 ? (
+                    <option value="">Đang tải danh sách sản phẩm...</option>
+                  ) : (
+                    stockItems.map((item) => (
+                      <option
+                        key={item._id || item.sku || item.id}
+                        value={item._id || item.sku || item.id}
+                      >
+                        {item.name} (SKU: {item.sku}) — Tồn: {item.stock} cái
+                      </option>
+                    ))
+                  )}
                 </select>
+
+                {/* Selected Product Live Preview */}
+                {selectedProduct && (
+                  <div className="mt-2 flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-slate-900 truncate">
+                        {selectedProduct.name}
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-medium">
+                        Mã SKU: <strong className="text-slate-800">{selectedProduct.sku}</strong>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <div className="text-xs font-bold text-slate-500">Tồn hiện tại</div>
+                      <div className="text-sm font-black text-slate-900">
+                        {selectedProduct.stock} cái
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 mb-1 block">
-                  Số lượng nhập thêm
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={inventoryForm.quantity}
-                  onChange={(e) =>
-                    setInventoryForm({
-                      ...inventoryForm,
-                      quantity: Number(e.target.value),
-                    })
-                  }
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10"
-                />
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-800 mb-1.5 block">
+                    Số lượng nhập thêm (+)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={inventoryForm.quantity}
+                    onChange={(e) =>
+                      setInventoryForm({
+                        ...inventoryForm,
+                        quantity: Math.max(1, Number(e.target.value) || 1),
+                      })
+                    }
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+                  />
+                  {selectedProduct && (
+                    <span className="text-[10.5px] text-slate-500 font-medium mt-1 block">
+                      Tồn sau nhập: <strong className="text-emerald-600 font-bold">{selectedProduct.stock + inventoryForm.quantity} cái</strong>
+                    </span>
+                  )}
+                </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 mb-1 block">
-                  Nhà cung cấp / Đối tác
-                </label>
-                <input
-                  type="text"
-                  value={inventoryForm.supplier}
-                  onChange={(e) =>
-                    setInventoryForm({
-                      ...inventoryForm,
-                      supplier: e.target.value,
-                    })
-                  }
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10"
-                />
+                <div>
+                  <label className="text-xs font-bold text-slate-800 mb-1.5 block">
+                    Nhà cung cấp / Đối tác
+                  </label>
+                  <input
+                    type="text"
+                    value={inventoryForm.supplier}
+                    onChange={(e) =>
+                      setInventoryForm({
+                        ...inventoryForm,
+                        supplier: e.target.value,
+                      })
+                    }
+                    placeholder="Ví dụ: ASUS Việt Nam"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+                  />
+                </div>
               </div>
 
               <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-150">
@@ -239,7 +319,8 @@ export default function DashboardMetrics() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-slate-800 cursor-pointer"
+                  disabled={!selectedProduct}
+                  className="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-slate-800 disabled:opacity-50 cursor-pointer"
                 >
                   Xác nhận nhập kho
                 </button>
@@ -276,7 +357,7 @@ export default function DashboardMetrics() {
               ) : (
                 lowStockList.map((item) => (
                   <div
-                    key={item.id}
+                    key={item.id || item._id}
                     className="flex items-center justify-between py-3 gap-4"
                   >
                     <div>
@@ -290,17 +371,16 @@ export default function DashboardMetrics() {
 
                     <div className="flex items-center gap-3 shrink-0">
                       <span
-                        className={`px-2.5 py-1 rounded-md text-xs font-bold border ${
-                          item.stock === 0
+                        className={`px-2.5 py-1 rounded-md text-xs font-bold border ${item.stock === 0
                             ? "bg-red-50 text-red-700 border-red-200"
                             : "bg-amber-50 text-amber-700 border-amber-200"
-                        }`}
+                          }`}
                       >
                         Tồn kho: {item.stock}
                       </span>
 
                       <button
-                        onClick={() => restockProduct(item.id, 10)}
+                        onClick={() => restockProduct(item._id || item.id || item.sku, 10)}
                         className="flex items-center gap-1 rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-slate-800 transition cursor-pointer"
                       >
                         <Package className="h-3.5 w-3.5" />

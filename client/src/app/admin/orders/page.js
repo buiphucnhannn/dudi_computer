@@ -217,18 +217,18 @@ export default function OrdersPage() {
         <div className="flex items-center gap-2.5 shrink-0">
           <button
             onClick={handleExportCSV}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 shadow-2xs transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 shadow-2xs transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer whitespace-nowrap"
           >
-            <Download className="h-4 w-4" />
-            <span>Xuất dữ liệu</span>
+            <Download className="h-4 w-4 shrink-0" />
+            <span className="whitespace-nowrap">Xuất dữ liệu</span>
           </button>
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-xs transition hover:bg-slate-800 cursor-pointer active:scale-98"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-slate-800 cursor-pointer active:scale-98 whitespace-nowrap"
           >
-            <Plus className="h-4 w-4 stroke-[2.5]" />
-            <span>Tạo đơn mới</span>
+            <Plus className="h-4 w-4 stroke-[2.5] shrink-0" />
+            <span className="whitespace-nowrap">Tạo đơn hàng mới</span>
           </button>
         </div>
       </div>

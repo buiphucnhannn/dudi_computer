@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   X,
   Plus,
@@ -12,61 +12,11 @@ import {
   FileText,
   CreditCard,
   Package,
-  Sparkles,
   ShoppingBag,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/components/common/ToastContext";
-
-export const CATALOG_PRODUCTS = [
-  {
-    sku: "ROG-STRIX-4090",
-    name: "Card ASUS ROG Strix GeForce RTX 4090 24GB GDDR6X OC",
-    price: 54900000,
-    image: "https://dlcdnwebimgs.asus.com/gain/9EFB3AE5-86A5-4299-8D75-9AC4FDF2FFC9/w800",
-  },
-  {
-    sku: "BX8071514900K",
-    name: "CPU Intel Core i9-14900K 24 nhân 32 luồng up to 6.0GHz",
-    price: 14500000,
-    image: "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    sku: "AMD-7800X3D",
-    name: "CPU AMD Ryzen 7 7800X3D 3D V-Cache 96MB",
-    price: 9900000,
-    image: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    sku: "LAPMSI-892",
-    name: "Laptop MSI Titan GT77 HX 13VI (Core i9 / 64GB / RTX 4090)",
-    price: 119990000,
-    image: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    sku: "ASU-TUF-A15",
-    name: "Laptop Asus TUF Gaming A15 FA507NV (Ryzen 7 / 16GB / RTX 4060)",
-    price: 24990000,
-    image: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    sku: "PCGAMING-001",
-    name: "PC Gaming DUDI Master Core i5 13400F / RTX 4060 8GB",
-    price: 18590000,
-    image: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    sku: "SAM-G5-G50D",
-    name: "Màn hình Gaming Samsung Odyssey G5 G50D 27 inch 2K 180Hz",
-    price: 5690000,
-    image: "https://images.unsplash.com/photo-1547082299-de196ea013d6?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    sku: "LOG-GPX-SL2",
-    name: "Chuột Gaming Không Dây Logitech G Pro X Superlight 2",
-    price: 3200000,
-    image: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&auto=format&fit=crop&q=80",
-  },
-];
+import { productAPI } from "@/lib/api";
 
 export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
   const { showToast } = useToast();
@@ -78,20 +28,62 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
   const [paymentMethod, setPaymentMethod] = useState("COD (Thanh toán khi nhận)");
   const [status, setStatus] = useState("processing");
 
-  const [items, setItems] = useState([
-    {
-      id: Date.now(),
-      name: CATALOG_PRODUCTS[5].name,
-      sku: CATALOG_PRODUCTS[5].sku,
-      price: CATALOG_PRODUCTS[5].price,
-      quantity: 1,
-      image: CATALOG_PRODUCTS[5].image,
-    },
-  ]);
+  const [catalogProducts, setCatalogProducts] = useState([]);
+  const [loadingCatalog, setLoadingCatalog] = useState(false);
 
-  const [selectedCatalogSku, setSelectedCatalogSku] = useState("");
+  const [items, setItems] = useState([]);
+  const [selectedCatalogId, setSelectedCatalogId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Tải danh sách sản phẩm thật từ Database khi mở modal
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchRealProducts = async () => {
+      setLoadingCatalog(true);
+      try {
+        const res = await productAPI.getAll({ limit: 100 });
+        const prods = res.data?.data?.products || res.data?.products || [];
+        if (Array.isArray(prods) && prods.length > 0) {
+          const mapped = prods.map((p) => ({
+            _id: p._id,
+            id: p._id || p.id,
+            name: p.name,
+            sku: p.sku || `SKU-${p.id || "GEN"}`,
+            price: Number(p.price) || 0,
+            stock: typeof p.stock === "number" ? p.stock : 10,
+            image: p.thumbnail || p.image || "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80",
+          }));
+          setCatalogProducts(mapped);
+
+          // Nếu danh sách items đang trống, khởi tạo bằng sản phẩm thật đầu tiên
+          setItems((prev) => {
+            if (prev.length === 0 && mapped.length > 0) {
+              return [
+                {
+                  id: Date.now(),
+                  _id: mapped[0]._id,
+                  name: mapped[0].name,
+                  sku: mapped[0].sku,
+                  price: mapped[0].price,
+                  quantity: 1,
+                  image: mapped[0].image,
+                },
+              ];
+            }
+            return prev;
+          });
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải danh mục sản phẩm:", err);
+      } finally {
+        setLoadingCatalog(false);
+      }
+    };
+
+    fetchRealProducts();
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -100,15 +92,18 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
     0
   );
 
-  const handleAddItemFromCatalog = (sku) => {
-    if (!sku) return;
-    const prod = CATALOG_PRODUCTS.find((p) => p.sku === sku);
+  const handleAddItemFromCatalog = (identifier) => {
+    if (!identifier) return;
+    const prod = catalogProducts.find(
+      (p) => p._id === identifier || p.sku === identifier || p.id === identifier
+    );
     if (!prod) return;
 
     setItems((prev) => [
       ...prev,
       {
         id: Date.now() + Math.random(),
+        _id: prod._id,
         name: prod.name,
         sku: prod.sku,
         price: prod.price,
@@ -116,7 +111,7 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
         image: prod.image,
       },
     ]);
-    setSelectedCatalogSku("");
+    setSelectedCatalogId("");
   };
 
   const handleAddCustomItem = () => {
@@ -203,6 +198,8 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
         paymentMethod,
         status,
         items: items.map((it) => ({
+          _id: it._id,
+          productId: it._id,
           name: it.name.trim(),
           sku: it.sku || "SKU-GEN",
           price: Number(it.price),
@@ -233,10 +230,10 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-black text-slate-900">
-                Tạo đơn hàng mới (Admin tự điền)
+                Tạo đơn hàng mới
               </h3>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Nhập thông tin khách hàng, cấu hình sản phẩm và giá trị đơn hàng
+                Chọn sản phẩm trực tiếp từ kho hàng và nhập thông tin khách
               </p>
             </div>
           </div>
@@ -257,12 +254,12 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
             </div>
           )}
 
-          {/* Section 1: Customer Details */}
+          {/* Section 1: Customer Information */}
           <div className="rounded-2xl border border-slate-200/80 bg-white p-4 space-y-3.5 shadow-2xs">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
               <User className="h-4 w-4 text-slate-500" />
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                1. Thông tin người nhận hàng
+                1. Thông tin người nhận
               </h4>
             </div>
 
@@ -341,7 +338,7 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
             </div>
           </div>
 
-          {/* Section 2: Products */}
+          {/* Section 2: Products from Database */}
           <div className="rounded-2xl border border-slate-200/80 bg-white p-4 space-y-3.5 shadow-2xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
               <div className="flex items-center gap-2">
@@ -353,14 +350,16 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
 
               <div className="flex items-center gap-2">
                 <select
-                  value={selectedCatalogSku}
+                  value={selectedCatalogId}
                   onChange={(e) => handleAddItemFromCatalog(e.target.value)}
-                  className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer"
+                  className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 focus:bg-white focus:outline-none cursor-pointer max-w-[260px] truncate"
                 >
-                  <option value="">+ Chọn từ kho mẫu</option>
-                  {CATALOG_PRODUCTS.map((p) => (
-                    <option key={p.sku} value={p.sku}>
-                      {p.name} ({p.price.toLocaleString("vi-VN")}₫)
+                  <option value="">
+                    {loadingCatalog ? "Đang tải sản phẩm..." : `+ Chọn từ kho (${catalogProducts.length})`}
+                  </option>
+                  {catalogProducts.map((p) => (
+                    <option key={p._id || p.sku} value={p._id || p.sku}>
+                      {p.name} — {p.price.toLocaleString("vi-VN")}₫ (Tồn: {p.stock})
                     </option>
                   ))}
                 </select>
@@ -368,10 +367,10 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
                 <button
                   type="button"
                   onClick={handleAddCustomItem}
-                  className="flex items-center gap-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 text-xs font-bold transition cursor-pointer"
+                  className="flex items-center gap-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 text-xs font-bold transition cursor-pointer whitespace-nowrap"
                 >
                   <Plus className="h-3.5 w-3.5" />
-                  <span>Thêm dòng</span>
+                  <span>Tự nhập</span>
                 </button>
               </div>
             </div>
@@ -423,7 +422,7 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
                         onClick={() =>
                           handleUpdateItem(item.id, "quantity", Math.max(1, (Number(item.quantity) || 1) - 1))
                         }
-                        className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200 font-bold shrink-0"
+                        className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200 font-bold shrink-0 cursor-pointer"
                       >
                         -
                       </button>
@@ -441,7 +440,7 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
                         onClick={() =>
                           handleUpdateItem(item.id, "quantity", (Number(item.quantity) || 1) + 1)
                         }
-                        className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200 font-bold shrink-0"
+                        className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200 font-bold shrink-0 cursor-pointer"
                       >
                         +
                       </button>
@@ -449,8 +448,8 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
                       <button
                         type="button"
                         onClick={() => handleRemoveItem(item.id)}
-                        className="h-8 w-8 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition flex items-center justify-center shrink-0 ml-auto"
-                        title="Xóa sản phẩm này"
+                        className="h-8 w-8 rounded-lg text-red-500 hover:bg-red-50 flex items-center justify-center transition ml-auto cursor-pointer"
+                        title="Xóa sản phẩm"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -459,14 +458,22 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
                 </div>
               ))}
             </div>
+
+            {/* Total Price Summary */}
+            <div className="flex items-center justify-between pt-3 border-t border-slate-150">
+              <span className="text-xs font-bold text-slate-600">Tổng tiền hàng:</span>
+              <span className="text-base font-black text-red-600">
+                {totalAmount.toLocaleString("vi-VN")}₫
+              </span>
+            </div>
           </div>
 
-          {/* Section 3: Status & Payment Method */}
+          {/* Section 3: Payment & Order Status */}
           <div className="rounded-2xl border border-slate-200/80 bg-white p-4 space-y-3.5 shadow-2xs">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
               <CreditCard className="h-4 w-4 text-slate-500" />
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-                3. Thanh toán & Trạng thái khởi tạo
+                3. Phương thức & Trạng thái đơn hàng
               </h4>
             </div>
 
@@ -476,52 +483,32 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:bg-white focus:outline-none cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
                 >
-                  <option value="COD (Thanh toán khi nhận)">COD (Thanh toán khi nhận)</option>
-                  <option value="Chuyển khoản QR (VietQR)">Chuyển khoản QR (VietQR)</option>
-                  <option value="Tiền mặt tại quầy">Tiền mặt tại quầy</option>
-                  <option value="VNPay Online">VNPay Online</option>
-                  <option value="Thẻ tín dụng Visa/Mastercard">Thẻ tín dụng Visa/Mastercard</option>
+                  <option value="cod">COD (Thanh toán khi nhận hàng)</option>
+                  <option value="bank_transfer">Chuyển khoản VietQR / Ngân hàng</option>
+                  <option value="installment">Trả góp 0% qua thẻ tín dụng</option>
                 </select>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Trạng thái đơn hàng</label>
+                <label className="text-xs font-bold text-slate-700">Trạng thái khởi tạo</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:bg-white focus:outline-none cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
                 >
-                  <option value="processing">Chờ xử lý (Chờ xác nhận)</option>
+                  <option value="processing">Đang xử lý (Chờ xác nhận)</option>
+                  <option value="confirmed">Đã xác nhận</option>
                   <option value="shipping">Đang giao hàng</option>
-                  <option value="completed">Đã hoàn thành</option>
-                  <option value="cancelled">Đã hủy</option>
+                  <option value="delivered">Đã giao thành công</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Grand Total Summary */}
-          <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 space-y-1.5">
-            <div className="flex justify-between items-center text-xs text-slate-500">
-              <span>Tổng số lượng mặt hàng:</span>
-              <span className="font-bold text-slate-800">
-                {items.reduce((s, i) => s + (Number(i.quantity) || 1), 0)} sản phẩm
-              </span>
-            </div>
-            <div className="flex justify-between items-baseline pt-1.5 border-t border-slate-200">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                Tổng giá trị đơn hàng:
-              </span>
-              <span className="text-xl font-black text-red-600">
-                {totalAmount.toLocaleString("vi-VN")}₫
-              </span>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-3 pt-2">
+          {/* Footer Actions */}
+          <div className="flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
@@ -536,8 +523,17 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
               disabled={isSubmitting}
               className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition cursor-pointer uppercase tracking-wider disabled:opacity-50"
             >
-              <Plus className="h-4 w-4 stroke-[2.5]" />
-              <span>{isSubmitting ? "Đang tạo đơn..." : "Xác nhận tạo đơn hàng"}</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Đang tạo đơn...</span>
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 stroke-[2.5]" />
+                  <span>Xác nhận tạo đơn hàng</span>
+                </>
+              )}
             </button>
           </div>
         </form>

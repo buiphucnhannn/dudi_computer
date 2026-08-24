@@ -328,23 +328,25 @@ export function DashboardProvider({ children }) {
 
   // 6. FLOW: Nhập kho → API cập nhật Database thành công → Fetch lại data Database → Cập nhật state
   const restockProduct = async (skuOrId, amount = 10) => {
-    const targetItem = stockItems.find((i) => i.id === skuOrId || i.sku === skuOrId);
+    const targetItem = stockItems.find(
+      (i) => i._id === skuOrId || i.id === skuOrId || i.sku === skuOrId
+    );
     const currentStock = targetItem ? targetItem.stock : 0;
     const updatedStock = currentStock + Number(amount);
-    const targetDbId = targetItem?._id || targetItem?.id;
+    const targetDbId = targetItem?._id || targetItem?.id || skuOrId;
 
     try {
-      if (typeof targetDbId === "string" && targetDbId.length === 24) {
+      if (targetDbId) {
         // 1. Cập nhật Database
         await productAPI.updateStock(targetDbId, updatedStock);
       }
 
       // 2. Fetch lại data mới nhất từ Database
       await fetchDashboardData(false);
-      triggerToast(`Đã lưu +${amount} tồn kho cho ${targetItem?.name || "sản phẩm"}!`);
+      triggerToast(`Đã nhập thêm +${amount} tồn kho cho "${targetItem?.name || "sản phẩm"}" (Tồn mới: ${updatedStock})!`);
     } catch (e) {
       console.error("Lỗi cập nhật tồn kho trong Database:", e);
-      triggerToast("Không thể cập nhật tồn kho trên Database!");
+      triggerToast("Không thể cập nhật tồn kho trên Database. Vui lòng thử lại!");
     }
   };
 

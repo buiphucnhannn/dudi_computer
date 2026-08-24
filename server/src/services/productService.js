@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { productRepository, categoryRepository } from "../repositories/index.js";
 import { ApiError } from "../utils/apiError.js";
 
@@ -166,7 +167,21 @@ class ProductService {
     const stock = Math.max(0, Number(newStock));
     const status = stock === 0 ? "out_of_stock" : "in_stock";
 
-    return await productRepository.updateById(id, { stock, status });
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      return await productRepository.updateById(id, { stock, status });
+    }
+
+    const product = await productRepository.findOne({
+      $or: [{ id: id }, { sku: id }, { slug: id }],
+    });
+
+    if (!product) {
+      throw new ApiError(404, "Không tìm thấy sản phẩm");
+    }
+
+    product.stock = stock;
+    product.status = status;
+    return await product.save();
   }
 }
 
