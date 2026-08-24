@@ -1,6 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   devIndicators: false,
+  allowedDevOrigins: [
+    "localhost:3000",
+    "localhost:3001",
+    "localhost:3002",
+    "127.0.0.1:3000",
+    "127.0.0.1:3001",
+    "192.168.1.27:3000",
+    "192.168.1.27:3001",
+    "192.168.1.27",
+    "192.168.*.*",
+  ],
   images: {
     remotePatterns: [
       {
@@ -203,6 +214,12 @@ const nextConfig = {
       {
         source: "/chi-tiet-san-pham",
         destination: "/product-detail",
+      },
+
+      // 14. Backend API Proxy (Hỗ trợ truy cập qua mạng LAN / IP Network 192.168.x.x trên điện thoại)
+      {
+        source: "/api/v1/:path*",
+        destination: `${process.env.INTERNAL_API_URL || "http://localhost:5000"}/api/v1/:path*`,
       },
     ];
   },

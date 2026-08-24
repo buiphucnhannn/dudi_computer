@@ -70,9 +70,9 @@ export default function AboutPage() {
           <div className="relative w-full h-[320px] sm:h-[420px] md:h-[550px] lg:h-[650px] overflow-hidden">
             <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#0b0e14] to-transparent z-10 pointer-events-none" />
             <img
-              alt="DUDI SOFTWARE Storefront Showroom"
-              src="/storefront-hero.jpg"
-              className="w-full h-full object-cover object-[center_20%]"
+              alt="DUDI SOFTWARE Showroom"
+              src="/images/dudi/dudi_showroom_hero.jpg"
+              className="w-full h-full object-cover object-[center_35%]"
             />
             <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-gray-50 to-transparent z-10 pointer-events-none" />
           </div>
@@ -107,7 +107,7 @@ export default function AboutPage() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-[#eb1c24]/25 to-transparent rounded-3xl transform translate-x-3 translate-y-3 pointer-events-none" />
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white w-full h-[400px] md:h-[450px] bg-gray-900">
                   <img
-                    alt="ZComputer Store PC Showcase"
+                    alt="DUDI SOFTWARE Store PC Showcase"
                     loading="lazy"
                     className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
                     src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
@@ -141,7 +141,7 @@ export default function AboutPage() {
                   <ShieldCheck className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Chất lượng đảm bảo</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   100% sản phẩm bán ra đều trải qua quy trình kiểm tra phần cứng nghiêm ngặt để đảm bảo máy hoạt động ổn định và bền bỉ.
                 </p>
               </div>
@@ -152,7 +152,7 @@ export default function AboutPage() {
                   <Award className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Giá cả cạnh tranh</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   Tối ưu hóa quy trình để mang đến mức giá cực kỳ tốt cho các sản phẩm PC và Laptop Like New tại thị trường TP.HCM.
                 </p>
               </div>
@@ -163,7 +163,7 @@ export default function AboutPage() {
                   <Wrench className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Hậu mãi tận tâm</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   Chế độ bảo hành dài hạn, hỗ trợ xử lý sự cố phần mềm và phần cứng chu đáo, giúp khách hàng yên tâm tuyệt đối sau khi mua.
                 </p>
               </div>
@@ -174,7 +174,7 @@ export default function AboutPage() {
                   <Users className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Tư vấn trung thực</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   Đội ngũ nhân viên tư vấn đúng nhu cầu, đúng ngân sách, tuyệt đối không chèo kéo hay vẽ thêm chi phí không cần thiết.
                 </p>
               </div>
@@ -185,7 +185,7 @@ export default function AboutPage() {
                   <Zap className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Kỹ thuật chuyên nghiệp</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   Kỹ thuật viên am hiểu sâu về máy tính, lắp ráp đi dây chuẩn mực và hỗ trợ nâng cấp linh kiện dễ dàng, nhanh gọn.
                 </p>
               </div>
@@ -196,7 +196,7 @@ export default function AboutPage() {
                   <Monitor className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Đa dạng sản phẩm</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   Cung cấp đầy đủ các cấu hình từ máy văn phòng cơ bản đến PC Gaming, Đồ họa chuyên nghiệp và Laptop các hãng nổi tiếng.
                 </p>
               </div>
@@ -227,11 +227,11 @@ export default function AboutPage() {
                     <div className="w-12 h-12 bg-[#eb1c24] text-white rounded-full flex items-center justify-center font-black text-xl shadow-md shadow-red-500/30">
                       1
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900">Chi nhánh 1 (Trụ sở)</h3>
+                    <h3 className="text-xl font-bold text-gray-900">Chi nhánh Thủ Đức</h3>
                   </div>
                   <p className="flex items-start gap-3 text-gray-600 text-sm sm:text-base leading-relaxed mb-6">
                     <MapPin className="w-5 h-5 text-[#eb1c24] shrink-0 mt-1" />
-                    <span>23 Đường số 1, Khu phố 61, Phường Linh Xuân (Phường Linh Tây cũ), TP.Thủ Đức, TP.Hồ Chí Minh</span>
+                    <span>49/2 Đường 14, Phường Thủ Đức, TP.Hồ Chí Minh</span>
                   </p>
                 </div>
                 
@@ -239,7 +239,7 @@ export default function AboutPage() {
                 <div className="rounded-xl overflow-hidden border border-gray-100 shadow-inner h-[180px] w-full relative">
                   <iframe
                     title="Bản đồ chỉ đường đến Chi nhánh Thủ Đức"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.4658576162583!2d106.74981366590865!3d10.852128230492767!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752722e4c10833%3A0x6ac88810b4b7dee!2sZ%20Computer-%20Pc%20Gaming-Laptop-Workstation!5e0!3m2!1svi!2sus!4v1781670020621!5m2!1svi!2sus"
+                    src="https://maps.google.com/maps?q=49/2%20%C4%90%C6%B0%E1%BB%9Dng%2014,%20Ph%C6%B0%E1%BB%9Dng%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
@@ -259,19 +259,19 @@ export default function AboutPage() {
                     <div className="w-12 h-12 bg-[#eb1c24] text-white rounded-full flex items-center justify-center font-black text-xl shadow-md shadow-red-500/30">
                       2
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900">Chi nhánh 2</h3>
+                    <h3 className="text-xl font-bold text-gray-900">Chi nhánh Nguyễn Thị Minh Khai</h3>
                   </div>
                   <p className="flex items-start gap-3 text-gray-600 text-sm sm:text-base leading-relaxed mb-6">
                     <MapPin className="w-5 h-5 text-[#eb1c24] shrink-0 mt-1" />
-                    <span>47/86B Bùi Đình Tuý, Phường 14, Quận Bình Thạnh, TP.Hồ Chí Minh</span>
+                    <span>232 Đường Nguyễn Thị Minh Khai, Phường Xuân Hòa, TP.Hồ Chí Minh</span>
                   </p>
                 </div>
                 
                 {/* Map 2 */}
                 <div className="rounded-xl overflow-hidden border border-gray-100 shadow-inner h-[180px] w-full relative">
                   <iframe
-                    title="Bản đồ chỉ đường đến Chi nhánh Bình Thạnh"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.072361586463!2d106.70468187588394!3d10.805769858649997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317529000263c50f%3A0x1694f4d065ba8f53!2zWkNPTVBVVEVSLULDjE5IIFRI4bqgTkg!5e0!3m2!1svi!2sus!4v1782088223445!5m2!1svi!2sus"
+                    title="Bản đồ chỉ đường đến Chi nhánh Nguyễn Thị Minh Khai"
+                    src="https://maps.google.com/maps?q=232%20%C4%90%C6%B0%E1%BB%9Dng%20Nguy%E1%BB%85n%20Th%E1%BB%8B%20Minh%20Khai,%20Ph%C6%B0%E1%BB%9Dng%20Xu%C3%A2n%20H%C3%B2a,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
                     width="100%"
                     height="100%"
                     style={{ border: 0 }}
@@ -303,12 +303,13 @@ export default function AboutPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center gap-4 relative z-10">
-                <div
-                  className="flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-[#eb1c24] rounded-xl font-black text-base shadow-lg select-none cursor-default"
+                <a
+                  href="tel:0909163821"
+                  className="flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-[#eb1c24] rounded-xl font-black text-base shadow-lg hover:bg-gray-100 transition-all hover:-translate-y-0.5 cursor-pointer"
                 >
                   <Phone className="w-5 h-5" />
                   <span>(+84) 909 163 821</span>
-                </div>
+                </a>
                 <a
                   href="mailto:contact@dudisoftware.com"
                   className="flex items-center justify-center gap-2 px-7 py-3.5 bg-black/25 text-white rounded-xl font-bold text-base hover:bg-black/40 transition-all border border-white/20 backdrop-blur-sm hover:-translate-y-0.5"

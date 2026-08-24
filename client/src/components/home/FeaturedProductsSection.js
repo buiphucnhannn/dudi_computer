@@ -31,18 +31,20 @@ import {
   selectCartItems,
 } from "@/redux/slices/cartSlice";
 import { useCompare } from "@/components/common/CompareContext";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function FeaturedProductsSection({ products = [] }) {
   const [activeTab, setActiveTab] = useState("all");
   const sliderRef = useRef(null);
   const dispatch = useDispatch();
   const { addToCompare, isComparing } = useCompare();
+  const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
 
   const tabs = [
     { id: "all", name: "Tất cả" },
-    { id: "pc", name: "PC Cũ" },
-    { id: "laptop", name: "Laptop Cũ" },
+    { id: "pc", name: "PC" },
+    { id: "laptop", name: "Laptop" },
   ];
 
   const filteredProducts = products.filter((p) => {
@@ -138,8 +140,18 @@ export default function FeaturedProductsSection({ products = [] }) {
     const prodId = item._id || item.id || item.slug;
     if (isCart) {
       dispatch(removeFromCartAsync(prodId));
+      showToast({
+        title: "Đã xóa khỏi giỏ",
+        message: `Đã bỏ "${item.name}" khỏi giỏ hàng`,
+        type: "info",
+      });
     } else {
       dispatch(addToCartAsync({ product: item, quantity: 1 }));
+      showToast({
+        title: "Đã thêm vào giỏ hàng",
+        message: `Đã thêm "${item.name}" vào giỏ hàng thành công!`,
+        type: "success",
+      });
     }
   };
 

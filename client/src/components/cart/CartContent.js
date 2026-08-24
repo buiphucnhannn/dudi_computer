@@ -122,9 +122,9 @@ export default function CartContent() {
           /* Has Items: 2 Columns Grid */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left Column: Product List (8 Cols) */}
-            <div className="lg:col-span-8 bg-white rounded-lg shadow-2xs border border-gray-200 overflow-hidden">
-              {/* Table Header */}
-              <div className="px-6 py-4 bg-gray-50/70 border-b border-gray-200 flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-600">
+            <div className="lg:col-span-8 bg-white rounded-xl shadow-2xs border border-gray-200 overflow-hidden">
+              {/* Table Header (Chỉ hiện trên desktop) */}
+              <div className="hidden sm:flex px-6 py-4 bg-gray-50/70 border-b border-gray-200 items-center justify-between text-xs sm:text-sm font-semibold text-gray-600">
                 <span className="w-[50%]">Sản phẩm</span>
                 <span className="w-[25%] text-center">Số lượng</span>
                 <span className="w-[25%] text-right">Thành tiền</span>
@@ -135,7 +135,7 @@ export default function CartContent() {
                 {cartItems.map((item) => (
                   <div
                     key={item._id}
-                    className="p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                    className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4"
                   >
                     {/* Product Info */}
                     <div className="flex items-center gap-4 w-full sm:w-[50%]">
@@ -286,29 +286,32 @@ export default function CartContent() {
                   sau:
                 </p>
 
-                {/* Option 1: Hotline (Không kích hoạt cuộc gọi khi nhấn) */}
-                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 flex items-center gap-3.5 select-none cursor-default">
-                  <div className="w-10 h-10 bg-red-100 text-[#dc2626] rounded-full flex items-center justify-center shrink-0">
+                {/* Option 1: Hotline */}
+                <a
+                  href="tel:0909163821"
+                  className="p-3 bg-gray-50 hover:bg-red-50/60 rounded-lg border border-gray-200 flex items-center gap-3.5 transition-all group cursor-pointer"
+                >
+                  <div className="w-10 h-10 bg-red-100 text-[#dc2626] rounded-full flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Phone className="w-4 h-4" />
                   </div>  
                   <div>
                     <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">
                       GỌI HOTLINE
                     </span>
-                    <strong className="text-sm font-black text-gray-900">
+                    <strong className="text-sm font-black text-gray-900 group-hover:text-[#dc2626] transition-colors">
                       (+84) 909 163 821
                     </strong>
                   </div>
-                </div>
+                </a>
 
                 {/* Option 2: Zalo */}
                 <a
-                  href="https://zalo.me"
+                  href="https://zalo.me/2871243904030074512"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3 bg-gray-50 hover:bg-blue-50/60 rounded-lg border border-gray-200 flex items-center gap-3.5 transition-all group cursor-pointer"
                 >
-                  <div className="w-10 h-10 bg-blue-100 text-[#0068ff] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-blue-100 text-[#0068ff] rounded-full flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <MessageCircle className="w-4 h-4" />
                   </div>
                   <div>
@@ -321,14 +324,14 @@ export default function CartContent() {
                   </div>
                 </a>
 
-                {/* Option 3: Messenger */}
+                {/* Option 3: Messenger / Facebook */}
                 <a
-                  href="https://messenger.com"
+                  href="https://www.facebook.com/dudi.websitechuyennghiep"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3 bg-gray-50 hover:bg-blue-50/60 rounded-lg border border-gray-200 flex items-center gap-3.5 transition-all group cursor-pointer"
                 >
-                  <div className="w-10 h-10 bg-indigo-100 text-[#0084ff] rounded-full flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 bg-indigo-100 text-[#0084ff] rounded-full flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <MessageSquare className="w-4 h-4" />
                   </div>
                   <div>

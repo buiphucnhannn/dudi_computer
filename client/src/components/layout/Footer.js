@@ -66,7 +66,7 @@ export default function Footer() {
                   </div>
                 </div>
                 <a
-                  href="https://facebook.com"
+                  href="https://www.facebook.com/dudi.websitechuyennghiep"
                   target="_blank"
                   rel="noreferrer"
                   className="w-max bg-[#f0f2f5] hover:bg-[#e4e6eb] text-[#050505] font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -86,10 +86,10 @@ export default function Footer() {
               DANH MỤC CŨ/ LIKE NEW
             </h4>
             <ul className="space-y-3 text-[13px] text-white/60 font-medium">
-              <li><Link href="/tat-ca-san-pham?category=pc-cu" className="hover:text-[#eb1c24] transition-colors">PC Cũ</Link></li>
-              <li><Link href="/tat-ca-san-pham?category=laptop-cu" className="hover:text-[#eb1c24] transition-colors">Laptop Cũ</Link></li>
+              <li><Link href="/tat-ca-san-pham?category=pc&condition=used" className="hover:text-[#eb1c24] transition-colors">PC Cũ</Link></li>
+              <li><Link href="/tat-ca-san-pham?category=laptop&condition=used" className="hover:text-[#eb1c24] transition-colors">Laptop Cũ</Link></li>
               <li><Link href="/tat-ca-san-pham?category=man-hinh" className="hover:text-[#eb1c24] transition-colors">Màn hình máy tính</Link></li>
-              <li><Link href="/tat-ca-san-pham" className="hover:text-[#eb1c24] transition-colors">Linh Kiện Cũ</Link></li>
+              <li><Link href="/tat-ca-san-pham?search=linh%20ki%E1%BB%87n&condition=used" className="hover:text-[#eb1c24] transition-colors">Linh Kiện Cũ</Link></li>
               <li><Link href="/test-man-hinh" className="hover:text-[#eb1c24] transition-colors">Công Cụ Test</Link></li>
             </ul>
           </div>
@@ -109,17 +109,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Cột 4: VỀ ZCOMPUTER */}
+          {/* Cột 4: VỀ DUDI SOFTWARE */}
           <div className="md:col-span-4 lg:col-span-2">
             <h4 className="font-black uppercase mb-5 text-[14px] text-white tracking-wider">
-              VỀ ZCOMPUTER
+              VỀ DUDI SOFTWARE
             </h4>
             <ul className="space-y-3 text-[13px] text-white/60 font-medium">
               <li><Link href="/lien-he" className="hover:text-[#eb1c24] transition-colors">Liên Hệ</Link></li>
               <li><Link href="/tin-tuc" className="hover:text-[#eb1c24] transition-colors">Tin Tức</Link></li>
               <li><Link href="/tuyen-dung" className="hover:text-[#eb1c24] transition-colors">Tuyển Dụng</Link></li>
               <li><Link href="/he-thong-cua-hang" className="hover:text-[#eb1c24] transition-colors">Hệ Thống Cửa Hàng</Link></li>
-              <li><Link href="/ve-chung-toi" className="hover:text-[#eb1c24] transition-colors">Giới Thiệu Về ZCOMPUTER</Link></li>
+              <li><Link href="/ve-chung-toi" className="hover:text-[#eb1c24] transition-colors">Giới Thiệu Về DUDI SOFTWARE</Link></li>
             </ul>
           </div>
 
@@ -184,7 +184,7 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* HỖ TRỢ TRẢ GÓP (Logo Ảnh Chính Hãng) */}
+            {/* HỖ TRỢ TRẢ GÓP (Styled Clean Logos) */}
             <div>
               <h4 className="font-black uppercase mb-4 text-[14px] text-white tracking-wider">
                 HỖ TRỢ TRẢ GÓP
@@ -192,32 +192,23 @@ export default function Footer() {
               <div className="grid grid-cols-3 gap-3 mb-4">
                 {/* HD SAISON */}
                 <div className="bg-white border border-gray-100 rounded-md flex items-center justify-center shadow-xs h-[42px] hover:shadow-md transition-all overflow-hidden p-1.5">
-                  <img
-                    src="https://zcomputer.vn/HD_SAISON_logo.jpg"
-                    alt="HD SAISON"
-                    className="w-full h-full object-contain"
-                    loading="lazy"
-                  />
+                  <span className="text-xs font-black tracking-tight">
+                    <span className="text-[#103E8A]">HD</span> <span className="text-[#E31E24]">SAISON</span>
+                  </span>
                 </div>
 
                 {/* MIRAE ASSET */}
                 <div className="bg-white border border-gray-100 rounded-md flex items-center justify-center shadow-xs h-[42px] hover:shadow-md transition-all overflow-hidden p-1.5">
-                  <img
-                    src="https://zcomputer.vn/Mirae-Asset-logo.png"
-                    alt="MIRAE ASSET"
-                    className="w-full h-full object-contain"
-                    loading="lazy"
-                  />
+                  <span className="text-[11px] font-black text-[#F37021] tracking-tight">
+                    MIRAE ASSET
+                  </span>
                 </div>
 
                 {/* Kredivo */}
                 <div className="bg-white border border-gray-100 rounded-md flex items-center justify-center shadow-xs h-[42px] hover:shadow-md transition-all overflow-hidden p-1.5">
-                  <img
-                    src="https://zcomputer.vn/Kredivo-logo.png"
-                    alt="Kredivo"
-                    className="w-full h-full object-contain"
-                    loading="lazy"
-                  />
+                  <span className="text-xs font-black text-[#FF6B00] tracking-tight">
+                    Kredivo
+                  </span>
                 </div>
               </div>
 
@@ -245,16 +236,19 @@ export default function Footer() {
       <div className="w-full bg-[#050608] border-t border-white/5 py-8 text-center text-xs text-white/50 space-y-2 relative z-20">
         <div className="container mx-auto px-4 space-y-2">
           <h5 className="font-black text-white text-sm uppercase tracking-wide">
-            CÔNG TY CỔ PHẦN CÔNG NGHỆ DUDI SOFTWARE
+            CÔNG TY TNHH GIẢI PHÁP PHẦN MỀM DUDI
           </h5>
           <p className="text-[12.5px] text-white/60">
-            <strong>Mã số GPKD:</strong> 0317130199 - Cấp bởi Sở Kế Hoạch và Đầu Tư TP. Hồ Chí Minh.
+            <strong>Mã số GPKD:</strong> 0319641544 - Cấp bởi Sở Kế Hoạch và Đầu Tư TP. Hồ Chí Minh.
           </p>
           <p className="text-[12.5px] text-white/60">
-            <strong>Địa chỉ Trụ Sở:</strong> 23 Đường số 1, Khu phố 61, Phường Linh Xuân, TP. Thủ Đức, TP.HCM.
+            <strong>Địa chỉ:</strong> 49/2 Đường 14, Phường Thủ Đức, TP.Hồ Chí Minh.
           </p>
           <p className="text-[12.5px] text-white/60">
-            <strong>Email:</strong> contact@dudisoftware.com | <strong>Hotline:</strong> (+84) 909 163 821
+            <strong>Email:</strong> <a href="mailto:contact@dudisoftware.com" className="hover:text-white transition-colors">contact@dudisoftware.com</a> | <strong>Hotline:</strong>{" "}
+            <a href="tel:0909163821" className="text-white hover:text-[#eb1c24] font-bold transition-colors">
+              (+84) 909 163 821
+            </a>
           </p>
           <div className="pt-3 text-[12px] text-white/40">
             © 2026 <strong>DUDI SOFTWARE</strong>. All rights reserved.
@@ -264,3 +258,4 @@ export default function Footer() {
     </footer>
   );
 }
+

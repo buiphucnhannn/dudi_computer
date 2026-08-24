@@ -9,9 +9,9 @@ import {
 
 const StoreSystem = ({
   thuDucImage = "/thuDucImage.webp",
-  binhThanhImage = "/binhthanhImage.webp",
-  thuDucMapUrl = "https://www.google.com/maps?ll=10.852127,106.753852&z=15&t=m&hl=vi&gl=US&mapclient=embed&cid=480909348043455982",
-  binhThanhMapUrl = "https://www.google.com/maps?ll=10.805765,106.707257&z=15&t=m&hl=vi&gl=US&mapclient=embed&cid=1627194541284691795",
+  binhThanhImage = "/binhThanhImage.webp",
+  thuDucMapUrl = "https://maps.google.com/?q=49/2+Đường+14+Phường+Thủ+Đức+TP+Hồ+Chí+Minh",
+  binhThanhMapUrl = "https://maps.google.com/?q=232+Đường+Nguyễn+Thị+Minh+Khai+Phường+Xuân+Hòa+TP+Hồ+Chí+Minh",
 }) => {
   return (
     <section className="w-full py-12 md:py-16">
@@ -180,8 +180,7 @@ const StoreSystem = ({
                   <strong className="text-white font-semibold">
                     Showroom 1:
                   </strong>{" "}
-                  23 Đường số 1, Khu phố 61, Phường Linh Xuân, TP. Thủ Đức,
-                  TP.HCM
+                  49/2 Đường 14, Phường Thủ Đức, TP.Hồ Chí Minh
                 </p>
               </div>
 
@@ -222,7 +221,7 @@ const StoreSystem = ({
                   <strong className="text-white font-semibold">
                     Showroom 2:
                   </strong>{" "}
-                  47/86B Bùi Đình Tuý, Phường 14, Q. Bình Thạnh, TP.HCM
+                  232 Đường Nguyễn Thị Minh Khai, Phường Xuân Hòa, TP.Hồ Chí Minh
                 </p>
               </div>
 
@@ -299,17 +298,21 @@ const StoreSystem = ({
 
                 <p className="text-body-lg text-gray-200">
                   Hotline Hỗ Trợ:
-                  <span
+                  <a
+                    href="tel:0909163821"
                     className="
                       text-[#dc2626]
+                      hover:text-white
                       font-bold
                       text-xl
                       ml-2
                       drop-shadow-[0_0_8px_rgba(220,38,38,0.25)]
+                      transition-colors
+                      cursor-pointer
                     "
                   >
                     (+84) 909 163 821
-                  </span>
+                  </a>
                 </p>
               </div>
 
@@ -514,7 +517,7 @@ const StoreSystem = ({
                 />
 
                 <span className="text-title-md font-bold text-white">
-                  Chi nhánh Bình Thạnh
+                  Chi nhánh Nguyễn Thị Minh Khai
                 </span>
               </div>
 

@@ -24,16 +24,16 @@ const ProductSpecifications = ({ product }) => {
         </h2>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[580px]">
+          <table className="w-full text-left border-collapse min-w-[620px]">
             <thead>
               <tr className="border-b-2 border-slate-100 bg-slate-50/80">
-                <th className="py-3.5 px-4 text-xs font-bold text-slate-700 uppercase tracking-wider w-1/3">
+                <th className="py-3.5 px-4 text-xs font-bold text-slate-700 uppercase tracking-wider w-[28%] sm:w-[25%] whitespace-nowrap">
                   Thuộc tính
                 </th>
-                <th className="py-3.5 px-4 text-xs font-bold text-slate-700 uppercase tracking-wider w-1/2">
+                <th className="py-3.5 px-4 text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Chi tiết cấu hình
                 </th>
-                <th className="py-3.5 px-4 text-xs font-bold text-slate-700 uppercase tracking-wider w-1/6 text-right">
+                <th className="py-3.5 px-4 text-xs font-bold text-slate-700 uppercase tracking-wider w-[140px] sm:w-[160px] text-right whitespace-nowrap">
                   Bảo hành
                 </th>
               </tr>
@@ -51,8 +51,8 @@ const ProductSpecifications = ({ product }) => {
                   <td className="py-3.5 px-4 text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
                     {item.detail}
                   </td>
-                  <td className="py-3.5 px-4 text-right text-xs font-mono font-bold text-[#eb1c24]">
-                    {item.warranty}
+                  <td className="py-3.5 px-4 text-right text-xs sm:text-[13px] font-bold text-[#eb1c24] whitespace-nowrap">
+                    {item.warranty ? String(item.warranty).replace(/^Bảo\s*hành\s*/i, "").trim() : "-"}
                   </td>
                 </tr>
               ))}

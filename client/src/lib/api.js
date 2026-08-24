@@ -1,9 +1,16 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+const getBaseUrl = () => {
+  // Trình duyệt (Client-side): Dùng relative path "/api/v1" để Next.js proxy nội bộ, hoạt động 100% trên cả localhost, IP mạng LAN và thiết bị điện thoại
+  if (typeof window !== "undefined") {
+    return process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+  }
+  // Server-side (SSR / Server Component): Gọi trực tiếp backend qua localhost:5000
+  return process.env.INTERNAL_API_URL || "http://localhost:5000/api/v1";
+};
 
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getBaseUrl(),
   headers: {
     "Content-Type": "application/json",
   },

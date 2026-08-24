@@ -51,15 +51,22 @@ const ReferralHero = () => {
             </p>
 
             <div className="mt-4 flex flex-col gap-4 sm:flex-row">
-              <button className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-sm bg-red-700 px-8 py-4 font-bold uppercase tracking-wider text-white transition hover:bg-red-800">
+              <a
+                href="https://zalo.me/2871243904030074512"
+                target="_blank"
+                rel="noreferrer"
+                className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-red-700 px-8 py-4 font-bold uppercase tracking-wider text-white transition hover:bg-red-800 shadow-md hover:shadow-lg cursor-pointer"
+              >
                 <span className="relative z-10">Liên Hệ Tư Vấn Ngay</span>
-
                 <ArrowRight className="relative z-10 h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </button>
+              </a>
 
-              <button className="rounded-sm border border-slate-300 px-8 py-4 font-bold uppercase tracking-wider text-slate-900 transition hover:border-red-700 hover:text-red-700">
+              <a
+                href="#the-le-nhan-qua"
+                className="flex items-center justify-center rounded-xl border border-slate-300 bg-white px-8 py-4 font-bold uppercase tracking-wider text-slate-800 transition hover:border-red-700 hover:text-red-700 shadow-2xs hover:bg-slate-50 cursor-pointer"
+              >
                 Xem Thể Lệ
-              </button>
+              </a>
             </div>
 
             {/* Users */}

@@ -111,6 +111,15 @@ export default function KeyboardTestContent() {
   const [touchpadActive, setTouchpadActive] = useState({ left: false, middle: false, right: false });
   const [touchpadPos, setTouchpadPos] = useState({ x: 50, y: 50, isHover: false });
 
+  // Trạng thái phát hiện và khóa khi bật Unikey / Bộ gõ tiếng Việt
+  const [unikeyDetected, setUnikeyDetected] = useState(false);
+  const lastNonBackspaceTime = useRef(0);
+  const unikeyDetectedRef = useRef(false);
+
+  useEffect(() => {
+    unikeyDetectedRef.current = unikeyDetected;
+  }, [unikeyDetected]);
+
   // Rolling calculation cho KPM
   const [kpm, setKpm] = useState(0);
   const keystrokeTimestamps = useRef([]);
@@ -148,24 +157,55 @@ export default function KeyboardTestContent() {
     } catch (_) {}
   }, [sfxEnabled]);
 
-  // Xử lý sự kiện bàn phím độc lập với Unikey
+  // Xử lý sự kiện bàn phím & Phát hiện Unikey / EVKey
   useEffect(() => {
+    const VIETNAMESE_ACCENT_REGEX = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]/i;
+
     const handleKeyDown = (e) => {
-      // Chặn các phím mặc định của trình duyệt để test mượt mà
-      const preventDefaultCodes = [
-        "Tab", "Backspace", "Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight",
-        "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12",
-        "AltLeft", "AltRight", "ContextMenu"
-      ];
-      if (preventDefaultCodes.includes(e.code) || e.key === "Tab") {
+      const now = Date.now();
+      const code = e.code;
+
+      // 0. PHÁT HIỆN BỘ GÕ TIẾNG VIỆT (UNIKEY / EVKEY / WINDOWS IME)
+      const isIMEComposition =
+        e.isComposing ||
+        e.keyCode === 229 ||
+        e.key === "Process" ||
+        (e.key && VIETNAMESE_ACCENT_REGEX.test(e.key));
+
+      // Phát hiện lệnh Backspace giả lập tự động từ Unikey (< 45ms sau phím chữ)
+      const isSyntheticBackspace =
+        code === "Backspace" &&
+        lastNonBackspaceTime.current > 0 &&
+        now - lastNonBackspaceTime.current < 45;
+
+      if (isIMEComposition || isSyntheticBackspace) {
+        setUnikeyDetected(true);
+        // Không ghi nhận phím này vào test để tránh loạn và đúp phím giả
+        e.preventDefault();
+        return;
+      }
+
+      // Nếu Unikey đang bị phát hiện -> Khóa hoàn toàn, không cho test
+      if (unikeyDetectedRef.current) {
+        e.preventDefault();
+        return;
+      }
+
+      // Cập nhật mốc thời gian của phím chữ/số thực tế
+      if (code && code !== "Backspace") {
+        lastNonBackspaceTime.current = now;
+      }
+
+      // Chặn các phím mặc định của trình duyệt để test mượt mà & tránh lọt ký tự vào ô tìm kiếm
+      const target = e.target;
+      const isInsideInput = target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA");
+      if (!isInsideInput) {
         e.preventDefault();
       }
 
-      const now = Date.now();
-      const code = e.code;
       if (!code) return;
 
-      // 1. Kiểm tra lỗi chattering (Khoảng cách nhả phím rồi ấn lại < 30ms)
+      // 1. Kiểm tra lỗi chattering (Khoảng cách nhả phím rồi ấn lại < 30ms cho phím vật lý thực)
       const lastRelease = lastKeyReleaseTimes.current[code];
       let isDouble = false;
       if (lastRelease && now - lastRelease < 30 && !e.repeat) {
@@ -209,6 +249,7 @@ export default function KeyboardTestContent() {
     };
 
     const handleKeyUp = (e) => {
+      if (unikeyDetectedRef.current) return;
       const now = Date.now();
       const code = e.code;
       if (code) {
@@ -221,12 +262,21 @@ export default function KeyboardTestContent() {
       });
     };
 
+    // Bắt sự kiện Composition IME toàn cầu
+    const handleCompositionStart = () => {
+      setUnikeyDetected(true);
+    };
+
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("compositionstart", handleCompositionStart);
+    window.addEventListener("compositionupdate", handleCompositionStart);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("compositionstart", handleCompositionStart);
+      window.removeEventListener("compositionupdate", handleCompositionStart);
     };
   }, [maxGhosting, playSwitchSound]);
 
@@ -245,15 +295,10 @@ export default function KeyboardTestContent() {
     return () => clearInterval(kpmInterval);
   }, []);
 
-  // Xử lý sự kiện Touchpad Clicks
-  const handleTouchpadAction = useCallback((type) => {
+  // Xử lý sự kiện Mouse Clicks cho 3 nút TRÁI - GIỮA - PHẢI
+  const handleMouseButtonDown = useCallback((type) => {
     playSwitchSound();
-    
     setTouchpadActive((prev) => ({ ...prev, [type]: true }));
-    setTimeout(() => {
-      setTouchpadActive((prev) => ({ ...prev, [type]: false }));
-    }, 180);
-
     setTouchpadTested((prev) => ({ ...prev, [type]: true }));
 
     const label = type === "left" ? "L-Click" : type === "middle" ? "M-Click" : "R-Click";
@@ -269,36 +314,49 @@ export default function KeyboardTestContent() {
     ]);
   }, [playSwitchSound]);
 
-  // Chặn context menu toàn trang + bắt mouse click toàn trang cho Touchpad
+  const handleMouseButtonUp = useCallback((type) => {
+    setTouchpadActive((prev) => ({ ...prev, [type]: false }));
+  }, []);
+
+  // Chặn context menu trình duyệt + Lắng nghe chuột toàn trang cho 3 nút TRÁI - GIỮA - PHẢI
   useEffect(() => {
-    // Chặn chuột phải trình duyệt trên toàn trang
     const preventContextMenu = (e) => {
       e.preventDefault();
     };
 
-    // Bắt tất cả mouse click trên toàn trang -> nhận diện cho Touchpad
     const handleGlobalMouseDown = (e) => {
-      // Bỏ qua nếu click vào link, button chức năng (SFX, LÀM MỚI, QUAY LẠI), input
+      // Bỏ qua nếu click vào link, button chức năng header/modal, input
       const target = e.target;
-      const isInteractive = target.closest('a, [data-no-touchpad], input, select, textarea');
-      if (isInteractive) return;
+      const isInteractive = target.closest('a, button, input, select, textarea, [data-no-touchpad]');
+      const isMouseBtn = target.closest('[data-mouse-test-btn]');
+      if (isInteractive && !isMouseBtn) return;
 
-      if (e.button === 0) handleTouchpadAction("left");
+      if (e.button === 0) handleMouseButtonDown("left");
       else if (e.button === 1) {
-        e.preventDefault(); // Ngăn auto-scroll của middle click
-        handleTouchpadAction("middle");
+        e.preventDefault();
+        handleMouseButtonDown("middle");
+      } else if (e.button === 2) {
+        e.preventDefault();
+        handleMouseButtonDown("right");
       }
-      else if (e.button === 2) handleTouchpadAction("right");
+    };
+
+    const handleGlobalMouseUp = (e) => {
+      if (e.button === 0) handleMouseButtonUp("left");
+      else if (e.button === 1) handleMouseButtonUp("middle");
+      else if (e.button === 2) handleMouseButtonUp("right");
     };
 
     document.addEventListener("contextmenu", preventContextMenu);
     document.addEventListener("mousedown", handleGlobalMouseDown);
+    document.addEventListener("mouseup", handleGlobalMouseUp);
 
     return () => {
       document.removeEventListener("contextmenu", preventContextMenu);
       document.removeEventListener("mousedown", handleGlobalMouseDown);
+      document.removeEventListener("mouseup", handleGlobalMouseUp);
     };
-  }, [handleTouchpadAction]);
+  }, [handleMouseButtonDown, handleMouseButtonUp]);
 
   // Xử lý di chuyển chuột trên Touchpad
   const handleTouchpadMouseMove = (e) => {
@@ -306,6 +364,15 @@ export default function KeyboardTestContent() {
     const x = Math.max(0, Math.min(100, Math.round(((e.clientX - rect.left) / rect.width) * 100)));
     const y = Math.max(0, Math.min(100, Math.round(((e.clientY - rect.top) / rect.height) * 100)));
     setTouchpadPos({ x, y, isHover: true });
+  };
+
+  // Hàm đóng cảnh báo Unikey và cho phép test tiếp
+  const handleDismissUnikey = () => {
+    setUnikeyDetected(false);
+    unikeyDetectedRef.current = false;
+    setDoublePressCount(0);
+    setDoubleKeys(new Set());
+    setActiveKeys(new Set());
   };
 
   // Hàm Reset làm mới toàn bộ
@@ -317,8 +384,11 @@ export default function KeyboardTestContent() {
     setMaxGhosting(0);
     setDoublePressCount(0);
     setKpm(0);
+    setUnikeyDetected(false);
+    unikeyDetectedRef.current = false;
     keystrokeTimestamps.current = [];
     lastKeyReleaseTimes.current = {};
+    lastNonBackspaceTime.current = 0;
     setTouchpadTested({ left: false, middle: false, right: false });
     setTouchpadActive({ left: false, middle: false, right: false });
     setTouchpadPos({ x: 50, y: 50, isHover: false });
@@ -365,8 +435,55 @@ export default function KeyboardTestContent() {
   );
 
   return (
-    <div className="bg-[#0b0e14] text-white min-h-[calc(100vh-140px)] py-5 sm:py-7 px-3 sm:px-6 lg:px-10 select-none font-sans" onContextMenu={(e) => e.preventDefault()}>
+    <div className="bg-[#0b0e14] text-white min-h-[calc(100vh-140px)] py-5 sm:py-7 px-3 sm:px-6 lg:px-10 select-none font-sans relative" onContextMenu={(e) => e.preventDefault()}>
+      {/* Modal Cảnh báo & Khóa khi bật bộ gõ tiếng Việt */}
+      {unikeyDetected && (
+        <div className="fixed inset-0 z-[999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#121620] border-2 border-red-600 rounded-2xl p-6 sm:p-7 max-w-md w-full shadow-[0_0_40px_rgba(235,28,36,0.35)] text-white text-center relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Warning Icon Badge */}
+            <div className="w-14 h-14 rounded-2xl bg-red-600/20 border border-red-500/40 text-[#eb1c24] flex items-center justify-center mx-auto mb-4 shadow-[0_0_15px_rgba(235,28,36,0.25)]">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+
+            <h2 className="text-lg sm:text-xl font-black uppercase text-white tracking-tight mb-2">
+              Vui lòng tắt bộ gõ tiếng Việt
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-300 mb-6 leading-relaxed">
+              Vui lòng tắt bộ gõ tiếng Việt hoặc chuyển sang chế độ Tiếng Anh (<strong>[ E ]</strong>) để kiểm tra bàn phím chính xác.
+            </p>
+
+            {/* Button Action */}
+            <button
+              onClick={handleDismissUnikey}
+              data-no-touchpad
+              className="w-full py-3 px-5 bg-[#eb1c24] hover:bg-red-600 text-white font-black text-sm rounded-xl shadow-lg shadow-red-600/30 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer uppercase tracking-wide"
+            >
+              ĐÃ KHẮC PHỤC - TIẾP TỤC TEST
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-[1540px] mx-auto">
+        {/* Banner cảnh báo phía trên */}
+        {unikeyDetected && (
+          <div className="mb-5 bg-red-950/80 border border-red-600 rounded-xl p-3.5 sm:p-4 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />
+              <p className="text-xs sm:text-sm text-gray-200 font-medium">
+                Vui lòng tắt bộ gõ tiếng Việt (hoặc chuyển sang Tiếng Anh) để tiếp tục kiểm tra bàn phím.
+              </p>
+            </div>
+            <button
+              onClick={handleDismissUnikey}
+              data-no-touchpad
+              className="px-4 py-1.5 bg-white hover:bg-gray-100 text-red-900 font-bold text-xs rounded-lg transition-all shadow-xs shrink-0 cursor-pointer active:scale-95"
+            >
+              ĐÃ KHẮC PHỤC - TIẾP TỤC TEST
+            </button>
+          </div>
+        )}
+
         {/* Top Control Bar */}
         <div className="flex items-center justify-between gap-4 mb-5">
           <Link
@@ -641,17 +758,17 @@ export default function KeyboardTestContent() {
             {/* Khu Vực Touchpad Hiển Thị Trạng Thái */}
             <div className="pt-3 border-t border-gray-800/60 flex flex-col items-center justify-center mt-2">
               <div className="w-full max-w-[360px] flex flex-col items-center">
-                {/* Vùng cảm ứng Touchpad - hiển thị tracking dot khi di chuột */}
+                {/* Vùng cảm ứng Touchpad */}
                 <div
                   onMouseMove={handleTouchpadMouseMove}
                   onMouseLeave={() => setTouchpadPos((p) => ({ ...p, isHover: false }))}
                   className={`w-full h-22 border rounded-t-2xl flex items-center justify-center cursor-crosshair transition-all duration-150 select-none relative overflow-hidden group ${
-                    touchpadActive.left || touchpadActive.middle || touchpadActive.right
+                    touchpadActive.middle
                       ? "bg-[#eb1c24]/25 border-[#eb1c24]"
-                      : "bg-[#141a24] hover:bg-[#18202d] border-gray-800"
+                      : "bg-[#141a24] hover:bg-[#18202d] text-gray-400 border-gray-800"
                   }`}
                 >
-                  {/* Tracking Dot */}
+                  {/* Tracking Dot khi rê chuột */}
                   {touchpadPos.isHover && (
                     <div
                       className="absolute w-3.5 h-3.5 rounded-full bg-[#eb1c24] pointer-events-none transform -translate-x-1/2 -translate-y-1/2 shadow-[0_0_8px_#eb1c24] transition-transform duration-75"
@@ -663,36 +780,39 @@ export default function KeyboardTestContent() {
                   </span>
                 </div>
 
-                {/* 3 Nút Hiển Thị Trạng Thái: TRÁI - GIỮA - PHẢI */}
+                {/* 3 Nút Hiển Thị Trạng Thái Chuột: TRÁI - GIỮA - PHẢI */}
                 <div className="grid grid-cols-3 gap-1.5 w-full pt-1.5">
                   <div
-                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none ${
+                    data-mouse-test-btn
+                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none cursor-default ${
                       touchpadActive.left
-                        ? "bg-[#eb1c24] text-white border-[#eb1c24] scale-95"
+                        ? "bg-[#eb1c24] text-white border-[#eb1c24] scale-95 shadow-[0_0_10px_rgba(235,28,36,0.5)]"
                         : touchpadTested.left
-                        ? "bg-white text-gray-900 border-white shadow-sm"
+                        ? "bg-white text-gray-900 border-white shadow-sm font-black"
                         : "bg-[#161c26] text-gray-300 border-[#222b3a]"
                     }`}
                   >
                     TRÁI
                   </div>
                   <div
-                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none ${
+                    data-mouse-test-btn
+                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none cursor-default ${
                       touchpadActive.middle
-                        ? "bg-[#eb1c24] text-white border-[#eb1c24] scale-95"
+                        ? "bg-[#eb1c24] text-white border-[#eb1c24] scale-95 shadow-[0_0_10px_rgba(235,28,36,0.5)]"
                         : touchpadTested.middle
-                        ? "bg-white text-gray-900 border-white shadow-sm"
+                        ? "bg-white text-gray-900 border-white shadow-sm font-black"
                         : "bg-[#161c26] text-gray-300 border-[#222b3a]"
                     }`}
                   >
                     GIỮA
                   </div>
                   <div
-                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none ${
+                    data-mouse-test-btn
+                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none cursor-default ${
                       touchpadActive.right
-                        ? "bg-[#eb1c24] text-white border-[#eb1c24] scale-95"
+                        ? "bg-[#eb1c24] text-white border-[#eb1c24] scale-95 shadow-[0_0_10px_rgba(235,28,36,0.5)]"
                         : touchpadTested.right
-                        ? "bg-white text-gray-900 border-white shadow-sm"
+                        ? "bg-white text-gray-900 border-white shadow-sm font-black"
                         : "bg-[#161c26] text-gray-300 border-[#222b3a]"
                     }`}
                   >

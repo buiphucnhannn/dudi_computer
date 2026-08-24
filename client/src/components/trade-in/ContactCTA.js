@@ -51,7 +51,7 @@ export default function ContactCTA() {
 
           {/* Zalo */}
           <a
-            href="https://zalo.me/0909163821"
+            href="https://zalo.me/2871243904030074512"
             target="_blank"
             rel="noreferrer"
             className="flex w-full items-center justify-center gap-3 rounded-lg bg-[#0068FF] px-8 py-5 text-white transition-colors hover:bg-[#0052cc] sm:w-auto"

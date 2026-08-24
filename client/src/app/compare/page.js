@@ -39,26 +39,6 @@ const getOriginalPrice = (product) => {
 };
 
 // =====================================================
-// SPECIFICATION ROWS DEFINITION
-// =====================================================
-
-const SPEC_ROWS = [
-  { label: "Danh mục", key: "category" },
-  { label: "Thương hiệu", key: "brand" },
-  { label: "Bộ vi xử lý (CPU)", key: "cpu" },
-  { label: "RAM (Bộ nhớ trong)", key: "ram" },
-  { label: "Ổ cứng (SSD / HDD)", key: "ssd" },
-  { label: "Card đồ họa (VGA)", key: "vga" },
-  { label: "Bo mạch chủ (Mainboard)", key: "mainboard" },
-  { label: "Nguồn (PSU)", key: "psu" },
-  { label: "Tản nhiệt (Cooling)", key: "cooler" },
-  { label: "Vỏ Case / Thiết kế", key: "caseBox" },
-  { label: "Màn hình hiển thị", key: "display" },
-  { label: "Chế độ bảo hành", key: "warranty" },
-  { label: "Tình trạng hàng", key: "status" },
-];
-
-// =====================================================
 // COMPARE CONTENT COMPONENT
 // =====================================================
 
@@ -201,6 +181,69 @@ function CompareContent() {
     router.push(`/product-detail?slug=${encodeURIComponent(id)}`);
   };
 
+  // Tính toán bảng thông số linh hoạt theo từng danh mục đối chiếu (Tích hợp Dynamic Spec Parser)
+  const dynamicSpecRows = useMemo(() => {
+    if (!products || products.length === 0) return [];
+
+    const parsedList = products.map((p) => ({
+      raw: p,
+      parsed: parseProductSpecs(p),
+    }));
+
+    const rowMap = new Map();
+
+    // Thông tin cơ bản ban đầu
+    rowMap.set("Danh mục", (p) => p.raw.categoryName || p.raw.category?.name || p.parsed.category || "-");
+    rowMap.set("Thương hiệu", (p) => p.raw.brand || p.parsed.brand || "Chính hãng");
+
+    // Thu thập tất cả các trường cấu hình đặc thù từ mảng items của từng sản phẩm
+    parsedList.forEach(({ parsed }) => {
+      if (parsed.items && Array.isArray(parsed.items)) {
+        parsed.items.forEach((it) => {
+          if (
+            it.name &&
+            it.name !== "Thương hiệu" &&
+            it.name !== "Danh mục" &&
+            it.name !== "Chế độ bảo hành" &&
+            it.name !== "Tình trạng"
+          ) {
+            if (!rowMap.has(it.name)) {
+              rowMap.set(it.name, (p) => {
+                const match = p.parsed.items?.find((item) => item.name === it.name);
+                if (match && match.detail && match.detail !== "-") return match.detail;
+                return "-";
+              });
+            }
+          }
+        });
+      }
+    });
+
+    // Thông tin tình trạng và bảo hành ở cuối
+    rowMap.set("Tình trạng", (p) =>
+      p.raw.status === "out_of_stock" ? "Hết hàng" : "Còn hàng (Chính hãng / Like New)"
+    );
+    rowMap.set("Chế độ bảo hành", (p) => {
+      const w = p.raw.warranty || p.parsed.warranty;
+      return w ? String(w).replace(/^Bảo\s*hành\s*/i, "BH ") : "BH 3 - 12 Tháng";
+    });
+
+    // Chuyển sang danh sách và loại bỏ các dòng mà tất cả sản phẩm đều không có dữ liệu (-)
+    const rows = [];
+    for (const [label, getValue] of rowMap.entries()) {
+      const values = parsedList.map(getValue);
+      const hasValidValue = values.some((v) => v && v !== "-" && v !== "---");
+      if (hasValidValue) {
+        rows.push({
+          label,
+          getValue,
+        });
+      }
+    }
+
+    return rows;
+  }, [products]);
+
   // MÀN HÌNH TRỐNG KHI CHƯA CÓ SẢN PHẨM NÀO
   if (!loading && products.length === 0) {
     return (
@@ -274,7 +317,7 @@ function CompareContent() {
               <button
                 type="button"
                 onClick={handleAddProduct}
-                className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-red-700"
+                className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-red-700 cursor-pointer"
               >
                 <Plus size={15} />
                 Thêm sản phẩm
@@ -283,7 +326,7 @@ function CompareContent() {
             <button
               type="button"
               onClick={handleClearAll}
-              className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:text-red-600 hover:border-red-300"
+              className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:text-red-600 hover:border-red-300 cursor-pointer"
             >
               <Trash2 size={15} />
               Xóa tất cả
@@ -300,16 +343,105 @@ function CompareContent() {
 
         {/* PRODUCT CARDS TOP ROW */}
         {!loading && (
-          <div className="w-full overflow-x-auto pb-4">
-            <div className="grid min-w-[900px] grid-cols-4 gap-4">
-              {/* LABEL COLUMN HEADER */}
-              <div className="flex flex-col justify-end p-4 rounded-xl bg-slate-100/70 border border-slate-200">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-700">
-                  Sản phẩm so sánh
-                </span>
-                <span className="text-[11px] text-slate-500 mt-1">
-                  Hiển thị tối đa 3 cấu hình cùng lúc
-                </span>
+          <div className="w-full overflow-x-auto pb-4 scrollbar-thin">
+            {/* Mobile Scroll Hint */}
+            <div className="flex items-center justify-between md:hidden mb-2 text-[11px] text-slate-500 font-medium px-1">
+              <span className="flex items-center gap-1 text-red-600 font-bold">
+                👉 Vuốt ngang để xem chi tiết
+              </span>
+              <span>{products.length}/3 sản phẩm</span>
+            </div>
+
+            <div
+              className="grid gap-3 sm:gap-4"
+              style={{
+                minWidth: `${160 + products.length * 220 + (products.length < 3 ? 190 : 0)}px`,
+                gridTemplateColumns: `minmax(160px, 200px) ${products.map(() => "minmax(210px, 1fr)").join(" ")} ${
+                  products.length < 3 ? "minmax(180px, 1fr)" : ""
+                }`,
+              }}
+            >
+              {/* LABEL COLUMN HEADER - Friendly & Informative Control Card (Sticky on left on mobile) */}
+              <div className="sticky left-0 z-20 flex min-h-[380px] sm:min-h-[420px] flex-col justify-between rounded-xl sm:rounded-2xl border border-slate-200/90 bg-gradient-to-b from-white via-slate-50/95 to-slate-100/95 p-4 sm:p-6 shadow-md overflow-hidden backdrop-blur-md">
+                {/* Ambient Background Accent */}
+                <div className="absolute -top-12 -right-12 w-32 h-32 bg-red-500/10 rounded-full blur-2xl pointer-events-none" />
+
+                {/* Top Section */}
+                <div>
+                  <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 rounded-full bg-red-50 text-[#eb1c24] border border-red-100 mb-2.5 sm:mb-3.5 shadow-2xs">
+                    <Scale className="w-3.5 h-3.5" />
+                    <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
+                      Đối chiếu
+                    </span>
+                  </div>
+
+                  <h2 className="text-sm sm:text-lg font-black uppercase tracking-tight text-slate-900 leading-snug">
+                    Sản phẩm so sánh
+                  </h2>
+
+                  <p className="mt-1 text-[11px] sm:text-xs text-slate-500 leading-relaxed font-medium">
+                    Đối chiếu chi tiết tối đa <strong className="text-slate-800 font-bold">3 cấu hình</strong> cùng lúc.
+                  </p>
+
+                  {/* Slot Progress Card */}
+                  <div className="mt-3 sm:mt-4 rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3.5 shadow-2xs space-y-2">
+                    <div className="flex items-center justify-between text-[11px] sm:text-xs">
+                      <span className="text-slate-600 font-bold">Trạng thái:</span>
+                      <span className="font-extrabold text-[#eb1c24] bg-red-50 border border-red-200 px-1.5 sm:px-2 py-0.5 rounded-md text-[10px] sm:text-[11px]">
+                        {products.length} / 3 máy
+                      </span>
+                    </div>
+
+                    {/* 3 Progress Bars */}
+                    <div className="grid grid-cols-3 gap-1 pt-0.5">
+                      {[0, 1, 2].map((slotIdx) => (
+                        <div
+                          key={slotIdx}
+                          className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
+                            slotIdx < products.length
+                              ? "bg-[#eb1c24] shadow-[0_0_8px_rgba(235,28,36,0.4)]"
+                              : "bg-slate-200"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Middle Features Checklist */}
+                <div className="my-2 sm:my-3 space-y-1.5 sm:space-y-2 text-[10.5px] sm:text-[11.5px] text-slate-600 font-medium">
+                  <div className="flex items-center gap-1.5">
+                    <span className="flex h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 text-[9px] sm:text-[10px] font-bold">
+                      ✓
+                    </span>
+                    <span className="truncate">CPU, RAM, VGA, Màn hình</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="flex h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 text-[9px] sm:text-[10px] font-bold">
+                      ✓
+                    </span>
+                    <span className="truncate">Giá bán & Bảo hành</span>
+                  </div>
+                </div>
+
+                {/* Bottom Action */}
+                <div>
+                  {products.length < 3 ? (
+                    <button
+                      type="button"
+                      onClick={handleAddProduct}
+                      className="w-full flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[11px] sm:text-xs font-bold uppercase transition shadow-xs hover:shadow-md cursor-pointer active:scale-95"
+                    >
+                      <Plus size={14} />
+                      <span>Thêm (+{3 - products.length})</span>
+                    </button>
+                  ) : (
+                    <div className="py-2 px-2 bg-emerald-50 border border-emerald-200 rounded-xl text-center text-[11px] sm:text-xs font-bold text-emerald-700 flex items-center justify-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>Đủ 3 máy</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* PRODUCTS COLUMNS */}
@@ -320,20 +452,20 @@ function CompareContent() {
                 return (
                   <div
                     key={id}
-                    className="group relative flex min-h-[420px] flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-red-500 hover:shadow-md"
+                    className="group relative flex min-h-[380px] sm:min-h-[420px] flex-col rounded-xl sm:rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-5 shadow-sm transition hover:border-red-500 hover:shadow-md"
                   >
                     {/* REMOVE BUTTON */}
                     <button
                       type="button"
                       onClick={() => handleRemoveProduct(id)}
-                      className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-red-600 hover:text-white"
+                      className="absolute right-2.5 top-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-red-600 hover:text-white cursor-pointer"
                       title="Xóa khỏi so sánh"
                     >
                       <X size={14} />
                     </button>
 
                     {/* PRODUCT IMAGE */}
-                    <div className="mb-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg bg-white p-2">
+                    <div className="mb-3 sm:mb-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-white p-2">
                       <img
                         src={image}
                         alt={getProductName(product)}
@@ -342,14 +474,14 @@ function CompareContent() {
                     </div>
 
                     {/* WARRANTY BADGE */}
-                    <div className="text-[10.5px] text-green-600 mb-1.5 flex items-center gap-1 font-semibold">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>{product.warranty || "Bảo hành chính hãng"}</span>
+                    <div className="text-[10px] sm:text-[10.5px] text-green-600 mb-1 flex items-center gap-1 font-semibold truncate">
+                      <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">{product.warranty ? String(product.warranty).replace(/^Bảo\s*hành\s*/i, "BH ") : "BH chính hãng"}</span>
                     </div>
 
                     {/* PRODUCT NAME */}
                     <h3
-                      className="mb-2 line-clamp-2 min-h-[44px] text-[13px] sm:text-sm font-bold text-slate-900 group-hover:text-red-600 transition-colors leading-snug cursor-pointer"
+                      className="mb-2 line-clamp-2 min-h-[36px] sm:min-h-[44px] text-xs sm:text-sm font-bold text-slate-900 group-hover:text-red-600 transition-colors leading-snug cursor-pointer"
                       onClick={() => handleBuy(product)}
                       title={getProductName(product)}
                     >
@@ -357,12 +489,12 @@ function CompareContent() {
                     </h3>
 
                     {/* PRICE */}
-                    <div className="mb-4 flex items-baseline gap-2">
-                      <span className="text-lg font-black text-red-600">
+                    <div className="mb-3 sm:mb-4 flex flex-wrap items-baseline gap-1.5 sm:gap-2">
+                      <span className="text-base sm:text-lg font-black text-red-600">
                         {getPrice(product)}
                       </span>
                       {getOriginalPrice(product) && (
-                        <span className="text-xs text-slate-400 line-through">
+                        <span className="text-[11px] sm:text-xs text-slate-400 line-through">
                           {getOriginalPrice(product)}
                         </span>
                       )}
@@ -372,10 +504,10 @@ function CompareContent() {
                     <button
                       type="button"
                       onClick={() => handleBuy(product)}
-                      className="mt-auto flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-red-600 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-red-700"
+                      className="mt-auto flex h-9 sm:h-10 w-full items-center justify-center gap-1.5 sm:gap-2 rounded-xl bg-red-600 text-[11px] sm:text-xs font-bold uppercase text-white shadow-sm transition hover:bg-red-700 cursor-pointer"
                     >
-                      <ShoppingCart size={15} />
-                      Xem chi tiết & Mua
+                      <ShoppingCart size={14} />
+                      <span>Chi tiết & Mua</span>
                     </button>
                   </div>
                 );
@@ -386,66 +518,81 @@ function CompareContent() {
                 <button
                   type="button"
                   onClick={handleAddProduct}
-                  className="flex min-h-[420px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-white/70 p-6 transition hover:border-red-500 hover:bg-red-50/20 cursor-pointer"
+                  className="group flex min-h-[380px] sm:min-h-[420px] flex-col items-center justify-center rounded-xl sm:rounded-2xl border-2 border-dashed border-slate-300 bg-white/80 p-4 sm:p-6 transition-all duration-300 hover:border-red-500 hover:bg-red-50/30 hover:shadow-md cursor-pointer"
                 >
-                  <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600 shadow-sm group-hover:scale-110 transition-transform">
-                    <Plus size={28} />
+                  <span className="mb-3 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-red-50 text-red-600 border border-red-100 shadow-sm group-hover:scale-110 group-hover:bg-[#eb1c24] group-hover:text-white transition-all duration-300">
+                    <Plus size={26} strokeWidth={2.5} />
                   </span>
-                  <span className="text-xs font-extrabold uppercase text-slate-700">
+                  <span className="text-xs font-extrabold uppercase text-slate-800 group-hover:text-red-600 transition-colors">
                     Thêm thiết bị
                   </span>
-                  <span className="text-[11px] text-slate-400 mt-1">
-                    Chọn thiết bị khác để đối chiếu
+                  <span className="text-[10px] sm:text-[11px] text-slate-500 mt-1 text-center font-medium">
+                    Nhấn để chọn cấu hình tiếp theo ({3 - products.length} vị trí còn trống)
                   </span>
                 </button>
               )}
             </div>
 
             {/* =================================================
-                SPECIFICATION COMPARISON TABLE
+                SPECIFICATION COMPARISON TABLE (DYNAMIC ADAPTIVE)
             ================================================= */}
-            <div className="mt-8 min-w-[900px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <div className="bg-slate-900 text-white px-5 py-3.5 font-bold uppercase text-xs tracking-wider flex items-center gap-2">
-                <Scale size={16} />
+            <div
+              className="mt-6 sm:mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+              style={{
+                minWidth: `${160 + products.length * 220 + (products.length < 3 ? 190 : 0)}px`,
+              }}
+            >
+              <div className="bg-slate-900 text-white px-4 sm:px-5 py-3 font-bold uppercase text-[11px] sm:text-xs tracking-wider flex items-center gap-2 sticky left-0 z-20">
+                <Scale size={15} />
                 <span>Bảng đối chiếu thông số phần cứng chi tiết</span>
               </div>
 
-              {SPEC_ROWS.map((row, index) => (
+              {dynamicSpecRows.map((row, index) => (
                 <div
                   key={row.label}
-                  className={`grid grid-cols-4 transition hover:bg-slate-50/80 ${
-                    index !== SPEC_ROWS.length - 1 ? "border-b border-slate-150" : ""
+                  className={`grid transition hover:bg-slate-50/80 ${
+                    index !== dynamicSpecRows.length - 1 ? "border-b border-slate-150" : ""
                   }`}
+                  style={{
+                    gridTemplateColumns: `minmax(160px, 200px) ${products.map(() => "minmax(210px, 1fr)").join(" ")} ${
+                      products.length < 3 ? "minmax(180px, 1fr)" : ""
+                    }`,
+                  }}
                 >
-                  {/* LABEL */}
-                  <div className="flex items-center bg-slate-50/90 p-4 text-xs font-bold text-slate-800 border-r border-slate-200">
+                  {/* STICKY LABEL COLUMN */}
+                  <div className="sticky left-0 z-10 flex items-center bg-slate-100/95 backdrop-blur-sm p-3 sm:p-4 text-[11.5px] sm:text-xs font-bold text-slate-800 border-r border-slate-200 shadow-[2px_0_6px_rgba(0,0,0,0.03)]">
                     {row.label}
                   </div>
 
                   {/* PRODUCT VALUE COLUMNS */}
                   {products.map((product) => {
-                    const specs = parseProductSpecs(product);
-                    const value = specs[row.key] || "Theo cấu hình chuẩn";
+                    const parsed = parseProductSpecs(product);
+                    const value = row.getValue({ raw: product, parsed });
 
                     return (
                       <div
-                        key={`${getProductId(product)}-${row.key}`}
-                        className="flex min-h-[56px] items-center border-r last:border-r-0 border-slate-200 p-4 text-xs font-medium leading-relaxed text-slate-700"
+                        key={`${getProductId(product)}-${row.label}`}
+                        className="flex min-h-[48px] sm:min-h-[56px] items-center border-r last:border-r-0 border-slate-200 p-3 sm:p-4 text-[11.5px] sm:text-xs font-medium leading-relaxed text-slate-700 break-words"
                       >
-                        {value}
+                        {value === "-" ? (
+                          <span className="text-slate-400 italic">Không áp dụng</span>
+                        ) : row.label === "Chế độ bảo hành" ? (
+                          <span className="font-bold text-[#eb1c24] bg-red-50 px-2 py-0.5 rounded border border-red-100">
+                            {value}
+                          </span>
+                        ) : (
+                          value
+                        )}
                       </div>
                     );
                   })}
 
                   {/* EMPTY FILLER COLUMNS */}
-                  {Array.from({ length: 3 - products.length }).map((_, emptyIndex) => (
-                    <div
-                      key={`empty-${row.label}-${emptyIndex}`}
-                      className="flex min-h-[56px] items-center justify-center border-r last:border-r-0 border-slate-200 bg-slate-50/30 p-4"
-                    >
+                  {products.length < 3 && (
+                    <div className="flex min-h-[48px] sm:min-h-[56px] items-center justify-center border-r last:border-r-0 border-slate-200 bg-slate-50/30 p-3 sm:p-4">
                       <span className="text-xs italic text-slate-400">---</span>
                     </div>
-                  ))}
+                  )}
                 </div>
               ))}
             </div>

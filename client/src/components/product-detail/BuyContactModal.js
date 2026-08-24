@@ -61,8 +61,10 @@ const BuyContactModal = ({ isOpen, onClose }) => {
 
             {/* Zalo */}
             <a
-              href="#"
-              className="group flex items-center gap-4 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100"
+              href="https://zalo.me/2871243904030074512"
+              target="_blank"
+              rel="noreferrer"
+              className="group flex items-center gap-4 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 cursor-pointer"
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100">
                 <MessageCircle className="h-6 w-6 text-blue-600" />
@@ -79,10 +81,12 @@ const BuyContactModal = ({ isOpen, onClose }) => {
               </div>
             </a>
 
-            {/* Messenger */}
+            {/* Messenger / Facebook */}
             <a
-              href="#"
-              className="group flex items-center gap-4 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100"
+              href="https://www.facebook.com/dudi.websitechuyennghiep"
+              target="_blank"
+              rel="noreferrer"
+              className="group flex items-center gap-4 rounded-xl bg-gray-50 p-4 transition-colors hover:bg-gray-100 cursor-pointer"
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100">
                 <MessageCircle className="h-6 w-6 text-blue-600" />

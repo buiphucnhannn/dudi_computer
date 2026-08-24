@@ -5,8 +5,8 @@ import { X, Filter, RotateCcw, Check } from "lucide-react";
 import FilterGroup from "./FilterGroup";
 
 const categories = [
-  { label: "Laptop Cũ", value: "laptop-cu" },
-  { label: "PC Cũ", value: "pc-cu" },
+  { label: "Laptop", value: "laptop" },
+  { label: "PC", value: "pc" },
   { label: "Màn hình máy tính", value: "man-hinh" },
   { label: "Mainboard - Bo mạch chủ", value: "mainboard-bo-mach-chu" },
   { label: "PSU - Nguồn máy tính", value: "psu-nguon-may-tinh" },
@@ -18,6 +18,11 @@ const categories = [
   { label: "Chuột", value: "chuot" },
   { label: "Bàn phím", value: "ban-phim" },
   { label: "Tản nhiệt Cooling", value: "tan-nhiet-cooling" },
+];
+
+const conditions = [
+  { label: "Mới 100%", value: "new" },
+  { label: "Cũ (Like New)", value: "used" },
 ];
 
 const brands = [
@@ -51,6 +56,13 @@ export default function ProductSidebar({
       document.body.style.overflow = "";
     };
   }, [isMobileOpen]);
+
+  const handleConditionChange = (condition) => {
+    onFilterChange({
+      ...filters,
+      condition: filters.condition === condition ? "" : condition,
+    });
+  };
 
   const handleCategoryChange = (category) => {
     onFilterChange({
@@ -87,6 +99,14 @@ export default function ProductSidebar({
 
   const filterContent = (
     <div className="space-y-4">
+      <FilterGroup
+        title="Tình trạng"
+        items={conditions}
+        selected={filters.condition || ""}
+        type="single"
+        onChange={handleConditionChange}
+      />
+
       <FilterGroup
         title="Danh mục"
         items={categories}

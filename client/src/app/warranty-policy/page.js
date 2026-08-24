@@ -7,9 +7,9 @@ export const metadata = {
 
 export default function WarrantyPolicyPage() {
   return (
-    <div className="bg-[#f8f9fa] min-h-screen pb-20">
+    <div className="bg-[#f8f9fa] min-h-screen pb-28 sm:pb-20">
       {/* 1. Hero Dark Banner */}
-      <div className="bg-[#111111] py-14 sm:py-16 relative overflow-hidden">
+      <div className="bg-[#111111] py-10 sm:py-16 relative overflow-hidden">
         {/* Glow Effects: Hào quang đỏ rực rỡ góc phải */}
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
         <div className="absolute -top-12 -right-12 w-[420px] h-[420px] bg-[#eb1c24] rounded-full blur-[110px] opacity-90 pointer-events-none"></div>
@@ -17,13 +17,13 @@ export default function WarrantyPolicyPage() {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-5 sm:mb-6 shadow-inner border border-white/10">
-              <ShieldCheck className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+            <div className="w-14 h-14 sm:w-20 sm:h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-inner border border-white/10">
+              <ShieldCheck className="w-7 h-7 sm:w-10 sm:h-10 text-white" />
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-3 sm:mb-4">
+            <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-2 sm:mb-4">
               QUY ĐỊNH BẢO HÀNH TẠI <span className="text-[#eb1c24]">DUDI SOFTWARE</span>
             </h1>
-            <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-medium">
+            <p className="text-gray-400 text-xs sm:text-base md:text-lg max-w-2xl mx-auto font-medium">
               Đảm bảo quyền lợi tối đa cho khách hàng khi mua sắm tại DUDI SOFTWARE.
             </p>
           </div>
@@ -31,9 +31,9 @@ export default function WarrantyPolicyPage() {
       </div>
 
       {/* 2. Main Content Card */}
-      <div className="container mx-auto px-4 -mt-8 relative z-20">
+      <div className="container mx-auto px-3 sm:px-4 -mt-6 sm:-mt-8 relative z-20">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 max-w-5xl mx-auto overflow-hidden">
-          <div className="p-6 sm:p-8 md:p-12 space-y-10 sm:space-y-12">
+          <div className="p-4 sm:p-8 md:p-12 space-y-8 sm:space-y-12">
             
             {/* Section I: THỜI GIAN VÀ PHẠM VI BẢO HÀNH */}
             <section>
@@ -45,30 +45,30 @@ export default function WarrantyPolicyPage() {
                   I. THỜI GIAN VÀ PHẠM VI BẢO HÀNH
                 </h2>
               </div>
-              <ul className="space-y-4 text-gray-600 sm:ml-[52px] text-sm sm:text-[15px] leading-relaxed">
+              <ul className="space-y-4 text-gray-600 sm:ml-[52px] text-sm sm:text-[15px] leading-relaxed text-justify">
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
-                  <span>
+                  <span className="text-justify">
                     <strong className="text-gray-900 font-bold">Bảo hành Toàn Diện (01 Tháng):</strong>{" "}
                     Bảo hành toàn bộ linh kiện phần cứng bao gồm: Màn hình, bàn phím, touchpad, ổ cứng (SSD), RAM, loa, webcam, các cổng kết nối và pin.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
-                  <span>
+                  <span className="text-justify">
                     <strong className="text-gray-900 font-bold">Bảo hành Bo Mạch & Nguồn (03 Tháng):</strong>{" "}
                     Bảo hành mainboard (bo mạch chủ), IC nguồn, và các lỗi phần cứng trên bo mạch khiến máy không lên nguồn.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
-                  <span>
+                  <span className="text-justify">
                     <strong className="text-gray-900 font-bold">Đặc quyền máy cũ:</strong> * Tặng 02 lần vệ sinh máy, tra keo tản nhiệt miễn phí (áp dụng trong vòng 12 tháng kể từ ngày mua).
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
-                  <span>
+                  <span className="text-justify">
                     <strong className="text-gray-900 font-bold">Bao test đổi máy:</strong> Trong vòng 03 ngày đầu nếu không ưng ý (yêu cầu máy giữ nguyên tình trạng ngoại hình ban đầu). Khách hàng có thể đổi sang dòng máy khác bằng tiền hoặc cao tiền hơn và bù thêm khoản chênh lệch.
                   </span>
                 </li>
@@ -87,22 +87,22 @@ export default function WarrantyPolicyPage() {
                   II. ĐIỀU KIỆN TIẾP NHẬN BẢO HÀNH
                 </h2>
               </div>
-              <ul className="space-y-4 text-gray-600 sm:ml-[52px] text-sm sm:text-[15px] leading-relaxed">
+              <ul className="space-y-4 text-gray-600 sm:ml-[52px] text-sm sm:text-[15px] leading-relaxed text-justify">
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0"></div>
-                  <span>
+                  <span className="text-justify">
                     Máy còn nguyên vẹn tem bảo hành của cửa hàng, không có dấu hiệu bị rách, tẩy xóa, dán đè hoặc bong tróc.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0"></div>
-                  <span>
+                  <span className="text-justify">
                     Số Serial / Tag máy trên phiếu bảo hành phải trùng khớp với số Serial hiển thị trên máy (hoặc trong BIOS).
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0"></div>
-                  <span>
+                  <span className="text-justify">
                     Máy được xác định lỗi do linh kiện, không có tác động phá hoại hay tai nạn từ bên ngoài.
                   </span>
                 </li>
@@ -121,41 +121,41 @@ export default function WarrantyPolicyPage() {
                   III. CÁC TRƯỜNG HỢP TỪ CHỐI BẢO HÀNH
                 </h2>
               </div>
-              <p className="text-gray-500 mb-5 sm:mb-6 sm:ml-[52px] italic text-xs sm:text-sm">
+              <p className="text-gray-500 mb-5 sm:mb-6 sm:ml-[52px] italic text-xs sm:text-sm text-justify">
                 (Khách hàng lưu ý) DUDI SOFTWARE xin phép từ chối bảo hành đối với các trường hợp:
               </p>
-              <ul className="space-y-4 text-gray-600 sm:ml-[52px] text-sm sm:text-[15px] leading-relaxed">
+              <ul className="space-y-4 text-gray-600 sm:ml-[52px] text-sm sm:text-[15px] leading-relaxed text-justify">
                 <li className="flex items-start gap-2.5">
                   <XCircle className="w-5 h-5 text-[#eb1c24] mt-0.5 shrink-0" />
-                  <span>
+                  <span className="text-justify">
                     <strong className="text-gray-900 font-bold">Lỗi ngoại quan sau khi rời cửa hàng:</strong>{" "}
                     Máy bị rơi rớt, va đập, cấn móp, nứt vỡ vỏ, trầy xước nặng so với tình trạng bàn giao ban đầu.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <XCircle className="w-5 h-5 text-[#eb1c24] mt-0.5 shrink-0" />
-                  <span>
+                  <span className="text-justify">
                     <strong className="text-gray-900 font-bold">Sự cố màn hình do tác động lực:</strong>{" "}
                     Màn hình bị vỡ, chảy mực, bị sọc màn hoặc đốm trắng/đen phát sinh sau khi mua (đây là lỗi do cấn đè hoặc ngoại lực trong quá trình di chuyển).
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <XCircle className="w-5 h-5 text-[#eb1c24] mt-0.5 shrink-0" />
-                  <span>
+                  <span className="text-justify">
                     <strong className="text-gray-900 font-bold">Vấn đề về Pin:</strong>{" "}
                     Hao mòn tự nhiên (pin chai dần theo thời gian sử dụng). Cửa hàng chỉ bảo hành pin trong tháng đầu nếu pin chết hẳn, không sạc vào điện hoặc sụt nguồn đột ngột dưới 1 tiếng.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <XCircle className="w-5 h-5 text-[#eb1c24] mt-0.5 shrink-0" />
-                  <span>
+                  <span className="text-justify">
                     <strong className="text-gray-900 font-bold">Sự cố chất lỏng & Môi trường:</strong>{" "}
                     Máy bị đổ nước, bia, chất lỏng vào; máy bị ẩm rỉ mạch do môi trường hoặc có côn trùng (gián, kiến...) chui vào gây chập cháy.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <XCircle className="w-5 h-5 text-[#eb1c24] mt-0.5 shrink-0" />
-                  <span>
+                  <span className="text-justify">
                     <strong className="text-gray-900 font-bold">Sử dụng sai cách & Can thiệp phần cứng:</strong>{" "}
                     Chập cháy do dùng sai dòng điện, dùng sạc lô sai công suất; Khách hàng tự ý tháo máy, tự nâng cấp linh kiện hoặc rách tem niêm phong mà không có sự xác nhận của cửa hàng.
                   </span>

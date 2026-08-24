@@ -25,7 +25,7 @@ export default function ReturnPolicyPage() {
         </div>
 
         {/* Content Card with 3 Sections */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-8 text-gray-700 text-sm sm:text-[14.5px] leading-relaxed">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-8 text-gray-700 text-sm sm:text-[14.5px] leading-relaxed text-justify">
           
           {/* Section 1 */}
           <section>
@@ -33,17 +33,17 @@ export default function ReturnPolicyPage() {
               <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 shrink-0" />
               <span>1. Điều kiện đổi trả</span>
             </h2>
-            <ul className="list-disc ml-6 space-y-2 text-gray-600 leading-relaxed">
-              <li>
+            <ul className="list-disc ml-6 space-y-2 text-gray-600 leading-relaxed text-justify">
+              <li className="text-justify">
                 Sản phẩm phát sinh lỗi kỹ thuật do nhà sản xuất trong vòng <strong className="text-gray-900 font-bold">07 ngày</strong> kể từ ngày nhận hàng.
               </li>
-              <li>
+              <li className="text-justify">
                 Sản phẩm còn nguyên vẹn, không bị móp méo, trầy xước, vào nước hay chập cháy do lỗi người dùng.
               </li>
-              <li>
+              <li className="text-justify">
                 Sản phẩm phải còn đầy đủ hộp, phụ kiện, sách hướng dẫn, và quà tặng kèm theo (nếu có).
               </li>
-              <li>
+              <li className="text-justify">
                 Phải có hóa đơn mua hàng hoặc phiếu bảo hành hợp lệ của DUDI SOFTWARE.
               </li>
             </ul>
@@ -55,11 +55,11 @@ export default function ReturnPolicyPage() {
               <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500 shrink-0" />
               <span>2. Trường hợp không được đổi trả</span>
             </h2>
-            <ul className="list-disc ml-6 space-y-2 text-gray-600 leading-relaxed">
-              <li>Sản phẩm đã quá thời hạn 07 ngày đổi trả.</li>
-              <li>Lỗi do người sử dụng (rơi vỡ, tự ý tháo ráp, sử dụng sai điện áp...).</li>
-              <li>Sản phẩm mất hộp, thiếu phụ kiện, vỏ hộp rách nát.</li>
-              <li>Sản phẩm là phần mềm bản quyền hoặc có tem niêm phong đã bị rách.</li>
+            <ul className="list-disc ml-6 space-y-2 text-gray-600 leading-relaxed text-justify">
+              <li className="text-justify">Sản phẩm đã quá thời hạn 07 ngày đổi trả.</li>
+              <li className="text-justify">Lỗi do người sử dụng (rơi vỡ, tự ý tháo ráp, sử dụng sai điện áp...).</li>
+              <li className="text-justify">Sản phẩm mất hộp, thiếu phụ kiện, vỏ hộp rách nát.</li>
+              <li className="text-justify">Sản phẩm là phần mềm bản quyền hoặc có tem niêm phong đã bị rách.</li>
             </ul>
           </section>
 
@@ -69,28 +69,28 @@ export default function ReturnPolicyPage() {
               <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 shrink-0" />
               <span>3. Quy trình thực hiện</span>
             </h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 mb-4 text-justify">
               Quy trình xử lý đổi trả diễn ra trong 3 bước:
             </p>
 
             <div className="space-y-4">
               <div className="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200">
                 <p className="font-bold text-gray-900">Bước 1: Liên hệ hỗ trợ</p>
-                <p className="text-gray-600 mt-1">
+                <p className="text-gray-600 mt-1 text-justify">
                   Khách hàng gọi Hotline: <strong className="text-gray-900 font-bold">(+84) 909 163 821</strong> để thông báo tình trạng lỗi.
                 </p>
               </div>
 
               <div className="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200">
                 <p className="font-bold text-gray-900">Bước 2: Gửi trả sản phẩm</p>
-                <p className="text-gray-600 mt-1">
+                <p className="text-gray-600 mt-1 text-justify">
                   Gửi sản phẩm kèm toàn bộ phụ kiện về địa chỉ cửa hàng DUDI SOFTWARE gần nhất.
                 </p>
               </div>
 
               <div className="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200">
                 <p className="font-bold text-gray-900">Bước 3: Thẩm định và hoàn tất</p>
-                <p className="text-gray-600 mt-1">
+                <p className="text-gray-600 mt-1 text-justify">
                   Kỹ thuật viên kiểm tra lỗi (1-3 ngày làm việc) và tiến hành đổi sản phẩm mới hoặc hoàn tiền theo yêu cầu.
                 </p>
               </div>

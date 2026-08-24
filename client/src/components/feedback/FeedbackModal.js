@@ -83,7 +83,7 @@ export default function FeedbackModal({ isOpen, onClose }) {
       showToast({
         title: "Gửi phản hồi thành công!",
         message:
-          "Cảm ơn bạn đã đóng góp ý kiến để ZCOMPUTER ngày càng hoàn thiện và phục vụ bạn tốt hơn!",
+          "Cảm ơn bạn đã đóng góp ý kiến để DUDI SOFTWARE ngày càng hoàn thiện và phục vụ bạn tốt hơn!",
         type: "success",
         duration: 5000,
       });
