@@ -1,0 +1,588 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import {
+  Users,
+  Search,
+  CheckCircle2,
+  XCircle,
+  Ban,
+  Unlock,
+  Eye,
+  Trash2,
+  RefreshCw,
+  AlertTriangle,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  ShieldCheck,
+  ShoppingBag,
+  Clock,
+  X,
+} from "lucide-react";
+import ConfirmModal from "@/components/admin/ConfirmModal";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+
+export default function AdminUsersPage() {
+  const [customers, setCustomers] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    banned: 0,
+    googleCount: 0,
+    localCount: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [authTypeFilter, setAuthTypeFilter] = useState("all");
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  // Confirm Modal State
+  const [confirmState, setConfirmState] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    confirmText: "Xác nhận",
+    type: "warning",
+    onConfirm: null,
+    loading: false,
+  });
+
+  // Hỗ trợ đóng Modal khi nhấn phím ESC
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isDetailModalOpen) {
+        setIsDetailModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isDetailModalOpen]);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  const fetchCustomers = async () => {
+    setLoading(true);
+    try {
+      // 1. Lấy danh sách khách hàng
+      let url = `${API_BASE}/users?search=${encodeURIComponent(searchTerm)}`;
+      if (statusFilter !== "all") url += `&status=${statusFilter}`;
+      if (authTypeFilter !== "all") url += `&authType=${authTypeFilter}`;
+
+      const res = await fetch(url, { credentials: "include" });
+      const json = await res.json();
+      if (json.statusCode === 200 || json.success) {
+        setCustomers(json.data.items || []);
+      }
+
+      // 2. Lấy thống kê
+      const statRes = await fetch(`${API_BASE}/users/stats`, {
+        credentials: "include",
+      });
+      const statJson = await statRes.json();
+      if (statJson.statusCode === 200 || statJson.success) {
+        setStats(statJson.data || {});
+      }
+    } catch (error) {
+      console.error("Lỗi tải khách hàng:", error);
+      showToast("Không thể tải danh sách khách hàng!", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [statusFilter, authTypeFilter]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    fetchCustomers();
+  };
+
+  // Mở Custom Modal xác nhận Khóa / Mở khóa
+  const handleToggleStatus = (id, currentStatus, name) => {
+    const nextStatus = currentStatus === "banned" ? "active" : "banned";
+    const actionText = nextStatus === "banned" ? "khóa" : "mở khóa";
+
+    setConfirmState({
+      isOpen: true,
+      title: nextStatus === "banned" ? "Khóa tài khoản khách hàng?" : "Mở khóa tài khoản khách hàng?",
+      message:
+        nextStatus === "banned"
+          ? `Bạn có chắc chắn muốn khóa tài khoản "${name}"? Khách hàng sẽ không thể đăng nhập hoặc tiến hành đặt hàng trên website.`
+          : `Bạn có chắc chắn muốn mở khóa tài khoản "${name}"? Khách hàng sẽ có thể đăng nhập và mua hàng bình thường.`,
+      confirmText: nextStatus === "banned" ? "Khóa tài khoản" : "Mở khóa",
+      type: nextStatus === "banned" ? "warning" : "success",
+      loading: false,
+      onConfirm: async () => {
+        setConfirmState((prev) => ({ ...prev, loading: true }));
+        try {
+          const res = await fetch(`${API_BASE}/users/${id}/status`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ status: nextStatus }),
+          });
+
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.message || "Thao tác thất bại");
+
+          showToast(`Đã ${actionText} tài khoản khách hàng thành công!`);
+          setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
+          fetchCustomers();
+        } catch (error) {
+          showToast(error.message || "Lỗi cập nhật trạng thái", "error");
+          setConfirmState((prev) => ({ ...prev, loading: false }));
+        }
+      },
+    });
+  };
+
+  const handleOpenDetail = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/users/${id}`, {
+        credentials: "include",
+      });
+      const json = await res.json();
+      if (json.statusCode === 200 || json.success) {
+        setSelectedCustomer(json.data);
+        setIsDetailModalOpen(true);
+      }
+    } catch (error) {
+      showToast("Không thể lấy chi tiết khách hàng", "error");
+    }
+  };
+
+  // Mở Custom Modal xác nhận xóa khách hàng
+  const handleDeleteCustomer = (id, name) => {
+    setConfirmState({
+      isOpen: true,
+      title: "Xóa vĩnh viễn khách hàng?",
+      message: `Hành động này không thể hoàn tác. Toàn bộ hồ sơ và dữ liệu giỏ hàng của "${name}" sẽ bị xóa hoàn toàn khỏi cơ sở dữ liệu.`,
+      confirmText: "Xóa khách hàng",
+      type: "danger",
+      loading: false,
+      onConfirm: async () => {
+        setConfirmState((prev) => ({ ...prev, loading: true }));
+        try {
+          const res = await fetch(`${API_BASE}/users/${id}`, {
+            method: "DELETE",
+            credentials: "include",
+          });
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.message || "Xóa thất bại");
+
+          showToast("Đã xóa tài khoản khách hàng!");
+          setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
+          fetchCustomers();
+        } catch (error) {
+          showToast(error.message || "Lỗi xóa khách hàng", "error");
+          setConfirmState((prev) => ({ ...prev, loading: false }));
+        }
+      },
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Toast Alert */}
+      {toast && (
+        <div
+          className={`fixed top-6 right-6 z-70 flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-bold shadow-2xl animate-in slide-in-from-top-4 duration-200 ${
+            toast.type === "error"
+              ? "bg-red-600 text-white"
+              : "bg-slate-900 text-white border border-slate-700"
+          }`}
+        >
+          {toast.type === "error" ? (
+            <AlertTriangle className="w-5 h-5 text-red-200" />
+          ) : (
+            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+          )}
+          <span>{toast.message}</span>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-red-50 text-[#eb1c24] border border-red-100">
+              <Users className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                Quản Lý Khách Hàng (Users)
+              </h1>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Quản lý hồ sơ tài khoản khách hàng, phương thức đăng nhập và kiểm soát trạng thái truy cập
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={fetchCustomers}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold shadow-xs transition cursor-pointer self-start sm:self-auto"
+        >
+          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[#eb1c24]" : ""}`} />
+          <span>Làm Mới</span>
+        </button>
+      </div>
+
+      {/* KPI Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Tổng Khách Hàng
+            </span>
+            <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
+              <Users className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-black text-slate-900 mt-2">
+            {stats.total || 0}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">Khách hàng trong cơ sở dữ liệu</div>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Đang Hoạt Động
+            </span>
+            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-black text-emerald-600 mt-2">
+            {stats.active || 0}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">Đủ điều kiện mua sắm</div>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Bị Khóa / Hạn Chế
+            </span>
+            <div className="p-2 rounded-xl bg-red-50 text-red-600">
+              <Ban className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-black text-red-600 mt-2">
+            {stats.banned || 0}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">Tài khoản vi phạm chính sách</div>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Đăng Nhập Google
+            </span>
+            <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-black text-slate-900 mt-2">
+            {stats.googleCount || 0}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">Tài khoản liên kết Google OAuth</div>
+        </div>
+      </div>
+
+      {/* Filters & Search Form */}
+      <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+        <div className="sm:col-span-6 relative">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Tìm theo tên khách hàng, email hoặc số điện thoại..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-red-500 transition shadow-2xs"
+          />
+        </div>
+
+        <div className="sm:col-span-3">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold"
+          >
+            <option value="all">Tất cả trạng thái</option>
+            <option value="active">Hoạt động (Active)</option>
+            <option value="banned">Đang bị khóa (Banned)</option>
+          </select>
+        </div>
+
+        <div className="sm:col-span-3">
+          <select
+            value={authTypeFilter}
+            onChange={(e) => setAuthTypeFilter(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold"
+          >
+            <option value="all">Tất cả hình thức đăng ký</option>
+            <option value="google">Đăng nhập Google</option>
+            <option value="local">Email & Mật khẩu</option>
+          </select>
+        </div>
+      </form>
+
+      {/* Customer List Table */}
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-black uppercase tracking-wider text-slate-500">
+                <th className="py-3.5 px-4 w-12 text-center">STT</th>
+                <th className="py-3.5 px-4">Khách Hàng</th>
+                <th className="py-3.5 px-4">Liên Hệ (Email / SĐT)</th>
+                <th className="py-3.5 px-4">Phương Thức Đăng Ký</th>
+                <th className="py-3.5 px-4">Ngày Tham Gia</th>
+                <th className="py-3.5 px-4 text-center">Trạng Thái</th>
+                <th className="py-3.5 px-4 text-right">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-xs">
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                    <RefreshCw className="w-6 h-6 animate-spin mx-auto text-[#eb1c24] mb-2" />
+                    Đang tải danh sách khách hàng...
+                  </td>
+                </tr>
+              ) : customers.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                    Không tìm thấy khách hàng nào phù hợp với điều kiện tìm kiếm.
+                  </td>
+                </tr>
+              ) : (
+                customers.map((c, idx) => (
+                  <tr key={c._id} className="hover:bg-slate-50/70 transition group">
+                    <td className="py-3.5 px-4 text-center text-slate-400 font-mono font-medium">
+                      {idx + 1}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+                          {c.name ? c.name.charAt(0).toUpperCase() : "U"}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-bold text-slate-900 group-hover:text-[#eb1c24] transition truncate max-w-[160px]">
+                            {c.name}
+                          </div>
+                          <div className="text-[10.5px] text-slate-400 font-mono">
+                            ID: {c._id.slice(-6)}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center gap-1.5 text-slate-700 font-medium truncate max-w-[200px]">
+                        <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span>{c.email}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
+                        <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span>{c.phone || "Chưa cập nhật SĐT"}</span>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      {c.authType === "google" ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-red-50 text-red-600 border border-red-200 font-bold text-[10.5px]">
+                          Google OAuth
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 font-bold text-[10.5px]">
+                          Email / Mật khẩu
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-600 font-medium">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3 h-3 text-slate-400" />
+                        <span>{new Date(c.createdAt).toLocaleDateString("vi-VN")}</span>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-center">
+                      {c.status === "banned" ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 text-red-600 border border-red-200 font-bold text-[10.5px]">
+                          <Ban className="w-3 h-3" />
+                          Đã bị khóa
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold text-[10.5px]">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Hoạt động
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => handleOpenDetail(c._id)}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-slate-600 transition cursor-pointer"
+                          title="Xem chi tiết & đơn hàng"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleToggleStatus(c._id, c.status, c.name)}
+                          className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                            c.status === "banned"
+                              ? "border-emerald-200 hover:bg-emerald-50 text-emerald-600"
+                              : "border-amber-200 hover:bg-amber-50 text-amber-600"
+                          }`}
+                          title={c.status === "banned" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
+                        >
+                          {c.status === "banned" ? (
+                            <Unlock className="w-3.5 h-3.5" />
+                          ) : (
+                            <Ban className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCustomer(c._id, c.name)}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer"
+                          title="Xóa tài khoản khách hàng"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Modal Chi Tiết Khách Hàng (Hỗ trợ Click Outside & Phím ESC) */}
+      {isDetailModalOpen && selectedCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop Layer riêng biệt - Bấm bất kỳ đâu ra ngoài để đóng ngay */}
+          <div
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-150"
+            onClick={() => setIsDetailModalOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* Modal Card Content */}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative z-10 bg-white max-w-lg w-full rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-150"
+          >
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-lg shadow-md">
+                  {selectedCustomer.name ? selectedCustomer.name.charAt(0).toUpperCase() : "U"}
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">{selectedCustomer.name}</h3>
+                  <p className="text-xs text-slate-500 font-mono">{selectedCustomer.email}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDetailModalOpen(false)}
+                className="p-2 rounded-xl hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
+                <div>
+                  <span className="text-slate-400 font-medium block">Số điện thoại:</span>
+                  <span className="font-bold text-slate-800">{selectedCustomer.phone || "Chưa có"}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 font-medium block">Hình thức đăng ký:</span>
+                  <span className="font-bold text-slate-800 uppercase">{selectedCustomer.authType}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-slate-400 font-medium block">Địa chỉ giao hàng:</span>
+                  <span className="font-medium text-slate-800">{selectedCustomer.address || "Chưa cập nhật địa chỉ"}</span>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-black text-slate-900 flex items-center gap-2 mb-2">
+                  <ShoppingBag className="w-4 h-4 text-[#eb1c24]" />
+                  <span>Đơn hàng gần đây ({selectedCustomer.recentOrders?.length || 0})</span>
+                </h4>
+
+                {selectedCustomer.recentOrders?.length > 0 ? (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {selectedCustomer.recentOrders.map((ord) => (
+                      <div
+                        key={ord._id}
+                        className="p-3 rounded-xl border border-slate-200 bg-white flex items-center justify-between"
+                      >
+                        <div>
+                          <div className="font-bold text-slate-900">Mã đơn: #{ord._id.slice(-6)}</div>
+                          <div className="text-[11px] text-slate-400">
+                            {new Date(ord.createdAt).toLocaleDateString("vi-VN")}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-black text-[#eb1c24]">
+                            {ord.totalAmount?.toLocaleString("vi-VN")}đ
+                          </div>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
+                            {ord.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-slate-50 text-center text-slate-400">
+                    Khách hàng chưa có đơn hàng nào trên hệ thống.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsDetailModalOpen(false)}
+                className="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition cursor-pointer"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmText={confirmState.confirmText}
+        type={confirmState.type}
+        loading={confirmState.loading}
+        onClose={() => setConfirmState((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmState.onConfirm}
+      />
+    </div>
+  );
+}

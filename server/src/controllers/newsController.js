@@ -50,6 +50,32 @@ export const getFeaturedNews = async (req, res, next) => {
   }
 };
 
+export const getAdminNews = async (req, res, next) => {
+  try {
+    const { items, pagination } = await newsService.getAdminNews(req.query);
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        { news: items, pagination },
+        "Lấy danh sách tin tức quản trị thành công"
+      )
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getNewsById = async (req, res, next) => {
+  try {
+    const article = await newsService.getNewsById(req.params.id);
+    return res.status(200).json(
+      new ApiResponse(200, article, "Lấy thông tin bài viết thành công")
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const createNews = async (req, res, next) => {
   try {
     const article = await newsService.createNews(req.body);
@@ -59,6 +85,39 @@ export const createNews = async (req, res, next) => {
         article,
         "Tạo bài viết tin tức thành công"
       )
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateNews = async (req, res, next) => {
+  try {
+    const article = await newsService.updateNews(req.params.id, req.body);
+    return res.status(200).json(
+      new ApiResponse(200, article, "Cập nhật bài viết thành công")
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteNews = async (req, res, next) => {
+  try {
+    await newsService.deleteNews(req.params.id);
+    return res.status(200).json(
+      new ApiResponse(200, null, "Xóa bài viết thành công")
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const togglePublish = async (req, res, next) => {
+  try {
+    const article = await newsService.togglePublish(req.params.id);
+    return res.status(200).json(
+      new ApiResponse(200, article, "Cập nhật trạng thái xuất bản thành công")
     );
   } catch (error) {
     next(error);

@@ -30,13 +30,7 @@ const newsSchema = new mongoose.Schema(
     category: {
       type: String,
       default: "Tin công nghệ",
-      enum: [
-        "Tin công nghệ",
-        "Khuyến mãi",
-        "Đánh giá sản phẩm",
-        "Thủ thuật",
-        "Về chúng tôi",
-      ],
+      trim: true,
     },
     tags: {
       type: [String],

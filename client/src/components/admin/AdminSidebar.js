@@ -9,33 +9,84 @@ import {
   BarChart3,
   Settings,
   Store,
+  FolderTree,
+  Users,
+  Newspaper,
+  Briefcase,
+  Flame,
 } from "lucide-react";
 
-const menuItems = [
+const menuGroups = [
   {
-    label: "Tổng quan",
-    href: "/admin",
-    icon: LayoutDashboard,
+    title: "TỔNG QUAN & BÁO CÁO",
+    items: [
+      {
+        label: "Tổng quan",
+        href: "/admin",
+        icon: LayoutDashboard,
+        exact: true,
+      },
+      {
+        label: "Báo cáo thống kê",
+        href: "/admin/statistics",
+        icon: BarChart3,
+      },
+    ],
   },
   {
-    label: "Sản phẩm",
-    href: "/admin/products",
-    icon: Package,
+    title: "THƯƠNG MẠI & BÁN HÀNG",
+    items: [
+      {
+        label: "Quản lý sản phẩm",
+        href: "/admin/products",
+        icon: Package,
+      },
+      {
+        label: "Danh mục sản phẩm",
+        href: "/admin/categories",
+        icon: FolderTree,
+      },
+      {
+        label: "Quản lý đơn hàng",
+        href: "/admin/orders",
+        icon: ShoppingCart,
+      },
+      {
+        label: "Khuyến mãi sản phẩm",
+        href: "/admin/promotions",
+        icon: Flame,
+      },
+    ],
   },
   {
-    label: "Đơn hàng",
-    href: "/admin/orders",
-    icon: ShoppingCart,
+    title: "NỘI DUNG & TUYỂN DỤNG",
+    items: [
+      {
+        label: "Tin tức & Bài viết",
+        href: "/admin/news",
+        icon: Newspaper,
+      },
+      {
+        label: "Tuyển dụng việc làm",
+        href: "/admin/careers",
+        icon: Briefcase,
+      },
+    ],
   },
   {
-    label: "Thống kê",
-    href: "/admin/statistics",
-    icon: BarChart3,
-  },
-  {
-    label: "Cài đặt",
-    href: "/admin/settings",
-    icon: Settings,
+    title: "HỆ THỐNG & KHÁCH HÀNG",
+    items: [
+      {
+        label: "Quản lý khách hàng",
+        href: "/admin/users",
+        icon: Users,
+      },
+      {
+        label: "Cài đặt hệ thống",
+        href: "/admin/settings",
+        icon: Settings,
+      },
+    ],
   },
 ];
 
@@ -45,17 +96,17 @@ export default function AdminSidebar() {
   return (
     <aside className="fixed left-0 top-0 z-50 flex h-full w-[280px] flex-col border-r border-slate-200 bg-white shadow-xs">
       {/* Logo & Brand */}
-      <div className="flex items-center justify-between border-b border-slate-100 p-5">
+      <div className="flex items-center justify-between border-b border-slate-100 p-4">
         <Link href="/admin" className="flex items-center gap-3 group">
           <img
             src="/images/dudi/dudisoftware4.png"
             alt="DUDI software"
-            className="h-10 w-10 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform"
+            className="h-9 w-9 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform"
           />
           <div className="border-l border-slate-200 pl-3">
             <div className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
               <span>Admin Portal</span>
-              <span className="px-1.5 py-0.5 rounded bg-red-100 text-[#eb1c24] text-[9px] font-extrabold">PRO</span>
+              <span className="px-1.5 py-0.2 rounded bg-red-100 text-[#eb1c24] text-[9px] font-extrabold">PRO</span>
             </div>
             <div className="text-[10px] text-slate-400 font-medium tracking-wide">
               DUDI SOFTWARE
@@ -64,39 +115,47 @@ export default function AdminSidebar() {
         </Link>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1.5 px-3 py-4">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive =
-            item.href === "/admin"
-              ? pathname === "/admin"
-              : pathname.startsWith(item.href);
+      {/* Navigation Groups with Smooth Scrollbar */}
+      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4 text-left">
+        {menuGroups.map((group, gIdx) => (
+          <div key={gIdx} className="space-y-1">
+            <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              {group.title}
+            </div>
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = item.exact
+                  ? pathname === item.href
+                  : pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`group flex items-center justify-between rounded-xl px-3.5 py-3 text-sm font-bold transition-all duration-200 ${
-                isActive
-                  ? "bg-red-50/80 text-[#eb1c24] border border-red-200/80 shadow-xs"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Icon
-                  className={`h-5 w-5 transition-transform duration-200 group-hover:scale-110 ${
-                    isActive ? "text-[#eb1c24]" : "text-slate-400 group-hover:text-slate-700"
-                  }`}
-                />
-                <span>{item.label}</span>
-              </div>
-              {isActive && (
-                <div className="w-1.5 h-4 rounded-full bg-[#eb1c24]" />
-              )}
-            </Link>
-          );
-        })}
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`group flex items-center justify-between rounded-xl px-3 py-2 text-[13px] font-bold transition-all duration-150 ${
+                      isActive
+                        ? "bg-red-50/80 text-[#eb1c24] border border-red-200/80 shadow-2xs font-extrabold"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Icon
+                        className={`h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-110 ${
+                          isActive ? "text-[#eb1c24]" : "text-slate-400 group-hover:text-slate-700"
+                        }`}
+                      />
+                      <span className="truncate">{item.label}</span>
+                    </div>
+                    {isActive && (
+                      <div className="w-1.5 h-3.5 rounded-full bg-[#eb1c24] shrink-0" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* View Store Client Link (Mở trực tiếp trên trang hiện tại) */}

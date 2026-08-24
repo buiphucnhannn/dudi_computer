@@ -5,36 +5,71 @@ import { Category } from "./models/Category.js";
 import { News } from "./models/News.js";
 import { Job } from "./models/Job.js";
 import { User } from "./models/User.js";
+import { Promotion } from "./models/Promotion.js";
+import { NewsCategory } from "./models/NewsCategory.js";
+import { Brand } from "./models/Brand.js";
+
+export const NEWS_CATEGORIES_DATA = [
+  { name: "Tin công nghệ", slug: "tin-cong-nghe", description: "Cập nhật xu hướng công nghệ, phần cứng máy tính và linh kiện mới nhất", color: "blue", order: 1, isActive: true },
+  { name: "Khuyến mãi", slug: "khuyen-mai", description: "Thông tin các chương trình giảm giá, ưu đãi và voucher mua sắm cực hot", color: "red", order: 2, isActive: true },
+  { name: "Đánh giá sản phẩm", slug: "danh-gia-san-pham", description: "Review chi tiết, benchmark hiệu năng laptop gaming và linh kiện PC", color: "purple", order: 3, isActive: true },
+  { name: "Thủ thuật", slug: "thu-thuat", description: "Mẹo hay, hướng dẫn lắp ráp, cài đặt và tối ưu máy tính", color: "emerald", order: 4, isActive: true },
+  { name: "Góc Setup PC", slug: "goc-setup-pc", description: "Chia sẻ không gian làm việc, góc gaming đẹp mắt và sáng tạo", color: "amber", order: 5, isActive: true },
+];
+
+export const BRANDS_DATA = [
+  { name: "ASUS", slug: "asus", origin: "Đài Loan", description: "Tập đoàn công nghệ hàng đầu với dòng ROG, TUF Gaming và Zenbook", isFeatured: true, order: 1, website: "https://www.asus.com" },
+  { name: "Dell", slug: "dell", origin: "Hoa Kỳ", description: "Thương hiệu máy tính nổi tiếng bền bỉ với dòng XPS, Alienware, Latitude", isFeatured: true, order: 2, website: "https://www.dell.com" },
+  { name: "Lenovo", slug: "lenovo", origin: "Đa quốc gia", description: "Dòng laptop gaming Legion, LOQ và dòng doanh nhân ThinkPad trứ danh", isFeatured: true, order: 3, website: "https://www.lenovo.com" },
+  { name: "Apple", slug: "apple", origin: "Hoa Kỳ", description: "Hệ sinh thái MacBook, Mac Studio và phụ kiện chip Apple Silicon đỉnh cao", isFeatured: true, order: 4, website: "https://www.apple.com" },
+  { name: "HP", slug: "hp", origin: "Hoa Kỳ", description: "Dòng laptop Omen Gaming, Victus, Pavilion và Spectre cao cấp", isFeatured: true, order: 5, website: "https://www.hp.com" },
+  { name: "Acer", slug: "acer", origin: "Đài Loan", description: "Thương hiệu laptop gaming Predator, Nitro và văn phòng Swift/Aspire", isFeatured: true, order: 6, website: "https://www.acer.com" },
+  { name: "MSI", slug: "msi", origin: "Đài Loan", description: "Chuyên gia phần cứng gaming hàng đầu thế giới với bo mạch chủ, card VGA và laptop", isFeatured: true, order: 7, website: "https://www.msi.com" },
+  { name: "Gigabyte", slug: "gigabyte", origin: "Đài Loan", description: "Thương hiệu bo mạch chủ, card đồ họa AORUS và laptop gaming hiệu năng cao", isFeatured: true, order: 8, website: "https://www.gigabyte.com" },
+  { name: "Intel", slug: "intel", origin: "Hoa Kỳ", description: "Tập đoàn sản xuất vi xử lý CPU Core i3, i5, i7, i9 hàng đầu thế giới", isFeatured: true, order: 9, website: "https://www.intel.com" },
+  { name: "AMD", slug: "amd", origin: "Hoa Kỳ", description: "Nhà sản xuất vi xử lý Ryzen và card đồ họa Radeon hiệu năng vượt trội", isFeatured: true, order: 10, website: "https://www.amd.com" },
+  { name: "NVIDIA", slug: "nvidia", origin: "Hoa Kỳ", description: "Tập đoàn công nghệ GPU đồ họa GeForce RTX và trí tuệ nhân tạo dẫn đầu", isFeatured: true, order: 11, website: "https://www.nvidia.com" },
+  { name: "Kingston", slug: "kingston", origin: "Hoa Kỳ", description: "Thương hiệu bộ nhớ RAM Fury Beast/Renegade và ổ cứng SSD NVMe tốc độ cao", isFeatured: true, order: 12, website: "https://www.kingston.com" },
+  { name: "Corsair", slug: "corsair", origin: "Hoa Kỳ", description: "Thương hiệu linh kiện PC, nguồn máy tính, RAM Vengeance và Gear cao cấp", isFeatured: true, order: 13, website: "https://www.corsair.com" },
+  { name: "Samsung", slug: "samsung", origin: "Hàn Quốc", description: "Ổ cứng SSD chuẩn 980/990 Pro và màn hình hiển thị OLED/IPS hàng đầu thế giới", isFeatured: true, order: 14, website: "https://www.samsung.com" },
+  { name: "Logitech", slug: "logitech", origin: "Thụy Sĩ", description: "Chuột, bàn phím và tai nghe Gaming Gear số 1 thế giới với dòng G Pro, MX Master", isFeatured: true, order: 15, website: "https://www.logitech.com" },
+  { name: "Razer", slug: "razer", origin: "Hoa Kỳ", description: "Biểu tượng phong cách game thủ với laptop Razer Blade và hệ sinh thái RGB Chroma", isFeatured: true, order: 16, website: "https://www.razer.com" },
+  { name: "LG", slug: "lg", origin: "Hàn Quốc", description: "Dòng laptop siêu nhẹ LG Gram và màn hình UltraGear Gaming sắc nét", order: 17, website: "https://www.lg.com" },
+  { name: "Microsoft", slug: "microsoft", origin: "Hoa Kỳ", description: "Dòng máy tính Surface 2-trong-1 mỏng nhẹ và chuột cảm ứng cao cấp", order: 18, website: "https://www.microsoft.com" },
+  { name: "Akko", slug: "akko", origin: "Đài Loan", description: "Bàn phím cơ thiết kế phong cách nghệ thuật, switch cao cấp và keycap PBT", order: 19, website: "https://www.akkogear.com" },
+  { name: "Keychron", slug: "keychron", origin: "Hồng Kông", description: "Bàn phím cơ không dây đa nền tảng Mac / Windows cho dân lập trình và văn phòng", order: 20, website: "https://www.keychron.com" },
+  { name: "DareU", slug: "dareu", origin: "Trung Quốc", description: "Bàn phím cơ, chuột gaming giá rẻ chất lượng vượt trội cho học sinh, sinh viên", order: 21, website: "https://www.dareu.com" },
+];
 
 export const CATEGORIES_DATA = [
-  { name: "Laptop", slug: "laptop", pcPartType: "none", description: "Laptop chính hãng cao cấp, like new 99% và mới 100% nguyên seal" },
-  { name: "Laptop Gaming", slug: "laptop-gaming", pcPartType: "none", description: "Laptop Gaming cấu hình khủng, màn hình 144Hz - 240Hz chiến game mượt mà" },
-  { name: "Laptop Văn phòng", slug: "laptop-van-phong", pcPartType: "none", description: "Laptop văn phòng mỏng nhẹ, pin trâu, thiết kế sang trọng" },
-  { name: "Laptop Dell", slug: "laptop-dell", pcPartType: "none", description: "Laptop Dell XPS, Latitude, Inspiron, Alienware bền bỉ cao cấp" },
-  { name: "Laptop Lenovo", slug: "laptop-lenovo", pcPartType: "none", description: "Laptop Lenovo ThinkPad, Legion, Yoga, IdeaPad hiệu năng vượt trội" },
-  { name: "Laptop Asus", slug: "laptop-asus", pcPartType: "none", description: "Laptop Asus ROG, TUF Gaming, Zenbook, Vivobook thời thượng" },
-  { name: "Laptop Acer", slug: "laptop-acer", pcPartType: "none", description: "Laptop Acer Predator, Nitro, Swift, Aspire giá cực tốt" },
-  { name: "Laptop MSI", slug: "laptop-msi", pcPartType: "none", description: "Laptop MSI Gaming Raider, Stealth, Katana, Modern đồ họa đỉnh cao" },
-  { name: "Laptop HP", slug: "laptop-hp", pcPartType: "none", description: "Laptop HP Omen, Victus, Envy, Spectre, Pavilion bền bỉ" },
-  { name: "Laptop Gigabyte", slug: "laptop-gigabyte", pcPartType: "none", description: "Laptop Gigabyte Aorus, G5 hiệu năng gaming chuyên nghiệp" },
-  { name: "Laptop Razer", slug: "laptop-razer", pcPartType: "none", description: "Laptop Razer Blade đẳng cấp doanh nhân gaming cao cấp" },
-  { name: "Laptop LG", slug: "laptop-lg", pcPartType: "none", description: "Laptop LG Gram siêu nhẹ chỉ từ 999g, pin cực trâu" },
-  { name: "Laptop Surface", slug: "laptop-surface", pcPartType: "none", description: "Microsoft Surface Pro, Surface Laptop màn hình cảm ứng sắc nét" },
-  { name: "Macbook", slug: "macbook", pcPartType: "none", description: "Apple MacBook Pro, MacBook Air chip M1, M2, M3 retina đẳng cấp" },
-  { name: "PC", slug: "pc", pcPartType: "none", description: "Dàn máy tính PC văn phòng, đồ họa, gaming đồng bộ và lắp ráp chất lượng cao" },
-  { name: "PC Gaming", slug: "pc-gaming", pcPartType: "none", description: "Bộ máy tính PC Gaming cấu hình cao, LED RGB, tản nước, chiến mượt mọi tựa game" },
-  { name: "PC Đồ Họa", slug: "pc-do-hoa", pcPartType: "none", description: "Máy tính đồ họa Workstation chuyên render 3D, kiến trúc, dựng phim 4K" },
-  { name: "Màn hình máy tính", slug: "man-hinh", pcPartType: "monitor", description: "Màn hình máy tính Gaming, Đồ họa 24 - 32 inch, 2K, 4K, 165Hz - 240Hz, IPS, OLED" },
-  { name: "Mainboard - Bo mạch chủ", slug: "mainboard-bo-mach-chu", pcPartType: "mainboard", description: "Bo mạch chủ ASUS, MSI, Gigabyte chipset B760, Z790, B650 chính hãng" },
-  { name: "CPU - Bộ vi xử lý", slug: "cpu-bo-vi-xu-ly", pcPartType: "cpu", description: "Bộ vi xử lý Intel Core i3/i5/i7/i9 Gen 12, 13, 14 và AMD Ryzen 5000/7000/9000 series" },
-  { name: "RAM - Bộ nhớ trong", slug: "ram-bo-nho-trong", pcPartType: "ram", description: "RAM DDR4, DDR5 Kingston Fury, Corsair Vengeance, G.Skill Trident Z RGB" },
-  { name: "VGA - Card màn hình", slug: "vga-card-man-hinh", pcPartType: "vga", description: "Card màn hình NVIDIA GeForce RTX 3060, RTX 4060, RTX 4070, RTX 4080, RTX 4090" },
-  { name: "Ổ cứng HDD - SSD", slug: "o-cung-hdd-ssd", pcPartType: "ssd", description: "Ổ cứng SSD NVMe M.2 PCIe Gen 4, Gen 3 tốc độ cao Samsung, Kingston, Crucial" },
-  { name: "PSU - Nguồn máy tính", slug: "psu-nguon-may-tinh", pcPartType: "psu", description: "Nguồn máy tính 450W - 1000W chuẩn 80 Plus Bronze, Gold, chuẩn ATX 3.0" },
-  { name: "CASE - Vỏ máy tính", slug: "case-vo-may-tinh", pcPartType: "case", description: "Vỏ case máy tính bể cá vô cực, case kính cường lực kèm quạt ARGB rực rỡ" },
-  { name: "Tản nhiệt Cooling", slug: "tan-nhiet-cooling", pcPartType: "cooler", description: "Tản nhiệt nước AIO 240/360 màn hình LCD, tản nhiệt khí tháp đôi siêu mát" },
-  { name: "Bàn phím", slug: "ban-phim", pcPartType: "gear", description: "Bàn phím cơ Gaming, bàn phím không dây Akko, Keychron, Corsair, DareU" },
-  { name: "Chuột", slug: "chuot", pcPartType: "gear", description: "Chuột gaming không dây, chuột công thái học Logitech, Razer siêu nhẹ" }
+  // 1. NHÓM GỐC: LAPTOP & MACBOOK
+  { name: "Laptop & Macbook", slug: "laptop", pcPartType: "none", isFeatured: true, order: 1, description: "Laptop chính hãng cao cấp, like new 99% và mới 100% nguyên seal" },
+  { name: "Laptop Gaming", slug: "laptop-gaming", parentSlug: "laptop", pcPartType: "none", isFeatured: true, order: 2, description: "Laptop Gaming cấu hình khủng, màn hình 144Hz - 240Hz chiến game mượt mà" },
+  { name: "Laptop Văn phòng", slug: "laptop-van-phong", parentSlug: "laptop", pcPartType: "none", order: 3, description: "Laptop văn phòng mỏng nhẹ, pin trâu, thiết kế sang trọng" },
+  { name: "Macbook", slug: "macbook", parentSlug: "laptop", pcPartType: "none", isFeatured: true, order: 4, description: "Apple MacBook Pro, MacBook Air chip M1, M2, M3 retina đẳng cấp" },
+
+  // 2. NHÓM GỐC: MÁY TÍNH ĐỂ BÀN (PC)
+  { name: "Máy Tính Để Bàn (PC)", slug: "pc", pcPartType: "none", isFeatured: true, order: 5, description: "Dàn máy tính PC văn phòng, đồ họa, gaming đồng bộ và lắp ráp chất lượng cao" },
+  { name: "PC Gaming", slug: "pc-gaming", parentSlug: "pc", pcPartType: "none", isFeatured: true, order: 6, description: "Bộ máy tính PC Gaming cấu hình cao, LED RGB, tản nước, chiến mượt mọi tựa game" },
+  { name: "PC Đồ Họa", slug: "pc-do-hoa", parentSlug: "pc", pcPartType: "none", order: 7, description: "Máy tính đồ họa Workstation chuyên render 3D, kiến trúc, dựng phim 4K" },
+  { name: "PC Văn Phòng", slug: "pc-van-phong", parentSlug: "pc", pcPartType: "none", order: 8, description: "Bộ máy tính để bàn nhỏ gọn, vận hành êm ái, tối ưu công việc văn phòng" },
+
+  // 3. NHÓM GỐC: LINH KIỆN MÁY TÍNH (PC Parts / Build PC)
+  { name: "Linh Kiện Máy Tính", slug: "linh-kien-pc", pcPartType: "none", isFeatured: true, order: 9, description: "Linh kiện phần cứng máy tính chính hãng phục vụ lắp ráp và nâng cấp PC" },
+  { name: "CPU - Bộ vi xử lý", slug: "cpu-bo-vi-xu-ly", parentSlug: "linh-kien-pc", pcPartType: "cpu", isFeatured: true, order: 10, description: "Bộ vi xử lý Intel Core i3/i5/i7/i9 Gen 12, 13, 14 và AMD Ryzen 5000/7000/9000 series" },
+  { name: "Mainboard - Bo mạch chủ", slug: "mainboard-bo-mach-chu", parentSlug: "linh-kien-pc", pcPartType: "mainboard", isFeatured: true, order: 11, description: "Bo mạch chủ ASUS, MSI, Gigabyte chipset B760, Z790, B650 chính hãng" },
+  { name: "RAM - Bộ nhớ trong", slug: "ram-bo-nho-trong", parentSlug: "linh-kien-pc", pcPartType: "ram", isFeatured: true, order: 12, description: "RAM DDR4, DDR5 Kingston Fury, Corsair Vengeance, G.Skill Trident Z RGB" },
+  { name: "VGA - Card màn hình", slug: "vga-card-man-hinh", parentSlug: "linh-kien-pc", pcPartType: "vga", isFeatured: true, order: 13, description: "Card màn hình NVIDIA GeForce RTX 3060, RTX 4060, RTX 4070, RTX 4080, RTX 4090" },
+  { name: "Ổ cứng HDD - SSD", slug: "o-cung-hdd-ssd", parentSlug: "linh-kien-pc", pcPartType: "ssd", isFeatured: true, order: 14, description: "Ổ cứng SSD NVMe M.2 PCIe Gen 4, Gen 3 tốc độ cao Samsung, Kingston, Crucial" },
+  { name: "PSU - Nguồn máy tính", slug: "psu-nguon-may-tinh", parentSlug: "linh-kien-pc", pcPartType: "psu", isFeatured: true, order: 15, description: "Nguồn máy tính 450W - 1000W chuẩn 80 Plus Bronze, Gold, chuẩn ATX 3.0" },
+  { name: "CASE - Vỏ máy tính", slug: "case-vo-may-tinh", parentSlug: "linh-kien-pc", pcPartType: "case", isFeatured: true, order: 16, description: "Vỏ case máy tính bể cá vô cực, case kính cường lực kèm quạt ARGB rực rỡ" },
+  { name: "Tản nhiệt Cooling", slug: "tan-nhiet-cooling", parentSlug: "linh-kien-pc", pcPartType: "cooler", isFeatured: true, order: 17, description: "Tản nhiệt nước AIO 240/360 màn hình LCD, tản nhiệt khí tháp đôi siêu mát" },
+
+  // 4. NHÓM GỐC: MÀN HÌNH & GAMING GEAR
+  { name: "Màn Hình & Phụ Kiện Gear", slug: "man-hinh-gear", pcPartType: "none", isFeatured: true, order: 18, description: "Màn hình hiển thị sắc nét và phụ kiện bàn phím chuột gaming cao cấp" },
+  { name: "Màn hình máy tính", slug: "man-hinh", parentSlug: "man-hinh-gear", pcPartType: "monitor", isFeatured: true, order: 19, description: "Màn hình máy tính Gaming, Đồ họa 24 - 32 inch, 2K, 4K, 165Hz - 240Hz, IPS, OLED" },
+  { name: "Bàn phím", slug: "ban-phim", parentSlug: "man-hinh-gear", pcPartType: "gear", order: 20, description: "Bàn phím cơ Gaming, bàn phím không dây Akko, Keychron, Corsair, DareU" },
+  { name: "Chuột", slug: "chuot", parentSlug: "man-hinh-gear", pcPartType: "gear", order: 21, description: "Chuột gaming không dây, chuột công thái học Logitech, Razer siêu nhẹ" },
 ];
 
 export const NEWS_DATA = [
@@ -9231,12 +9266,17 @@ export const JOBS_DATA = [
   {
     title: "Kỹ Thuật Viên Lắp Ráp & Cài Đặt PC Gaming",
     slug: "ky-thuat-vien-lap-rap-cai-dat-pc-gaming",
-    department: "Kỹ thuật",
-    location: "Thủ Đức / Bình Thạnh, TP.HCM",
-    salary: "8.000.000đ - 14.000.000đ + Thưởng",
+    department: "Kỹ Thuật Phần Cứng",
+    level: "Chuyên viên",
+    location: "TP. Hồ Chí Minh",
+    salary: "10 - 16 Triệu",
     type: "Toàn thời gian",
     experience: "Dưới 1 năm / Được đào tạo",
     quantity: 3,
+    skills: ["Lắp ráp PC", "Cable Management", "Cài đặt Windows", "Benchmark test"],
+    workingHours: "8h30 - 17h30 (Thứ 2 - Thứ 6)",
+    contactEmail: "tuyendung@dudisoftware.com",
+    contactPhone: "0909 163 821",
     description: "- Lắp ráp, đi dây (cable management) thẩm mỹ cho các dàn máy PC Gaming, Workstation.\n- Cài đặt hệ điều hành Windows, phần mềm, driver và tối ưu hóa hệ thống cho khách hàng.\n- Kiểm tra, test linh kiện (Main, CPU, RAM, VGA, Nguồn) và hỗ trợ xử lý bảo hành.",
     requirements: [
       "Đam mê phần cứng máy tính và linh kiện PC.",
@@ -9250,18 +9290,26 @@ export const JOBS_DATA = [
       "Thưởng lễ, Tết, lương tháng 13, xét duyệt tăng lương định kỳ 6 tháng/lần.",
       "Môi trường làm việc trẻ trung, hòa đồng, năng động.",
     ],
+    deadline: new Date("2026-12-31"),
     isActive: true,
+    isHot: true,
+    views: 350,
     order: 1,
   },
   {
     title: "Nhân Viên Tư Vấn Bán Hàng PC & Laptop (Showroom / Online)",
     slug: "nhan-vien-tu-van-ban-hang-pc-laptop",
-    department: "Kinh doanh",
+    department: "Kinh Doanh & Bán Hàng",
+    level: "Nhân viên",
     location: "Chi nhánh Thủ Đức / Bình Thạnh",
-    salary: "9.000.000đ - 18.000.000đ (Lương + Hoa hồng)",
+    salary: "12 - 20 Triệu (Lương + Hoa hồng)",
     type: "Toàn thời gian",
     experience: "Không yêu cầu / Đam mê công nghệ",
     quantity: 2,
+    skills: ["Tư vấn bán hàng", "Chăm sóc khách hàng", "Giao tiếp", "Kỹ năng chốt sale"],
+    workingHours: "8h30 - 17h30 (Thứ 2 - Thứ 6)",
+    contactEmail: "tuyendung@dudisoftware.com",
+    contactPhone: "0909 163 821",
     description: "- Đón tiếp, lắng nghe nhu cầu và tư vấn cấu hình PC/Laptop phù hợp với ngân sách của khách hàng tại Showroom.\n- Trả lời tin nhắn tư vấn và chốt đơn trên Fanpage/Zalo/Website.\n- Chăm sóc khách hàng sau bán hàng và phối hợp bộ phận kỹ thuật bàn giao máy.",
     requirements: [
       "Giao tiếp tốt, nhanh nhẹn, thái độ nhiệt tình, thân thiện.",
@@ -9273,18 +9321,26 @@ export const JOBS_DATA = [
       "Được đào tạo kỹ năng bán hàng, kiến thức phần cứng chuyên sâu.",
       "Môi trường thân thiện, hỗ trợ nhau cùng phát triển.",
     ],
+    deadline: new Date("2026-12-31"),
     isActive: true,
+    isHot: true,
+    views: 280,
     order: 2,
   },
   {
     title: "Content Creator / Reviewer Công Nghệ & Media",
     slug: "content-creator-reviewer-cong-nghe",
-    department: "Marketing",
-    location: "TP. Thủ Đức, TP.HCM",
-    salary: "10.000.000đ - 20.000.000đ",
+    department: "Marketing & Media",
+    level: "Chuyên viên",
+    location: "TP. Hồ Chí Minh",
+    salary: "12 - 22 Triệu",
     type: "Toàn thời gian",
     experience: "Từ 1 năm",
     quantity: 1,
+    skills: ["CapCut / Premiere", "Review sản phẩm", "Kịch bản video", "Sáng tạo nội dung"],
+    workingHours: "8h30 - 17h30 (Thứ 2 - Thứ 6)",
+    contactEmail: "tuyendung@dudisoftware.com",
+    contactPhone: "0909 163 821",
     description: "- Lên ý tưởng kịch bản, quay dựng video ngắn (TikTok, YouTube Shorts, Reels) review PC Gaming, Laptop, góc setup công nghệ.\n- Viết bài viết đánh giá công nghệ, thủ thuật build PC trên Website và Fanpage.",
     requirements: [
       "Tự tin trước ống kính, giọng nói lưu loát, truyền cảm.",
@@ -9296,7 +9352,10 @@ export const JOBS_DATA = [
       "Trực tiếp unbox và review các siêu phẩm PC, linh kiện mới nhất.",
       "Thoải mái sáng tạo ý tưởng không gò bó.",
     ],
+    deadline: new Date("2026-12-31"),
     isActive: true,
+    isHot: false,
+    views: 410,
     order: 3,
   },
 ];
@@ -9306,12 +9365,36 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
     console.log("[Seed] Bắt đầu làm sạch dữ liệu cũ trong MongoDB...");
     await Product.deleteMany({});
     await Category.deleteMany({});
+    await Brand.deleteMany({});
     await News.deleteMany({});
+    await NewsCategory.deleteMany({});
     await Job.deleteMany({});
-    console.log("[Seed] Đã dọn dẹp Category, News, Job và Product.");
+    console.log("[Seed] Đã dọn dẹp Category, Brand, News, NewsCategory, Job và Product.");
 
+    const createdNewsCategories = await NewsCategory.insertMany(NEWS_CATEGORIES_DATA);
+    console.log(`[Seed] Đã tạo thành công ${createdNewsCategories.length} danh mục tin tức.`);
+
+    const createdBrands = await Brand.insertMany(BRANDS_DATA);
+    console.log(`[Seed] Đã tạo thành công ${createdBrands.length} thương hiệu / nhãn hàng vào MongoDB.`);
+
+    // Tạo danh mục trước
     const createdCategories = await Category.insertMany(CATEGORIES_DATA);
-    console.log(`[Seed] Đã tạo thành công ${createdCategories.length} danh mục.`);
+    console.log(`[Seed] Đã tạo thành công ${createdCategories.length} danh mục sản phẩm.`);
+
+    // Gán parentId cho các danh mục con
+    const slugToIdMap = {};
+    createdCategories.forEach((cat) => {
+      slugToIdMap[cat.slug] = cat._id;
+    });
+
+    for (const catData of CATEGORIES_DATA) {
+      if (catData.parentSlug && slugToIdMap[catData.parentSlug]) {
+        await Category.updateOne(
+          { slug: catData.slug },
+          { $set: { parent: slugToIdMap[catData.parentSlug] } }
+        );
+      }
+    }
 
     const categoryMap = {};
     createdCategories.forEach((cat) => {
@@ -9328,8 +9411,14 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
     console.log(`[Seed] Đang nạp ${productsSource.length} sản phẩm thực tế vào MongoDB...`);
 
     const productsToInsert = productsSource.map((p, index) => {
-      const catName = p.categoryName || "Laptop Cũ";
-      const catSlug = p.categorySlug || "laptop-cu";
+      let catName = p.categoryName || "Laptop & Macbook";
+      let catSlug = p.categorySlug || "laptop";
+
+      // Chuẩn hóa: Gom các danh mục dạng Laptop Dell, Laptop Asus... về danh mục Laptop
+      if (catSlug.startsWith("laptop-") && !["laptop-gaming", "laptop-van-phong"].includes(catSlug)) {
+        catSlug = "laptop";
+        catName = "Laptop & Macbook";
+      }
 
       const matchedCatId =
         categoryMap[catName.toLowerCase().trim()] ||
@@ -9484,6 +9573,45 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
     const insertedProducts = await Product.insertMany(productsToInsert);
     console.log(`🎉 [Seed Thành Công] Đã nạp thành công ${insertedProducts.length} sản phẩm vào MongoDB!`);
 
+    // Tạo các chương trình khuyến mãi mẫu áp dụng lên sản phẩm
+    const sampleProductIds = insertedProducts.slice(0, 15).map((p) => p._id);
+    const laptopCat = createdCategories.find((c) => c.slug === "laptop" || c.slug === "laptop-gaming");
+
+    const PROMOTIONS_DATA = [
+      {
+        name: "Siêu Hội Flash Sale Cuối Tuần - Giảm 15% Toàn Bộ Sản Phẩm Chọn Lọc",
+        slug: "sieu-hoi-flash-sale-cuoi-tuan-giam-15",
+        description: "Ưu đãi sốc áp dụng cho dàn máy PC Gaming và linh kiện máy tính cao cấp",
+        banner: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200",
+        discountType: "percentage",
+        discountValue: 15,
+        applyScope: "products",
+        appliedProducts: sampleProductIds,
+        startDate: new Date("2025-01-01"),
+        endDate: new Date("2026-12-31"),
+        isActive: true,
+        priority: 1,
+      },
+      {
+        name: "Back To School 2026 - Giảm Trực Tiếp 500K Cho Laptop",
+        slug: "back-to-school-2026-giam-500k-laptop",
+        description: "Chương trình trợ giá mùa tựu trường dành cho học sinh, sinh viên khi mua Laptop tại DUDI SOFTWARE",
+        banner: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=1200",
+        discountType: "fixed",
+        discountValue: 500000,
+        applyScope: "category",
+        appliedCategories: laptopCat ? [laptopCat._id] : [],
+        startDate: new Date("2025-01-01"),
+        endDate: new Date("2026-12-31"),
+        isActive: true,
+        priority: 2,
+      },
+    ];
+
+    await Promotion.deleteMany({});
+    const createdPromotions = await Promotion.insertMany(PROMOTIONS_DATA);
+    console.log(`[Seed] Đã nạp thành công ${createdPromotions.length} chiến dịch khuyến mãi sản phẩm vào MongoDB.`);
+
     // Tạo / Cập nhật tài khoản Admin mặc định
     let adminUser = await User.findOne({ email: "admin@dudisoftware.com" });
     if (!adminUser) {
@@ -9502,10 +9630,62 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
       await adminUser.save();
     }
 
+    // Nạp thêm các tài khoản khách hàng mẫu (Role: "user")
+    const sampleCustomers = [
+      {
+        name: "Bùi Phúc Nhân",
+        email: "buiphucnhanm2005@gmail.com",
+        password: "password123",
+        phone: "0909163821",
+        address: "Khu Công Nghệ Cao, TP. Thủ Đức, TP. Hồ Chí Minh",
+        role: "user",
+        status: "active",
+        authType: "google",
+      },
+      {
+        name: "Nguyễn Văn Hùng",
+        email: "hung.nguyen2024@gmail.com",
+        password: "password123",
+        phone: "0912345678",
+        address: "Số 128 Cầu Giấy, Hà Nội",
+        role: "user",
+        status: "active",
+        authType: "local",
+      },
+      {
+        name: "Trần Thị Mai Anh",
+        email: "maianh.tran@gmail.com",
+        password: "password123",
+        phone: "0987654321",
+        address: "45 Lê Duẩn, Quận 1, TP. Hồ Chí Minh",
+        role: "user",
+        status: "active",
+        authType: "google",
+      },
+      {
+        name: "Lê Hoàng Long",
+        email: "long.le.tech@outlook.com",
+        password: "password123",
+        phone: "0934567890",
+        address: "Số 89 Nguyễn Trãi, Thanh Xuân, Hà Nội",
+        role: "user",
+        status: "banned",
+        authType: "local",
+      },
+    ];
+
+    for (const c of sampleCustomers) {
+      const exists = await User.findOne({ email: c.email });
+      if (!exists) {
+        await User.create(c);
+      }
+    }
+
     return {
       categories: createdCategories.length,
       news: createdNews.length,
       jobs: createdJobs.length,
+      promotions: createdPromotions.length,
       products: insertedProducts.length,
     };
   } catch (error) {

@@ -26,7 +26,19 @@ export const jobRepository = {
     return await Job.findOne({ slug, isActive: true }).lean();
   },
 
+  findById: async (id) => {
+    return await Job.findById(id);
+  },
+
   create: async (data) => {
     return await Job.create(data);
+  },
+
+  update: async (id, data) => {
+    return await Job.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+  },
+
+  delete: async (id) => {
+    return await Job.findByIdAndDelete(id);
   },
 };

@@ -144,8 +144,16 @@ export default function RecentOrders() {
 
       {/* Order Detail Modal */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            onClick={() => setSelectedOrder(null)}
+            aria-hidden="true"
+          />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative z-10 w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+          >
             <div className="flex items-center justify-between border-b border-slate-150 pb-3 mb-4">
               <div>
                 <h3 className="text-base font-bold text-slate-900">

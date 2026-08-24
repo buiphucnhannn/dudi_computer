@@ -7,7 +7,7 @@ class CategoryRepository extends BaseRepository {
   }
 
   async findAllWithParent() {
-    return await this.model.find().populate("parent").sort({ name: 1 }).exec();
+    return await this.model.find().populate("parent").sort({ order: 1, name: 1 }).exec();
   }
 
   async findBySlug(slug) {

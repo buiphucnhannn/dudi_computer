@@ -731,7 +731,7 @@ export default function Header() {
                         : "opacity-0 invisible -translate-y-1 pointer-events-none"
                     }`}
                   >
-                    <div className="bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-gray-100 p-1.5 overflow-hidden">
+                    <div className="bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-gray-100 p-1.5 overflow-hidden w-full space-y-0.5">
                       {user?.role === "admin" && (
                         <Link
                           href="/admin"
@@ -756,8 +756,6 @@ export default function Header() {
                         <User className="w-4 h-4 text-gray-500 shrink-0" />
                         <span>Hồ sơ cá nhân</span>
                       </Link>
-
-                      <div className="my-1 border-t border-gray-100" />
 
                       <button
                         onClick={handleLogout}

@@ -20,6 +20,11 @@ const jobSchema = new mongoose.Schema(
       required: [true, "Phòng ban / Bộ phận là bắt buộc"],
       trim: true,
     },
+    level: {
+      type: String,
+      default: "Chuyên viên",
+      trim: true,
+    },
     location: {
       type: String,
       required: [true, "Địa điểm làm việc là bắt buộc"],
@@ -44,6 +49,25 @@ const jobSchema = new mongoose.Schema(
       type: Number,
       default: 1,
     },
+    skills: {
+      type: [String],
+      default: [],
+    },
+    workingHours: {
+      type: String,
+      default: "8h30 - 17h30 (Thứ 2 - Thứ 6)",
+      trim: true,
+    },
+    contactEmail: {
+      type: String,
+      default: "tuyendung@dudisoftware.com",
+      trim: true,
+    },
+    contactPhone: {
+      type: String,
+      default: "0909 163 821",
+      trim: true,
+    },
     description: {
       type: String,
       default: "",
@@ -64,12 +88,28 @@ const jobSchema = new mongoose.Schema(
       default: true,
       index: true,
     },
+    isHot: {
+      type: Boolean,
+      default: false,
+    },
+    views: {
+      type: Number,
+      default: 0,
+    },
     order: {
       type: Number,
       default: 0,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
-export const Job = mongoose.model("Job", jobSchema);
+jobSchema.virtual("isExpired").get(function () {
+  return this.deadline && new Date() > this.deadline;
+});
+
+export const Job = mongoose.models.Job || mongoose.model("Job", jobSchema);

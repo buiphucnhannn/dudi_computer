@@ -8,6 +8,11 @@ import wishlistRoutes from "./cartRoutes.js";
 import newsRoutes from "./newsRoutes.js";
 import contactRoutes from "./contactRoutes.js";
 import jobRoutes from "./jobRoutes.js";
+import userRoutes from "./userRoutes.js";
+import promotionRoutes from "./promotionRoutes.js";
+import brandRoutes from "./brandRoutes.js";
+import uploadRoutes from "./uploadRoutes.js";
+import newsCategoryRoutes from "./newsCategoryRoutes.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
 const router = Router();
@@ -22,11 +27,17 @@ router.get("/health", (req, res) => {
 router.use("/auth", authRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/products", productRoutes);
+router.use("/brands", brandRoutes);
 router.use("/feedbacks", feedbackRoutes);
 router.use("/cart", cartRoutes);
 router.use("/wishlist", wishlistRoutes);
 router.use("/news", newsRoutes);
+router.use("/news-categories", newsCategoryRoutes);
 router.use("/contacts", contactRoutes);
 router.use("/jobs", jobRoutes);
+router.use("/users", userRoutes);
+router.use("/promotions", promotionRoutes);
+router.use("/upload", uploadRoutes);
 
 export default router;
+

@@ -48,7 +48,71 @@ export const newsService = {
     return await newsRepository.getFeatured(Number(limit) || 4);
   },
 
+  getAdminNews: async (params = {}) => {
+    const { page = 1, limit = 15, category, search, isPublished } = params;
+    const query = {};
+
+    if (category && category !== "Tất cả" && category !== "all") {
+      query.category = category;
+    }
+
+    if (isPublished !== undefined && isPublished !== "all") {
+      query.isPublished = isPublished === "true" || isPublished === true;
+    }
+
+    if (search && search.trim()) {
+      query.$or = [
+        { title: { $regex: search.trim(), $options: "i" } },
+        { summary: { $regex: search.trim(), $options: "i" } },
+      ];
+    }
+
+    return await newsRepository.find(query, { page, limit });
+  },
+
+  getNewsById: async (id) => {
+    const article = await newsRepository.findById(id);
+    if (!article) {
+      throw new ApiError(404, "Không tìm thấy bài viết tin tức yêu cầu");
+    }
+    return article;
+  },
+
   createNews: async (data) => {
+    if (!data.slug && data.title) {
+      data.slug = data.title
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+    }
     return await newsRepository.create(data);
+  },
+
+  updateNews: async (id, data) => {
+    const article = await newsRepository.findById(id);
+    if (!article) {
+      throw new ApiError(404, "Không tìm thấy bài viết cần cập nhật");
+    }
+    return await newsRepository.update(id, data);
+  },
+
+  deleteNews: async (id) => {
+    const article = await newsRepository.findById(id);
+    if (!article) {
+      throw new ApiError(404, "Không tìm thấy bài viết cần xóa");
+    }
+    return await newsRepository.delete(id);
+  },
+
+  togglePublish: async (id) => {
+    const article = await newsRepository.findById(id);
+    if (!article) {
+      throw new ApiError(404, "Không tìm thấy bài viết");
+    }
+    article.isPublished = !article.isPublished;
+    await article.save();
+    return article;
   },
 };

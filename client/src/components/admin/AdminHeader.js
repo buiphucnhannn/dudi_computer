@@ -195,73 +195,70 @@ export default function AdminHeader() {
           <span>Về Cửa Hàng</span>
         </Link>
 
-        {/* Profile Card & Dropdown */}
-        <div className="relative" ref={userRef}>
-          <button
-            onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-3 border-l border-slate-200 pl-4 transition hover:opacity-80 cursor-pointer"
+        {/* Profile Card & Dropdown (Đồng bộ chuẩn hover và cấu trúc 100% với Header chính) */}
+        <div
+          className="relative group/user py-1"
+          ref={userRef}
+          onMouseEnter={() => setShowUserMenu(true)}
+          onMouseLeave={() => setShowUserMenu(false)}
+        >
+          <Link
+            href="/profile"
+            className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/80 transition-all cursor-pointer shadow-xs w-[215px]"
           >
-            <div className="hidden text-right sm:block">
-              <div className="text-xs font-bold text-slate-900 leading-tight">
-                {user?.name || "Quản trị viên"}
-              </div>
-              <div className="text-[10px] text-slate-400 font-medium">
-                {user?.email || "admin@dudisoftware.com"}
-              </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#eb1c24] text-white shadow-xs font-bold text-sm shrink-0">
+              {user?.name ? user.name.charAt(0).toUpperCase() : <User className="h-4 w-4 text-white" />}
             </div>
-
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-600 text-white shadow-xs font-bold text-sm">
-              {user?.name ? user.name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
+            <div className="text-left flex-1 min-w-0">
+              <span className="text-[11px] text-slate-400 font-medium block leading-tight">
+                Quản trị viên
+              </span>
+              <span className="text-[13.5px] font-black text-slate-900 leading-tight block truncate">
+                {user?.name || "Admin DUDI Software"}
+              </span>
             </div>
-          </button>
+          </Link>
 
           {/* User Menu Dropdown */}
-          {showUserMenu && (
-            <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="px-3 py-2 border-b border-slate-100">
-                <div className="text-xs font-bold text-slate-900">
-                  {user?.name || "Quản trị viên"}
-                </div>
-                <div className="text-[11px] text-slate-400 truncate">
-                  {user?.email || "admin@dudisoftware.com"}
-                </div>
-              </div>
+          <div
+            className={`absolute left-0 right-0 top-full pt-1.5 w-full z-50 transition-all duration-150 ${
+              showUserMenu
+                ? "opacity-100 visible translate-y-0"
+                : "opacity-0 invisible -translate-y-1 pointer-events-none"
+            }`}
+          >
+            <div className="bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-gray-100 p-1.5 overflow-hidden w-full space-y-0.5">
+              <Link
+                href="/"
+                onClick={() => setShowUserMenu(false)}
+                className="flex items-center gap-2.5 px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-red-50/60 rounded-xl transition-all"
+              >
+                <Store className="h-4 w-4 text-gray-500 shrink-0" />
+                <span>Về trang bán hàng</span>
+              </Link>
 
-              <div className="py-1 space-y-0.5">
-                <Link
-                  href="/"
-                  onClick={() => setShowUserMenu(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-red-50 hover:text-[#eb1c24] transition"
-                >
-                  <Store className="h-4 w-4 text-[#eb1c24]" />
-                  <span>Về trang bán hàng</span>
-                </Link>
+              <Link
+                href="/profile"
+                onClick={() => setShowUserMenu(false)}
+                className="flex items-center gap-2.5 px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all"
+              >
+                <User className="h-4 w-4 text-gray-500 shrink-0" />
+                <span>Hồ sơ cá nhân</span>
+              </Link>
 
-                <Link
-                  href="/admin/settings"
-                  onClick={() => setShowUserMenu(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
-                >
-                  <Settings className="h-4 w-4 text-slate-500" />
-                  <span>Cài đặt hệ thống</span>
-                </Link>
-              </div>
-
-              <div className="pt-1 border-t border-slate-100">
-                <button
-                  onClick={() => {
-                    setShowUserMenu(false);
-                    dispatch(logoutUser());
-                    window.location.href = "/login";
-                  }}
-                  className="flex w-full items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition cursor-pointer"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Đăng xuất</span>
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  setShowUserMenu(false);
+                  dispatch(logoutUser());
+                  window.location.href = "/login";
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13.5px] font-semibold text-gray-600 hover:text-red-600 hover:bg-red-50/70 rounded-xl transition-all cursor-pointer"
+              >
+                <LogOut className="h-4 w-4 shrink-0 text-gray-400" />
+                <span>Đăng xuất</span>
+              </button>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </header>
