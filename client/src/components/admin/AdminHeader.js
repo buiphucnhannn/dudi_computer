@@ -2,9 +2,54 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Search, Bell, User, X, Check, ShoppingCart, AlertTriangle, Settings, LogOut, ExternalLink } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Menu,
+  Search,
+  Bell,
+  User,
+  X,
+  Check,
+  CheckCheck,
+  ShoppingCart,
+  ShoppingBag,
+  AlertTriangle,
+  Settings,
+  LogOut,
+  ExternalLink,
+  Package,
+  Truck,
+  MessageCircle,
+  Clock,
+  Store,
+} from "lucide-react";
+import { notificationAPI } from "@/lib/api";
+import { useToast } from "@/components/common/ToastContext";
+import { selectCurrentUser, logoutUser } from "@/redux/slices/authSlice";
 
-export default function AdminHeader() {
+function formatTimeAgo(dateString) {
+  if (!dateString) return "Vừa xong";
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now - date) / 1000);
+
+  if (diffInSeconds < 60) return "Vừa xong";
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) return `${diffInHours} giờ trước`;
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 30) return `${diffInDays} ngày trước`;
+  return date.toLocaleDateString("vi-VN");
+}
+
+export default function AdminHeader({ onToggleSidebar }) {
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const user = useSelector(selectCurrentUser);
+  const { showToast } = useToast();
+
   const [search, setSearch] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -12,14 +57,12 @@ export default function AdminHeader() {
 
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [loadingNotifs, setLoadingNotifs] = useState(false);
 
   const notifRef = useRef(null);
   const userRef = useRef(null);
 
   // Fetch real notifications from Database
   const fetchNotifications = useCallback(async (isBackground = false) => {
-    if (!isBackground) setLoadingNotifs(true);
     try {
       const res = await notificationAPI.getAll({ limit: 30 });
       const data = res.data?.data;
@@ -28,9 +71,9 @@ export default function AdminHeader() {
         setUnreadCount(Number(data.unreadCount) || 0);
       }
     } catch (error) {
-      console.error("Lỗi khi tải thông báo:", error);
-    } finally {
-      if (!isBackground) setLoadingNotifs(false);
+      if (!isBackground) {
+        console.error("Lỗi khi tải thông báo:", error);
+      }
     }
   }, []);
 
@@ -64,6 +107,11 @@ export default function AdminHeader() {
       await notificationAPI.markAllAsRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
+      showToast({
+        title: "Đã đọc tất cả",
+        message: "Toàn bộ thông báo đã được đánh dấu là đã đọc",
+        type: "success",
+      });
     } catch (error) {
       console.error("Lỗi khi đánh dấu tất cả đã đọc:", error);
     }
@@ -168,6 +216,16 @@ export default function AdminHeader() {
           <Search className="h-4 w-4" />
         </button>
 
+        {/* Quick Back to Store Button on Header */}
+        <Link
+          href="/"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-red-50 hover:border-red-200 text-slate-700 hover:text-[#eb1c24] text-xs font-bold transition-all shadow-2xs"
+          title="Về trang bán hàng"
+        >
+          <Store className="h-4 w-4 text-[#eb1c24]" />
+          <span>Về Cửa Hàng</span>
+        </Link>
+
         {/* Notifications Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
@@ -175,10 +233,11 @@ export default function AdminHeader() {
               setShowNotifications(!showNotifications);
               if (!showNotifications) fetchNotifications(true);
             }}
-            className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition cursor-pointer ${showNotifications
+            className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition cursor-pointer ${
+              showNotifications
                 ? "bg-slate-900 text-white"
                 : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-              }`}
+            }`}
             title="Thông báo hệ thống"
           >
             <Bell className="h-4 w-4" />
@@ -231,10 +290,11 @@ export default function AdminHeader() {
                       <div
                         key={n._id}
                         onClick={() => handleNotificationClick(n)}
-                        className={`flex items-start gap-3 p-2.5 rounded-xl transition cursor-pointer pt-3 ${isUnread
+                        className={`flex items-start gap-3 p-2.5 rounded-xl transition cursor-pointer pt-3 ${
+                          isUnread
                             ? "bg-slate-50/90 font-medium hover:bg-slate-100/90 border border-slate-200/50 shadow-2xs"
                             : "opacity-75 hover:opacity-100 hover:bg-slate-50"
-                          }`}
+                        }`}
                       >
                         <div
                           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${color}`}
@@ -245,8 +305,9 @@ export default function AdminHeader() {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-1">
                             <p
-                              className={`text-xs leading-snug truncate ${isUnread ? "font-bold text-slate-900" : "text-slate-700 font-medium"
-                                }`}
+                              className={`text-xs leading-snug truncate ${
+                                isUnread ? "font-bold text-slate-900" : "text-slate-700 font-medium"
+                              }`}
                             >
                               {n.title}
                             </p>
@@ -272,16 +333,6 @@ export default function AdminHeader() {
             </div>
           )}
         </div>
-
-        {/* Quick Back to Store Button on Header */}
-        <Link
-          href="/"
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-red-50 hover:border-red-200 text-slate-700 hover:text-[#eb1c24] text-xs font-bold transition-all shadow-2xs"
-          title="Về trang bán hàng"
-        >
-          <Store className="h-4 w-4 text-[#eb1c24]" />
-          <span>Về Cửa Hàng</span>
-        </Link>
 
         {/* Profile Card & Dropdown */}
         <div className="relative" ref={userRef}>
@@ -338,10 +389,14 @@ export default function AdminHeader() {
               <div className="pt-1 border-t border-slate-100">
                 <button
                   onClick={() => {
-                    alert("Đã đăng xuất khỏi phiên làm việc quản trị!");
+                    showToast({
+                      title: "Đã đăng xuất",
+                      message: "Bạn đã đăng xuất khỏi phiên làm việc quản trị!",
+                      type: "info",
+                    });
                     setShowUserMenu(false);
                     dispatch(logoutUser());
-                    window.location.href = "/login";
+                    router.push("/login");
                   }}
                   className="flex w-full items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition cursor-pointer"
                 >

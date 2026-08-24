@@ -50,11 +50,6 @@ export default function RecentOrders() {
           <h2 className="text-base font-bold text-slate-900">
             Đơn hàng gần đây
           </h2>
-          {statusFilter !== "all" && (
-            <span className="text-[11px] font-bold text-red-600">
-              (Đang lọc: {statusFilter})
-            </span>
-          )}
         </div>
 
         <Link
@@ -188,11 +183,10 @@ export default function RecentOrders() {
                         updateOrderStatus(selectedOrder.id, st.key);
                         setSelectedOrder((prev) => ({ ...prev, status: st.key }));
                       }}
-                      className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
-                        selectedOrder.status === st.key
-                          ? "bg-slate-900 text-white border-slate-900"
-                          : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                      }`}
+                      className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${selectedOrder.status === st.key
+                        ? "bg-slate-900 text-white border-slate-900"
+                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                        }`}
                     >
                       {st.label}
                     </button>
