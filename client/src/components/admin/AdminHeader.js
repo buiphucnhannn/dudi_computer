@@ -2,9 +2,28 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Search, Bell, User, X, Check, ShoppingCart, AlertTriangle, Settings, LogOut, ExternalLink } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutUser } from "@/redux/slices/authSlice";
+import {
+  Search,
+  Bell,
+  User,
+  X,
+  Check,
+  ShoppingCart,
+  AlertTriangle,
+  Settings,
+  LogOut,
+  Store,
+  ArrowLeft,
+} from "lucide-react";
 
 export default function AdminHeader() {
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
   const [search, setSearch] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -166,6 +185,16 @@ export default function AdminHeader() {
           )}
         </div>
 
+        {/* Quick Back to Store Button on Header */}
+        <Link
+          href="/"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-red-50 hover:border-red-200 text-slate-700 hover:text-[#eb1c24] text-xs font-bold transition-all shadow-2xs"
+          title="Về trang bán hàng"
+        >
+          <Store className="h-4 w-4 text-[#eb1c24]" />
+          <span>Về Cửa Hàng</span>
+        </Link>
+
         {/* Profile Card & Dropdown */}
         <div className="relative" ref={userRef}>
           <button
@@ -174,31 +203,40 @@ export default function AdminHeader() {
           >
             <div className="hidden text-right sm:block">
               <div className="text-xs font-bold text-slate-900 leading-tight">
-                Quản trị viên
+                {user?.name || "Quản trị viên"}
               </div>
               <div className="text-[10px] text-slate-400 font-medium">
-                admin@dudi.vn
+                {user?.email || "admin@dudisoftware.com"}
               </div>
             </div>
 
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white shadow-xs">
-              <User className="h-4 w-4" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-600 text-white shadow-xs font-bold text-sm">
+              {user?.name ? user.name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
             </div>
           </button>
 
           {/* User Menu Dropdown */}
           {showUserMenu && (
-            <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="px-3 py-2 border-b border-slate-100">
                 <div className="text-xs font-bold text-slate-900">
-                  DUDI Master Admin
+                  {user?.name || "Quản trị viên"}
                 </div>
-                <div className="text-[11px] text-slate-400">
-                  admin@dudi.vn
+                <div className="text-[11px] text-slate-400 truncate">
+                  {user?.email || "admin@dudisoftware.com"}
                 </div>
               </div>
 
               <div className="py-1 space-y-0.5">
+                <Link
+                  href="/"
+                  onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-red-50 hover:text-[#eb1c24] transition"
+                >
+                  <Store className="h-4 w-4 text-[#eb1c24]" />
+                  <span>Về trang bán hàng</span>
+                </Link>
+
                 <Link
                   href="/admin/settings"
                   onClick={() => setShowUserMenu(false)}
@@ -207,22 +245,14 @@ export default function AdminHeader() {
                   <Settings className="h-4 w-4 text-slate-500" />
                   <span>Cài đặt hệ thống</span>
                 </Link>
-
-                <Link
-                  href="/"
-                  target="_blank"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
-                >
-                  <ExternalLink className="h-4 w-4 text-slate-500" />
-                  <span>Xem trang chủ shop</span>
-                </Link>
               </div>
 
               <div className="pt-1 border-t border-slate-100">
                 <button
                   onClick={() => {
-                    alert("Đã đăng xuất khỏi phiên làm việc quản trị!");
                     setShowUserMenu(false);
+                    dispatch(logoutUser());
+                    router.push("/login");
                   }}
                   className="flex w-full items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition cursor-pointer"
                 >

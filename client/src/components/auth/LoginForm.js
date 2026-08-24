@@ -15,7 +15,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { authAPI } from "@/lib/api";
-import { setCredentials, selectIsAuthenticated } from "@/redux/slices/authSlice";
+import { setCredentials, selectIsAuthenticated, selectCurrentUser } from "@/redux/slices/authSlice";
 import { syncCartWithCloud } from "@/redux/slices/cartSlice";
 import { useToast } from "@/components/common/ToastContext";
 
@@ -24,6 +24,7 @@ export default function LoginForm() {
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const user = useSelector(selectCurrentUser);
 
   // Modes: 'login' | 'otp'
   const [mode, setMode] = useState("login");
@@ -46,13 +47,18 @@ export default function LoginForm() {
   const [resendCooldown, setResendCooldown] = useState(60);
   const [otpExpiresCountdown, setOtpExpiresCountdown] = useState(600);
   const otpInputRefs = useRef([]);
+  const gsiInitializedRef = useRef(false);
 
-  // Nếu đã đăng nhập thì chuyển hướng về trang chủ
+  // Nếu đã đăng nhập: Admin vào thẳng /admin, User vào /
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/");
+    if (isAuthenticated && user) {
+      if (user.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/");
+      }
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, user, router]);
 
   // Cooldown timers for OTP
   useEffect(() => {
@@ -90,62 +96,74 @@ export default function LoginForm() {
 
     let isMounted = true;
 
-    const initGsi = () => {
+    const setupGoogle = () => {
       if (!isMounted || !window.google?.accounts?.id) return;
 
       try {
-        window.google.accounts.id.initialize({
-          client_id: googleClientId,
-          callback: handleGoogleCallback,
-          auto_select: false,
-          cancel_on_tap_outside: true,
-          use_fedcm_for_prompt: true,
-        });
+        if (typeof window !== "undefined") {
+          window._gsiCallback = handleGoogleCallback;
+          if (!window._gsiInitialized) {
+            window.google.accounts.id.initialize({
+              client_id: googleClientId,
+              callback: (res) => {
+                if (window._gsiCallback) window._gsiCallback(res);
+              },
+              auto_select: false,
+              cancel_on_tap_outside: true,
+            });
+            window._gsiInitialized = true;
+          }
+        }
 
         const btnContainer = document.getElementById("google-btn-container");
-        if (btnContainer) {
+        if (btnContainer && isMounted) {
           btnContainer.innerHTML = "";
-          if (isMounted) {
-            window.google.accounts.id.renderButton(btnContainer, {
-              theme: "outline",
-              size: "large",
-              type: "standard",
-              text: "signin_with",
-              shape: "rectangular",
-              logo_alignment: "left",
-              width: 320,
-            });
-          }
+          window.google.accounts.id.renderButton(btnContainer, {
+            theme: "outline",
+            size: "large",
+            type: "standard",
+            text: "signin_with",
+            shape: "rectangular",
+            logo_alignment: "left",
+            width: 320,
+          });
         }
       } catch (err) {
         console.warn("GSI init warning:", err);
       }
     };
 
-    const loadGoogleScript = () => {
-      if (document.getElementById("google-client-script")) {
-        initGsi();
-        return;
+    if (window.google?.accounts?.id) {
+      setupGoogle();
+    } else {
+      const existingScript = document.getElementById("google-client-script");
+      if (existingScript) {
+        existingScript.addEventListener("load", setupGoogle);
+      } else {
+        const script = document.createElement("script");
+        script.id = "google-client-script";
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+          if (isMounted) setupGoogle();
+        };
+        document.body.appendChild(script);
       }
-      const script = document.createElement("script");
-      script.id = "google-client-script";
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        if (isMounted) {
-          initGsi();
-        }
-      };
-      document.body.appendChild(script);
-    };
-
-    loadGoogleScript();
+    }
 
     return () => {
       isMounted = false;
     };
   }, []);
+
+  const handleSuccessfulLoginRedirect = (loggedInUser) => {
+    if (loggedInUser?.role === "admin") {
+      router.push("/admin");
+    } else {
+      router.push("/");
+    }
+  };
 
   const handleGoogleCallback = async (response) => {
     if (!response?.credential) return;
@@ -163,11 +181,14 @@ export default function LoginForm() {
 
       showToast({
         title: "Đăng nhập thành công!",
-        message: `Chào mừng ${user?.name || "bạn"} đã quay trở lại DUDI SOFTWARE!`,
+        message:
+          user?.role === "admin"
+            ? `Chào mừng Quản trị viên ${user?.name || "Admin"}, chúc bạn làm việc hiệu quả!`
+            : `Xin chào ${user?.name || "quý khách"}, chúc bạn mua sắm vui vẻ!`,
         type: "success",
       });
 
-      router.push("/");
+      handleSuccessfulLoginRedirect(user);
     } catch (error) {
       const msg =
         error.response?.data?.message ||
@@ -249,11 +270,14 @@ export default function LoginForm() {
 
       showToast({
         title: "Đăng nhập thành công!",
-        message: `Xin chào ${user?.name || "quý khách"}, chúc bạn mua sắm vui vẻ!`,
+        message:
+          user?.role === "admin"
+            ? `Chào mừng Quản trị viên ${user?.name || "Admin"}, chúc bạn làm việc hiệu quả!`
+            : `Xin chào ${user?.name || "quý khách"}, chúc bạn mua sắm vui vẻ!`,
         type: "success",
       });
 
-      router.push("/");
+      handleSuccessfulLoginRedirect(user);
     } catch (error) {
       const errorData = error.response?.data?.data;
       const errorMsg =
@@ -368,12 +392,15 @@ export default function LoginForm() {
 
       showToast({
         title: "Kích hoạt tài khoản thành công!",
-        message: `Chào mừng ${user?.name || "bạn"} đã quay trở lại DUDI SOFTWARE!`,
+        message:
+          user?.role === "admin"
+            ? `Chào mừng Quản trị viên ${user?.name || "Admin"}, chúc bạn làm việc hiệu quả!`
+            : `Xin chào ${user?.name || "quý khách"}, chúc bạn mua sắm vui vẻ!`,
         type: "success",
         duration: 5000,
       });
 
-      router.push("/");
+      handleSuccessfulLoginRedirect(user);
     } catch (error) {
       const errorMsg =
         error.response?.data?.message ||
@@ -455,7 +482,12 @@ export default function LoginForm() {
             )}
 
             {/* Google Sign-In Button with Native User Click Overlay */}
-            <div className="relative w-full h-[44px] rounded-xl overflow-hidden border border-gray-200/80 bg-white hover:bg-gray-50 transition-all flex items-center justify-center cursor-pointer shadow-2xs">
+            <button
+              type="button"
+              onClick={handleGoogleLoginClick}
+              disabled={googleLoading || loading}
+              className="relative w-full h-[44px] rounded-xl overflow-hidden border border-gray-200/90 bg-white hover:bg-gray-50 transition-all flex items-center justify-center cursor-pointer shadow-2xs group active:scale-98"
+            >
               <div className="absolute inset-0 flex items-center justify-center gap-2.5 text-gray-700 font-bold text-xs sm:text-sm pointer-events-none">
                 {googleLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
@@ -487,9 +519,9 @@ export default function LoginForm() {
               {/* Real Google Button overlaid with opacity-0 to guarantee native browser click */}
               <div
                 id="google-btn-container"
-                className="absolute inset-0 opacity-[0.001] cursor-pointer flex items-center justify-center scale-150"
+                className="absolute inset-0 opacity-[0.001] cursor-pointer flex items-center justify-center overflow-hidden pointer-events-auto"
               />
-            </div>
+            </button>
 
             {/* Divider */}
             <div className="relative my-5 text-center">

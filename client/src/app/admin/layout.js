@@ -1,5 +1,6 @@
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
+import AdminRouteGuard from "@/components/admin/AdminRouteGuard";
 
 export const metadata = {
   title: "Admin Dashboard | DUDI SOFTWARE",
@@ -7,18 +8,20 @@ export const metadata = {
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
-      {/* Sidebar */}
-      <AdminSidebar />
+    <AdminRouteGuard>
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+        {/* Sidebar */}
+        <AdminSidebar />
 
-      {/* Main Container */}
-      <div className="pl-[280px]">
-        {/* Header */}
-        <AdminHeader />
+        {/* Main Container */}
+        <div className="pl-[280px]">
+          {/* Header */}
+          <AdminHeader />
 
-        {/* Main Content Area */}
-        <main className="min-h-screen pt-16">{children}</main>
+          {/* Main Content Area */}
+          <main className="min-h-screen pt-16">{children}</main>
+        </div>
       </div>
-    </div>
+    </AdminRouteGuard>
   );
 }

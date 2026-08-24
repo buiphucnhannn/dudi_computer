@@ -34,6 +34,7 @@ import {
   Users,
   ShieldCheck,
   FileText,
+  LayoutDashboard,
 } from "lucide-react";
 import {
   fetchCloudWishlist,
@@ -699,53 +700,83 @@ export default function Header() {
           {/* User Auth Links (Đăng nhập | Đăng ký | Dropdown Profile) */}
           <div className="hidden sm:flex items-center gap-2 pl-2 relative">
             {mounted && isAuthenticated ? (
-              <div
-                className="relative group/user py-1"
-                onMouseEnter={() => setUserDropdownOpen(true)}
-                onMouseLeave={() => setUserDropdownOpen(false)}
-              >
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-3 px-3 py-1.5 rounded-2xl bg-gray-50 hover:bg-gray-100/90 border border-gray-200/60 transition-all cursor-pointer shadow-xs"
-                >
-                  <div className="w-10 h-10 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <User className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <span className="text-[12px] text-gray-500 font-medium block leading-tight">
-                      Xin chào,
-                    </span>
-                    <span className="text-[15px] font-black text-gray-900 leading-tight block truncate max-w-[140px]">
-                      {user?.name}
-                    </span>
-                  </div>
-                </Link>
+              <div className="flex items-center gap-2">
+                {/* Nút truy cập nhanh Dashboard cho Admin ngay trên Header */}
+                {user?.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-[#eb1c24] text-white text-xs font-bold transition-all shadow-xs"
+                    title="Vào bảng điều khiển quản trị"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5" />
+                    <span>Admin</span>
+                  </Link>
+                )}
 
-                {/* User Dropdown Menu with Hover Bridge (Căn giữa hoàn hảo ngay dưới thẻ người dùng) */}
                 <div
-                  className={`absolute left-1/2 -translate-x-1/2 top-full pt-2 w-[210px] z-50 transition-all duration-150 ${
-                    userDropdownOpen
-                      ? "opacity-100 visible translate-y-0"
-                      : "opacity-0 invisible -translate-y-1 pointer-events-none"
-                  }`}
+                  className="relative group/user py-1"
+                  onMouseEnter={() => setUserDropdownOpen(true)}
+                  onMouseLeave={() => setUserDropdownOpen(false)}
                 >
-                  <div className="bg-white rounded-2xl shadow-2xl shadow-black/15 border border-gray-100 p-1.5 overflow-hidden">
-                    <Link
-                      href="/profile"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-3 px-3.5 py-2.5 text-[14px] font-bold text-gray-700 hover:text-[#eb1c24] hover:bg-red-50/60 rounded-xl transition-all"
-                    >
-                      <User className="w-4.5 h-4.5 text-gray-500 shrink-0" />
-                      <span>Hồ sơ cá nhân</span>
-                    </Link>
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-gray-50 hover:bg-gray-100/90 border border-gray-200/60 transition-all cursor-pointer shadow-xs"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-sm font-bold text-sm">
+                      {user?.name ? user.name.charAt(0).toUpperCase() : <User className="w-4 h-4 text-white" />}
+                    </div>
+                    <div className="text-left">
+                      <span className="text-[11px] text-gray-500 font-medium block leading-tight">
+                        Xin chào,
+                      </span>
+                      <span className="text-[14px] font-black text-gray-900 leading-tight block truncate max-w-[130px]">
+                        {user?.name}
+                      </span>
+                    </div>
+                  </Link>
 
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-3 px-3.5 py-2.5 text-left text-[14px] font-bold text-red-600 hover:bg-red-50/60 rounded-xl transition-all cursor-pointer border-t border-gray-100 mt-1"
-                    >
-                      <LogOut className="w-4.5 h-4.5 shrink-0 text-red-500" />
-                      <span>Đăng xuất</span>
-                    </button>
+                  {/* User Dropdown Menu with Hover Bridge (Căn giữa hoàn hảo ngay dưới thẻ người dùng) */}
+                  <div
+                    className={`absolute left-1/2 -translate-x-1/2 top-full pt-2 w-[210px] z-50 transition-all duration-150 ${
+                      userDropdownOpen
+                        ? "opacity-100 visible translate-y-0"
+                        : "opacity-0 invisible -translate-y-1 pointer-events-none"
+                    }`}
+                  >
+                    <div className="bg-white rounded-2xl shadow-xl shadow-slate-900/5 border border-gray-100 p-1.5 overflow-hidden">
+                      {user?.role === "admin" && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center justify-between px-3.5 py-2.5 text-[13.5px] font-bold text-gray-800 hover:text-[#eb1c24] hover:bg-red-50/50 rounded-xl transition-all border-b border-gray-50 mb-1"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <LayoutDashboard className="w-4 h-4 text-gray-600 shrink-0" />
+                            <span>Trang Quản Trị</span>
+                          </div>
+                          <span className="px-1.5 py-0.5 rounded bg-red-100 text-[#eb1c24] text-[9px] font-black uppercase">
+                            Admin
+                          </span>
+                        </Link>
+                      )}
+
+                      <Link
+                        href="/profile"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2.5 px-3.5 py-2.5 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all"
+                      >
+                        <User className="w-4 h-4 text-gray-500 shrink-0" />
+                        <span>Hồ sơ cá nhân</span>
+                      </Link>
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-[13.5px] font-semibold text-gray-600 hover:text-red-600 hover:bg-red-50/70 rounded-xl transition-all cursor-pointer border-t border-gray-50 mt-1"
+                      >
+                        <LogOut className="w-4 h-4 shrink-0 text-gray-400" />
+                        <span>Đăng xuất</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1287,6 +1318,26 @@ export default function Header() {
 
           {/* Quick Access Badges Grid */}
           <div className="p-3 grid grid-cols-2 gap-2 bg-white">
+            {mounted && user?.role === "admin" && (
+              <Link
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="col-span-2 p-2.5 bg-red-50 hover:bg-red-100/80 rounded-xl flex items-center gap-2.5 transition-colors border border-red-200"
+              >
+                <div className="w-8 h-8 rounded-lg bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <LayoutDashboard className="w-4 h-4 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-[#eb1c24] block leading-tight">
+                    Trang Quản Trị (Admin)
+                  </span>
+                  <span className="text-[10px] text-gray-500">
+                    Dashboard, sản phẩm, đơn hàng
+                  </span>
+                </div>
+              </Link>
+            )}
+
             <Link
               href="/cart"
               onClick={() => setMobileMenuOpen(false)}
