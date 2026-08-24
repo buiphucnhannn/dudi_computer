@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Menu,
   Search,
@@ -10,48 +11,76 @@ import {
   X,
   Check,
   ShoppingCart,
+  ShoppingBag,
   AlertTriangle,
   Settings,
   LogOut,
   ExternalLink,
+  Package,
+  Truck,
+  MessageCircle,
+  Clock,
+  CheckCheck,
 } from "lucide-react";
+import { notificationAPI } from "@/lib/api";
+
+function formatTimeAgo(dateString) {
+  if (!dateString) return "Vừa xong";
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now - date) / 1000);
+
+  if (diffInSeconds < 60) return "Vừa xong";
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) return `${diffInHours} giờ trước`;
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 30) return `${diffInDays} ngày trước`;
+  return date.toLocaleDateString("vi-VN");
+}
 
 export default function AdminHeader({ onToggleSidebar }) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(3);
 
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "Đơn hàng mới #ORD-0921",
-      desc: "Khách hàng Nguyễn Văn A vừa đặt mua MacBook Pro M3 Max",
-      time: "5 phút trước",
-      type: "order",
-      unread: true,
-    },
-    {
-      id: 2,
-      title: "Cảnh báo tồn kho",
-      desc: "Card màn hình ASUS ROG RTX 4090 chỉ còn 2 sản phẩm",
-      time: "25 phút trước",
-      type: "warning",
-      unread: true,
-    },
-    {
-      id: 3,
-      title: "Thanh toán thành công",
-      desc: "Đơn hàng #ORD-0920 đã thanh toán 54.000.000₫ qua VNPay",
-      time: "1 giờ trước",
-      type: "order",
-      unread: true,
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loadingNotifs, setLoadingNotifs] = useState(false);
 
   const notifRef = useRef(null);
   const userRef = useRef(null);
+
+  // Fetch real notifications from Database
+  const fetchNotifications = useCallback(async (isBackground = false) => {
+    if (!isBackground) setLoadingNotifs(true);
+    try {
+      const res = await notificationAPI.getAll({ limit: 30 });
+      const data = res.data?.data;
+      if (data) {
+        setNotifications(data.notifications || []);
+        setUnreadCount(Number(data.unreadCount) || 0);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tải thông báo:", error);
+    } finally {
+      if (!isBackground) setLoadingNotifs(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+
+    // Polling định kỳ 10 giây để nhận thông báo mới realtime
+    const interval = setInterval(() => {
+      fetchNotifications(true);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -67,9 +96,68 @@ export default function AdminHeader({ onToggleSidebar }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleMarkAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
-    setUnreadCount(0);
+  const handleMarkAllRead = async () => {
+    try {
+      await notificationAPI.markAllAsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error("Lỗi khi đánh dấu tất cả đã đọc:", error);
+    }
+  };
+
+  const handleNotificationClick = async (notif) => {
+    if (!notif.isRead) {
+      try {
+        await notificationAPI.markAsRead(notif._id);
+        setNotifications((prev) =>
+          prev.map((n) => (n._id === notif._id ? { ...n, isRead: true } : n))
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      } catch (err) {
+        console.error("Lỗi khi đánh dấu đã đọc:", err);
+      }
+    }
+
+    setShowNotifications(false);
+    if (notif.link) {
+      router.push(notif.link);
+    }
+  };
+
+  const getNotifIcon = (type) => {
+    switch (type) {
+      case "order":
+        return {
+          icon: ShoppingBag,
+          color: "bg-blue-50 text-blue-600 border-blue-200",
+        };
+      case "order_status":
+        return {
+          icon: Truck,
+          color: "bg-emerald-50 text-emerald-600 border-emerald-200",
+        };
+      case "product":
+        return {
+          icon: Package,
+          color: "bg-purple-50 text-purple-600 border-purple-200",
+        };
+      case "contact":
+        return {
+          icon: MessageCircle,
+          color: "bg-indigo-50 text-indigo-600 border-indigo-200",
+        };
+      case "warning":
+        return {
+          icon: AlertTriangle,
+          color: "bg-amber-50 text-amber-600 border-amber-200",
+        };
+      default:
+        return {
+          icon: Bell,
+          color: "bg-slate-50 text-slate-600 border-slate-200",
+        };
+    }
   };
 
   return (
@@ -117,26 +205,29 @@ export default function AdminHeader({ onToggleSidebar }) {
           <Search className="h-4 w-4" />
         </button>
 
-        {/* Notifications */}
+        {/* Notifications Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
-            onClick={() => setShowNotifications(!showNotifications)}
+            onClick={() => {
+              setShowNotifications(!showNotifications);
+              if (!showNotifications) fetchNotifications(true);
+            }}
             className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition cursor-pointer ${
               showNotifications
                 ? "bg-slate-900 text-white"
                 : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
             }`}
-            title="Thông báo"
+            title="Thông báo hệ thống"
           >
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-black text-white ring-2 ring-white animate-pulse">
-                {unreadCount}
+                {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
           </button>
 
-          {/* Notifications Dropdown */}
+          {/* Notifications Dropdown Body */}
           {showNotifications && (
             <div className="absolute right-0 mt-2 w-[calc(100vw-32px)] max-w-sm sm:w-96 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-2">
@@ -150,51 +241,73 @@ export default function AdminHeader({ onToggleSidebar }) {
                     </span>
                   )}
                 </div>
+
                 {unreadCount > 0 && (
                   <button
                     onClick={handleMarkAllRead}
-                    className="text-[11px] font-semibold text-blue-600 hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer transition"
                   >
-                    <Check className="h-3 w-3" />
-                    Đọc tất cả
+                    <CheckCheck className="h-3.5 w-3.5" />
+                    <span>Đọc tất cả</span>
                   </button>
                 )}
               </div>
 
-              <div className="max-h-72 overflow-y-auto space-y-1 divide-y divide-slate-100">
-                {notifications.map((n) => (
-                  <div
-                    key={n.id}
-                    className={`flex items-start gap-3 p-2.5 rounded-xl transition ${
-                      n.unread ? "bg-slate-50/80 font-medium" : "opacity-80"
-                    } hover:bg-slate-100 cursor-pointer`}
-                  >
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                        n.type === "warning"
-                          ? "bg-amber-100 text-amber-600"
-                          : "bg-blue-100 text-blue-600"
-                      }`}
-                    >
-                      {n.type === "warning" ? (
-                        <AlertTriangle className="h-4 w-4" />
-                      ) : (
-                        <ShoppingCart className="h-4 w-4" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold text-slate-900 leading-snug">
-                        {n.title}
-                      </p>
-                      <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5">
-                        {n.desc}
-                      </p>
-                      <span className="text-[10px] text-slate-400 mt-1 block">
-                        {n.time}
-                      </span>
-                    </div>
+              {/* Notifications List */}
+              <div className="max-h-80 overflow-y-auto space-y-1.5 divide-y divide-slate-100 pr-0.5">
+                {notifications.length === 0 ? (
+                  <div className="py-8 text-center text-slate-400">
+                    <Bell className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="text-xs font-medium">Chưa có thông báo nào</p>
                   </div>
-                ))}
+                ) : (
+                  notifications.map((n) => {
+                    const { icon: IconComponent, color } = getNotifIcon(n.type);
+                    const isUnread = !n.isRead;
+
+                    return (
+                      <div
+                        key={n._id}
+                        onClick={() => handleNotificationClick(n)}
+                        className={`flex items-start gap-3 p-2.5 rounded-xl transition cursor-pointer pt-3 ${
+                          isUnread
+                            ? "bg-slate-50/90 font-medium hover:bg-slate-100/90 border border-slate-200/50 shadow-2xs"
+                            : "opacity-75 hover:opacity-100 hover:bg-slate-50"
+                        }`}
+                      >
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${color}`}
+                        >
+                          <IconComponent className="h-4 w-4" />
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <p
+                              className={`text-xs leading-snug truncate ${
+                                isUnread ? "font-bold text-slate-900" : "text-slate-700 font-medium"
+                              }`}
+                            >
+                              {n.title}
+                            </p>
+                            {isUnread && (
+                              <span className="h-1.5 w-1.5 rounded-full bg-red-600 shrink-0" />
+                            )}
+                          </div>
+
+                          <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 font-normal">
+                            {n.message}
+                          </p>
+
+                          <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{formatTimeAgo(n.createdAt)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           )}

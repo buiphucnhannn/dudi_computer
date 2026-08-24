@@ -9,3 +9,4 @@ export { Contact } from "./Contact.js";
 export { Feedback } from "./Feedback.js";
 export { Cart } from "./Cart.js";
 export { Otp } from "./Otp.js";
+export { Notification } from "./Notification.js";

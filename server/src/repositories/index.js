@@ -6,3 +6,4 @@ export { feedbackRepository } from "./feedbackRepository.js";
 export { cartRepository } from "./cartRepository.js";
 export { newsRepository } from "./newsRepository.js";
 export { orderRepository } from "./orderRepository.js";
+export { notificationRepository } from "./notificationRepository.js";

@@ -6,3 +6,4 @@ export { cartService } from "./cartService.js";
 export { newsService } from "./newsService.js";
 export { orderService } from "./orderService.js";
 export { statisticService } from "./statisticService.js";
+export { notificationService } from "./notificationService.js";

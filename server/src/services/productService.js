@@ -98,7 +98,29 @@ class ProductService {
       price: Number(price),
     };
 
-    return await productRepository.create(newProduct);
+    const createdProduct = await productRepository.create(newProduct);
+
+    // Tự động tạo thông báo Admin cho sản phẩm mới
+    try {
+      const { notificationService } = await import("./notificationService.js");
+      await notificationService.createNotification({
+        title: `Sản phẩm mới: ${createdProduct.name}`,
+        message: `Đã thêm sản phẩm "${createdProduct.name}" vào kho với giá ${new Intl.NumberFormat("vi-VN").format(createdProduct.price || 0)}₫ (Tồn kho: ${createdProduct.stock})`,
+        type: "product",
+        link: "/admin/products",
+        entityId: createdProduct._id,
+        entityType: "Product",
+        metadata: {
+          productName: createdProduct.name,
+          price: createdProduct.price,
+          stock: createdProduct.stock,
+        },
+      });
+    } catch (notifErr) {
+      console.error("Lỗi khi tạo notification cho sản phẩm mới:", notifErr);
+    }
+
+    return createdProduct;
   }
 
   async updateProduct(id, updateData) {

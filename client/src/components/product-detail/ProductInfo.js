@@ -20,7 +20,7 @@ import {
   Scale,
 } from "lucide-react";
 
-import BuyContactModal from "./BuyContactModal";
+import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
 import ProductComparisonModal from "./ProductComparisonModal";
 import ProductComparisonBar from "./ProductComparisonBar";
 
@@ -499,12 +499,18 @@ const ProductInfo = ({ product }) => {
         </button>
       </div>
 
-      {/* BUY MODAL */}
-      <BuyContactModal
+      {/* BUY CHECKOUT MODAL */}
+      <OrderCheckoutModal
         isOpen={isBuyModalOpen}
-        onClose={() =>
-          setIsBuyModalOpen(false)
-        }
+        onClose={() => setIsBuyModalOpen(false)}
+        prefilledProduct={product}
+        onOrderSuccess={(order) => {
+          showToast({
+            title: "Đặt hàng thành công",
+            message: `Mã đơn hàng #${order?.orderCode} đang được xử lý`,
+            type: "success",
+          });
+        }}
       />
 
       {/* ADD PRODUCT MODAL */}

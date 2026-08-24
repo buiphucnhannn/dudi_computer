@@ -10,6 +10,7 @@ import newsRoutes from "./newsRoutes.js";
 import contactRoutes from "./contactRoutes.js";
 import jobRoutes from "./jobRoutes.js";
 import statisticRoutes from "./statisticRoutes.js";
+import notificationRoutes from "./notificationRoutes.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
 const router = Router();
@@ -32,5 +33,6 @@ router.use("/news", newsRoutes);
 router.use("/contacts", contactRoutes);
 router.use("/jobs", jobRoutes);
 router.use("/statistics", statisticRoutes);
+router.use("/notifications", notificationRoutes);
 
 export default router;

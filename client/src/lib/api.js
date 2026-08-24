@@ -155,3 +155,11 @@ export const statisticAPI = {
   getSalesRatio: () => apiClient.get("/statistics/sales-ratio"),
   getTopProducts: (params) => apiClient.get("/statistics/top-products", { params }),
 };
+
+export const notificationAPI = {
+  getAll: (params) => apiClient.get("/notifications", { params }),
+  getUnreadCount: () => apiClient.get("/notifications/unread-count"),
+  markAsRead: (id) => apiClient.patch(`/notifications/${id}/read`),
+  markAllAsRead: () => apiClient.patch("/notifications/read-all"),
+  delete: (id) => apiClient.delete(`/notifications/${id}`),
+};

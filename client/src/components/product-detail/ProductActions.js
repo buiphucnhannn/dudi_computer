@@ -1,40 +1,31 @@
 "use client";
 
-import { useDispatch } from "react-redux";
-import { addToCart } from "@/redux/slices/cartSlice";
+import { useState } from "react";
 import { useToast } from "@/components/common/ToastContext";
+import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
 
 const ProductActions = ({ product }) => {
-  const dispatch = useDispatch();
   const { showToast } = useToast();
-
-  const handleBuyNow = () => {
-    if (!product) return;
-    dispatch(addToCart({ product, quantity: 1 }));
-    showToast({
-      title: "Đã thêm vào giỏ hàng",
-      message: `Đã thêm "${product.name}" vào giỏ hàng thành công!`,
-      type: "success",
-    });
-  };
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
 
   return (
     <>
       <div className="flex flex-col sm:flex-row gap-4 mt-2">
         <button
-          onClick={handleBuyNow}
+          onClick={() => setIsBuyModalOpen(true)}
           className="flex-1 bg-red-600 text-white min-h-14 rounded-xl font-bold text-lg hover:bg-red-700 transition-colors shadow-md flex flex-col items-center justify-center cursor-pointer"
         >
           <span>MUA NGAY</span>
-
           <span className="text-xs font-normal opacity-90">
             Giao hàng tận nơi hoặc nhận tại cửa hàng
           </span>
         </button>
 
-        <button className="flex-1 bg-white text-red-600 border-2 border-red-600 min-h-14 rounded-xl font-bold text-lg hover:bg-red-50 transition-colors shadow-sm flex flex-col items-center justify-center">
+        <button
+          onClick={() => setIsBuyModalOpen(true)}
+          className="flex-1 bg-white text-red-600 border-2 border-red-600 min-h-14 rounded-xl font-bold text-lg hover:bg-red-50 transition-colors shadow-sm flex flex-col items-center justify-center cursor-pointer"
+        >
           <span>MUA TRẢ GÓP</span>
-
           <span className="text-xs font-normal text-slate-500">
             Duyệt hồ sơ nhanh chóng
           </span>
@@ -57,6 +48,19 @@ const ProductActions = ({ product }) => {
           Bảo hành siêu tốc
         </div>
       </div>
+
+      <OrderCheckoutModal
+        isOpen={isBuyModalOpen}
+        onClose={() => setIsBuyModalOpen(false)}
+        prefilledProduct={product}
+        onOrderSuccess={(order) => {
+          showToast({
+            title: "Đặt hàng thành công",
+            message: `Mã đơn hàng #${order?.orderCode} đang được xử lý`,
+            type: "success",
+          });
+        }}
+      />
     </>
   );
 };
