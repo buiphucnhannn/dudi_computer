@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { X, Plus, Save, Package, Image as ImageIcon, Tag, DollarSign, Layers } from "lucide-react";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function ProductModal({ isOpen, onClose, onSave, initialData, categories = [], brands = [] }) {
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     sku: "",
@@ -53,7 +55,11 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, cat
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.price) {
-      alert("Vui lòng điền tên sản phẩm và giá bán!");
+      showToast({
+        title: "Thiếu thông tin bắt buộc",
+        message: "Vui lòng điền tên sản phẩm và giá bán hợp lệ!",
+        type: "error",
+      });
       return;
     }
 

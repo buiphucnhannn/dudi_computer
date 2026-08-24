@@ -23,6 +23,7 @@ import {
   CheckCheck,
 } from "lucide-react";
 import { notificationAPI } from "@/lib/api";
+import { useToast } from "@/components/common/ToastContext";
 
 function formatTimeAgo(dateString) {
   if (!dateString) return "Vừa xong";
@@ -42,6 +43,7 @@ function formatTimeAgo(dateString) {
 
 export default function AdminHeader({ onToggleSidebar }) {
   const router = useRouter();
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -368,7 +370,11 @@ export default function AdminHeader({ onToggleSidebar }) {
               <div className="pt-1 border-t border-slate-100">
                 <button
                   onClick={() => {
-                    alert("Đã đăng xuất khỏi phiên làm việc quản trị!");
+                    showToast({
+                      title: "Đã đăng xuất",
+                      message: "Bạn đã đăng xuất khỏi phiên làm việc quản trị!",
+                      type: "info",
+                    });
                     setShowUserMenu(false);
                   }}
                   className="flex w-full items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition cursor-pointer"

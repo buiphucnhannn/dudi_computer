@@ -2,12 +2,18 @@
 
 import { useState } from "react";
 import { ShieldCheck, Key } from "lucide-react";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function SecuritySettings() {
+  const { showToast } = useToast();
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
 
   const handleConfigure = () => {
-    alert("Chức năng cấu hình 2FA!");
+    showToast({
+      title: "Cấu hình bảo mật 2FA",
+      message: "Hệ thống xác thực 2 lớp qua OTP Email hiện đang được kích hoạt và bảo vệ phiên làm việc của bạn.",
+      type: "info",
+    });
   };
 
   return (

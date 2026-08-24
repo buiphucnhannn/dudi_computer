@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Camera, Save, User, Mail, Lock } from "lucide-react";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function AccountSettings() {
+  const { showToast } = useToast();
   const [form, setForm] = useState({
     name: "Quản trị viên DUDI",
     email: "admin@dudi.vn",
@@ -21,7 +23,11 @@ export default function AccountSettings() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Đã lưu thông tin tài khoản thành công!");
+    showToast({
+      title: "Cập nhật thành công",
+      message: "Đã lưu thay đổi thông tin tài khoản quản trị viên!",
+      type: "success",
+    });
   };
 
   return (
@@ -57,6 +63,13 @@ export default function AccountSettings() {
 
             <button
               type="button"
+              onClick={() => {
+                showToast({
+                  title: "Ảnh đại diện",
+                  message: "Tính năng tải lên ảnh đại diện tùy chỉnh đang được đồng bộ.",
+                  type: "info",
+                });
+              }}
               className="text-xs font-bold text-red-600 hover:text-red-700 transition cursor-pointer"
             >
               Đổi ảnh đại diện

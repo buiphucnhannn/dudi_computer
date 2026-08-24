@@ -16,6 +16,7 @@ import {
   User,
 } from "lucide-react";
 import OrderStatusBadge from "./OrderStatusBadge";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function OrderDetailModal({
   order,
@@ -23,6 +24,7 @@ export default function OrderDetailModal({
   onClose,
   onUpdateStatus,
 }) {
+  const { showToast } = useToast();
   if (!isOpen || !order) return null;
 
   // Mock list of items for this order if not explicitly passed
@@ -282,7 +284,11 @@ export default function OrderDetailModal({
 
             <button
               onClick={() => {
-                alert(`Đã gửi email cập nhật trạng thái đơn hàng #${order.id} tới khách hàng ${order.customerName}!`);
+                showToast({
+                  title: "Đã gửi thông báo",
+                  message: `Đã gửi thông báo cập nhật trạng thái đơn hàng #${order.orderCode || order.id} tới khách hàng ${order.customerName || order.customerInfo?.fullName}!`,
+                  type: "success",
+                });
                 onClose();
               }}
               className="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-slate-800 shadow-xs transition cursor-pointer"

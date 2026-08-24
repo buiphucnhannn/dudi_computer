@@ -15,6 +15,7 @@ import {
   Sparkles,
   ShoppingBag,
 } from "lucide-react";
+import { useToast } from "@/components/common/ToastContext";
 
 export const CATALOG_PRODUCTS = [
   {
@@ -68,6 +69,7 @@ export const CATALOG_PRODUCTS = [
 ];
 
 export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
+  const { showToast } = useToast();
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -144,7 +146,11 @@ export default function CreateOrderModal({ isOpen, onClose, onSubmitOrder }) {
 
   const handleRemoveItem = (id) => {
     if (items.length <= 1) {
-      alert("Đơn hàng phải có ít nhất 1 sản phẩm!");
+      showToast({
+        title: "Không thể xóa",
+        message: "Đơn hàng phải có ít nhất 1 sản phẩm!",
+        type: "error",
+      });
       return;
     }
     setItems((prev) => prev.filter((item) => item.id !== id));
