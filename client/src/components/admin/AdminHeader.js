@@ -2,48 +2,9 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  Menu,
-  Search,
-  Bell,
-  User,
-  X,
-  Check,
-  ShoppingCart,
-  ShoppingBag,
-  AlertTriangle,
-  Settings,
-  LogOut,
-  ExternalLink,
-  Package,
-  Truck,
-  MessageCircle,
-  Clock,
-  CheckCheck,
-} from "lucide-react";
-import { notificationAPI } from "@/lib/api";
-import { useToast } from "@/components/common/ToastContext";
+import { Search, Bell, User, X, Check, ShoppingCart, AlertTriangle, Settings, LogOut, ExternalLink } from "lucide-react";
 
-function formatTimeAgo(dateString) {
-  if (!dateString) return "Vừa xong";
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInSeconds = Math.floor((now - date) / 1000);
-
-  if (diffInSeconds < 60) return "Vừa xong";
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours} giờ trước`;
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 30) return `${diffInDays} ngày trước`;
-  return date.toLocaleDateString("vi-VN");
-}
-
-export default function AdminHeader({ onToggleSidebar }) {
-  const router = useRouter();
-  const { showToast } = useToast();
+export default function AdminHeader() {
   const [search, setSearch] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -214,11 +175,10 @@ export default function AdminHeader({ onToggleSidebar }) {
               setShowNotifications(!showNotifications);
               if (!showNotifications) fetchNotifications(true);
             }}
-            className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition cursor-pointer ${
-              showNotifications
+            className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition cursor-pointer ${showNotifications
                 ? "bg-slate-900 text-white"
                 : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-            }`}
+              }`}
             title="Thông báo hệ thống"
           >
             <Bell className="h-4 w-4" />
@@ -271,11 +231,10 @@ export default function AdminHeader({ onToggleSidebar }) {
                       <div
                         key={n._id}
                         onClick={() => handleNotificationClick(n)}
-                        className={`flex items-start gap-3 p-2.5 rounded-xl transition cursor-pointer pt-3 ${
-                          isUnread
+                        className={`flex items-start gap-3 p-2.5 rounded-xl transition cursor-pointer pt-3 ${isUnread
                             ? "bg-slate-50/90 font-medium hover:bg-slate-100/90 border border-slate-200/50 shadow-2xs"
                             : "opacity-75 hover:opacity-100 hover:bg-slate-50"
-                        }`}
+                          }`}
                       >
                         <div
                           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${color}`}
@@ -286,9 +245,8 @@ export default function AdminHeader({ onToggleSidebar }) {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-1">
                             <p
-                              className={`text-xs leading-snug truncate ${
-                                isUnread ? "font-bold text-slate-900" : "text-slate-700 font-medium"
-                              }`}
+                              className={`text-xs leading-snug truncate ${isUnread ? "font-bold text-slate-900" : "text-slate-700 font-medium"
+                                }`}
                             >
                               {n.title}
                             </p>
@@ -315,6 +273,16 @@ export default function AdminHeader({ onToggleSidebar }) {
           )}
         </div>
 
+        {/* Quick Back to Store Button on Header */}
+        <Link
+          href="/"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-red-50 hover:border-red-200 text-slate-700 hover:text-[#eb1c24] text-xs font-bold transition-all shadow-2xs"
+          title="Về trang bán hàng"
+        >
+          <Store className="h-4 w-4 text-[#eb1c24]" />
+          <span>Về Cửa Hàng</span>
+        </Link>
+
         {/* Profile Card & Dropdown */}
         <div className="relative" ref={userRef}>
           <button
@@ -323,31 +291,40 @@ export default function AdminHeader({ onToggleSidebar }) {
           >
             <div className="hidden text-right md:block">
               <div className="text-xs font-bold text-slate-900 leading-tight">
-                Quản trị viên
+                {user?.name || "Quản trị viên"}
               </div>
               <div className="text-[10px] text-slate-400 font-medium">
-                admin@dudi.vn
+                {user?.email || "admin@dudisoftware.com"}
               </div>
             </div>
 
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white shadow-xs">
-              <User className="h-4 w-4" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-600 text-white shadow-xs font-bold text-sm">
+              {user?.name ? user.name.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
             </div>
           </button>
 
           {/* User Menu Dropdown */}
           {showUserMenu && (
-            <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="px-3 py-2 border-b border-slate-100">
                 <div className="text-xs font-bold text-slate-900">
-                  DUDI Master Admin
+                  {user?.name || "Quản trị viên"}
                 </div>
-                <div className="text-[11px] text-slate-400">
-                  admin@dudi.vn
+                <div className="text-[11px] text-slate-400 truncate">
+                  {user?.email || "admin@dudisoftware.com"}
                 </div>
               </div>
 
               <div className="py-1 space-y-0.5">
+                <Link
+                  href="/"
+                  onClick={() => setShowUserMenu(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-red-50 hover:text-[#eb1c24] transition"
+                >
+                  <Store className="h-4 w-4 text-[#eb1c24]" />
+                  <span>Về trang bán hàng</span>
+                </Link>
+
                 <Link
                   href="/admin/settings"
                   onClick={() => setShowUserMenu(false)}
@@ -356,26 +333,15 @@ export default function AdminHeader({ onToggleSidebar }) {
                   <Settings className="h-4 w-4 text-slate-500" />
                   <span>Cài đặt hệ thống</span>
                 </Link>
-
-                <Link
-                  href="/"
-                  target="_blank"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
-                >
-                  <ExternalLink className="h-4 w-4 text-slate-500" />
-                  <span>Xem trang chủ shop</span>
-                </Link>
               </div>
 
               <div className="pt-1 border-t border-slate-100">
                 <button
                   onClick={() => {
-                    showToast({
-                      title: "Đã đăng xuất",
-                      message: "Bạn đã đăng xuất khỏi phiên làm việc quản trị!",
-                      type: "info",
-                    });
+                    alert("Đã đăng xuất khỏi phiên làm việc quản trị!");
                     setShowUserMenu(false);
+                    dispatch(logoutUser());
+                    window.location.href = "/login";
                   }}
                   className="flex w-full items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition cursor-pointer"
                 >

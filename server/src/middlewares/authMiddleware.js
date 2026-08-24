@@ -17,13 +17,18 @@ export const verifyJWT = async (req, res, next) => {
     const user = await User.findById(decodedToken?._id).select("-password");
 
     if (!user) {
-      throw new ApiError(401, "Token không hợp lệ hoặc người dùng không tồn tại");
+      throw new ApiError(401, "Phiên đăng nhập đã hết hạn hoặc người dùng không tồn tại");
+    }
+
+    // Kiểm tra trạng thái tài khoản
+    if (user.status === "banned") {
+      throw new ApiError(403, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ ban quản trị.");
     }
 
     req.user = user;
     next();
   } catch (error) {
-    next(new ApiError(401, error?.message || "Token không hợp lệ"));
+    next(new ApiError(401, error?.message || "Xác thực token thất bại"));
   }
 };
 
@@ -31,6 +36,18 @@ export const requireAdmin = (req, res, next) => {
   if (req.user && req.user.role === "admin") {
     next();
   } else {
-    next(new ApiError(403, "Bạn không có quyền quản trị viên (Admin) để thực hiện thao tác này"));
+    // Security Audit Log: Ghi nhận cảnh báo khi có ai cố tình truy cập API quản trị trái phép
+    const clientIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || req.ip;
+    console.warn(
+      `🚨 [SECURITY AUDIT] Truy cập API Admin bị từ chối: User=${req.user?.email || "Anonymous"}, Role=${req.user?.role || "none"}, IP=${clientIp}, Endpoint=${req.method} ${req.originalUrl}`
+    );
+
+    next(
+      new ApiError(
+        403,
+        "Quyền truy cập bị từ chối: Bạn không có quyền Quản trị viên (Admin) để thực hiện thao tác này"
+      )
+    );
   }
 };
+

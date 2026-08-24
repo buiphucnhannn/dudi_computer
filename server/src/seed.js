@@ -9,6 +9,7 @@ try {
 import { Category } from "./models/Category.js";
 import { News } from "./models/News.js";
 import { Job } from "./models/Job.js";
+import { User } from "./models/User.js";
 
 export const CATEGORIES_DATA = [
   { name: "Laptop", slug: "laptop", pcPartType: "none", description: "Laptop chính hãng cao cấp, like new 99% và mới 100% nguyên seal" },
@@ -9487,6 +9488,24 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
 
     const insertedProducts = await Product.insertMany(productsToInsert);
     console.log(`🎉 [Seed Thành Công] Đã nạp thành công ${insertedProducts.length} sản phẩm vào MongoDB!`);
+
+    // Tạo / Cập nhật tài khoản Admin mặc định
+    let adminUser = await User.findOne({ email: "admin@dudisoftware.com" });
+    if (!adminUser) {
+      await User.create({
+        name: "Admin DUDI Software",
+        email: "admin@dudisoftware.com",
+        password: "123456",
+        phone: "0909163821",
+        role: "admin",
+        status: "active",
+      });
+    } else {
+      adminUser.role = "admin";
+      adminUser.status = "active";
+      adminUser.password = "123456";
+      await adminUser.save();
+    }
 
     return {
       categories: createdCategories.length,
