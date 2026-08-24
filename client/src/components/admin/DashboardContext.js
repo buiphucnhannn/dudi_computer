@@ -68,29 +68,25 @@ export function DashboardProvider({ children }) {
   // 1. Calculated Metrics & Dynamic Chart Datasets based on live orders
   const { metrics, chartDatasets } = useMemo(() => {
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-    const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0);
-    const endOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 999);
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfYesterday = new Date(startOfToday.getTime() - 24 * 60 * 60 * 1000);
 
     const validOrders = orders.filter((o) => o.status !== "cancelled");
 
-    // Today metrics (Lấy trực tiếp từ Database)
-    const todayOrders = orders.filter((o) => {
-      const d = new Date(o.rawCreatedAt || o.createdAt);
-      return !isNaN(d) && d >= startOfToday && d <= endOfToday;
-    });
+    // Today metrics
+    const todayOrders = orders.filter((o) => o.isToday);
     const todayOrdersCount = todayOrders.length;
     const todayRevenue = todayOrders
       .filter((o) => o.status !== "cancelled")
       .reduce((sum, o) => sum + (Number(o.price) || Number(o.total) || 0), 0);
 
     // Yesterday revenue for comparison
-    const yesterdayOrders = orders.filter((o) => {
-      const d = new Date(o.rawCreatedAt || o.createdAt);
-      return !isNaN(d) && d >= startOfYesterday && d <= endOfYesterday && o.status !== "cancelled";
-    });
-    const yesterdayRevenue = yesterdayOrders.reduce((sum, o) => sum + (Number(o.price) || Number(o.total) || 0), 0);
+    const yesterdayRevenue = orders
+      .filter((o) => {
+        const d = new Date(o.rawCreatedAt || o.createdAt);
+        return !isNaN(d) && d >= startOfYesterday && d < startOfToday && o.status !== "cancelled";
+      })
+      .reduce((sum, o) => sum + (Number(o.price) || Number(o.total) || 0), 0);
 
     let growthDiff = 0;
     if (yesterdayRevenue > 0) {
@@ -100,8 +96,7 @@ export function DashboardProvider({ children }) {
     }
     const revenueGrowth = `${growthDiff >= 0 ? "+" : ""}${growthDiff.toFixed(1)}%`;
 
-    const pendingOrdersCount = orders.filter((o) => o.status === "processing").length;
-    const lowStockCount = stockItems.filter((item) => item.stock <= 5).length;
+    const lowStockCount = stockItems.filter((item) => item.stock <= 3).length;
 
     // Helper to generate SVG points
     const buildSvgPoints = (dataList) => {
@@ -213,14 +208,8 @@ export function DashboardProvider({ children }) {
 
     return {
       metrics: {
-        todayRevenue: `${todayRevenue.toLocaleString("vi-VN")}₫`,
         todayRevenueFormatted: `${todayRevenue.toLocaleString("vi-VN")}₫`,
-        todayRevenueRaw: todayRevenue,
-        todayOrders: todayOrdersCount,
         todayOrdersCount,
-        pendingOrders: pendingOrdersCount,
-        pendingOrdersCount,
-        lowStockItems: lowStockCount,
         lowStockCount,
         revenueGrowth,
       },
