@@ -141,7 +141,7 @@ export default function AboutPage() {
                   <ShieldCheck className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Chất lượng đảm bảo</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   100% sản phẩm bán ra đều trải qua quy trình kiểm tra phần cứng nghiêm ngặt để đảm bảo máy hoạt động ổn định và bền bỉ.
                 </p>
               </div>
@@ -152,7 +152,7 @@ export default function AboutPage() {
                   <Award className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Giá cả cạnh tranh</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   Tối ưu hóa quy trình để mang đến mức giá cực kỳ tốt cho các sản phẩm PC và Laptop Like New tại thị trường TP.HCM.
                 </p>
               </div>
@@ -163,7 +163,7 @@ export default function AboutPage() {
                   <Wrench className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Hậu mãi tận tâm</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   Chế độ bảo hành dài hạn, hỗ trợ xử lý sự cố phần mềm và phần cứng chu đáo, giúp khách hàng yên tâm tuyệt đối sau khi mua.
                 </p>
               </div>
@@ -174,7 +174,7 @@ export default function AboutPage() {
                   <Users className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Tư vấn trung thực</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   Đội ngũ nhân viên tư vấn đúng nhu cầu, đúng ngân sách, tuyệt đối không chèo kéo hay vẽ thêm chi phí không cần thiết.
                 </p>
               </div>
@@ -185,7 +185,7 @@ export default function AboutPage() {
                   <Zap className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Kỹ thuật chuyên nghiệp</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   Kỹ thuật viên am hiểu sâu về máy tính, lắp ráp đi dây chuẩn mực và hỗ trợ nâng cấp linh kiện dễ dàng, nhanh gọn.
                 </p>
               </div>
@@ -196,7 +196,7 @@ export default function AboutPage() {
                   <Monitor className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-white">Đa dạng sản phẩm</h3>
-                <p className="text-gray-400 leading-relaxed text-sm">
+                <p className="text-gray-400 leading-relaxed text-sm text-justify">
                   Cung cấp đầy đủ các cấu hình từ máy văn phòng cơ bản đến PC Gaming, Đồ họa chuyên nghiệp và Laptop các hãng nổi tiếng.
                 </p>
               </div>

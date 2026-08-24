@@ -8,10 +8,24 @@ import { globalLimiter } from "./middlewares/rateLimiter.js";
 
 const app = express();
 
+// Disable ETag caching
+app.set("etag", false);
+
 // Middlewares
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: (origin, callback) => {
+      // Cho phép requests không có origin (như Next.js server-side, curl, apps nội bộ)
+      if (!origin) return callback(null, true);
+      // Cho phép localhost, 127.0.0.1 hoặc mạng LAN 192.168.x.x, 10.x.x.x
+      if (
+        origin === process.env.CLIENT_URL ||
+        /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.\d+\.\d+\.\d+)(:\d+)?$/.test(origin)
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true); // Dev-friendly fallback
+    },
     credentials: true,
   })
 );

@@ -45,7 +45,7 @@ export default function InstallmentGuidePage() {
                 </h2>
               </div>
 
-              <p className="text-gray-600 mb-6 md:ml-[52px]">
+              <p className="text-gray-600 mb-6 md:ml-[52px] text-justify">
                 DUDI SOFTWARE hợp tác cùng các công ty tài chính hàng đầu để mang đến cho khách hàng dịch vụ trả góp tốt nhất với lãi suất cực kỳ cạnh tranh và thủ tục xét duyệt siêu tốc.
               </p>
 
@@ -62,18 +62,18 @@ export default function InstallmentGuidePage() {
                   <h3 className="font-bold text-lg text-gray-800 mb-2">
                     Trả góp qua HD SAISON
                   </h3>
-                  <ul className="text-sm text-gray-600 text-left space-y-2 w-full">
+                  <ul className="text-sm text-gray-600 text-left space-y-2 w-full text-justify">
                     <li className="flex gap-2">
                       <CircleCheckBig className="text-green-500 shrink-0 mt-0.5 w-4 h-4" />
-                      <span>Duyệt hồ sơ nhanh chóng trong 15-30 phút.</span>
+                      <span className="text-justify">Duyệt hồ sơ nhanh chóng trong 15-30 phút.</span>
                     </li>
                     <li className="flex gap-2">
                       <CircleCheckBig className="text-green-500 shrink-0 mt-0.5 w-4 h-4" />
-                      <span>Trả trước chỉ từ 20% giá trị sản phẩm.</span>
+                      <span className="text-justify">Trả trước chỉ từ 20% giá trị sản phẩm.</span>
                     </li>
                     <li className="flex gap-2">
                       <CircleCheckBig className="text-green-500 shrink-0 mt-0.5 w-4 h-4" />
-                      <span>Kỳ hạn linh hoạt 6, 9, 12 tháng.</span>
+                      <span className="text-justify">Kỳ hạn linh hoạt 6, 9, 12 tháng.</span>
                     </li>
                   </ul>
                 </div>
@@ -90,18 +90,18 @@ export default function InstallmentGuidePage() {
                   <h3 className="font-bold text-lg text-gray-800 mb-2">
                     Trả góp qua MIRAE ASSET
                   </h3>
-                  <ul className="text-sm text-gray-600 text-left space-y-2 w-full">
+                  <ul className="text-sm text-gray-600 text-left space-y-2 w-full text-justify">
                     <li className="flex gap-2">
                       <CircleCheckBig className="text-green-500 shrink-0 mt-0.5 w-4 h-4" />
-                      <span>Hạn mức vay cao, thủ tục đơn giản.</span>
+                      <span className="text-justify">Hạn mức vay cao, thủ tục đơn giản.</span>
                     </li>
                     <li className="flex gap-2">
                       <CircleCheckBig className="text-green-500 shrink-0 mt-0.5 w-4 h-4" />
-                      <span>Tỉ lệ duyệt hồ sơ thành công cao.</span>
+                      <span className="text-justify">Tỉ lệ duyệt hồ sơ thành công cao.</span>
                     </li>
                     <li className="flex gap-2">
                       <CircleCheckBig className="text-green-500 shrink-0 mt-0.5 w-4 h-4" />
-                      <span>Đa dạng gói vay phù hợp với nhiều đối tượng.</span>
+                      <span className="text-justify">Đa dạng gói vay phù hợp với nhiều đối tượng.</span>
                     </li>
                   </ul>
                 </div>
@@ -131,22 +131,22 @@ export default function InstallmentGuidePage() {
                   <h4 className="font-bold text-[#cc2222] mb-3 border-b pb-2">
                     Đăng ký qua HD SAISON
                   </h4>
-                  <ul className="space-y-2 text-gray-700 text-sm">
+                  <ul className="space-y-2 text-gray-700 text-sm text-justify">
                     <li className="flex items-start gap-2">
                       <CircleCheckBig className="text-green-500 shrink-0 mt-0.5 w-4 h-4" />
-                      <span>
+                      <span className="text-justify">
                         Khách hàng là công dân Việt Nam có độ tuổi từ 19 đến 60 tuổi (nếu không mua bảo hiểm khoản vay), và 19 - 70 tuổi (nếu có mua bảo hiểm).
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CircleCheckBig className="text-green-500 shrink-0 mt-0.5 w-4 h-4" />
-                      <span>
+                      <span className="text-justify">
                         Tại thời điểm vay, khách hàng không có khoản nợ xấu tại bất kỳ tổ chức tín dụng nào.
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CircleCheckBig className="text-green-500 shrink-0 mt-0.5 w-4 h-4" />
-                      <span>
+                      <span className="text-justify">
                         Có thu nhập ổn định hàng tháng, đảm bảo đủ khả năng thanh toán khoản trả góp.
                       </span>
                     </li>
@@ -158,14 +158,14 @@ export default function InstallmentGuidePage() {
                   <h4 className="font-bold text-blue-600 mb-3 border-b pb-2">
                     Đăng ký qua MIRAE ASSET
                   </h4>
-                  <ul className="space-y-2 text-gray-700 text-sm">
+                  <ul className="space-y-2 text-gray-700 text-sm text-justify">
                     <li className="flex items-start gap-2">
                       <CircleCheckBig className="text-green-500 shrink-0 mt-0.5 w-4 h-4" />
-                      <span>Khách hàng là công dân Việt Nam không có nợ xấu.</span>
+                      <span className="text-justify">Khách hàng là công dân Việt Nam không có nợ xấu.</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CircleCheckBig className="text-green-500 shrink-0 mt-0.5 w-4 h-4" />
-                      <span>
+                      <span className="text-justify">
                         Độ tuổi quy định: <strong className="text-gray-900 ml-1">Nam từ 21 - 60 tuổi</strong> <span className="mx-2">|</span> <strong className="text-gray-900">Nữ từ 18 - 60 tuổi</strong>.
                       </span>
                     </li>
@@ -181,7 +181,7 @@ export default function InstallmentGuidePage() {
                     <p className="font-bold text-[#cc2222] mb-2">
                       Giấy tờ tùy thân:
                     </p>
-                    <p className="text-gray-600 flex items-center gap-2 text-sm">
+                    <p className="text-gray-600 flex items-center gap-2 text-sm text-justify">
                       <CircleCheckBig className="text-green-500 w-4 h-4 shrink-0" />
                       <span>Căn cước công dân (CCCD) gắn chip hợp lệ.</span>
                     </p>
@@ -191,7 +191,7 @@ export default function InstallmentGuidePage() {
                     <p className="font-bold text-[#cc2222] mb-2">
                       Và 1 trong các giấy tờ sau:
                     </p>
-                    <ul className="text-gray-600 space-y-1 text-sm">
+                    <ul className="text-gray-600 space-y-1 text-sm text-justify">
                       <li className="flex items-center gap-2">
                         <CircleCheckBig className="text-green-500 w-4 h-4 shrink-0" />
                         <span>Bằng lái xe</span>
@@ -237,7 +237,7 @@ export default function InstallmentGuidePage() {
                     <h3 className="font-bold text-lg text-gray-800 mb-2">
                       Chọn sản phẩm &amp; gói trả góp
                     </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">
+                    <p className="text-gray-600 text-sm leading-relaxed text-justify">
                       Quý khách chọn sản phẩm ưng ý tại website DUDI SOFTWARE. Chọn &quot;Mua trả góp&quot;, lựa chọn công ty tài chính, mức trả trước và số tháng trả góp phù hợp.
                     </p>
                   </div>
@@ -252,7 +252,7 @@ export default function InstallmentGuidePage() {
                     <h3 className="font-bold text-lg text-gray-800 mb-2">
                       Đăng ký &amp; Tư vấn
                     </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">
+                    <p className="text-gray-600 text-sm leading-relaxed text-justify">
                       Liên hệ nhân viên tư vấn của DUDI SOFTWARE để được hỗ trợ hồ sơ và giải đáp thắc mắc cho quý khách.
                     </p>
                   </div>
@@ -267,7 +267,7 @@ export default function InstallmentGuidePage() {
                     <h3 className="font-bold text-lg text-gray-800 mb-2">
                       Xét duyệt hồ sơ
                     </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">
+                    <p className="text-gray-600 text-sm leading-relaxed text-justify">
                       Khách hàng mang giấy tờ bản gốc đến trực tiếp cửa hàng DUDI SOFTWARE. Quá trình xét duyệt diễn ra rất nhanh chóng từ 15-30 phút.
                     </p>
                   </div>
@@ -282,7 +282,7 @@ export default function InstallmentGuidePage() {
                     <h3 className="font-bold text-lg text-gray-800 mb-2">
                       Nhận sản phẩm
                     </h3>
-                    <p className="text-gray-600 text-sm leading-relaxed">
+                    <p className="text-gray-600 text-sm leading-relaxed text-justify">
                       Sau khi hồ sơ được duyệt và hoàn tất thủ tục thanh toán trả trước, quý khách sẽ nhận ngay sản phẩm tại cửa hàng.
                     </p>
                   </div>
@@ -303,28 +303,28 @@ export default function InstallmentGuidePage() {
                 </h2>
               </div>
 
-              <ul className="space-y-4 text-gray-600 md:ml-[52px]">
+              <ul className="space-y-4 text-gray-600 md:ml-[52px] text-justify">
                 <li className="flex items-start gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#cc2222] mt-2 shrink-0"></div>
-                  <span>
+                  <span className="text-justify">
                     Công ty tài chính <strong>chỉ kiểm tra giấy tờ gốc</strong> và trả lại ngay, không giữ bất kỳ giấy tờ nào của khách hàng.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#cc2222] mt-2 shrink-0"></div>
-                  <span>
+                  <span className="text-justify">
                     Giá sản phẩm khi mua trả góp là giá niêm yết được áp dụng tại thời điểm khách hàng ký hợp đồng.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#cc2222] mt-2 shrink-0"></div>
-                  <span>
+                  <span className="text-justify">
                     Khách hàng có thể thanh lý sớm hợp đồng (thanh toán hết số tiền còn lại) bất cứ lúc nào, tuy nhiên có thể phát sinh phí phạt trước hạn theo quy định của công ty tài chính.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#cc2222] mt-2 shrink-0"></div>
-                  <span>
+                  <span className="text-justify">
                     Để được hỗ trợ chi tiết, quý khách vui lòng liên hệ Hotline:{" "}
                     <strong className="text-[#cc2222]">(+84) 909 163 821</strong>
                   </span>

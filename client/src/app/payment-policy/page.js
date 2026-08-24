@@ -25,7 +25,7 @@ export default function PaymentPolicyPage() {
         </div>
 
         {/* Content Card with Payment Methods */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-8 text-gray-700 text-sm sm:text-[14.5px] leading-relaxed">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-8 text-gray-700 text-sm sm:text-[14.5px] leading-relaxed text-justify">
           <section>
             <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
               I. PHƯƠNG THỨC THANH TOÁN
@@ -41,7 +41,7 @@ export default function PaymentPolicyPage() {
                   <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2">
                     * Thanh toán bằng tiền mặt:
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed text-justify">
                     Khách hàng thanh toán bằng tiền mặt trực tiếp khi nhận hàng (Ship COD).
                   </p>
                 </div>
@@ -97,8 +97,8 @@ export default function PaymentPolicyPage() {
 
                   {/* Notification Note */}
                   <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
-                    <p className="text-xs sm:text-sm text-blue-800 font-medium leading-relaxed">
-                      Lưu ý: Sau khi nhận được chuyển khoản chậm nhất sau 12 tiếng chúng tôi sẽ gọi điện xác nhận với khách hàng.
+                    <p className="text-xs sm:text-sm text-blue-800 font-medium leading-relaxed text-justify">
+                      Quý khách vui lòng kiểm tra kỹ thông tin số tài khoản và nội dung chuyển khoản trước khi xác nhận thanh toán. DUDI SOFTWARE sẽ xác nhận đơn hàng ngay khi tiền vào tài khoản.
                     </p>
                   </div>
                 </div>
