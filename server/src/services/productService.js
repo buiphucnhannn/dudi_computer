@@ -68,17 +68,83 @@ class ProductService {
   }
 
   async createProduct(productData) {
-    const { name, slug, price } = productData;
-    if (!name || !slug || !price) {
-      throw new ApiError(400, "Vui lòng nhập đủ các thông tin bắt buộc: tên, slug và giá");
+    const { name, price } = productData;
+    let { slug } = productData;
+
+    if (!name || !price) {
+      throw new ApiError(400, "Vui lòng nhập đủ các thông tin bắt buộc: tên và giá");
+    }
+
+    if (!slug) {
+      slug = name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
     }
 
     const existed = await productRepository.findBySlug(slug);
     if (existed) {
-      throw new ApiError(409, "Slug sản phẩm đã tồn tại, vui lòng chọn slug khác");
+      slug = `${slug}-${Math.floor(100 + Math.random() * 900)}`;
     }
 
-    return await productRepository.create(productData);
+    const newProduct = {
+      ...productData,
+      slug,
+      shortName: productData.shortName || name,
+      stock: Number(productData.stock ?? 10),
+      price: Number(price),
+    };
+
+    return await productRepository.create(newProduct);
+  }
+
+  async updateProduct(id, updateData) {
+    if (!id) {
+      throw new ApiError(400, "ID sản phẩm không hợp lệ");
+    }
+
+    const product = await productRepository.findById(id);
+    if (!product) {
+      throw new ApiError(404, "Không tìm thấy sản phẩm cần sửa");
+    }
+
+    // If price / originalPrice changed, calculate discount
+    if (updateData.price && updateData.originalPrice) {
+      const p = Number(updateData.price);
+      const op = Number(updateData.originalPrice);
+      if (op > p) {
+        updateData.discountPercent = Math.round(((op - p) / op) * 100);
+      }
+    }
+
+    return await productRepository.updateById(id, updateData);
+  }
+
+  async deleteProduct(id) {
+    if (!id) {
+      throw new ApiError(400, "ID sản phẩm không hợp lệ");
+    }
+
+    const product = await productRepository.findById(id);
+    if (!product) {
+      throw new ApiError(404, "Không tìm thấy sản phẩm để xóa");
+    }
+
+    return await productRepository.deleteById(id);
+  }
+
+  async updateStock(id, newStock) {
+    if (!id) {
+      throw new ApiError(400, "ID sản phẩm không hợp lệ");
+    }
+
+    const stock = Math.max(0, Number(newStock));
+    const status = stock === 0 ? "out_of_stock" : "in_stock";
+
+    return await productRepository.updateById(id, { stock, status });
   }
 }
 

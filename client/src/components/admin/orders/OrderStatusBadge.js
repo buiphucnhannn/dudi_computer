@@ -2,7 +2,7 @@
 
 const statusConfig = {
   processing: {
-    label: "Đang xử lý",
+    label: "Chờ xử lý",
     dot: "bg-amber-500",
     className: "bg-amber-50 text-amber-700 border-amber-200",
   },
@@ -28,10 +28,11 @@ export default function OrderStatusBadge({ status }) {
 
   return (
     <span
+      suppressHydrationWarning
       className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider ${config.className}`}
     >
       <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${config.dot}`} />
-      {config.label}
+      <span suppressHydrationWarning>{config.label}</span>
     </span>
   );
 }

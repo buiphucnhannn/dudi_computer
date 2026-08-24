@@ -2,12 +2,25 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Search, Bell, User, X, Check, ShoppingCart, AlertTriangle, Settings, LogOut, ExternalLink } from "lucide-react";
+import {
+  Menu,
+  Search,
+  Bell,
+  User,
+  X,
+  Check,
+  ShoppingCart,
+  AlertTriangle,
+  Settings,
+  LogOut,
+  ExternalLink,
+} from "lucide-react";
 
-export default function AdminHeader() {
+export default function AdminHeader({ onToggleSidebar }) {
   const [search, setSearch] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
 
   const [notifications, setNotifications] = useState([
@@ -60,29 +73,50 @@ export default function AdminHeader() {
   };
 
   return (
-    <header className="fixed left-[280px] right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-6 backdrop-blur-md">
-      {/* Search Bar */}
-      <div className="relative flex w-96 items-center rounded-xl bg-slate-100 px-3.5 py-2 transition focus-within:bg-white focus-within:ring-2 focus-within:ring-slate-900/10 focus-within:border-slate-300 border border-transparent">
-        <Search className="h-4 w-4 text-slate-400 shrink-0" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm kiếm sản phẩm, đơn hàng, khách hàng..."
-          className="ml-2.5 w-full border-none bg-transparent text-xs font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:ring-0"
-        />
-        {search && (
-          <button
-            onClick={() => setSearch("")}
-            className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
+    <header className="fixed left-0 lg:left-[280px] right-0 top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 sm:px-6 backdrop-blur-md">
+      {/* Left side: Hamburger button + Search Bar */}
+      <div className="flex items-center gap-3">
+        {/* Mobile Hamburger Toggle */}
+        <button
+          onClick={onToggleSidebar}
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 lg:hidden cursor-pointer shrink-0"
+          title="Mở menu quản trị"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        {/* Desktop / Tablet Search Bar */}
+        <div className="relative hidden sm:flex w-64 md:w-80 lg:w-96 items-center rounded-xl bg-slate-100 px-3.5 py-2 transition focus-within:bg-white focus-within:ring-2 focus-within:ring-slate-900/10 focus-within:border-slate-300 border border-transparent">
+          <Search className="h-4 w-4 text-slate-400 shrink-0" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Tìm kiếm sản phẩm, đơn hàng..."
+            className="ml-2.5 w-full border-none bg-transparent text-xs font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:ring-0"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Right User & Actions */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
+        {/* Mobile Search Toggle */}
+        <button
+          onClick={() => setShowMobileSearch(!showMobileSearch)}
+          className="flex sm:hidden h-9 w-9 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 cursor-pointer"
+          title="Tìm kiếm"
+        >
+          <Search className="h-4 w-4" />
+        </button>
+
         {/* Notifications */}
         <div className="relative" ref={notifRef}>
           <button
@@ -104,7 +138,7 @@ export default function AdminHeader() {
 
           {/* Notifications Dropdown */}
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="absolute right-0 mt-2 w-[calc(100vw-32px)] max-w-sm sm:w-96 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-2">
                 <div className="flex items-center gap-2">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
@@ -170,9 +204,9 @@ export default function AdminHeader() {
         <div className="relative" ref={userRef}>
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-3 border-l border-slate-200 pl-4 transition hover:opacity-80 cursor-pointer"
+            className="flex items-center gap-2.5 sm:gap-3 sm:border-l sm:border-slate-200 sm:pl-4 transition hover:opacity-80 cursor-pointer"
           >
-            <div className="hidden text-right sm:block">
+            <div className="hidden text-right md:block">
               <div className="text-xs font-bold text-slate-900 leading-tight">
                 Quản trị viên
               </div>
@@ -234,6 +268,29 @@ export default function AdminHeader() {
           )}
         </div>
       </div>
+
+      {/* Mobile Search Overlay Bar */}
+      {showMobileSearch && (
+        <div className="absolute inset-x-0 top-16 z-20 flex items-center bg-white px-4 py-2.5 border-b border-slate-200 shadow-md sm:hidden animate-in slide-in-from-top-2 duration-200">
+          <div className="flex-1 flex items-center rounded-xl bg-slate-100 px-3 py-1.5">
+            <Search className="h-4 w-4 text-slate-400 shrink-0" />
+            <input
+              type="text"
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm kiếm..."
+              className="ml-2 w-full bg-transparent text-xs outline-none"
+            />
+          </div>
+          <button
+            onClick={() => setShowMobileSearch(false)}
+            className="ml-2 p-1 text-slate-500 hover:text-slate-900"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </header>
   );
 }

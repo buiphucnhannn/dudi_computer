@@ -7,10 +7,10 @@ import SecuritySettings from "@/components/admin/settings/SecuritySettings";
 
 export default function SettingsPage() {
   return (
-    <div className="flex flex-col w-full px-6 py-8 gap-6 max-w-5xl">
+    <div className="flex flex-col w-full px-3.5 sm:px-6 py-5 sm:py-8 gap-6 max-w-5xl">
       {/* Page Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-slate-900">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-slate-900">
           Cài đặt hệ thống
         </h1>
 

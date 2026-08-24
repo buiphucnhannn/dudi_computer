@@ -1,9 +1,9 @@
 "use client";
 
-import { MoreHorizontal, PackageOpen, Eye } from "lucide-react";
+import { PackageOpen, Eye } from "lucide-react";
 import OrderStatusBadge from "./OrderStatusBadge";
 
-export default function OrderTable({ orders, onSelectOrder }) {
+export default function OrderTable({ orders, onSelectOrder, isLoading }) {
   return (
     <div className="overflow-x-auto bg-white">
       <table className="w-full text-left border-collapse min-w-[900px]">
@@ -36,7 +36,37 @@ export default function OrderTable({ orders, onSelectOrder }) {
         </thead>
 
         <tbody className="divide-y divide-slate-150 text-sm text-slate-600">
-          {orders.length === 0 ? (
+          {isLoading ? (
+            // Skeleton Loader Rows
+            [1, 2, 3, 4, 5].map((idx) => (
+              <tr key={idx} className="animate-pulse">
+                <td className="py-4 px-6">
+                  <div className="h-6 w-20 rounded-md bg-slate-200" />
+                </td>
+                <td className="py-4 px-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-slate-200" />
+                    <div className="space-y-1.5">
+                      <div className="h-3.5 w-28 rounded bg-slate-200" />
+                      <div className="h-2.5 w-20 rounded bg-slate-150" />
+                    </div>
+                  </div>
+                </td>
+                <td className="py-4 px-6">
+                  <div className="h-3.5 w-24 rounded bg-slate-200" />
+                </td>
+                <td className="py-4 px-6 text-right">
+                  <div className="h-4 w-24 rounded bg-slate-200 ml-auto" />
+                </td>
+                <td className="py-4 px-6">
+                  <div className="h-6 w-24 rounded-md bg-slate-200" />
+                </td>
+                <td className="py-4 px-6 text-center">
+                  <div className="h-8 w-8 rounded-lg bg-slate-200 mx-auto" />
+                </td>
+              </tr>
+            ))
+          ) : orders.length === 0 ? (
             <tr>
               <td colSpan="6" className="py-16 text-center text-sm text-slate-400">
                 <div className="flex flex-col items-center justify-center gap-2">
@@ -68,7 +98,7 @@ export default function OrderTable({ orders, onSelectOrder }) {
 
                     <div>
                       <div className="font-bold text-xs text-slate-900 group-hover:text-red-600 transition-colors">
-                        {order.customerName}
+                        {order.customerName || order.customer}
                       </div>
 
                       <div className="text-[11px] text-slate-400 font-medium">
@@ -80,14 +110,14 @@ export default function OrderTable({ orders, onSelectOrder }) {
 
                 {/* Date */}
                 <td className="py-4 px-6 text-xs text-slate-500 font-medium">
-                  {order.createdAt}
+                  {order.createdAt || order.time}
                 </td>
 
                 {/* Total */}
                 <td className="py-4 px-6 text-sm font-black text-right text-slate-900">
-                  {typeof order.total === "number"
-                    ? `${order.total.toLocaleString("vi-VN")}₫`
-                    : order.total}
+                  {typeof (order.total || order.price) === "number"
+                    ? `${(order.total || order.price).toLocaleString("vi-VN")}₫`
+                    : (order.total || order.price)}
                 </td>
 
                 {/* Status */}

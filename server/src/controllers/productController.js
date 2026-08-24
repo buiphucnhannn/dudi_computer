@@ -49,7 +49,44 @@ export const createProduct = async (req, res, next) => {
     const product = await productService.createProduct(req.body);
     return res
       .status(201)
-      .json(new ApiResponse(201, product, "Thêm sản phẩm thành công"));
+      .json(new ApiResponse(201, product, "Thêm sản phẩm mới thành công"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await productService.updateProduct(id, req.body);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, product, "Cập nhật thông tin sản phẩm thành công"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await productService.deleteProduct(id);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { id }, "Đã xóa sản phẩm thành công"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateStock = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { stock } = req.body;
+    const product = await productService.updateStock(id, stock);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, product, "Cập nhật tồn kho sản phẩm thành công"));
   } catch (error) {
     next(error);
   }

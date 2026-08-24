@@ -1,204 +1,408 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { CheckCircle2, AlertTriangle, RotateCcw } from "lucide-react";
+import { productAPI } from "@/lib/api";
 import ProductPageHeader from "@/components/admin/products/ProductPageHeader";
 import ProductFilters from "@/components/admin/products/ProductFilters";
 import ProductToolbar from "@/components/admin/products/ProductToolbar";
 import ProductGrid from "@/components/admin/products/ProductGrid";
 import ProductPagination from "@/components/admin/products/ProductPagination";
-
-const initialProducts = [
-  {
-    id: 1,
-    sku: "PCGAMING-001",
-    name: "PC Gaming Z-Nova Core i5 13400F / 16GB / RTX 4060",
-    price: 18590000,
-    oldPrice: 21900000,
-    stock: 12,
-    rating: 4.8,
-    badge: "-15%",
-    category: "PC Gaming",
-    brand: "MSI",
-    status: "active",
-    image:
-      "https://lh3.googleusercontent.com/aida/AEtjO1WsPsl067-mmxL98xc03534G_8tceXqGoGPosm3o9JA8QBeWLIGULJcMaV1YSryDIdffMduDnRk5VmKUTRmrOY1Qz_fMyvRQm0OAwKPnBr86l_Xcgp4Z2odJsSmZ8jQA8zp_AB5RxCsYsbe53BTvozoFCHdNtLcWpA1RVoFVb09wA4vBzuBDnsaTL7WNGEeLM1lp07BJvVa1v8w_nWME06uxEwhV4SuKuRXTlHKgwiSPtE7dp029f5JOPM",
-  },
-  {
-    id: 2,
-    sku: "LAPMSI-892",
-    name: "Laptop MSI Titan GT77 HX 13VI (Core i9 13980HX/64GB/RTX 4090)",
-    price: 119990000,
-    oldPrice: null,
-    stock: 2,
-    rating: null,
-    badge: "MỚI",
-    category: "Laptop",
-    brand: "MSI",
-    status: "active",
-    image:
-      "https://lh3.googleusercontent.com/aida/AEtjO1W-J4qpIbjdlAAZ0eQFi3kgXwuszfPSpA2E4DAoWHS3FRGMc7owNYVwzLc1dJ7SjB1wWy-QibrHtF0bdOlZFSlFd4ows2p6tfv7eL739D1yXX2JnuLnDwNLL31BA1Sio08WJM8t0nXcrvEBivt7vw1WBjecq-2Lyd1ptx59yObLFKqLeU8tQKe5Ge9buDhP8CQh__MKYuFYNA0hGn8-YlDtV5MFsZdaiqvmWDhjlcPhQs5PS6LkG3Nmn0M",
-  },
-  {
-    id: 3,
-    sku: "KB-RZR-009",
-    name: "Bàn phím cơ Razer BlackWidow V4 Pro - Green Switch",
-    price: 5890000,
-    oldPrice: null,
-    stock: 0,
-    rating: null,
-    badge: "HẾT HÀNG",
-    category: "Linh kiện PC",
-    brand: "Razer",
-    status: "out-of-stock",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCXom4IrvBrKXRdlDfMNKP68bjms-X9WhdVSQ40B8Fq0ir23d0eVTMlIY6eP5eIg2hj5teIL-lZ6K6BZgOrq7QwPZSKsTDFRYqUXI3X-5ST9XFjIE78Ej7gW5JRx3df6zXsmWYniDMfTEYySS8ddz_TcRLuv_MDI_uy9fNlZwmq88d-lJnLqE8U5tjcD5BCyAuS98kfAIVfX3uS84iYtcBjhCa5yvKEDIpKwkP4Pj7_DdwX7_G0GhQM",
-  },
-  {
-    id: 4,
-    sku: "VGA-ASU-480",
-    name: "Card màn hình ASUS ROG Strix GeForce RTX 4080 16GB GDDR6X",
-    price: 38990000,
-    oldPrice: null,
-    stock: 8,
-    rating: null,
-    badge: null,
-    category: "Linh kiện PC",
-    brand: "ASUS",
-    status: "active",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCkNbFh_4TjYSAcu92UKRN4bdlQH7uufAOT2k3BPWlK07mMAdXqus6Bn-zuNOu_tJInSXpzHVV7IeKiCWuPTCiTTKLEktZ-hzPi1BJB53Y3TXyCpecwZ3X2PJHql3lWJX62j2Ryn2FNdZsNB5A15VpSRh38HPjdmTZQyeabsWaHrl5KGwpqklIrk5T1xRqxzc95AWoDfVYmxh-V8N_51v3HtxQXrEhx0gedXlXrcBXJbcNp88w2BmCM",
-  },
-];
+import ProductModal from "@/components/admin/products/ProductModal";
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState(initialProducts);
+  // Always start with empty list and loading state so stale/mock data is NEVER rendered on reload
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [filters, setFilters] = useState({
     status: "",
     category: "",
     brand: "",
   });
-
-  const [sort, setSort] = useState("price-desc");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sort, setSort] = useState("newest");
   const [viewMode, setViewMode] = useState("grid");
   const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
 
-  const pageSize = 12;
+  // Modal States
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [deleteConfirmProduct, setDeleteConfirmProduct] = useState(null);
+  const [toastMessage, setToastMessage] = useState("");
 
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3500);
+  };
+
+  // Dedicated function to fetch fresh data directly from Database
+  const fetchProductsFromDatabase = useCallback(async (showSkeleton = true) => {
+    if (showSkeleton) {
+      setIsLoading(true);
+    }
+
+    try {
+      const res = await productAPI.getAll({ limit: 500 });
+      const items = res.data?.data?.products || res.data?.products;
+
+      if (items && Array.isArray(items)) {
+        const mapped = items.map((p, idx) => ({
+          id: p._id || `prod-db-${idx}`,
+          _id: p._id,
+          sku: p.sku || `SKU-${1000 + idx}`,
+          name: p.name,
+          slug: p.slug,
+          price: p.price,
+          oldPrice: p.originalPrice || null,
+          stock: typeof p.stock === "number" ? p.stock : 10,
+          rating: p.ratings?.average || 5.0,
+          badge: p.isHot ? "HOT" : p.isFlashSale ? "SALE" : null,
+          category: p.categoryName || (typeof p.category === "object" ? p.category?.name : p.category) || "Linh kiện PC",
+          brand: p.brand || "DUDI",
+          status: p.stock === 0 ? "out-of-stock" : "active",
+          image: p.thumbnail || p.images?.[0] || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800",
+        }));
+
+        setProducts(mapped);
+      }
+    } catch (err) {
+      console.error("Lỗi khi tải dữ liệu từ Database:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Initial Fetch on component mount
+  useEffect(() => {
+    fetchProductsFromDatabase(true);
+  }, [fetchProductsFromDatabase]);
+
+  // Compute category counts
+  const categoryCounts = useMemo(() => {
+    const counts = {};
+    products.forEach((p) => {
+      const cat = p.category || "Khác";
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return counts;
+  }, [products]);
+
+  // Compute brand list
+  const brandList = useMemo(() => {
+    const set = new Set();
+    products.forEach((p) => {
+      if (p.brand) set.add(p.brand);
+    });
+    return Array.from(set);
+  }, [products]);
+
+  // Compute status counts
+  const statusCounts = useMemo(() => {
+    return {
+      active: products.filter((p) => p.stock > 0).length,
+      lowStock: products.filter((p) => p.stock > 0 && p.stock <= 3).length,
+      outOfStock: products.filter((p) => p.stock === 0).length,
+    };
+  }, [products]);
+
+  // Filtered & Sorted products
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
-    if (filters.status) {
-      result = result.filter((product) => product.status === filters.status);
-    }
-
-    if (filters.category) {
+    // Search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
       result = result.filter(
-        (product) => product.category === filters.category
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.sku.toLowerCase().includes(q) ||
+          (p.brand && p.brand.toLowerCase().includes(q)) ||
+          (p.category && p.category.toLowerCase().includes(q))
       );
     }
 
-    if (filters.brand) {
-      result = result.filter((product) => product.brand === filters.brand);
+    // Status filter
+    if (filters.status) {
+      if (filters.status === "active") {
+        result = result.filter((p) => p.stock > 0);
+      } else if (filters.status === "low-stock") {
+        result = result.filter((p) => p.stock > 0 && p.stock <= 3);
+      } else if (filters.status === "out-of-stock") {
+        result = result.filter((p) => p.stock === 0);
+      }
     }
 
+    // Category filter
+    if (filters.category) {
+      result = result.filter((p) => p.category === filters.category);
+    }
+
+    // Brand filter
+    if (filters.brand) {
+      result = result.filter((p) => p.brand === filters.brand);
+    }
+
+    // Sort
     result.sort((a, b) => {
       switch (sort) {
         case "price-asc":
           return a.price - b.price;
+        case "price-desc":
+          return b.price - a.price;
         case "name-asc":
           return a.name.localeCompare(b.name);
+        case "stock-desc":
+          return b.stock - a.stock;
+        case "stock-asc":
+          return a.stock - b.stock;
         case "newest":
-          return b.id - a.id;
-        case "price-desc":
         default:
-          return b.price - a.price;
+          return String(b.id).localeCompare(String(a.id));
       }
     });
 
     return result;
-  }, [products, filters, sort]);
+  }, [products, searchQuery, filters, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
-
   const paginatedProducts = filteredProducts.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
 
   const handleClearFilters = () => {
-    setFilters({
-      status: "",
-      category: "",
-      brand: "",
-    });
+    setFilters({ status: "", category: "", brand: "" });
+    setSearchQuery("");
     setCurrentPage(1);
   };
 
-  const handleDelete = (product) => {
-    const confirmed = window.confirm(
-      `Bạn có chắc muốn xóa sản phẩm "${product.name}"?`
-    );
-    if (!confirmed) return;
+  // FLOW: Thêm / Sửa → API cập nhật Database thành công → Fetch lại data mới nhất → Cập nhật state → Render UI
+  const handleSaveProduct = async (productData) => {
+    const isEdit = Boolean(productData.id || productData._id);
+    const targetId = productData._id || productData.id;
 
-    setProducts((prev) => prev.filter((item) => item.id !== product.id));
+    try {
+      if (isEdit && targetId) {
+        // 1. Gửi request cập nhật vào Database
+        await productAPI.update(targetId, {
+          name: productData.name,
+          sku: productData.sku,
+          price: productData.price,
+          originalPrice: productData.oldPrice,
+          stock: productData.stock,
+          categoryName: productData.category,
+          brand: productData.brand,
+          thumbnail: productData.image,
+        });
+        showToast(`Đã lưu thay đổi cho "${productData.name}" thành công!`);
+      } else {
+        // 1. Gửi request tạo mới vào Database
+        await productAPI.create({
+          name: productData.name,
+          sku: productData.sku,
+          price: productData.price,
+          originalPrice: productData.oldPrice,
+          stock: productData.stock,
+          categoryName: productData.category,
+          brand: productData.brand,
+          thumbnail: productData.image,
+        });
+        showToast(`Đã thêm sản phẩm "${productData.name}" thành công!`);
+      }
+
+      setIsModalOpen(false);
+
+      // 2. Database cập nhật thành công → Fetch lại toàn bộ data mới nhất từ Database
+      await fetchProductsFromDatabase(false);
+    } catch (err) {
+      console.error("Lỗi khi lưu sản phẩm vào Database:", err);
+      showToast("Có lỗi xảy ra khi lưu vào Database. Vui lòng thử lại!");
+    }
   };
 
-  const handleEdit = (product) => {
-    alert(`Chức năng chỉnh sửa thông tin sản phẩm: ${product.name}`);
+  // FLOW: Chỉnh Tồn kho → API cập nhật Database thành công → Fetch lại data mới nhất → Cập nhật state
+  const handleStockChange = async (productId, newStock) => {
+    try {
+      // 1. Gửi cập nhật tồn kho vào Database
+      await productAPI.updateStock(productId, newStock);
+
+      // 2. Fetch lại data mới nhất từ Database
+      await fetchProductsFromDatabase(false);
+    } catch (err) {
+      console.error("Lỗi khi cập nhật tồn kho vào Database:", err);
+      showToast("Không thể cập nhật tồn kho trên Database!");
+    }
   };
 
-  const handleAddProduct = () => {
-    alert("Mở giao diện thêm sản phẩm mới!");
+  // FLOW: Xóa → API xóa trong Database thành công → Fetch lại data mới nhất → Cập nhật state
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirmProduct) return;
+    const targetId = deleteConfirmProduct._id || deleteConfirmProduct.id;
+    const prodName = deleteConfirmProduct.name;
+    setDeleteConfirmProduct(null);
+
+    try {
+      // 1. Gửi lệnh xóa trong Database
+      await productAPI.delete(targetId);
+      showToast(`Đã xóa sản phẩm "${prodName}" !`);
+
+      // 2. Fetch lại danh sách mới nhất từ Database
+      await fetchProductsFromDatabase(false);
+    } catch (err) {
+      console.error("Lỗi khi xóa sản phẩm trong Database:", err);
+      showToast("Không thể xóa sản phẩm khỏi Database!");
+    }
   };
 
-  const handleExport = () => {
-    alert("Đang xuất dữ liệu danh sách sản phẩm thành file Excel/CSV...");
+  // Export CSV từ dữ liệu hiện tại
+  const handleExportCSV = () => {
+    const headers = ["Mã SKU", "Tên sản phẩm", "Danh mục", "Thương hiệu", "Giá bán (VNĐ)", "Giá gốc (VNĐ)", "Tồn kho", "Đánh giá"];
+    const rows = products.map((p) => [
+      `"${p.sku}"`,
+      `"${p.name.replace(/"/g, '""')}"`,
+      `"${p.category}"`,
+      `"${p.brand || ""}"`,
+      p.price,
+      p.oldPrice || "",
+      p.stock,
+      p.rating || "",
+    ]);
+
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `danh_sach_san_pham_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast("Đã xuất danh sách sản phẩm thành file CSV!");
   };
 
   return (
-    <div className="flex w-full flex-col px-6 py-8">
-      {/* Header */}
+    <div className="relative flex w-full flex-col px-3.5 sm:px-6 py-5 sm:py-8 max-w-[1600px] mx-auto">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-2xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-2xl animate-in slide-in-from-bottom-3 duration-300 border border-slate-700">
+          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Page Header */}
       <ProductPageHeader
-        onAddProduct={handleAddProduct}
-        onExport={handleExport}
+        onAddProduct={() => {
+          setEditingProduct(null);
+          setIsModalOpen(true);
+        }}
+        onExport={handleExportCSV}
       />
 
-      {/* Content */}
-      <div className="relative flex flex-col gap-6 lg:flex-row">
-        {/* Filters */}
-        <ProductFilters
-          filters={filters}
-          setFilters={setFilters}
-          onClear={handleClearFilters}
+      {/* Top Filter Bar */}
+      <ProductFilters
+        filters={filters}
+        setFilters={setFilters}
+        onClear={handleClearFilters}
+        categoryCounts={categoryCounts}
+        brandList={brandList}
+        statusCounts={statusCounts}
+        searchQuery={searchQuery}
+        setSearchQuery={(q) => {
+          setSearchQuery(q);
+          setCurrentPage(1);
+        }}
+      />
+
+      {/* Toolbar (Count + Sort + Grid/List Mode) */}
+      <ProductToolbar
+        total={isLoading ? 0 : filteredProducts.length}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        sort={sort}
+        setSort={setSort}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+      />
+
+      {/* Products Grid / List with Loading Skeleton */}
+      <ProductGrid
+        products={paginatedProducts}
+        viewMode={viewMode}
+        isLoading={isLoading}
+        onEdit={(prod) => {
+          setEditingProduct(prod);
+          setIsModalOpen(true);
+        }}
+        onDelete={(prod) => setDeleteConfirmProduct(prod)}
+        onStockChange={handleStockChange}
+      />
+
+      {/* Pagination */}
+      {!isLoading && filteredProducts.length > 0 && (
+        <ProductPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
         />
+      )}
 
-        {/* Products */}
-        <div className="flex min-w-0 flex-1 flex-col">
-          <ProductToolbar
-            total={filteredProducts.length}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            sort={sort}
-            setSort={setSort}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-          />
+      {/* Create / Edit Product Modal */}
+      <ProductModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveProduct}
+        initialData={editingProduct}
+        categories={Object.keys(categoryCounts).map((c) => ({ name: c }))}
+        brands={brandList}
+      />
 
-          <ProductGrid
-            products={paginatedProducts}
-            viewMode={viewMode}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-100">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  Xác nhận xóa sản phẩm
+                </h3>
+                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                  Thao tác này sẽ xóa sản phẩm vĩnh viễn.
+                </p>
+              </div>
+            </div>
 
-          <ProductPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            setCurrentPage={setCurrentPage}
-          />
+            <p className="text-xs text-slate-700 font-medium bg-slate-50 p-3.5 rounded-xl border border-slate-200 mb-5">
+              Bạn có chắc chắn muốn xóa sản phẩm{" "}
+              <strong className="text-slate-900 font-bold">
+                "{deleteConfirmProduct.name}"
+              </strong>{" "}
+              (Mã: {deleteConfirmProduct.sku})?
+            </p>
+
+            <div className="flex justify-end gap-2.5">
+              <button
+                onClick={() => setDeleteConfirmProduct(null)}
+                className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+              >
+                Hủy bỏ
+              </button>
+
+              <button
+                onClick={handleDeleteConfirm}
+                className="rounded-xl bg-red-600 px-5 py-2 text-xs font-bold text-white hover:bg-red-700 shadow-xs transition cursor-pointer"
+              >
+                Xác nhận xóa
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
