@@ -24,5 +24,6 @@ router.post("/", verifyJWT, requireAdmin, createJob);
 router.put("/:id", verifyJWT, requireAdmin, updateJob);
 router.delete("/:id", verifyJWT, requireAdmin, deleteJob);
 router.patch("/:id/toggle-status", verifyJWT, requireAdmin, toggleJobStatus);
+router.patch("/:id/toggle", verifyJWT, requireAdmin, toggleJobStatus);
 
 export default router;

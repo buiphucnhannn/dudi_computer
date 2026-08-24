@@ -288,7 +288,7 @@ export default function Header() {
           setHeaderProducts(res.data.data);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Instant live search results
@@ -656,11 +656,10 @@ export default function Header() {
             {/* Showroom */}
             <Link href="/store-locations" className="flex items-center gap-2 group cursor-pointer">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${
-                  isStoreLocationsActive
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${isStoreLocationsActive
                     ? "bg-[#eb1c24] text-white shadow-md shadow-red-500/20"
                     : "bg-gray-50 text-gray-600 group-hover:bg-gray-800 group-hover:text-white"
-                }`}
+                  }`}
               >
                 <MapPin className="w-5 h-5" />
               </div>
@@ -669,9 +668,8 @@ export default function Header() {
                   HỆ THỐNG 2 CƠ SỞ
                 </span>
                 <span
-                  className={`text-[15px] font-black leading-tight transition-colors ${
-                    isStoreLocationsActive ? "text-[#eb1c24]" : "text-gray-800 group-hover:text-[#eb1c24]"
-                  }`}
+                  className={`text-[15px] font-black leading-tight transition-colors ${isStoreLocationsActive ? "text-[#eb1c24]" : "text-gray-800 group-hover:text-[#eb1c24]"
+                    }`}
                 >
                   Showroom
                 </span>
@@ -683,9 +681,8 @@ export default function Header() {
           <div className="flex items-center gap-1 sm:gap-2">
             <Link
               href="/cart"
-              className={`relative p-2 transition-colors flex items-center gap-1 ${
-                isCartActive ? "text-[#eb1c24]" : "text-gray-700 hover:text-[#eb1c24]"
-              }`}
+              className={`relative p-2 transition-colors flex items-center gap-1 ${isCartActive ? "text-[#eb1c24]" : "text-gray-700 hover:text-[#eb1c24]"
+                }`}
               title="Giỏ hàng"
             >
               <ShoppingCart className="w-6 h-6" />
@@ -725,11 +722,10 @@ export default function Header() {
 
                   {/* User Dropdown Menu with Hover Bridge (Căn khớp cả 2 mép trái phải với thẻ người dùng) */}
                   <div
-                    className={`absolute left-0 right-0 top-full pt-1.5 w-full z-50 transition-all duration-150 ${
-                      userDropdownOpen
+                    className={`absolute left-0 right-0 top-full pt-1.5 w-full z-50 transition-all duration-150 ${userDropdownOpen
                         ? "opacity-100 visible translate-y-0"
                         : "opacity-0 invisible -translate-y-1 pointer-events-none"
-                    }`}
+                      }`}
                   >
                     <div className="bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-gray-100 p-1.5 overflow-hidden w-full space-y-0.5">
                       {user?.role === "admin" && (
@@ -920,9 +916,8 @@ export default function Header() {
                 </span>
               </div>
               <ChevronDown
-                className={`w-4 h-4 transition-transform duration-300 relative z-10 ${
-                  showCategoryDropdown ? "group-hover/cat:rotate-180" : ""
-                }`}
+                className={`w-4 h-4 transition-transform duration-300 relative z-10 ${showCategoryDropdown ? "group-hover/cat:rotate-180" : ""
+                  }`}
               />
             </div>
 
@@ -953,9 +948,8 @@ export default function Header() {
                       {/* Flyout Submenu - Dính liền ngay bên cạnh dòng danh mục đang rê chuột */}
                       {cat.hasSub && cat.subGroups && (
                         <div
-                          className={`opacity-0 invisible group-hover/item:opacity-100 group-hover/item:visible absolute left-full top-0 ${
-                            cat.subGroups.length > 1 ? "w-[520px]" : "w-[280px]"
-                          } bg-white shadow-[0_12px_35px_rgba(0,0,0,0.15)] border border-gray-200/90 z-50 rounded-2xl transition-all duration-200 p-4 sm:p-5 flex items-start gap-6 ml-0.5 pointer-events-none group-hover/item:pointer-events-auto`}
+                          className={`opacity-0 invisible group-hover/item:opacity-100 group-hover/item:visible absolute left-full top-0 ${cat.subGroups.length > 1 ? "w-[520px]" : "w-[280px]"
+                            } bg-white shadow-[0_12px_35px_rgba(0,0,0,0.15)] border border-gray-200/90 z-50 rounded-2xl transition-all duration-200 p-4 sm:p-5 flex items-start gap-6 ml-0.5 pointer-events-none group-hover/item:pointer-events-auto`}
                         >
                           <div className="flex flex-wrap gap-x-6 gap-y-4 w-full items-start">
                             {cat.subGroups.map((group) => (
@@ -1003,11 +997,10 @@ export default function Header() {
             <li className="shrink-0">
               <Link
                 href="/tat-ca-san-pham"
-                className={`flex items-center gap-1 py-3 md:py-[14px] transition-all duration-300 ${
-                  isAllProductsActive
+                className={`flex items-center gap-1 py-3 md:py-[14px] transition-all duration-300 ${isAllProductsActive
                     ? "text-[#eb1c24] font-black"
                     : "text-white hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <span className="uppercase relative inline-block">
                   TẤT CẢ SẢN PHẨM
@@ -1022,17 +1015,15 @@ export default function Header() {
             {/* Chính Sách Tổng Hợp Dropdown */}
             <li className="relative shrink-0 group/policy">
               <div
-                className={`py-3 md:py-[14px] flex items-center gap-1.5 cursor-pointer uppercase transition-colors select-none ${
-                  isPolicyActive
+                className={`py-3 md:py-[14px] flex items-center gap-1.5 cursor-pointer uppercase transition-colors select-none ${isPolicyActive
                     ? "text-[#eb1c24] font-black"
                     : "text-white hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <span>CHÍNH SÁCH TỔNG HỢP</span>
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-300 group-hover/policy:rotate-180 ${
-                    isPolicyActive ? "text-[#eb1c24]" : "text-gray-300"
-                  }`}
+                  className={`w-4 h-4 transition-transform duration-300 group-hover/policy:rotate-180 ${isPolicyActive ? "text-[#eb1c24]" : "text-gray-300"
+                    }`}
                 />
               </div>
               <div className="absolute top-full left-0 w-60 bg-white/95 backdrop-blur-xl text-gray-800 shadow-[0_20px_40px_rgba(0,0,0,0.1)] border-t-2 border-[#eb1c24] rounded-b-xl overflow-hidden z-50 transition-all duration-200 origin-top opacity-0 invisible group-hover/policy:opacity-100 group-hover/policy:visible pointer-events-none group-hover/policy:pointer-events-auto">
@@ -1040,11 +1031,10 @@ export default function Header() {
                   <li>
                     <Link
                       href="/chinh-sach-bao-hanh"
-                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
-                        pathname === "/chinh-sach-bao-hanh" || pathname === "/warranty-policy"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${pathname === "/chinh-sach-bao-hanh" || pathname === "/warranty-policy"
                           ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
                           : ""
-                      }`}
+                        }`}
                     >
                       Chính sách bảo hành
                     </Link>
@@ -1052,11 +1042,10 @@ export default function Header() {
                   <li>
                     <Link
                       href="/chinh-sach-bao-mat"
-                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
-                        pathname === "/chinh-sach-bao-mat" || pathname === "/privacy-policy"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${pathname === "/chinh-sach-bao-mat" || pathname === "/privacy-policy"
                           ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
                           : ""
-                      }`}
+                        }`}
                     >
                       Chính sách bảo mật
                     </Link>
@@ -1064,11 +1053,10 @@ export default function Header() {
                   <li>
                     <Link
                       href="/chinh-sach-van-chuyen"
-                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
-                        pathname === "/chinh-sach-van-chuyen" || pathname === "/shipping-policy"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${pathname === "/chinh-sach-van-chuyen" || pathname === "/shipping-policy"
                           ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
                           : ""
-                      }`}
+                        }`}
                     >
                       Chính sách vận chuyển
                     </Link>
@@ -1076,11 +1064,10 @@ export default function Header() {
                   <li>
                     <Link
                       href="/chinh-sach-doi-tra"
-                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
-                        pathname === "/chinh-sach-doi-tra" || pathname === "/return-policy"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${pathname === "/chinh-sach-doi-tra" || pathname === "/return-policy"
                           ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
                           : ""
-                      }`}
+                        }`}
                     >
                       Chính sách đổi trả
                     </Link>
@@ -1088,11 +1075,10 @@ export default function Header() {
                   <li>
                     <Link
                       href="/chinh-sach-thanh-toan"
-                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 uppercase ${
-                        pathname === "/chinh-sach-thanh-toan" || pathname === "/payment-policy"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 uppercase ${pathname === "/chinh-sach-thanh-toan" || pathname === "/payment-policy"
                           ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
                           : ""
-                      }`}
+                        }`}
                     >
                       Chính sách thanh toán
                     </Link>
@@ -1105,11 +1091,10 @@ export default function Header() {
             <li className="shrink-0">
               <Link
                 href="/thu-cu-doi-moi"
-                className={`py-3 md:py-[14px] block transition-colors uppercase ${
-                  isTradeInActive
+                className={`py-3 md:py-[14px] block transition-colors uppercase ${isTradeInActive
                     ? "text-[#eb1c24] font-black"
                     : "text-white hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 THU CŨ ĐỔI MỚI
               </Link>
@@ -1119,11 +1104,10 @@ export default function Header() {
             <li className="shrink-0">
               <Link
                 href="/gioi-thieu-ban-be"
-                className={`py-3 md:py-[14px] block transition-colors uppercase font-bold ${
-                  isReferralActive
+                className={`py-3 md:py-[14px] block transition-colors uppercase font-bold ${isReferralActive
                     ? "text-[#eb1c24] font-black"
                     : "text-white hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 GIỚI THIỆU BẠN BÈ
               </Link>
@@ -1132,17 +1116,15 @@ export default function Header() {
             {/* Công cụ Test Dropdown */}
             <li className="relative shrink-0 group/test">
               <div
-                className={`py-3 md:py-[14px] flex items-center gap-1.5 cursor-pointer uppercase transition-colors select-none ${
-                  isTestToolsActive
+                className={`py-3 md:py-[14px] flex items-center gap-1.5 cursor-pointer uppercase transition-colors select-none ${isTestToolsActive
                     ? "text-[#eb1c24] font-black"
                     : "text-white hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <span>CÔNG CỤ TEST</span>
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-300 group-hover/test:rotate-180 ${
-                    isTestToolsActive ? "text-[#eb1c24]" : "text-gray-300"
-                  }`}
+                  className={`w-4 h-4 transition-transform duration-300 group-hover/test:rotate-180 ${isTestToolsActive ? "text-[#eb1c24]" : "text-gray-300"
+                    }`}
                 />
               </div>
               <div className="absolute top-full right-0 w-60 bg-white/95 backdrop-blur-xl text-gray-800 shadow-[0_20px_40px_rgba(0,0,0,0.1)] border-t-2 border-[#eb1c24] rounded-b-xl overflow-hidden z-50 transition-all duration-200 origin-top opacity-0 invisible group-hover/test:opacity-100 group-hover/test:visible pointer-events-none group-hover/test:pointer-events-auto">
@@ -1150,14 +1132,13 @@ export default function Header() {
                   <li>
                     <Link
                       href="/test-ban-phim"
-                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
-                        pathname === "/test-ban-phim" ||
-                        pathname === "/keyboard-test" ||
-                        pathname === "/cong-cu-test/ban-phim" ||
-                        pathname === "/kiem-tra-ban-phim"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${pathname === "/test-ban-phim" ||
+                          pathname === "/keyboard-test" ||
+                          pathname === "/cong-cu-test/ban-phim" ||
+                          pathname === "/kiem-tra-ban-phim"
                           ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
                           : ""
-                      }`}
+                        }`}
                     >
                       Test Bàn Phím
                     </Link>
@@ -1165,14 +1146,13 @@ export default function Header() {
                   <li>
                     <Link
                       href="/test-man-hinh"
-                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
-                        pathname === "/test-man-hinh" ||
-                        pathname === "/screen-test" ||
-                        pathname === "/cong-cu-test/man-hinh" ||
-                        pathname === "/kiem-tra-man-hinh"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${pathname === "/test-man-hinh" ||
+                          pathname === "/screen-test" ||
+                          pathname === "/cong-cu-test/man-hinh" ||
+                          pathname === "/kiem-tra-man-hinh"
                           ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
                           : ""
-                      }`}
+                        }`}
                     >
                       Test Màn Hình
                     </Link>
@@ -1180,14 +1160,13 @@ export default function Header() {
                   <li>
                     <Link
                       href="/test-loa-micro-webcam"
-                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 uppercase ${
-                        pathname === "/test-loa-micro-webcam" ||
-                        pathname === "/peripherals-test" ||
-                        pathname === "/cong-cu-test/loa-micro-webcam" ||
-                        pathname === "/kiem-tra-ngoai-vi"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 uppercase ${pathname === "/test-loa-micro-webcam" ||
+                          pathname === "/peripherals-test" ||
+                          pathname === "/cong-cu-test/loa-micro-webcam" ||
+                          pathname === "/kiem-tra-ngoai-vi"
                           ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
                           : ""
-                      }`}
+                        }`}
                     >
                       Test Loa, Micro, Webcam
                     </Link>
@@ -1204,20 +1183,18 @@ export default function Header() {
 
       {/* Backdrop Overlay */}
       <div
-        className={`fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-[100] transition-opacity duration-300 md:hidden ${
-          mobileMenuOpen
+        className={`fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-[100] transition-opacity duration-300 md:hidden ${mobileMenuOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
-        }`}
+          }`}
         onClick={() => setMobileMenuOpen(false)}
         aria-hidden="true"
       />
 
       {/* Drawer Sidebar Panel */}
       <aside
-        className={`fixed top-0 left-0 bottom-0 w-[86%] max-w-[340px] bg-white z-[101] shadow-2xl flex flex-col transition-transform duration-300 ease-out md:hidden ${
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 left-0 bottom-0 w-[86%] max-w-[340px] bg-white z-[101] shadow-2xl flex flex-col transition-transform duration-300 ease-out md:hidden ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         aria-label="Mobile Navigation"
       >
         {/* Drawer Header */}
@@ -1394,11 +1371,10 @@ export default function Header() {
             <Link
               href="/tat-ca-san-pham"
               onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center justify-between p-2.5 rounded-xl font-bold text-xs transition-colors mb-1.5 ${
-                isAllProductsActive
+              className={`flex items-center justify-between p-2.5 rounded-xl font-bold text-xs transition-colors mb-1.5 ${isAllProductsActive
                   ? "bg-[#eb1c24] text-white shadow-md shadow-red-500/20 font-black"
                   : "text-[#eb1c24] bg-red-50/70 hover:bg-red-100"
-              }`}
+                }`}
             >
               <div className="flex items-center gap-2.5">
                 <Sparkles className={`w-4 h-4 ${isAllProductsActive ? "text-white" : "text-[#eb1c24]"}`} />
@@ -1424,11 +1400,10 @@ export default function Header() {
                           router.push(`/tat-ca-san-pham?category=${cat.slug}`);
                         }
                       }}
-                      className={`flex items-center justify-between p-2.5 text-xs font-bold rounded-xl transition-colors cursor-pointer ${
-                        isExpanded
+                      className={`flex items-center justify-between p-2.5 text-xs font-bold rounded-xl transition-colors cursor-pointer ${isExpanded
                           ? "bg-gray-100 text-[#eb1c24]"
                           : "text-gray-700 hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-2.5">
                         <Icon className={`w-4 h-4 ${isExpanded ? "text-[#eb1c24]" : "text-gray-400"}`} />
@@ -1436,9 +1411,8 @@ export default function Header() {
                       </div>
                       {cat.hasSub ? (
                         <ChevronDown
-                          className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
-                            isExpanded ? "rotate-180 text-[#eb1c24]" : ""
-                          }`}
+                          className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isExpanded ? "rotate-180 text-[#eb1c24]" : ""
+                            }`}
                         />
                       ) : (
                         <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
@@ -1496,11 +1470,10 @@ export default function Header() {
               <Link
                 href="/thu-cu-doi-moi"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
-                  isTradeInActive
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${isTradeInActive
                     ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
                     : "hover:bg-gray-50 hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <RefreshCw className={`w-4 h-4 ${isTradeInActive ? "text-[#eb1c24]" : "text-gray-400"}`} />
@@ -1512,11 +1485,10 @@ export default function Header() {
               <Link
                 href="/gioi-thieu-ban-be"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
-                  isReferralActive
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${isReferralActive
                     ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
                     : "hover:bg-gray-50 hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <Users className={`w-4 h-4 ${isReferralActive ? "text-[#eb1c24]" : "text-gray-400"}`} />
@@ -1528,11 +1500,10 @@ export default function Header() {
               <Link
                 href="/he-thong-cua-hang"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
-                  isStoreLocationsActive
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${isStoreLocationsActive
                     ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
                     : "hover:bg-gray-50 hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <MapPin className={`w-4 h-4 ${isStoreLocationsActive ? "text-[#eb1c24]" : "text-gray-400"}`} />
@@ -1544,11 +1515,10 @@ export default function Header() {
               <Link
                 href="/chinh-sach-bao-hanh"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
-                  pathname === "/chinh-sach-bao-hanh" || pathname === "/warranty-policy"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${pathname === "/chinh-sach-bao-hanh" || pathname === "/warranty-policy"
                     ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
                     : "hover:bg-gray-50 hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <ShieldCheck className={`w-4 h-4 ${pathname === "/chinh-sach-bao-hanh" || pathname === "/warranty-policy" ? "text-[#eb1c24]" : "text-gray-400"}`} />
@@ -1560,11 +1530,10 @@ export default function Header() {
               <Link
                 href="/chinh-sach-doi-tra"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
-                  pathname === "/chinh-sach-doi-tra" || pathname === "/return-policy"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${pathname === "/chinh-sach-doi-tra" || pathname === "/return-policy"
                     ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
                     : "hover:bg-gray-50 hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <FileText className={`w-4 h-4 ${pathname === "/chinh-sach-doi-tra" || pathname === "/return-policy" ? "text-[#eb1c24]" : "text-gray-400"}`} />
@@ -1576,11 +1545,10 @@ export default function Header() {
               <Link
                 href="/chinh-sach-van-chuyen"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
-                  pathname === "/chinh-sach-van-chuyen" || pathname === "/shipping-policy"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${pathname === "/chinh-sach-van-chuyen" || pathname === "/shipping-policy"
                     ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
                     : "hover:bg-gray-50 hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <FileText className={`w-4 h-4 ${pathname === "/chinh-sach-van-chuyen" || pathname === "/shipping-policy" ? "text-[#eb1c24]" : "text-gray-400"}`} />
@@ -1592,11 +1560,10 @@ export default function Header() {
               <Link
                 href="/chinh-sach-bao-mat"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
-                  pathname === "/chinh-sach-bao-mat" || pathname === "/privacy-policy"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${pathname === "/chinh-sach-bao-mat" || pathname === "/privacy-policy"
                     ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
                     : "hover:bg-gray-50 hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <FileText className={`w-4 h-4 ${pathname === "/chinh-sach-bao-mat" || pathname === "/privacy-policy" ? "text-[#eb1c24]" : "text-gray-400"}`} />
@@ -1608,11 +1575,10 @@ export default function Header() {
               <Link
                 href="/chinh-sach-thanh-toan"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
-                  pathname === "/chinh-sach-thanh-toan" || pathname === "/payment-policy"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${pathname === "/chinh-sach-thanh-toan" || pathname === "/payment-policy"
                     ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
                     : "hover:bg-gray-50 hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <FileText className={`w-4 h-4 ${pathname === "/chinh-sach-thanh-toan" || pathname === "/payment-policy" ? "text-[#eb1c24]" : "text-gray-400"}`} />
@@ -1633,19 +1599,17 @@ export default function Header() {
               <Link
                 href="/test-ban-phim"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
-                  pathname === "/test-ban-phim" ||
-                  pathname === "/keyboard-test" ||
-                  pathname === "/cong-cu-test/ban-phim" ||
-                  pathname === "/kiem-tra-ban-phim"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${pathname === "/test-ban-phim" ||
+                    pathname === "/keyboard-test" ||
+                    pathname === "/cong-cu-test/ban-phim" ||
+                    pathname === "/kiem-tra-ban-phim"
                     ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
                     : "hover:bg-gray-50 hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Keyboard className={`w-4 h-4 ${
-                    pathname === "/test-ban-phim" || pathname === "/keyboard-test" ? "text-[#eb1c24]" : "text-gray-400"
-                  }`} />
+                  <Keyboard className={`w-4 h-4 ${pathname === "/test-ban-phim" || pathname === "/keyboard-test" ? "text-[#eb1c24]" : "text-gray-400"
+                    }`} />
                   <span>Test Bàn Phím</span>
                 </div>
                 <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
@@ -1654,19 +1618,17 @@ export default function Header() {
               <Link
                 href="/test-man-hinh"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
-                  pathname === "/test-man-hinh" ||
-                  pathname === "/screen-test" ||
-                  pathname === "/cong-cu-test/man-hinh" ||
-                  pathname === "/kiem-tra-man-hinh"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${pathname === "/test-man-hinh" ||
+                    pathname === "/screen-test" ||
+                    pathname === "/cong-cu-test/man-hinh" ||
+                    pathname === "/kiem-tra-man-hinh"
                     ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
                     : "hover:bg-gray-50 hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Monitor className={`w-4 h-4 ${
-                    pathname === "/test-man-hinh" || pathname === "/screen-test" ? "text-[#eb1c24]" : "text-gray-400"
-                  }`} />
+                  <Monitor className={`w-4 h-4 ${pathname === "/test-man-hinh" || pathname === "/screen-test" ? "text-[#eb1c24]" : "text-gray-400"
+                    }`} />
                   <span>Test Màn Hình</span>
                 </div>
                 <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
@@ -1675,19 +1637,17 @@ export default function Header() {
               <Link
                 href="/test-loa-micro-webcam"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
-                  pathname === "/test-loa-micro-webcam" ||
-                  pathname === "/peripherals-test" ||
-                  pathname === "/cong-cu-test/loa-micro-webcam" ||
-                  pathname === "/kiem-tra-ngoai-vi"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${pathname === "/test-loa-micro-webcam" ||
+                    pathname === "/peripherals-test" ||
+                    pathname === "/cong-cu-test/loa-micro-webcam" ||
+                    pathname === "/kiem-tra-ngoai-vi"
                     ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
                     : "hover:bg-gray-50 hover:text-[#eb1c24]"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Zap className={`w-4 h-4 ${
-                    pathname === "/test-loa-micro-webcam" || pathname === "/peripherals-test" ? "text-[#eb1c24]" : "text-gray-400"
-                  }`} />
+                  <Zap className={`w-4 h-4 ${pathname === "/test-loa-micro-webcam" || pathname === "/peripherals-test" ? "text-[#eb1c24]" : "text-gray-400"
+                    }`} />
                   <span>Test Loa, Micro, Webcam</span>
                 </div>
                 <ChevronRight className="w-3.5 h-3.5 text-gray-300" />

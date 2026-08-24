@@ -28,7 +28,7 @@ import {
   Layers,
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
-import { apiClient } from "@/lib/api";
+import { jobAPI, apiClient } from "@/lib/api";
 
 const generateSlug = (text) => {
   return text
@@ -124,19 +124,16 @@ export default function AdminCareersPage() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      let url = `/jobs/admin/all?search=${encodeURIComponent(searchTerm)}`;
-      if (selectedDept !== "all") url += `&department=${encodeURIComponent(selectedDept)}`;
-      if (selectedStatus !== "all") url += `&isActive=${selectedStatus === "active"}`;
-
-      const res = await apiClient.get(url);
-      const json = res.data;
-      if (json.statusCode === 200 || json.success) {
-        const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
-        setJobs(items);
-      }
+      const res = await jobAPI.getAdminAll({
+        search: searchTerm.trim() || undefined,
+        department: selectedDept !== "all" ? selectedDept : undefined,
+        isActive: selectedStatus !== "all" ? selectedStatus === "active" : undefined,
+      });
+      const data = res.data?.data?.items || res.data?.data || res.data?.items || [];
+      setJobs(data);
     } catch (error) {
       try {
-        const publicRes = await apiClient.get("/jobs");
+        const publicRes = await jobAPI.getAll();
         const items = publicRes.data?.data?.items || (Array.isArray(publicRes.data?.data) ? publicRes.data.data : []);
         setJobs(items);
       } catch (e) {
@@ -235,12 +232,10 @@ export default function AdminCareersPage() {
         benefits: formData.benefits ? formData.benefits.split("\n").map((b) => b.trim()).filter(Boolean) : [],
       };
 
-      const url = modalMode === "create" ? `/jobs` : `/jobs/${currentJob._id}`;
-
       if (modalMode === "create") {
-        await apiClient.post(url, payload);
+        await jobAPI.create(payload);
       } else {
-        await apiClient.put(url, payload);
+        await jobAPI.update(currentJob._id, payload);
       }
 
       showToast(modalMode === "create" ? "Đăng tin tuyển dụng mới thành công!" : "Cập nhật tin tuyển dụng thành công!");
@@ -255,7 +250,7 @@ export default function AdminCareersPage() {
 
   const handleToggleStatus = async (id) => {
     try {
-      await apiClient.patch(`/jobs/${id}/toggle`);
+      await jobAPI.toggleStatus(id);
       showToast("Đã thay đổi trạng thái tuyển dụng!");
       fetchJobs();
     } catch (error) {
@@ -274,12 +269,12 @@ export default function AdminCareersPage() {
       onConfirm: async () => {
         setConfirmState((prev) => ({ ...prev, loading: true }));
         try {
-          await apiClient.delete(`/jobs/${id}`);
+          await jobAPI.delete(id);
           showToast("Đã xóa tin tuyển dụng thành công!");
           setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
           fetchJobs();
         } catch (error) {
-          showToast(error.message || "Lỗi xóa tin", "error");
+          showToast(error.response?.data?.message || error.message || "Lỗi xóa tin", "error");
           setConfirmState((prev) => ({ ...prev, loading: false }));
         }
       },
@@ -417,7 +412,7 @@ export default function AdminCareersPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-black uppercase tracking-wider text-slate-500">
+              <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-black uppercase tracking-wider text-slate-500 whitespace-nowrap">
                 <th className="py-3.5 px-4 w-12 text-center whitespace-nowrap">STT</th>
                 <th className="py-3.5 px-4 min-w-[240px] whitespace-nowrap text-left">Vị Trí Tuyển Dụng</th>
                 <th className="py-3.5 px-4 w-48 text-center whitespace-nowrap">Phòng Ban & Cấp Bậc</th>
@@ -431,14 +426,14 @@ export default function AdminCareersPage() {
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-400 whitespace-nowrap">
                     <RefreshCw className="w-6 h-6 animate-spin mx-auto text-blue-600 mb-2" />
                     Đang tải danh sách tuyển dụng...
                   </td>
                 </tr>
               ) : jobs.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-400 whitespace-nowrap">
                     Chưa có vị trí tuyển dụng nào phù hợp.
                   </td>
                 </tr>
@@ -453,9 +448,9 @@ export default function AdminCareersPage() {
                       </td>
                       <td className="py-3.5 px-4 text-left whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <div className="font-bold text-slate-900 group-hover:text-blue-600 transition text-xs sm:text-sm">
+                          <span className="font-bold text-slate-900 group-hover:text-blue-600 transition text-xs sm:text-sm">
                             {job.title}
-                          </div>
+                          </span>
                           {job.isHot && (
                             <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-red-100 text-[#eb1c24] text-[9.5px] font-black shrink-0">
                               <Flame className="w-3 h-3" />
@@ -464,29 +459,29 @@ export default function AdminCareersPage() {
                           )}
                         </div>
                         {job.skills && job.skills.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-1">
+                          <div className="flex items-center gap-1 mt-1 flex-nowrap overflow-hidden">
                             {job.skills.slice(0, 3).map((sk, sIdx) => (
                               <span
                                 key={sIdx}
-                                className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold"
+                                className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold whitespace-nowrap shrink-0"
                               >
                                 {sk}
                               </span>
                             ))}
                             {job.skills.length > 3 && (
-                              <span className="text-[10px] text-slate-400">+{job.skills.length - 3}</span>
+                              <span className="text-[10px] text-slate-400 shrink-0">+{job.skills.length - 3}</span>
                             )}
                           </div>
                         )}
                       </td>
                       <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <div className="inline-flex flex-col items-center">
-                          <div className="font-semibold text-slate-800 flex items-center gap-1">
-                            <Building className="w-3 h-3 text-slate-400" />
+                          <div className="font-semibold text-slate-800 flex items-center gap-1.5 whitespace-nowrap">
+                            <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                             <span>{job.department}</span>
                           </div>
-                          <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1">
-                            <Award className="w-3 h-3 text-amber-500" />
+                          <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1 whitespace-nowrap">
+                            <Award className="w-3 h-3 text-amber-500 shrink-0" />
                             <span>{job.level || "Chuyên viên"}</span>
                             <span className="text-slate-300">•</span>
                             <span>{job.type}</span>
@@ -494,27 +489,27 @@ export default function AdminCareersPage() {
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                        <div className="font-black text-[#eb1c24] text-xs">
+                        <div className="font-black text-[#eb1c24] text-xs whitespace-nowrap">
                           {job.salary || "Thỏa thuận"}
                         </div>
-                        <div className="text-[10.5px] text-slate-500 flex items-center justify-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3 text-slate-400" />
+                        <div className="text-[10.5px] text-slate-500 flex items-center justify-center gap-1 mt-0.5 whitespace-nowrap">
+                          <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
                           <span>{job.location}</span>
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-center whitespace-nowrap font-bold text-slate-800">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 font-bold text-[11px]">
-                          <Users className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 font-bold text-[11px] whitespace-nowrap">
+                          <Users className="w-3 h-3 shrink-0" />
                           {job.quantity || 1}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-center whitespace-nowrap text-slate-600 font-medium">
                         {job.deadline ? (
                           <>
-                            <div className="text-[11.5px]">
+                            <div className="text-[11.5px] whitespace-nowrap">
                               {new Date(job.deadline).toLocaleDateString("vi-VN")}
                             </div>
-                            <div className="text-[10.5px]">
+                            <div className="text-[10.5px] whitespace-nowrap">
                               {isExpired ? (
                                 <span className="text-red-500 font-bold">Đã hết hạn</span>
                               ) : (
@@ -523,39 +518,39 @@ export default function AdminCareersPage() {
                             </div>
                           </>
                         ) : (
-                          <span className="text-slate-400">Liên tục</span>
+                          <span className="text-slate-400 whitespace-nowrap">Liên tục</span>
                         )}
                       </td>
                       <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <button
                           onClick={() => handleToggleStatus(job._id)}
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10.5px] font-bold transition cursor-pointer ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10.5px] font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
                             job.isActive
                               ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
                               : "bg-slate-100 text-slate-500 border border-slate-200"
                           }`}
                         >
                           {job.isActive ? (
-                            <CheckCircle2 className="w-3 h-3" />
+                            <CheckCircle2 className="w-3 h-3 shrink-0" />
                           ) : (
-                            <XCircle className="w-3 h-3" />
+                            <XCircle className="w-3 h-3 shrink-0" />
                           )}
                           <span>{job.isActive ? "Đang tuyển" : "Tạm ngưng"}</span>
                         </button>
                       </td>
                       <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                        <div className="flex items-center justify-center gap-1.5">
+                        <div className="flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0">
                           <button
                             onClick={() => handleOpenEdit(job)}
-                            className="p-1.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-600 hover:text-blue-600 transition cursor-pointer"
-                            title="Chỉnh sửa"
+                            className="p-1.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-600 hover:text-blue-600 transition cursor-pointer shrink-0"
+                            title="Chỉnh sửa tin tuyển dụng"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDelete(job._id, job.title)}
-                            className="p-1.5 rounded-lg border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer"
-                            title="Xóa"
+                            className="p-1.5 rounded-lg border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer shrink-0"
+                            title="Xóa tin tuyển dụng"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
