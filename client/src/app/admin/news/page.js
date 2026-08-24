@@ -200,10 +200,17 @@ export default function AdminNewsPage() {
       const res = await apiClient.get("/news-categories/admin/all");
       const json = res.data;
       if (json.statusCode === 200 || json.success) {
-        setCategories(json.data || []);
+        setCategories(Array.isArray(json.data) ? json.data : (json.data?.categories || []));
       }
     } catch (error) {
-      showToast("Không thể tải danh mục tin tức!", "error");
+      try {
+        const publicRes = await apiClient.get("/news-categories");
+        const list = Array.isArray(publicRes.data?.data) ? publicRes.data.data : [];
+        setCategories(list);
+      } catch (e) {
+        console.error("Lỗi tải danh mục tin tức:", e);
+        showToast("Không thể tải danh mục tin tức!", "error");
+      }
     } finally {
       setLoadingCategories(false);
     }

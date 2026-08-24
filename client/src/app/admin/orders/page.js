@@ -193,7 +193,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="flex flex-col w-full px-3.5 sm:px-6 py-5 sm:py-8 max-w-[1600px] mx-auto">
+    <div className="flex flex-col w-full gap-6">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-2xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-2xl animate-in slide-in-from-bottom-3 duration-300 border border-slate-700">

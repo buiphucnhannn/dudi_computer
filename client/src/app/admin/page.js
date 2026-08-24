@@ -9,7 +9,7 @@ import OrderStatusSummary from "@/components/admin/OrderStatusSummary";
 export default function AdminDashboardPage() {
   return (
     <DashboardProvider>
-      <div className="flex w-full flex-col gap-6 px-3.5 sm:px-6 py-5 sm:py-8 max-w-[1600px] mx-auto">
+      <div className="flex w-full flex-col gap-6">
         {/* Metrics & Quick Actions */}
         <DashboardMetrics />
 

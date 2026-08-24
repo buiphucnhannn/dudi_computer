@@ -9,27 +9,27 @@ export default function OrderTable({ orders, onSelectOrder, isLoading }) {
       <table className="w-full text-left border-collapse min-w-[900px]">
         <thead>
           <tr className="bg-slate-50/90 border-b border-slate-200">
-            <th className="py-3.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
+            <th className="py-3.5 px-4 w-28 text-center text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
               Mã đơn
             </th>
 
-            <th className="py-3.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
+            <th className="py-3.5 px-6 min-w-[240px] text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap text-left">
               Khách hàng
             </th>
 
-            <th className="py-3.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
+            <th className="py-3.5 px-4 w-44 text-center text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
               Ngày đặt
             </th>
 
-            <th className="py-3.5 px-6 text-xs font-bold uppercase tracking-wider text-right text-slate-700 whitespace-nowrap">
+            <th className="py-3.5 px-4 w-44 text-center text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
               Tổng tiền
             </th>
 
-            <th className="py-3.5 px-6 text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
+            <th className="py-3.5 px-4 w-40 text-center text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
               Trạng thái
             </th>
 
-            <th className="py-3.5 px-6 text-xs font-bold uppercase tracking-wider text-center text-slate-700 whitespace-nowrap">
+            <th className="py-3.5 px-4 w-28 text-center text-xs font-bold uppercase tracking-wider text-slate-700 whitespace-nowrap">
               Thao tác
             </th>
           </tr>
@@ -40,8 +40,8 @@ export default function OrderTable({ orders, onSelectOrder, isLoading }) {
             // Skeleton Loader Rows
             [1, 2, 3, 4, 5].map((idx) => (
               <tr key={idx} className="animate-pulse">
-                <td className="py-4 px-6 whitespace-nowrap">
-                  <div className="h-6 w-20 rounded-md bg-slate-200" />
+                <td className="py-4 px-4 text-center whitespace-nowrap">
+                  <div className="h-6 w-20 rounded-md bg-slate-200 mx-auto" />
                 </td>
                 <td className="py-4 px-6 whitespace-nowrap">
                   <div className="flex items-center gap-3">
@@ -52,16 +52,16 @@ export default function OrderTable({ orders, onSelectOrder, isLoading }) {
                     </div>
                   </div>
                 </td>
-                <td className="py-4 px-6 whitespace-nowrap">
-                  <div className="h-3.5 w-24 rounded bg-slate-200" />
+                <td className="py-4 px-4 text-center whitespace-nowrap">
+                  <div className="h-3.5 w-24 rounded bg-slate-200 mx-auto" />
                 </td>
-                <td className="py-4 px-6 text-right whitespace-nowrap">
-                  <div className="h-4 w-24 rounded bg-slate-200 ml-auto" />
+                <td className="py-4 px-4 text-center whitespace-nowrap">
+                  <div className="h-4 w-24 rounded bg-slate-200 mx-auto" />
                 </td>
-                <td className="py-4 px-6 whitespace-nowrap">
-                  <div className="h-6 w-24 rounded-md bg-slate-200" />
+                <td className="py-4 px-4 text-center whitespace-nowrap">
+                  <div className="h-6 w-24 rounded-md bg-slate-200 mx-auto" />
                 </td>
-                <td className="py-4 px-6 text-center whitespace-nowrap">
+                <td className="py-4 px-4 text-center whitespace-nowrap">
                   <div className="h-8 w-8 rounded-lg bg-slate-200 mx-auto" />
                 </td>
               </tr>
@@ -83,14 +83,14 @@ export default function OrderTable({ orders, onSelectOrder, isLoading }) {
                 className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
               >
                 {/* Order ID */}
-                <td className="py-4 px-6 whitespace-nowrap">
-                  <span className="font-bold text-xs text-slate-900 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200 inline-block">
+                <td className="py-4 px-4 text-center whitespace-nowrap">
+                  <span className="font-bold text-xs text-slate-900 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200 inline-block font-mono">
                     #{order.id}
                   </span>
                 </td>
 
                 {/* Customer */}
-                <td className="py-4 px-6 whitespace-nowrap">
+                <td className="py-4 px-6 text-left whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-2xs shrink-0">
                       {order.initials}
@@ -109,24 +109,26 @@ export default function OrderTable({ orders, onSelectOrder, isLoading }) {
                 </td>
 
                 {/* Date */}
-                <td className="py-4 px-6 text-xs text-slate-500 font-medium whitespace-nowrap">
+                <td className="py-4 px-4 text-center text-xs text-slate-500 font-medium whitespace-nowrap">
                   {order.createdAt || order.time}
                 </td>
 
                 {/* Total */}
-                <td className="py-4 px-6 text-sm font-black text-right text-slate-900 whitespace-nowrap">
+                <td className="py-4 px-4 text-center text-sm font-black text-slate-900 whitespace-nowrap">
                   {typeof (order.total || order.price) === "number"
                     ? `${(order.total || order.price).toLocaleString("vi-VN")}₫`
                     : (order.total || order.price)}
                 </td>
 
                 {/* Status */}
-                <td className="py-4 px-6 whitespace-nowrap">
-                  <OrderStatusBadge status={order.status} />
+                <td className="py-4 px-4 text-center whitespace-nowrap">
+                  <div className="flex justify-center">
+                    <OrderStatusBadge status={order.status} />
+                  </div>
                 </td>
 
                 {/* Actions */}
-                <td className="py-4 px-6 text-center whitespace-nowrap">
+                <td className="py-4 px-4 text-center whitespace-nowrap">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

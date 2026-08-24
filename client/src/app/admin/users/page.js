@@ -22,8 +22,7 @@ import {
   X,
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+import { apiClient } from "@/lib/api";
 
 export default function AdminUsersPage() {
   const [customers, setCustomers] = useState([]);
@@ -38,6 +37,7 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [authTypeFilter, setAuthTypeFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -73,21 +73,21 @@ export default function AdminUsersPage() {
     setLoading(true);
     try {
       // 1. Lấy danh sách khách hàng
-      let url = `${API_BASE}/users?search=${encodeURIComponent(searchTerm)}`;
+      let url = `/users?search=${encodeURIComponent(searchTerm)}`;
       if (statusFilter !== "all") url += `&status=${statusFilter}`;
       if (authTypeFilter !== "all") url += `&authType=${authTypeFilter}`;
+      if (roleFilter !== "all") url += `&role=${roleFilter}`;
 
-      const res = await fetch(url, { credentials: "include" });
-      const json = await res.json();
+      const res = await apiClient.get(url);
+      const json = res.data;
       if (json.statusCode === 200 || json.success) {
-        setCustomers(json.data.items || []);
+        const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
+        setCustomers(items);
       }
 
       // 2. Lấy thống kê
-      const statRes = await fetch(`${API_BASE}/users/stats`, {
-        credentials: "include",
-      });
-      const statJson = await statRes.json();
+      const statRes = await apiClient.get("/users/stats");
+      const statJson = statRes.data;
       if (statJson.statusCode === 200 || statJson.success) {
         setStats(statJson.data || {});
       }
@@ -101,7 +101,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchCustomers();
-  }, [statusFilter, authTypeFilter]);
+  }, [statusFilter, authTypeFilter, roleFilter]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -126,21 +126,12 @@ export default function AdminUsersPage() {
       onConfirm: async () => {
         setConfirmState((prev) => ({ ...prev, loading: true }));
         try {
-          const res = await fetch(`${API_BASE}/users/${id}/status`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ status: nextStatus }),
-          });
-
-          const json = await res.json();
-          if (!res.ok) throw new Error(json.message || "Thao tác thất bại");
-
+          await apiClient.patch(`/users/${id}/status`, { status: nextStatus });
           showToast(`Đã ${actionText} tài khoản khách hàng thành công!`);
           setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
           fetchCustomers();
         } catch (error) {
-          showToast(error.message || "Lỗi cập nhật trạng thái", "error");
+          showToast(error.response?.data?.message || error.message || "Lỗi cập nhật trạng thái", "error");
           setConfirmState((prev) => ({ ...prev, loading: false }));
         }
       },
@@ -149,10 +140,8 @@ export default function AdminUsersPage() {
 
   const handleOpenDetail = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/users/${id}`, {
-        credentials: "include",
-      });
-      const json = await res.json();
+      const res = await apiClient.get(`/users/${id}`);
+      const json = res.data;
       if (json.statusCode === 200 || json.success) {
         setSelectedCustomer(json.data);
         setIsDetailModalOpen(true);
@@ -174,18 +163,12 @@ export default function AdminUsersPage() {
       onConfirm: async () => {
         setConfirmState((prev) => ({ ...prev, loading: true }));
         try {
-          const res = await fetch(`${API_BASE}/users/${id}`, {
-            method: "DELETE",
-            credentials: "include",
-          });
-          const json = await res.json();
-          if (!res.ok) throw new Error(json.message || "Xóa thất bại");
-
+          await apiClient.delete(`/users/${id}`);
           showToast("Đã xóa tài khoản khách hàng!");
           setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
           fetchCustomers();
         } catch (error) {
-          showToast(error.message || "Lỗi xóa khách hàng", "error");
+          showToast(error.response?.data?.message || error.message || "Lỗi xóa khách hàng", "error");
           setConfirmState((prev) => ({ ...prev, loading: false }));
         }
       },
@@ -204,7 +187,7 @@ export default function AdminUsersPage() {
           }`}
         >
           {toast.type === "error" ? (
-            <AlertTriangle className="w-5 h-5 text-red-200" />
+            <XCircle className="w-5 h-5 text-white" />
           ) : (
             <CheckCircle2 className="w-5 h-5 text-emerald-400" />
           )}
@@ -214,28 +197,26 @@ export default function AdminUsersPage() {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-red-50 text-[#eb1c24] border border-red-100">
-              <Users className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                Quản Lý Khách Hàng (Users)
-              </h1>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Quản lý hồ sơ tài khoản khách hàng, phương thức đăng nhập và kiểm soát trạng thái truy cập
-              </p>
-            </div>
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 rounded-2xl bg-red-50 text-[#eb1c24] border border-red-100 shadow-xs shrink-0">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Quản Lý Khách Hàng & Tài Khoản
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5 font-medium">
+              Theo dõi danh sách người dùng, kiểm soát trạng thái hoạt động và lịch sử đăng nhập
+            </p>
           </div>
         </div>
 
         <button
           onClick={fetchCustomers}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold shadow-xs transition cursor-pointer self-start sm:self-auto"
+          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-bold transition shadow-2xs cursor-pointer self-start sm:self-auto"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[#eb1c24]" : ""}`} />
-          <span>Làm Mới</span>
+          <span>Làm mới</span>
         </button>
       </div>
 
@@ -253,7 +234,7 @@ export default function AdminUsersPage() {
           <div className="text-2xl font-black text-slate-900 mt-2">
             {stats.total || 0}
           </div>
-          <div className="text-[11px] text-slate-500 mt-1">Khách hàng trong cơ sở dữ liệu</div>
+          <div className="text-[11px] text-slate-500 mt-1">Toàn bộ hồ sơ trên hệ thống</div>
         </div>
 
         <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-2xs">
@@ -304,11 +285,11 @@ export default function AdminUsersPage() {
 
       {/* Filters & Search Form */}
       <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
-        <div className="sm:col-span-6 relative">
+        <div className="sm:col-span-4 relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Tìm theo tên khách hàng, email hoặc số điện thoại..."
+            placeholder="Tìm theo tên khách hàng, email hoặc SĐT..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-red-500 transition shadow-2xs"
@@ -317,9 +298,21 @@ export default function AdminUsersPage() {
 
         <div className="sm:col-span-3">
           <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
+          >
+            <option value="all">Tất cả vai trò</option>
+            <option value="user">Khách hàng (User)</option>
+            <option value="admin">Quản trị viên (Admin)</option>
+          </select>
+        </div>
+
+        <div className="sm:col-span-3">
+          <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
           >
             <option value="all">Tất cả trạng thái</option>
             <option value="active">Hoạt động (Active)</option>
@@ -327,15 +320,15 @@ export default function AdminUsersPage() {
           </select>
         </div>
 
-        <div className="sm:col-span-3">
+        <div className="sm:col-span-2">
           <select
             value={authTypeFilter}
             onChange={(e) => setAuthTypeFilter(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
           >
-            <option value="all">Tất cả hình thức đăng ký</option>
-            <option value="google">Đăng nhập Google</option>
-            <option value="local">Email & Mật khẩu</option>
+            <option value="all">Tất cả hình thức</option>
+            <option value="google">Google OAuth</option>
+            <option value="local">Email / Pass</option>
           </select>
         </div>
       </form>
@@ -346,43 +339,46 @@ export default function AdminUsersPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-black uppercase tracking-wider text-slate-500">
-                <th className="py-3.5 px-4 w-12 text-center">STT</th>
-                <th className="py-3.5 px-4">Khách Hàng</th>
-                <th className="py-3.5 px-4">Liên Hệ (Email / SĐT)</th>
-                <th className="py-3.5 px-4">Phương Thức Đăng Ký</th>
-                <th className="py-3.5 px-4">Ngày Tham Gia</th>
-                <th className="py-3.5 px-4 text-center">Trạng Thái</th>
-                <th className="py-3.5 px-4 text-right">Thao Tác</th>
+                <th className="py-3.5 px-4 w-12 text-center whitespace-nowrap">STT</th>
+                <th className="py-3.5 px-4 min-w-[220px] whitespace-nowrap text-left">Tài Khoản & Người Dùng</th>
+                <th className="py-3.5 px-4 w-56 text-center whitespace-nowrap">Liên Hệ (Email / SĐT)</th>
+                <th className="py-3.5 px-4 w-32 text-center whitespace-nowrap">Vai Trò</th>
+                <th className="py-3.5 px-4 w-36 text-center whitespace-nowrap">Hình Thức</th>
+                <th className="py-3.5 px-4 w-36 text-center whitespace-nowrap">Ngày Tham Gia</th>
+                <th className="py-3.5 px-4 w-36 text-center whitespace-nowrap">Trạng Thái</th>
+                <th className="py-3.5 px-4 w-28 text-center whitespace-nowrap">Thao Tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
                     <RefreshCw className="w-6 h-6 animate-spin mx-auto text-[#eb1c24] mb-2" />
-                    Đang tải danh sách khách hàng...
+                    Đang tải danh sách tài khoản...
                   </td>
                 </tr>
               ) : customers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
-                    Không tìm thấy khách hàng nào phù hợp với điều kiện tìm kiếm.
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                    Không tìm thấy tài khoản nào phù hợp với điều kiện tìm kiếm.
                   </td>
                 </tr>
               ) : (
                 customers.map((c, idx) => (
                   <tr key={c._id} className="hover:bg-slate-50/70 transition group">
-                    <td className="py-3.5 px-4 text-center text-slate-400 font-mono font-medium">
+                    <td className="py-3.5 px-4 text-center text-slate-400 font-mono font-medium whitespace-nowrap">
                       {idx + 1}
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 text-left whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-xs shrink-0 text-white ${
+                          c.role === "admin" ? "bg-[#eb1c24]" : "bg-slate-900"
+                        }`}>
                           {c.name ? c.name.charAt(0).toUpperCase() : "U"}
                         </div>
                         <div className="min-w-0">
-                          <div className="font-bold text-slate-900 group-hover:text-[#eb1c24] transition truncate max-w-[160px]">
-                            {c.name}
+                          <div className="font-bold text-slate-900 group-hover:text-[#eb1c24] transition truncate max-w-[180px] flex items-center gap-1.5">
+                            <span>{c.name}</span>
                           </div>
                           <div className="text-[10.5px] text-slate-400 font-mono">
                             ID: {c._id.slice(-6)}
@@ -390,34 +386,47 @@ export default function AdminUsersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-1.5 text-slate-700 font-medium truncate max-w-[200px]">
-                        <Mail className="w-3 h-3 text-slate-400 shrink-0" />
-                        <span>{c.email}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500 mt-0.5">
-                        <Phone className="w-3 h-3 text-slate-400 shrink-0" />
-                        <span>{c.phone || "Chưa cập nhật SĐT"}</span>
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                      <div className="inline-flex flex-col items-center">
+                        <div className="flex items-center gap-1 text-slate-700 font-medium truncate max-w-[180px]">
+                          <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span>{c.email}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
+                          <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span>{c.phone || "Chưa cập nhật SĐT"}</span>
+                        </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                      {c.role === "admin" ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-red-100 text-[#eb1c24] font-black text-[10px] tracking-wider border border-red-200">
+                          ADMIN
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 font-bold text-[10.5px]">
+                          Khách Hàng
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       {c.authType === "google" ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-red-50 text-red-600 border border-red-200 font-bold text-[10.5px]">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[10.5px]">
                           Google OAuth
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 font-bold text-[10.5px]">
-                          Email / Mật khẩu
+                          Email / Pass
                         </span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-600 font-medium">
-                      <div className="flex items-center gap-1.5">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap text-slate-600 font-medium">
+                      <div className="inline-flex items-center gap-1.5">
                         <Calendar className="w-3 h-3 text-slate-400" />
                         <span>{new Date(c.createdAt).toLocaleDateString("vi-VN")}</span>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       {c.status === "banned" ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 text-red-600 border border-red-200 font-bold text-[10.5px]">
                           <Ban className="w-3 h-3" />
@@ -430,37 +439,43 @@ export default function AdminUsersPage() {
                         </span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => handleOpenDetail(c._id)}
                           className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-slate-600 transition cursor-pointer"
                           title="Xem chi tiết & đơn hàng"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => handleToggleStatus(c._id, c.status, c.name)}
-                          className={`p-1.5 rounded-lg border transition cursor-pointer ${
-                            c.status === "banned"
-                              ? "border-emerald-200 hover:bg-emerald-50 text-emerald-600"
-                              : "border-amber-200 hover:bg-amber-50 text-amber-600"
-                          }`}
-                          title={c.status === "banned" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
-                        >
-                          {c.status === "banned" ? (
-                            <Unlock className="w-3.5 h-3.5" />
-                          ) : (
-                            <Ban className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => handleDeleteCustomer(c._id, c.name)}
-                          className="p-1.5 rounded-lg border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer"
-                          title="Xóa tài khoản khách hàng"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+
+                        {c.role !== "admin" && (
+                          <>
+                            <button
+                              onClick={() => handleToggleStatus(c._id, c.status, c.name)}
+                              className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                                c.status === "banned"
+                                  ? "border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                                  : "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100"
+                              }`}
+                              title={c.status === "banned" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
+                            >
+                              {c.status === "banned" ? (
+                                <Unlock className="w-4 h-4" />
+                              ) : (
+                                <Ban className="w-4 h-4" />
+                              )}
+                            </button>
+
+                            <button
+                              onClick={() => handleDeleteCustomer(c._id, c.name)}
+                              className="p-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition cursor-pointer"
+                              title="Xóa vĩnh viễn khách hàng"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

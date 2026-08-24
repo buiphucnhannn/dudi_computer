@@ -28,8 +28,7 @@ import {
   Layers,
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+import { apiClient } from "@/lib/api";
 
 const generateSlug = (text) => {
   return text
@@ -125,18 +124,25 @@ export default function AdminCareersPage() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      let url = `${API_BASE}/jobs/admin/all?search=${encodeURIComponent(searchTerm)}`;
+      let url = `/jobs/admin/all?search=${encodeURIComponent(searchTerm)}`;
       if (selectedDept !== "all") url += `&department=${encodeURIComponent(selectedDept)}`;
       if (selectedStatus !== "all") url += `&isActive=${selectedStatus === "active"}`;
 
-      const res = await fetch(url, { credentials: "include" });
-      const json = await res.json();
+      const res = await apiClient.get(url);
+      const json = res.data;
       if (json.statusCode === 200 || json.success) {
-        setJobs(json.data.items || []);
+        const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
+        setJobs(items);
       }
     } catch (error) {
-      console.error("Lỗi tải tuyển dụng:", error);
-      showToast("Không thể tải danh sách tuyển dụng!", "error");
+      try {
+        const publicRes = await apiClient.get("/jobs");
+        const items = publicRes.data?.data?.items || (Array.isArray(publicRes.data?.data) ? publicRes.data.data : []);
+        setJobs(items);
+      } catch (e) {
+        console.error("Lỗi tải tuyển dụng:", e);
+        showToast("Không thể tải danh sách tuyển dụng!", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -193,12 +199,12 @@ export default function AdminCareersPage() {
       department: job.department || "Kỹ Thuật Phần Cứng",
       level: job.level || "Chuyên viên",
       location: job.location || "TP. Hồ Chí Minh",
-      salary: job.salary || "Thỏa thuận",
+      salary: job.salary || "Thương lượng",
       type: job.type || "Toàn thời gian",
-      experience: job.experience || "Không yêu cầu",
+      experience: job.experience || "1 năm kinh nghiệm",
       quantity: job.quantity || 1,
       skills: Array.isArray(job.skills) ? job.skills.join(", ") : job.skills || "",
-      workingHours: job.workingHours || "8h30 - 17h30 (Thứ 2 - Thứ 6)",
+      workingHours: job.workingHours || "8h30 - 17h30",
       contactEmail: job.contactEmail || "tuyendung@dudisoftware.com",
       contactPhone: job.contactPhone || "0909 163 821",
       description: job.description || "",
@@ -215,7 +221,7 @@ export default function AdminCareersPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.description.trim()) {
-      showToast("Vui lòng nhập tiêu đề và mô tả công việc", "error");
+      showToast("Vui lòng điền đầy đủ tiêu đề và mô tả công việc", "error");
       return;
     }
 
@@ -224,31 +230,24 @@ export default function AdminCareersPage() {
       const payload = {
         ...formData,
         slug: formData.slug.trim() || generateSlug(formData.title),
-        quantity: Number(formData.quantity) || 1,
-        order: Number(formData.order) || 0,
         skills: formData.skills ? formData.skills.split(",").map((s) => s.trim()).filter(Boolean) : [],
         requirements: formData.requirements ? formData.requirements.split("\n").map((r) => r.trim()).filter(Boolean) : [],
         benefits: formData.benefits ? formData.benefits.split("\n").map((b) => b.trim()).filter(Boolean) : [],
       };
 
-      const url = modalMode === "create" ? `${API_BASE}/jobs` : `${API_BASE}/jobs/${currentJob._id}`;
-      const method = modalMode === "create" ? "POST" : "PUT";
+      const url = modalMode === "create" ? `/jobs` : `/jobs/${currentJob._id}`;
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.message || "Thao tác thất bại");
+      if (modalMode === "create") {
+        await apiClient.post(url, payload);
+      } else {
+        await apiClient.put(url, payload);
+      }
 
       showToast(modalMode === "create" ? "Đăng tin tuyển dụng mới thành công!" : "Cập nhật tin tuyển dụng thành công!");
       setIsModalOpen(false);
       fetchJobs();
     } catch (error) {
-      showToast(error.message || "Lỗi lưu tin tuyển dụng", "error");
+      showToast(error.response?.data?.message || error.message || "Lỗi lưu tin tuyển dụng", "error");
     } finally {
       setSaving(false);
     }
@@ -256,17 +255,11 @@ export default function AdminCareersPage() {
 
   const handleToggleStatus = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/jobs/${id}/toggle`, {
-        method: "PATCH",
-        credentials: "include",
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.message || "Lỗi cập nhật");
-
+      await apiClient.patch(`/jobs/${id}/toggle`);
       showToast("Đã thay đổi trạng thái tuyển dụng!");
       fetchJobs();
     } catch (error) {
-      showToast(error.message || "Lỗi cập nhật", "error");
+      showToast(error.response?.data?.message || error.message || "Lỗi cập nhật", "error");
     }
   };
 
@@ -281,13 +274,7 @@ export default function AdminCareersPage() {
       onConfirm: async () => {
         setConfirmState((prev) => ({ ...prev, loading: true }));
         try {
-          const res = await fetch(`${API_BASE}/jobs/${id}`, {
-            method: "DELETE",
-            credentials: "include",
-          });
-          const json = await res.json();
-          if (!res.ok) throw new Error(json.message || "Xóa thất bại");
-
+          await apiClient.delete(`/jobs/${id}`);
           showToast("Đã xóa tin tuyển dụng thành công!");
           setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
           fetchJobs();
@@ -431,14 +418,14 @@ export default function AdminCareersPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-black uppercase tracking-wider text-slate-500">
-                <th className="py-3.5 px-4 w-12 text-center">STT</th>
-                <th className="py-3.5 px-4">Vị Trí Tuyển Dụng</th>
-                <th className="py-3.5 px-4">Phòng Ban & Cấp Bậc</th>
-                <th className="py-3.5 px-4">Mức Lương & Địa Điểm</th>
-                <th className="py-3.5 px-4 text-center">Số Lượng</th>
-                <th className="py-3.5 px-4 text-center">Hạn Nộp</th>
-                <th className="py-3.5 px-4 text-center">Trạng Thái</th>
-                <th className="py-3.5 px-4 text-right">Thao Tác</th>
+                <th className="py-3.5 px-4 w-12 text-center whitespace-nowrap">STT</th>
+                <th className="py-3.5 px-4 min-w-[240px] whitespace-nowrap text-left">Vị Trí Tuyển Dụng</th>
+                <th className="py-3.5 px-4 w-48 text-center whitespace-nowrap">Phòng Ban & Cấp Bậc</th>
+                <th className="py-3.5 px-4 w-44 text-center whitespace-nowrap">Mức Lương & Địa Điểm</th>
+                <th className="py-3.5 px-4 w-32 text-center whitespace-nowrap">Số Lượng</th>
+                <th className="py-3.5 px-4 w-36 text-center whitespace-nowrap">Hạn Nộp</th>
+                <th className="py-3.5 px-4 w-36 text-center whitespace-nowrap">Trạng Thái</th>
+                <th className="py-3.5 px-4 w-28 text-center whitespace-nowrap">Thao Tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
@@ -461,10 +448,10 @@ export default function AdminCareersPage() {
 
                   return (
                     <tr key={job._id} className="hover:bg-slate-50/70 transition group">
-                      <td className="py-3.5 px-4 text-center text-slate-400 font-mono font-medium">
+                      <td className="py-3.5 px-4 text-center text-slate-400 font-mono font-medium whitespace-nowrap">
                         {idx + 1}
                       </td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 text-left whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <div className="font-bold text-slate-900 group-hover:text-blue-600 transition text-xs sm:text-sm">
                             {job.title}
@@ -492,34 +479,36 @@ export default function AdminCareersPage() {
                           </div>
                         )}
                       </td>
-                      <td className="py-3.5 px-4">
-                        <div className="font-semibold text-slate-800 flex items-center gap-1.5">
-                          <Building className="w-3 h-3 text-slate-400" />
-                          <span>{job.department}</span>
-                        </div>
-                        <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1">
-                          <Award className="w-3 h-3 text-amber-500" />
-                          <span>{job.level || "Chuyên viên"}</span>
-                          <span className="text-slate-300">•</span>
-                          <span>{job.type}</span>
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        <div className="inline-flex flex-col items-center">
+                          <div className="font-semibold text-slate-800 flex items-center gap-1">
+                            <Building className="w-3 h-3 text-slate-400" />
+                            <span>{job.department}</span>
+                          </div>
+                          <div className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1">
+                            <Award className="w-3 h-3 text-amber-500" />
+                            <span>{job.level || "Chuyên viên"}</span>
+                            <span className="text-slate-300">•</span>
+                            <span>{job.type}</span>
+                          </div>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <div className="font-black text-[#eb1c24] text-xs">
                           {job.salary || "Thỏa thuận"}
                         </div>
-                        <div className="text-[10.5px] text-slate-500 flex items-center gap-1 mt-0.5">
+                        <div className="text-[10.5px] text-slate-500 flex items-center justify-center gap-1 mt-0.5">
                           <MapPin className="w-3 h-3 text-slate-400" />
                           <span>{job.location}</span>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-center font-bold text-slate-800">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap font-bold text-slate-800">
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 font-bold text-[11px]">
                           <Users className="w-3 h-3" />
                           {job.quantity || 1}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-center text-slate-600 font-medium">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap text-slate-600 font-medium">
                         {job.deadline ? (
                           <>
                             <div className="text-[11.5px]">
@@ -537,7 +526,7 @@ export default function AdminCareersPage() {
                           <span className="text-slate-400">Liên tục</span>
                         )}
                       </td>
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <button
                           onClick={() => handleToggleStatus(job._id)}
                           className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10.5px] font-bold transition cursor-pointer ${
@@ -551,22 +540,22 @@ export default function AdminCareersPage() {
                           ) : (
                             <XCircle className="w-3 h-3" />
                           )}
-                          <span>{job.isActive ? "Đang Tuyển" : "Tạm Ngưng"}</span>
+                          <span>{job.isActive ? "Đang tuyển" : "Tạm ngưng"}</span>
                         </button>
                       </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1.5">
                           <button
                             onClick={() => handleOpenEdit(job)}
                             className="p-1.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-600 hover:text-blue-600 transition cursor-pointer"
-                            title="Chỉnh sửa tin tuyển dụng"
+                            title="Chỉnh sửa"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDelete(job._id, job.title)}
                             className="p-1.5 rounded-lg border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer"
-                            title="Xóa tin tuyển dụng"
+                            title="Xóa"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>

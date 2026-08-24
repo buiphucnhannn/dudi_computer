@@ -13,6 +13,7 @@ import { User } from "./models/User.js";
 import { Promotion } from "./models/Promotion.js";
 import { NewsCategory } from "./models/NewsCategory.js";
 import { Brand } from "./models/Brand.js";
+import { promotionService } from "./services/promotionService.js";
 
 export const NEWS_CATEGORIES_DATA = [
   { name: "Tin công nghệ", slug: "tin-cong-nghe", description: "Cập nhật xu hướng công nghệ, phần cứng máy tính và linh kiện mới nhất", color: "blue", order: 1, isActive: true },
@@ -9617,36 +9618,50 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
     const createdPromotions = await Promotion.insertMany(PROMOTIONS_DATA);
     console.log(`[Seed] Đã nạp thành công ${createdPromotions.length} chiến dịch khuyến mãi sản phẩm vào MongoDB.`);
 
-    // Tạo / Cập nhật tài khoản Admin mặc định
-    let adminUser = await User.findOne({ email: "admin@dudisoftware.com" });
-    if (!adminUser) {
-      await User.create({
-        name: "Admin DUDI Software",
-        email: "admin@dudisoftware.com",
-        password: "123456",
-        phone: "0909163821",
-        role: "admin",
-        status: "active",
-      });
-    } else {
-      adminUser.role = "admin";
-      adminUser.status = "active";
-      adminUser.password = "123456";
-      await adminUser.save();
+    // Áp dụng giảm giá thực tế của chiến dịch lên các sản phẩm được chỉ định
+    for (const promo of createdPromotions) {
+      if (promo.isActive) {
+        await promotionService._applyDiscountToProducts(promo);
+      }
     }
+    console.log(`[Seed] Đã áp dụng mức giảm giá và cập nhật giá bán thực tế cho sản phẩm khuyến mãi.`);
 
-    // Nạp thêm các tài khoản khách hàng mẫu (Role: "user")
-    const sampleCustomers = [
+    // Tạo / Cập nhật tài khoản Admin mặc định
+    const adminAccounts = [
       {
         name: "Bùi Phúc Nhân",
         email: "buiphucnhanm2005@gmail.com",
         password: "password123",
         phone: "0909163821",
         address: "Khu Công Nghệ Cao, TP. Thủ Đức, TP. Hồ Chí Minh",
-        role: "user",
+        role: "admin",
         status: "active",
         authType: "google",
       },
+      {
+        name: "Admin DUDI Software",
+        email: "admin@dudisoftware.com",
+        password: "123456",
+        phone: "0909163821",
+        role: "admin",
+        status: "active",
+        authType: "local",
+      },
+    ];
+
+    for (const acc of adminAccounts) {
+      let u = await User.findOne({ email: acc.email });
+      if (!u) {
+        await User.create(acc);
+      } else {
+        u.role = "admin";
+        u.status = "active";
+        await u.save();
+      }
+    }
+
+    // Nạp thêm các tài khoản khách hàng mẫu (Role: "user")
+    const sampleCustomers = [
       {
         name: "Nguyễn Văn Hùng",
         email: "hung.nguyen2024@gmail.com",
@@ -9703,7 +9718,10 @@ export const seedDatabase = async () => {
   const uri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/zcomputer_clone";
   try {
     console.log(`[Seed] Đang kết nối tới MongoDB: ${uri}...`);
-    await mongoose.connect(uri);
+    await mongoose.connect(uri, {
+      dbName: "zcomputer_clone",
+      serverSelectionTimeoutMS: 10000,
+    });
     console.log("[Seed] Kết nối MongoDB thành công.");
 
     await performSeed(PRODUCTS_DATA);

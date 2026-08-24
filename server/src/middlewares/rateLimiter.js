@@ -21,22 +21,22 @@ const createLimiter = (options) => {
 
 /**
  * 1. Global Limiter: Chống DDoS và Web Scraping hàng loạt
- * Giới hạn: 300 requests / 15 phút / IP
+ * Giới hạn: 10000 requests / 15 phút / IP
  */
 export const globalLimiter = createLimiter({
   windowMs: 15 * 60 * 1000,
-  max: 300,
+  max: 10000,
   message:
     "Quá nhiều yêu cầu từ địa chỉ IP của bạn. Vui lòng thử lại sau 15 phút.",
 });
 
 /**
  * 2. Auth Login Limiter: Chống tấn công dò mật khẩu (Brute-force)
- * Giới hạn: 10 lần thử / 15 phút / IP
+ * Giới hạn: 50 lần thử / 15 phút / IP
  */
 export const authLoginLimiter = createLimiter({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 50,
   message:
     "Bạn đã thử đăng nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút để bảo vệ tài khoản.",
 });

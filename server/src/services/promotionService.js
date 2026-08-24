@@ -149,8 +149,12 @@ export const promotionService = {
       if (discountAmount > basePrice) discountAmount = basePrice;
 
       product.originalPrice = basePrice;
+      product.price = basePrice - discountAmount;
       product.discountPrice = basePrice - discountAmount;
-      product.discountPercent = Math.round((discountAmount / basePrice) * 100);
+      product.discountPercent =
+        promo.discountType === "percentage"
+          ? promo.discountValue
+          : Math.round((discountAmount / basePrice) * 100);
       product.isFlashSale = true;
       await product.save();
     }
@@ -161,16 +165,16 @@ export const promotionService = {
     const productIds = await promotionService._getAffectedProductIds(promo);
     if (productIds.length === 0) return;
 
-    await Product.updateMany(
-      { _id: { $in: productIds } },
-      {
-        $set: {
-          discountPrice: 0,
-          discountPercent: 0,
-          isFlashSale: false,
-        },
+    const products = await Product.find({ _id: { $in: productIds } });
+    for (const product of products) {
+      if (product.originalPrice > 0) {
+        product.price = product.originalPrice;
       }
-    );
+      product.discountPrice = 0;
+      product.discountPercent = 0;
+      product.isFlashSale = false;
+      await product.save();
+    }
   },
 
   // --- INTERNAL: Lấy danh sách Product IDs bị ảnh hưởng ---

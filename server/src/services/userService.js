@@ -9,8 +9,11 @@ export const userService = {
     const limit = Math.max(1, Math.min(100, Number(params.limit) || 15));
     const skip = (page - 1) * limit;
 
-    // BẮT BUỘC CHỈ QUẢN LÝ TÀI KHOẢN KHÁCH HÀNG (role: "user")
-    const query = { role: "user" };
+    const query = {};
+
+    if (params.role && params.role !== "all") {
+      query.role = params.role;
+    }
 
     if (params.search) {
       query.$or = [
@@ -52,11 +55,11 @@ export const userService = {
   // Thống kê tổng quan khách hàng
   getCustomerStats: async () => {
     const [total, active, banned, googleCount, localCount] = await Promise.all([
-      User.countDocuments({ role: "user" }),
-      User.countDocuments({ role: "user", status: "active" }),
-      User.countDocuments({ role: "user", status: "banned" }),
-      User.countDocuments({ role: "user", authType: "google" }),
-      User.countDocuments({ role: "user", authType: "local" }),
+      User.countDocuments({}),
+      User.countDocuments({ status: "active" }),
+      User.countDocuments({ status: "banned" }),
+      User.countDocuments({ authType: "google" }),
+      User.countDocuments({ authType: "local" }),
     ]);
 
     return {

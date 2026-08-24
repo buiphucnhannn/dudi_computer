@@ -28,8 +28,7 @@ import {
   Building2,
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+import { apiClient } from "@/lib/api";
 
 const generateSlug = (text) => {
   return text
@@ -156,8 +155,8 @@ export default function AdminCategoriesAndBrandsPage() {
   const fetchCategories = async () => {
     setLoadingCategories(true);
     try {
-      const res = await fetch(`${API_BASE}/categories`, { credentials: "include" });
-      const json = await res.json();
+      const res = await apiClient.get("/categories");
+      const json = res.data;
       if (json.statusCode === 200 || json.success) {
         setCategories(json.data || []);
       }
@@ -171,15 +170,22 @@ export default function AdminCategoriesAndBrandsPage() {
   const fetchBrands = async () => {
     setLoadingBrands(true);
     try {
-      let url = `${API_BASE}/brands/admin/all?search=${encodeURIComponent(brandSearchTerm)}`;
+      let url = `/brands/admin/all?search=${encodeURIComponent(brandSearchTerm)}`;
       if (brandStatusFilter !== "all") url += `&status=${brandStatusFilter}`;
-      const res = await fetch(url, { credentials: "include" });
-      const json = await res.json();
+      const res = await apiClient.get(url);
+      const json = res.data;
       if (json.statusCode === 200 || json.success) {
-        setBrands(json.data || []);
+        setBrands(Array.isArray(json.data) ? json.data : []);
       }
     } catch (error) {
-      showToast("Không thể tải danh sách nhãn hàng!", "error");
+      try {
+        const publicRes = await apiClient.get("/brands");
+        const list = Array.isArray(publicRes.data?.data) ? publicRes.data.data : [];
+        setBrands(list);
+      } catch (e) {
+        console.error("Lỗi tải danh sách nhãn hàng:", e);
+        showToast("Không thể tải danh sách nhãn hàng!", "error");
+      }
     } finally {
       setLoadingBrands(false);
     }
@@ -240,27 +246,17 @@ export default function AdminCategoriesAndBrandsPage() {
         parent: categoryForm.parent ? categoryForm.parent : null,
       };
 
-      const url =
-        categoryModalMode === "create"
-          ? `${API_BASE}/categories`
-          : `${API_BASE}/categories/${currentCategory._id}`;
-      const method = categoryModalMode === "create" ? "POST" : "PUT";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.message || "Thao tác thất bại");
+      if (categoryModalMode === "create") {
+        await apiClient.post("/categories", payload);
+      } else {
+        await apiClient.put(`/categories/${currentCategory._id}`, payload);
+      }
 
       showToast(categoryModalMode === "create" ? "Tạo danh mục mới thành công!" : "Cập nhật danh mục thành công!");
       setIsCategoryModalOpen(false);
       fetchCategories();
     } catch (error) {
-      showToast(error.message || "Lỗi xử lý danh mục", "error");
+      showToast(error.response?.data?.message || error.message || "Lỗi xử lý danh mục", "error");
     } finally {
       setSavingCategory(false);
     }
@@ -277,18 +273,12 @@ export default function AdminCategoriesAndBrandsPage() {
       onConfirm: async () => {
         setConfirmState((prev) => ({ ...prev, loading: true }));
         try {
-          const res = await fetch(`${API_BASE}/categories/${id}`, {
-            method: "DELETE",
-            credentials: "include",
-          });
-          const json = await res.json();
-          if (!res.ok) throw new Error(json.message || "Không thể xóa");
-
+          await apiClient.delete(`/categories/${id}`);
           showToast("Đã xóa danh mục thành công!");
           setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
           fetchCategories();
         } catch (error) {
-          showToast(error.message || "Lỗi xóa danh mục", "error");
+          showToast(error.response?.data?.message || error.message || "Lỗi xóa danh mục", "error");
           setConfirmState((prev) => ({ ...prev, loading: false }));
         }
       },
@@ -338,27 +328,17 @@ export default function AdminCategoriesAndBrandsPage() {
         slug: generateSlug(brandForm.name),
       };
 
-      const url =
-        brandModalMode === "create"
-          ? `${API_BASE}/brands`
-          : `${API_BASE}/brands/${currentBrand._id}`;
-      const method = brandModalMode === "create" ? "POST" : "PUT";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.message || "Thao tác thất bại");
+      if (brandModalMode === "create") {
+        await apiClient.post("/brands", payload);
+      } else {
+        await apiClient.put(`/brands/${currentBrand._id}`, payload);
+      }
 
       showToast(brandModalMode === "create" ? "Thêm nhãn hàng thành công!" : "Cập nhật nhãn hàng thành công!");
       setIsBrandModalOpen(false);
       fetchBrands();
     } catch (error) {
-      showToast(error.message || "Lỗi lưu nhãn hàng", "error");
+      showToast(error.response?.data?.message || error.message || "Lỗi lưu nhãn hàng", "error");
     } finally {
       setSavingBrand(false);
     }
@@ -375,18 +355,12 @@ export default function AdminCategoriesAndBrandsPage() {
       onConfirm: async () => {
         setConfirmState((prev) => ({ ...prev, loading: true }));
         try {
-          const res = await fetch(`${API_BASE}/brands/${id}`, {
-            method: "DELETE",
-            credentials: "include",
-          });
-          const json = await res.json();
-          if (!res.ok) throw new Error(json.message || "Không thể xóa");
-
+          await apiClient.delete(`/brands/${id}`);
           showToast("Đã xóa thương hiệu thành công!");
           setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
           fetchBrands();
         } catch (error) {
-          showToast(error.message || "Lỗi xóa thương hiệu", "error");
+          showToast(error.response?.data?.message || error.message || "Lỗi xóa thương hiệu", "error");
           setConfirmState((prev) => ({ ...prev, loading: false }));
         }
       },

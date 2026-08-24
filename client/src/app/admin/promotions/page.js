@@ -23,8 +23,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+import { apiClient } from "@/lib/api";
 
 const generateSlug = (text) => {
   return text
@@ -98,15 +97,23 @@ export default function AdminPromotionsPage() {
   const fetchPromotions = async () => {
     setLoading(true);
     try {
-      let url = `${API_BASE}/promotions/admin/all?search=${encodeURIComponent(searchTerm)}`;
+      let url = `/promotions/admin/all?search=${encodeURIComponent(searchTerm)}`;
       if (statusFilter !== "all") url += `&status=${statusFilter}`;
-      const res = await fetch(url, { credentials: "include" });
-      const json = await res.json();
+      const res = await apiClient.get(url);
+      const json = res.data;
       if (json.statusCode === 200 || json.success) {
-        setPromotions(json.data.items || []);
+        const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
+        setPromotions(items);
       }
     } catch (error) {
-      showToast("Không thể tải danh sách khuyến mãi!", "error");
+      try {
+        const publicRes = await apiClient.get("/promotions");
+        const items = publicRes.data?.data?.items || (Array.isArray(publicRes.data?.data) ? publicRes.data.data : []);
+        setPromotions(items);
+      } catch (e) {
+        console.error("Lỗi tải khuyến mãi:", e);
+        showToast("Không thể tải danh sách khuyến mãi!", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -114,8 +121,8 @@ export default function AdminPromotionsPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`${API_BASE}/products?limit=500`, { credentials: "include" });
-      const json = await res.json();
+      const res = await apiClient.get("/products?limit=500");
+      const json = res.data;
       const items = json.data?.products || json.data?.items || (Array.isArray(json.data) ? json.data : []);
       setAllProducts(Array.isArray(items) ? items : []);
     } catch {
@@ -125,8 +132,8 @@ export default function AdminPromotionsPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${API_BASE}/categories`, { credentials: "include" });
-      const json = await res.json();
+      const res = await apiClient.get("/categories");
+      const json = res.data;
       const items = Array.isArray(json.data) ? json.data : json.data?.categories || [];
       setAllCategories(Array.isArray(items) ? items : []);
     } catch {
@@ -203,28 +210,29 @@ export default function AdminPromotionsPage() {
     setIsModalOpen(true);
   };
 
-  const handleBannerUpload = (e) => {
+  const handleBannerUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const localPreviewUrl = URL.createObjectURL(file);
     setFormData((prev) => ({ ...prev, banner: localPreviewUrl }));
     setUploadingBanner(true);
-    const data = new FormData();
-    data.append("image", file);
-    data.append("folder", "dudi_software/promotions");
-    fetch(`${API_BASE}/upload/image`, { method: "POST", credentials: "include", body: data })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then((json) => {
-        if (json.data?.url) {
-          setFormData((prev) => ({ ...prev, banner: json.data.url }));
-          showToast("Tải ảnh banner thành công!");
-        }
-      })
-      .catch(() => showToast("Không thể tải ảnh lên", "error"))
-      .finally(() => setUploadingBanner(false));
+    try {
+      const data = new FormData();
+      data.append("image", file);
+      data.append("folder", "dudi_software/promotions");
+      const uploadRes = await apiClient.post("/upload/image", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const url = uploadRes.data?.data?.url || uploadRes.data?.url;
+      if (url) {
+        setFormData((prev) => ({ ...prev, banner: url }));
+        showToast("Tải ảnh banner thành công!");
+      }
+    } catch {
+      showToast("Không thể tải ảnh lên", "error");
+    } finally {
+      setUploadingBanner(false);
+    }
   };
 
   const toggleProduct = (productId) => {
@@ -273,17 +281,15 @@ export default function AdminPromotionsPage() {
       };
       const url =
         modalMode === "create"
-          ? `${API_BASE}/promotions`
-          : `${API_BASE}/promotions/${currentPromo._id}`;
-      const method = modalMode === "create" ? "POST" : "PUT";
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.message || "Thao tác thất bại");
+          ? `/promotions`
+          : `/promotions/${currentPromo._id}`;
+
+      if (modalMode === "create") {
+        await apiClient.post(url, payload);
+      } else {
+        await apiClient.put(url, payload);
+      }
+
       showToast(
         modalMode === "create"
           ? "Tạo chương trình khuyến mãi thành công!"
@@ -292,7 +298,7 @@ export default function AdminPromotionsPage() {
       setIsModalOpen(false);
       fetchPromotions();
     } catch (error) {
-      showToast(error.message || "Lỗi lưu khuyến mãi", "error");
+      showToast(error.response?.data?.message || error.message || "Lỗi lưu khuyến mãi", "error");
     } finally {
       setSaving(false);
     }
@@ -300,15 +306,11 @@ export default function AdminPromotionsPage() {
 
   const handleToggle = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/promotions/${id}/toggle`, {
-        method: "PATCH",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error();
+      await apiClient.patch(`/promotions/${id}/toggle`);
       showToast("Đã thay đổi trạng thái khuyến mãi!");
       fetchPromotions();
-    } catch {
-      showToast("Lỗi cập nhật trạng thái", "error");
+    } catch (error) {
+      showToast(error.response?.data?.message || "Lỗi cập nhật trạng thái", "error");
     }
   };
 
@@ -323,16 +325,12 @@ export default function AdminPromotionsPage() {
       onConfirm: async () => {
         setConfirmState((prev) => ({ ...prev, loading: true }));
         try {
-          const res = await fetch(`${API_BASE}/promotions/${id}`, {
-            method: "DELETE",
-            credentials: "include",
-          });
-          if (!res.ok) throw new Error();
+          await apiClient.delete(`/promotions/${id}`);
           showToast("Đã xóa và khôi phục giá gốc sản phẩm thành công!");
           setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
           fetchPromotions();
-        } catch {
-          showToast("Lỗi xóa khuyến mãi", "error");
+        } catch (error) {
+          showToast(error.response?.data?.message || "Lỗi xóa khuyến mãi", "error");
           setConfirmState((prev) => ({ ...prev, loading: false }));
         }
       },
