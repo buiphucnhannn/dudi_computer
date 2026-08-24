@@ -6,8 +6,8 @@ import { MoreHorizontal, ArrowLeft } from "lucide-react";
 
 // Khi chưa mở rộng: 7 danh mục đầu tiên
 const UNEXPANDED_ITEMS = [
-  { name: "Laptop Cũ", slug: "laptop-cu", icon: "https://zcomputer.vn/categories/icon1.png", bgColor: "bg-pink-100/90" },
-  { name: "PC Cũ", slug: "pc-cu", icon: "https://zcomputer.vn/categories/icon2.png", bgColor: "bg-blue-100/90" },
+  { name: "Laptop", slug: "laptop", icon: "https://zcomputer.vn/categories/icon1.png", bgColor: "bg-pink-100/90" },
+  { name: "PC", slug: "pc", icon: "https://zcomputer.vn/categories/icon2.png", bgColor: "bg-blue-100/90" },
   { name: "Chuột", slug: "chuot", icon: "https://zcomputer.vn/categories/icon3.png", bgColor: "bg-green-100/90" },
   { name: "Bàn phím", slug: "ban-phim", icon: "https://zcomputer.vn/categories/icon4.png", bgColor: "bg-purple-100/90" },
   { name: "Màn hình máy tính", slug: "man-hinh", icon: "https://zcomputer.vn/categories/icon5.png", bgColor: "bg-orange-100/90" },
@@ -17,8 +17,8 @@ const UNEXPANDED_ITEMS = [
 
 // Khi mở rộng: HÀNG 1 gồm ĐÚNG 10 DANH MỤC
 const EXPANDED_ROW_1 = [
-  { name: "Laptop Cũ", slug: "laptop-cu", icon: "https://zcomputer.vn/categories/icon1.png", bgColor: "bg-pink-100/90" },
-  { name: "PC Cũ", slug: "pc-cu", icon: "https://zcomputer.vn/categories/icon2.png", bgColor: "bg-blue-100/90" },
+  { name: "Laptop", slug: "laptop", icon: "https://zcomputer.vn/categories/icon1.png", bgColor: "bg-pink-100/90" },
+  { name: "PC", slug: "pc", icon: "https://zcomputer.vn/categories/icon2.png", bgColor: "bg-blue-100/90" },
   { name: "Chuột", slug: "chuot", icon: "https://zcomputer.vn/categories/icon3.png", bgColor: "bg-green-100/90" },
   { name: "Bàn phím", slug: "ban-phim", icon: "https://zcomputer.vn/categories/icon4.png", bgColor: "bg-purple-100/90" },
   { name: "Màn hình máy tính", slug: "man-hinh", icon: "https://zcomputer.vn/categories/icon5.png", bgColor: "bg-orange-100/90" },
@@ -121,8 +121,8 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
             })}
           </div>
 
-          {/* HÀNG 2: 3 DANH MỤC (RAM, Tản nhiệt, VGA) + NÚT THU GỌN NẰM THẲNG CỘT 4, 5, 6, 7 */}
-          <div className="grid grid-cols-5 md:grid-cols-10 gap-x-1 sm:gap-x-2 md:gap-x-3 gap-y-4 items-start justify-items-center">
+          {/* HÀNG 2: 3 DANH MỤC (RAM, Tản nhiệt, VGA) + NÚT THU GỌN */}
+          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-10 gap-x-1 sm:gap-x-2 md:gap-x-3 gap-y-4 items-start justify-items-center">
             {/* 3 Cột đầu để trống trên Desktop để bắt đầu từ Cột 4 (dưới Bàn phím) */}
             <div className="hidden md:block w-full max-w-[88px]"></div>
             <div className="hidden md:block w-full max-w-[88px]"></div>

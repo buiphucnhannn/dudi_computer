@@ -300,15 +300,31 @@ function CompareContent() {
 
         {/* PRODUCT CARDS TOP ROW */}
         {!loading && (
-          <div className="w-full overflow-x-auto pb-4">
-            <div className="grid min-w-[900px] grid-cols-4 gap-4">
-              {/* LABEL COLUMN HEADER */}
-              <div className="flex flex-col justify-end p-4 rounded-xl bg-slate-100/70 border border-slate-200">
+          <div className="w-full overflow-x-auto pb-4 scrollbar-thin">
+            {/* Mobile Scroll Hint */}
+            <div className="flex items-center justify-between md:hidden mb-2 text-[11px] text-slate-500 font-medium px-1">
+              <span className="flex items-center gap-1 text-red-600 font-bold">
+                👉 Vuốt ngang để xem chi tiết
+              </span>
+              <span>{products.length}/3 sản phẩm</span>
+            </div>
+
+            <div
+              className="grid gap-3 sm:gap-4"
+              style={{
+                minWidth: `${140 + products.length * 210 + (products.length < 3 ? 180 : 0)}px`,
+                gridTemplateColumns: `140px ${products.map(() => "minmax(200px, 1fr)").join(" ")} ${
+                  products.length < 3 ? "minmax(170px, 1fr)" : ""
+                }`,
+              }}
+            >
+              {/* LABEL COLUMN HEADER (Sticky on left) */}
+              <div className="sticky left-0 z-20 flex flex-col justify-end p-3 sm:p-4 rounded-xl bg-slate-100/95 backdrop-blur-sm border border-slate-200 shadow-[2px_0_8px_rgba(0,0,0,0.04)]">
                 <span className="text-xs font-black uppercase tracking-wider text-slate-700">
                   Sản phẩm so sánh
                 </span>
-                <span className="text-[11px] text-slate-500 mt-1">
-                  Hiển thị tối đa 3 cấu hình cùng lúc
+                <span className="text-[10px] sm:text-[11px] text-slate-500 mt-1">
+                  Đối chiếu tối đa 3 cấu hình
                 </span>
               </div>
 
@@ -320,20 +336,20 @@ function CompareContent() {
                 return (
                   <div
                     key={id}
-                    className="group relative flex min-h-[420px] flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-red-500 hover:shadow-md"
+                    className="group relative flex min-h-[380px] sm:min-h-[420px] flex-col rounded-xl border border-slate-200 bg-white p-3.5 sm:p-5 shadow-sm transition hover:border-red-500 hover:shadow-md"
                   >
                     {/* REMOVE BUTTON */}
                     <button
                       type="button"
                       onClick={() => handleRemoveProduct(id)}
-                      className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-red-600 hover:text-white"
+                      className="absolute right-2.5 top-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-red-600 hover:text-white cursor-pointer"
                       title="Xóa khỏi so sánh"
                     >
                       <X size={14} />
                     </button>
 
                     {/* PRODUCT IMAGE */}
-                    <div className="mb-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg bg-white p-2">
+                    <div className="mb-3 sm:mb-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg bg-white p-2">
                       <img
                         src={image}
                         alt={getProductName(product)}
@@ -342,14 +358,14 @@ function CompareContent() {
                     </div>
 
                     {/* WARRANTY BADGE */}
-                    <div className="text-[10.5px] text-green-600 mb-1.5 flex items-center gap-1 font-semibold">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>{product.warranty || "Bảo hành chính hãng"}</span>
+                    <div className="text-[10px] sm:text-[10.5px] text-green-600 mb-1 flex items-center gap-1 font-semibold truncate">
+                      <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">{product.warranty || "Bảo hành chính hãng"}</span>
                     </div>
 
                     {/* PRODUCT NAME */}
                     <h3
-                      className="mb-2 line-clamp-2 min-h-[44px] text-[13px] sm:text-sm font-bold text-slate-900 group-hover:text-red-600 transition-colors leading-snug cursor-pointer"
+                      className="mb-2 line-clamp-2 min-h-[36px] sm:min-h-[44px] text-xs sm:text-sm font-bold text-slate-900 group-hover:text-red-600 transition-colors leading-snug cursor-pointer"
                       onClick={() => handleBuy(product)}
                       title={getProductName(product)}
                     >
@@ -357,12 +373,12 @@ function CompareContent() {
                     </h3>
 
                     {/* PRICE */}
-                    <div className="mb-4 flex items-baseline gap-2">
-                      <span className="text-lg font-black text-red-600">
+                    <div className="mb-3 sm:mb-4 flex flex-wrap items-baseline gap-1.5 sm:gap-2">
+                      <span className="text-base sm:text-lg font-black text-red-600">
                         {getPrice(product)}
                       </span>
                       {getOriginalPrice(product) && (
-                        <span className="text-xs text-slate-400 line-through">
+                        <span className="text-[11px] sm:text-xs text-slate-400 line-through">
                           {getOriginalPrice(product)}
                         </span>
                       )}
@@ -372,10 +388,10 @@ function CompareContent() {
                     <button
                       type="button"
                       onClick={() => handleBuy(product)}
-                      className="mt-auto flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-red-600 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-red-700"
+                      className="mt-auto flex h-9 sm:h-10 w-full items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-red-600 text-[11px] sm:text-xs font-bold uppercase text-white shadow-sm transition hover:bg-red-700 cursor-pointer"
                     >
-                      <ShoppingCart size={15} />
-                      Xem chi tiết & Mua
+                      <ShoppingCart size={14} />
+                      <span>Chi tiết & Mua</span>
                     </button>
                   </div>
                 );
@@ -386,16 +402,16 @@ function CompareContent() {
                 <button
                   type="button"
                   onClick={handleAddProduct}
-                  className="flex min-h-[420px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-white/70 p-6 transition hover:border-red-500 hover:bg-red-50/20 cursor-pointer"
+                  className="flex min-h-[380px] sm:min-h-[420px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-white/70 p-4 sm:p-6 transition hover:border-red-500 hover:bg-red-50/20 cursor-pointer"
                 >
-                  <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600 shadow-sm group-hover:scale-110 transition-transform">
-                    <Plus size={28} />
+                  <span className="mb-2.5 sm:mb-3 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-red-50 text-red-600 shadow-sm group-hover:scale-110 transition-transform">
+                    <Plus size={24} />
                   </span>
                   <span className="text-xs font-extrabold uppercase text-slate-700">
                     Thêm thiết bị
                   </span>
-                  <span className="text-[11px] text-slate-400 mt-1">
-                    Chọn thiết bị khác để đối chiếu
+                  <span className="text-[10px] sm:text-[11px] text-slate-400 mt-1">
+                    Chọn thêm để so sánh
                   </span>
                 </button>
               )}
@@ -404,21 +420,31 @@ function CompareContent() {
             {/* =================================================
                 SPECIFICATION COMPARISON TABLE
             ================================================= */}
-            <div className="mt-8 min-w-[900px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <div className="bg-slate-900 text-white px-5 py-3.5 font-bold uppercase text-xs tracking-wider flex items-center gap-2">
-                <Scale size={16} />
+            <div
+              className="mt-6 sm:mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+              style={{
+                minWidth: `${140 + products.length * 210 + (products.length < 3 ? 180 : 0)}px`,
+              }}
+            >
+              <div className="bg-slate-900 text-white px-4 sm:px-5 py-3 font-bold uppercase text-[11px] sm:text-xs tracking-wider flex items-center gap-2 sticky left-0 z-20">
+                <Scale size={15} />
                 <span>Bảng đối chiếu thông số phần cứng chi tiết</span>
               </div>
 
               {SPEC_ROWS.map((row, index) => (
                 <div
                   key={row.label}
-                  className={`grid grid-cols-4 transition hover:bg-slate-50/80 ${
+                  className={`grid transition hover:bg-slate-50/80 ${
                     index !== SPEC_ROWS.length - 1 ? "border-b border-slate-150" : ""
                   }`}
+                  style={{
+                    gridTemplateColumns: `140px ${products.map(() => "minmax(200px, 1fr)").join(" ")} ${
+                      products.length < 3 ? "minmax(170px, 1fr)" : ""
+                    }`,
+                  }}
                 >
-                  {/* LABEL */}
-                  <div className="flex items-center bg-slate-50/90 p-4 text-xs font-bold text-slate-800 border-r border-slate-200">
+                  {/* STICKY LABEL COLUMN */}
+                  <div className="sticky left-0 z-10 flex items-center bg-slate-100/95 backdrop-blur-sm p-3 sm:p-4 text-[11.5px] sm:text-xs font-bold text-slate-800 border-r border-slate-200 shadow-[2px_0_6px_rgba(0,0,0,0.03)]">
                     {row.label}
                   </div>
 
@@ -430,7 +456,7 @@ function CompareContent() {
                     return (
                       <div
                         key={`${getProductId(product)}-${row.key}`}
-                        className="flex min-h-[56px] items-center border-r last:border-r-0 border-slate-200 p-4 text-xs font-medium leading-relaxed text-slate-700"
+                        className="flex min-h-[48px] sm:min-h-[56px] items-center border-r last:border-r-0 border-slate-200 p-3 sm:p-4 text-[11.5px] sm:text-xs font-medium leading-relaxed text-slate-700 break-words"
                       >
                         {value}
                       </div>
@@ -438,14 +464,11 @@ function CompareContent() {
                   })}
 
                   {/* EMPTY FILLER COLUMNS */}
-                  {Array.from({ length: 3 - products.length }).map((_, emptyIndex) => (
-                    <div
-                      key={`empty-${row.label}-${emptyIndex}`}
-                      className="flex min-h-[56px] items-center justify-center border-r last:border-r-0 border-slate-200 bg-slate-50/30 p-4"
-                    >
+                  {products.length < 3 && (
+                    <div className="flex min-h-[48px] sm:min-h-[56px] items-center justify-center border-r last:border-r-0 border-slate-200 bg-slate-50/30 p-3 sm:p-4">
                       <span className="text-xs italic text-slate-400">---</span>
                     </div>
-                  ))}
+                  )}
                 </div>
               ))}
             </div>

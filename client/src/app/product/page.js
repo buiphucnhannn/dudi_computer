@@ -41,6 +41,7 @@ function ProductsContent() {
   const searchParam = searchParams.get("search") || "";
   const isFlashSaleParam = searchParams.get("isFlashSale");
   const brandParam = searchParams.get("brand") || "";
+  const conditionParam = searchParams.get("condition") || "";
 
   const [products, setProducts] = useState(() => globalProductCache || []);
   const [loading, setLoading] = useState(() => !globalProductCache || globalProductCache.length === 0);
@@ -50,6 +51,7 @@ function ProductsContent() {
     category: categoryParam,
     brands: brandParam ? [brandParam] : [],
     promotions: isFlashSaleParam === "true" ? ["discount"] : [],
+    condition: conditionParam,
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -59,6 +61,7 @@ function ProductsContent() {
   // Active filter count for badge
   const activeFilterCount =
     (filters.category ? 1 : 0) +
+    (filters.condition ? 1 : 0) +
     filters.brands.length +
     filters.promotions.length;
 
@@ -69,10 +72,11 @@ function ProductsContent() {
       category: categoryParam,
       brands: brandParam ? [brandParam] : prev.brands,
       promotions: isFlashSaleParam === "true" ? ["discount"] : prev.promotions,
+      condition: conditionParam || prev.condition,
     }));
     setSearch(searchParam || "");
     setCurrentPage(1);
-  }, [categoryParam, searchParam, isFlashSaleParam, brandParam]);
+  }, [categoryParam, searchParam, isFlashSaleParam, brandParam, conditionParam]);
 
   // =========================
   // LOAD PRODUCTS TỪ API
@@ -265,6 +269,31 @@ function ProductsContent() {
           selectedCat.includes(catSlug) ||
           selectedCat.includes(catName)
         );
+      });
+    }
+
+    // CONDITION (Tình trạng: Chọn 1 trong 2 - Mới 100% hoặc Cũ Like New)
+    if (filters.condition) {
+      result = result.filter((product) => {
+        const cond = (product.condition || "").toLowerCase();
+        const name = (product.name || "").toLowerCase();
+
+        const isUsed =
+          cond.includes("cũ") ||
+          cond.includes("like new") ||
+          cond.includes("99%") ||
+          cond.includes("used") ||
+          cond.includes("lướt") ||
+          cond.includes("second hand") ||
+          name.includes("cũ") ||
+          name.includes("like new") ||
+          name.includes("99%") ||
+          name.includes("lướt") ||
+          name.includes("second hand");
+
+        if (filters.condition === "new") return !isUsed;
+        if (filters.condition === "used") return isUsed;
+        return true;
       });
     }
 

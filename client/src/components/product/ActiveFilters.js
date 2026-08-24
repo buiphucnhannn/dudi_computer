@@ -1,8 +1,10 @@
 import { X } from "lucide-react";
 
 const CATEGORY_NAMES = {
-  "laptop-cu": "Laptop Cũ",
-  "pc-cu": "PC Cũ",
+  "laptop": "Laptop",
+  "laptop-cu": "Laptop",
+  "pc": "PC",
+  "pc-cu": "PC",
   "chuot": "Chuột",
   "ban-phim": "Bàn phím",
   "man-hinh": "Màn hình máy tính",
@@ -26,12 +28,20 @@ export default function ActiveFilters({
   const hasFilters =
     Boolean(search?.trim()) ||
     Boolean(filters.category) ||
+    Boolean(filters.condition) ||
     (filters.brands && filters.brands.length > 0) ||
     (filters.promotions && filters.promotions.length > 0);
 
   if (!hasFilters) {
     return null;
   }
+
+  const removeCondition = () => {
+    onFilterChange({
+      ...filters,
+      condition: "",
+    });
+  };
 
   const removeBrand = (brand) => {
     onFilterChange({
@@ -64,6 +74,17 @@ export default function ActiveFilters({
           className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-[#dc2626] cursor-pointer hover:bg-red-100 transition-colors"
         >
           {categoryLabel}
+          <X className="h-3 w-3" />
+        </button>
+      )}
+
+      {/* Condition Tag */}
+      {filters.condition && (
+        <button
+          onClick={removeCondition}
+          className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-[#dc2626] cursor-pointer hover:bg-red-100 transition-colors"
+        >
+          Tình trạng: {filters.condition === "new" ? "Mới 100%" : "Cũ (Like New)"}
           <X className="h-3 w-3" />
         </button>
       )}

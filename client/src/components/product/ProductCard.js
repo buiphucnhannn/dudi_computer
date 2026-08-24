@@ -22,12 +22,14 @@ import {
 import { formatVND } from "@/lib/utils";
 import { addToCart, addToCartAsync, removeFromCartAsync, selectCartItems } from "@/redux/slices/cartSlice";
 import { useCompare } from "@/components/common/CompareContext";
+import { useToast } from "@/components/common/ToastContext";
 import { getProductCardBadges } from "@/lib/specParser";
 
 export default function ProductCard({ product }) {
   const dispatch = useDispatch();
   const router = useRouter();
   const { addToCompare, isComparing } = useCompare();
+  const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
 
   if (!product) return null;
@@ -48,6 +50,11 @@ export default function ProductCard({ product }) {
     e.preventDefault();
     e.stopPropagation();
     dispatch(addToCart({ product, quantity: 1 }));
+    showToast({
+      title: "Đã thêm vào giỏ hàng",
+      message: `Đã thêm "${product.name}" vào giỏ hàng thành công!`,
+      type: "success",
+    });
   };
 
   const handleToggleCart = (e) => {
@@ -56,8 +63,18 @@ export default function ProductCard({ product }) {
     const prodId = product._id || product.id || product.slug;
     if (isCart) {
       dispatch(removeFromCartAsync(prodId));
+      showToast({
+        title: "Đã xóa khỏi giỏ",
+        message: `Đã bỏ "${product.name}" khỏi giỏ hàng`,
+        type: "info",
+      });
     } else {
       dispatch(addToCartAsync({ product, quantity: 1 }));
+      showToast({
+        title: "Đã thêm vào giỏ hàng",
+        message: `Đã thêm "${product.name}" vào giỏ hàng thành công!`,
+        type: "success",
+      });
     }
   };
 
@@ -133,17 +150,17 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Content */}
-      <div className="p-3 sm:p-3.5 flex flex-col flex-1 justify-between bg-white border-t border-gray-50">
+      <div className="p-2.5 sm:p-3.5 flex flex-col flex-1 justify-between bg-white border-t border-gray-50">
         <div>
           {/* Warranty tag */}
-          <div className="text-[10px] text-gray-500 mb-1 flex items-center gap-1 font-medium">
-            <ShieldCheck className="w-3 h-3 text-green-600" />
-            <span>{product.warranty || "Bảo hành 3 - 12 Tháng"}</span>
+          <div className="text-[10px] text-gray-500 mb-1 flex items-center gap-1 font-medium truncate">
+            <ShieldCheck className="w-3 h-3 text-green-600 shrink-0" />
+            <span className="truncate">{product.warranty || "Bảo hành 3 - 12 Tháng"}</span>
           </div>
 
           {/* Product Name */}
           <h3
-            className="text-xs sm:text-[13px] font-bold text-gray-800 group-hover:text-[#dc2626] transition-colors line-clamp-2 min-h-[36px] sm:min-h-[38px] leading-snug mb-2"
+            className="text-xs sm:text-[13px] font-bold text-gray-800 group-hover:text-[#dc2626] transition-colors line-clamp-2 min-h-[34px] sm:min-h-[38px] leading-snug mb-1.5"
             title={product.name}
           >
             {product.name}
@@ -172,7 +189,7 @@ export default function ProductCard({ product }) {
             };
 
             return (
-              <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-600 mb-2 border border-gray-100 min-h-[56px]">
+              <div className="bg-gray-50 rounded-xl p-1.5 sm:p-2 grid grid-cols-2 gap-1 sm:gap-1.5 text-[9.5px] sm:text-[10px] text-gray-600 mb-2 border border-gray-100 min-h-[52px] sm:min-h-[56px]">
                 {badges.map((b, idx) => (
                   <div key={idx} className="flex items-center gap-1 truncate" title={b.title || b.label}>
                     {renderIcon(b.icon)}
@@ -185,13 +202,13 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* Price & Actions */}
-        <div className="mt-2.5 pt-2 border-t border-gray-100">
-          <div className="flex items-baseline gap-2 mb-1">
-            <span className="text-sm sm:text-[15px] font-black text-[#dc2626]">
+        <div className="mt-1.5 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-gray-100">
+          <div className="flex flex-wrap items-baseline gap-1 sm:gap-2 mb-1">
+            <span className="text-xs sm:text-[15px] font-black text-[#dc2626]">
               {formatVND(product.price)}
             </span>
             {product.originalPrice > product.price && (
-              <span className="text-[11px] text-gray-400 line-through">
+              <span className="text-[10px] sm:text-[11px] text-gray-400 line-through">
                 {formatVND(product.originalPrice)}
               </span>
             )}
@@ -199,7 +216,7 @@ export default function ProductCard({ product }) {
 
           {/* Trả góp estimate */}
           {product.price > 3000000 && (
-            <div className="text-[10px] text-gray-500 mb-2 font-medium">
+            <div className="text-[9.5px] sm:text-[10px] text-gray-500 mb-1.5 sm:mb-2 font-medium truncate">
               Trả góp chỉ từ{" "}
               <span className="text-gray-800 font-bold">
                 {formatVND(installmentEst)}/tháng
@@ -207,19 +224,19 @@ export default function ProductCard({ product }) {
             </div>
           )}
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 sm:gap-1.5">
             <button
               onClick={handleAddToCart}
-              className="flex-1 flex items-center justify-center gap-1.5 bg-red-50 hover:bg-[#dc2626] text-[#dc2626] hover:text-white border border-red-200/80 py-1.5 px-2 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
+              className="flex-1 flex items-center justify-center gap-1 bg-red-50 hover:bg-[#dc2626] text-[#dc2626] hover:text-white border border-red-200/80 py-1.5 px-1.5 sm:px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
             >
-              <ShoppingCart className="w-3.5 h-3.5" />
-              <span>Thêm vào giỏ</span>
+              <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="truncate">Thêm vào giỏ</span>
             </button>
             <span
-              className="p-1.5 rounded-lg border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 transition-colors"
+              className="p-1 sm:p-1.5 rounded-lg border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 transition-colors shrink-0"
               title="Xem chi tiết"
             >
-              <Eye className="w-3.5 h-3.5" />
+              <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </span>
           </div>
         </div>

@@ -6,7 +6,7 @@ import { News } from "./models/News.js";
 import { Job } from "./models/Job.js";
 
 export const CATEGORIES_DATA = [
-  { name: "Laptop Cũ", slug: "laptop-cu", pcPartType: "none", description: "Laptop cũ chính hãng giá rẻ, like new 99% nguyên zin chưa qua sửa chữa" },
+  { name: "Laptop", slug: "laptop", pcPartType: "none", description: "Laptop chính hãng cao cấp, like new 99% và mới 100% nguyên seal" },
   { name: "Laptop Gaming", slug: "laptop-gaming", pcPartType: "none", description: "Laptop Gaming cấu hình khủng, màn hình 144Hz - 240Hz chiến game mượt mà" },
   { name: "Laptop Văn phòng", slug: "laptop-van-phong", pcPartType: "none", description: "Laptop văn phòng mỏng nhẹ, pin trâu, thiết kế sang trọng" },
   { name: "Laptop Dell", slug: "laptop-dell", pcPartType: "none", description: "Laptop Dell XPS, Latitude, Inspiron, Alienware bền bỉ cao cấp" },
@@ -20,7 +20,7 @@ export const CATEGORIES_DATA = [
   { name: "Laptop LG", slug: "laptop-lg", pcPartType: "none", description: "Laptop LG Gram siêu nhẹ chỉ từ 999g, pin cực trâu" },
   { name: "Laptop Surface", slug: "laptop-surface", pcPartType: "none", description: "Microsoft Surface Pro, Surface Laptop màn hình cảm ứng sắc nét" },
   { name: "Macbook", slug: "macbook", pcPartType: "none", description: "Apple MacBook Pro, MacBook Air chip M1, M2, M3 retina đẳng cấp" },
-  { name: "PC Cũ", slug: "pc-cu", pcPartType: "none", description: "Dàn máy tính PC cũ văn phòng, đồ họa, gaming lướt giá siêu tiết kiệm" },
+  { name: "PC", slug: "pc", pcPartType: "none", description: "Dàn máy tính PC văn phòng, đồ họa, gaming đồng bộ và lắp ráp chất lượng cao" },
   { name: "PC Gaming", slug: "pc-gaming", pcPartType: "none", description: "Bộ máy tính PC Gaming cấu hình cao, LED RGB, tản nước, chiến mượt mọi tựa game" },
   { name: "PC Đồ Họa", slug: "pc-do-hoa", pcPartType: "none", description: "Máy tính đồ họa Workstation chuyên render 3D, kiến trúc, dựng phim 4K" },
   { name: "Màn hình máy tính", slug: "man-hinh", pcPartType: "monitor", description: "Màn hình máy tính Gaming, Đồ họa 24 - 32 inch, 2K, 4K, 165Hz - 240Hz, IPS, OLED" },
@@ -9457,6 +9457,14 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
         specifications: autoSpecs,
         warranty: p.warranty || "Bảo hành 3 - 12 Tháng",
         status: p.status || "in_stock",
+        condition: p.condition || (
+          (p.name && /like new|cũ|99%|lướt|second hand/i.test(p.name)) ||
+          (p.description && /like new|cũ|99%/i.test(p.description)) ||
+          (catName && /cũ|like new/i.test(catName)) ||
+          (index % 3 === 1)
+            ? "Cũ (Like New)"
+            : "Mới 100%"
+        ),
         isHot: typeof p.isHot === "boolean" ? p.isHot : index < 20,
         isFlashSale: typeof p.isFlashSale === "boolean" ? p.isFlashSale : index % 3 === 0,
         views: typeof p.views === "number" ? p.views : Math.floor(Math.random() * 200) + 50,

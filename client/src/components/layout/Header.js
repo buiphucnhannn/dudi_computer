@@ -53,8 +53,8 @@ import { useCompare } from "@/components/common/CompareContext";
 
 const NAV_CATEGORIES = [
   {
-    name: "Laptop Cũ",
-    slug: "laptop-cu",
+    name: "Laptop",
+    slug: "laptop",
     icon: Laptop,
     hasSub: true,
     subGroups: [
@@ -89,8 +89,8 @@ const NAV_CATEGORIES = [
     ],
   },
   {
-    name: "PC Cũ",
-    slug: "pc-cu",
+    name: "PC",
+    slug: "pc",
     icon: Monitor,
     hasSub: false,
   },
@@ -209,6 +209,60 @@ export default function Header() {
   const totalItems = useSelector(selectTotalItems);
   const user = useSelector(selectCurrentUser);
   const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  // Active Navigation Route Checks
+  const isAllProductsActive =
+    pathname === "/tat-ca-san-pham" ||
+    pathname === "/product" ||
+    pathname === "/san-pham" ||
+    pathname?.startsWith("/tat-ca-san-pham") ||
+    pathname?.startsWith("/product");
+
+  const isPolicyActive = [
+    "/chinh-sach-bao-hanh",
+    "/warranty-policy",
+    "/chinh-sach-bao-mat",
+    "/privacy-policy",
+    "/chinh-sach-van-chuyen",
+    "/shipping-policy",
+    "/chinh-sach-doi-tra",
+    "/return-policy",
+    "/chinh-sach-thanh-toan",
+    "/payment-policy",
+    "/huong-dan-tra-gop",
+    "/installment-guide",
+  ].some((p) => pathname === p || pathname?.startsWith(p));
+
+  const isTradeInActive =
+    pathname === "/thu-cu-doi-moi" ||
+    pathname === "/trade-in" ||
+    pathname === "/thu-mua-cu";
+
+  const isReferralActive =
+    pathname === "/gioi-thieu-ban-be" || pathname === "/referral";
+
+  const isTestToolsActive = [
+    "/test-ban-phim",
+    "/cong-cu-test/ban-phim",
+    "/keyboard-test",
+    "/kiem-tra-ban-phim",
+    "/test-man-hinh",
+    "/cong-cu-test/man-hinh",
+    "/screen-test",
+    "/kiem-tra-man-hinh",
+    "/test-loa-micro-webcam",
+    "/cong-cu-test/loa-micro-webcam",
+    "/peripherals-test",
+    "/kiem-tra-ngoai-vi",
+  ].some((p) => pathname === p || pathname?.startsWith(p));
+
+  const isStoreLocationsActive =
+    pathname === "/store-locations" ||
+    pathname === "/he-thong-cua-hang" ||
+    pathname === "/showroom" ||
+    pathname === "/he-thong-showroom";
+
+  const isCartActive = pathname === "/cart" || pathname === "/gio-hang";
 
   const POPULAR_SEARCHES = [
     "Laptop Lenovo",
@@ -600,14 +654,24 @@ export default function Header() {
 
             {/* Showroom */}
             <Link href="/store-locations" className="flex items-center gap-2 group cursor-pointer">
-              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-600 group-hover:bg-gray-800 group-hover:text-white transition-colors duration-300">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                  isStoreLocationsActive
+                    ? "bg-[#eb1c24] text-white shadow-md shadow-red-500/20"
+                    : "bg-gray-50 text-gray-600 group-hover:bg-gray-800 group-hover:text-white"
+                }`}
+              >
                 <MapPin className="w-5 h-5" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wide">
                   HỆ THỐNG 2 CƠ SỞ
                 </span>
-                <span className="text-[15px] font-black text-gray-800 leading-tight">
+                <span
+                  className={`text-[15px] font-black leading-tight transition-colors ${
+                    isStoreLocationsActive ? "text-[#eb1c24]" : "text-gray-800 group-hover:text-[#eb1c24]"
+                  }`}
+                >
                   Showroom
                 </span>
               </div>
@@ -618,7 +682,9 @@ export default function Header() {
           <div className="flex items-center gap-1 sm:gap-2">
             <Link
               href="/cart"
-              className="relative p-2 text-gray-700 hover:text-[#eb1c24] transition-colors flex items-center gap-1"
+              className={`relative p-2 transition-colors flex items-center gap-1 ${
+                isCartActive ? "text-[#eb1c24]" : "text-gray-700 hover:text-[#eb1c24]"
+              }`}
               title="Giỏ hàng"
             >
               <ShoppingCart className="w-6 h-6" />
@@ -918,7 +984,11 @@ export default function Header() {
             <li className="shrink-0">
               <Link
                 href="/tat-ca-san-pham"
-                className="flex items-center gap-1 py-3 md:py-[14px] text-white hover:text-[#eb1c24] transition-all duration-300"
+                className={`flex items-center gap-1 py-3 md:py-[14px] transition-all duration-300 ${
+                  isAllProductsActive
+                    ? "text-[#eb1c24] font-black"
+                    : "text-white hover:text-[#eb1c24]"
+                }`}
               >
                 <span className="uppercase relative inline-block">
                   TẤT CẢ SẢN PHẨM
@@ -932,16 +1002,30 @@ export default function Header() {
 
             {/* Chính Sách Tổng Hợp Dropdown */}
             <li className="relative shrink-0 group/policy">
-              <div className="py-3 md:py-[14px] flex items-center gap-1.5 cursor-pointer uppercase text-white hover:text-[#eb1c24] transition-colors select-none">
+              <div
+                className={`py-3 md:py-[14px] flex items-center gap-1.5 cursor-pointer uppercase transition-colors select-none ${
+                  isPolicyActive
+                    ? "text-[#eb1c24] font-black"
+                    : "text-white hover:text-[#eb1c24]"
+                }`}
+              >
                 <span>CHÍNH SÁCH TỔNG HỢP</span>
-                <ChevronDown className="w-4 h-4 text-gray-300 transition-transform duration-300 group-hover/policy:rotate-180" />
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform duration-300 group-hover/policy:rotate-180 ${
+                    isPolicyActive ? "text-[#eb1c24]" : "text-gray-300"
+                  }`}
+                />
               </div>
               <div className="absolute top-full left-0 w-60 bg-white/95 backdrop-blur-xl text-gray-800 shadow-[0_20px_40px_rgba(0,0,0,0.1)] border-t-2 border-[#eb1c24] rounded-b-xl overflow-hidden z-50 transition-all duration-200 origin-top opacity-0 invisible group-hover/policy:opacity-100 group-hover/policy:visible pointer-events-none group-hover/policy:pointer-events-auto">
                 <ul className="py-2 text-[13px] font-bold">
                   <li>
                     <Link
                       href="/chinh-sach-bao-hanh"
-                      className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
+                        pathname === "/chinh-sach-bao-hanh" || pathname === "/warranty-policy"
+                          ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
+                          : ""
+                      }`}
                     >
                       Chính sách bảo hành
                     </Link>
@@ -949,7 +1033,11 @@ export default function Header() {
                   <li>
                     <Link
                       href="/chinh-sach-bao-mat"
-                      className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
+                        pathname === "/chinh-sach-bao-mat" || pathname === "/privacy-policy"
+                          ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
+                          : ""
+                      }`}
                     >
                       Chính sách bảo mật
                     </Link>
@@ -957,7 +1045,11 @@ export default function Header() {
                   <li>
                     <Link
                       href="/chinh-sach-van-chuyen"
-                      className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
+                        pathname === "/chinh-sach-van-chuyen" || pathname === "/shipping-policy"
+                          ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
+                          : ""
+                      }`}
                     >
                       Chính sách vận chuyển
                     </Link>
@@ -965,7 +1057,11 @@ export default function Header() {
                   <li>
                     <Link
                       href="/chinh-sach-doi-tra"
-                      className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
+                        pathname === "/chinh-sach-doi-tra" || pathname === "/return-policy"
+                          ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
+                          : ""
+                      }`}
                     >
                       Chính sách đổi trả
                     </Link>
@@ -973,7 +1069,11 @@ export default function Header() {
                   <li>
                     <Link
                       href="/chinh-sach-thanh-toan"
-                      className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 uppercase"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 uppercase ${
+                        pathname === "/chinh-sach-thanh-toan" || pathname === "/payment-policy"
+                          ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
+                          : ""
+                      }`}
                     >
                       Chính sách thanh toán
                     </Link>
@@ -986,7 +1086,11 @@ export default function Header() {
             <li className="shrink-0">
               <Link
                 href="/thu-cu-doi-moi"
-                className="py-3 md:py-[14px] block text-white hover:text-[#eb1c24] transition-colors uppercase"
+                className={`py-3 md:py-[14px] block transition-colors uppercase ${
+                  isTradeInActive
+                    ? "text-[#eb1c24] font-black"
+                    : "text-white hover:text-[#eb1c24]"
+                }`}
               >
                 THU CŨ ĐỔI MỚI
               </Link>
@@ -996,7 +1100,11 @@ export default function Header() {
             <li className="shrink-0">
               <Link
                 href="/gioi-thieu-ban-be"
-                className="py-3 md:py-[14px] block text-white hover:text-[#eb1c24] transition-colors uppercase font-bold"
+                className={`py-3 md:py-[14px] block transition-colors uppercase font-bold ${
+                  isReferralActive
+                    ? "text-[#eb1c24] font-black"
+                    : "text-white hover:text-[#eb1c24]"
+                }`}
               >
                 GIỚI THIỆU BẠN BÈ
               </Link>
@@ -1004,16 +1112,33 @@ export default function Header() {
 
             {/* Công cụ Test Dropdown */}
             <li className="relative shrink-0 group/test">
-              <div className="py-3 md:py-[14px] flex items-center gap-1.5 cursor-pointer uppercase text-white hover:text-[#eb1c24] transition-colors select-none">
+              <div
+                className={`py-3 md:py-[14px] flex items-center gap-1.5 cursor-pointer uppercase transition-colors select-none ${
+                  isTestToolsActive
+                    ? "text-[#eb1c24] font-black"
+                    : "text-white hover:text-[#eb1c24]"
+                }`}
+              >
                 <span>CÔNG CỤ TEST</span>
-                <ChevronDown className="w-4 h-4 text-gray-300 transition-transform duration-300 group-hover/test:rotate-180" />
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform duration-300 group-hover/test:rotate-180 ${
+                    isTestToolsActive ? "text-[#eb1c24]" : "text-gray-300"
+                  }`}
+                />
               </div>
               <div className="absolute top-full right-0 w-60 bg-white/95 backdrop-blur-xl text-gray-800 shadow-[0_20px_40px_rgba(0,0,0,0.1)] border-t-2 border-[#eb1c24] rounded-b-xl overflow-hidden z-50 transition-all duration-200 origin-top opacity-0 invisible group-hover/test:opacity-100 group-hover/test:visible pointer-events-none group-hover/test:pointer-events-auto">
                 <ul className="py-2 text-[13px] font-bold">
                   <li>
                     <Link
                       href="/test-ban-phim"
-                      className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
+                        pathname === "/test-ban-phim" ||
+                        pathname === "/keyboard-test" ||
+                        pathname === "/cong-cu-test/ban-phim" ||
+                        pathname === "/kiem-tra-ban-phim"
+                          ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
+                          : ""
+                      }`}
                     >
                       Test Bàn Phím
                     </Link>
@@ -1021,7 +1146,14 @@ export default function Header() {
                   <li>
                     <Link
                       href="/test-man-hinh"
-                      className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 border-b border-gray-100 uppercase ${
+                        pathname === "/test-man-hinh" ||
+                        pathname === "/screen-test" ||
+                        pathname === "/cong-cu-test/man-hinh" ||
+                        pathname === "/kiem-tra-man-hinh"
+                          ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
+                          : ""
+                      }`}
                     >
                       Test Màn Hình
                     </Link>
@@ -1029,7 +1161,14 @@ export default function Header() {
                   <li>
                     <Link
                       href="/test-loa-micro-webcam"
-                      className="block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 uppercase"
+                      className={`block px-5 py-3 hover:bg-red-50 hover:text-[#eb1c24] hover:pl-6 transition-all duration-300 uppercase ${
+                        pathname === "/test-loa-micro-webcam" ||
+                        pathname === "/peripherals-test" ||
+                        pathname === "/cong-cu-test/loa-micro-webcam" ||
+                        pathname === "/kiem-tra-ngoai-vi"
+                          ? "bg-red-50 text-[#eb1c24] font-black pl-6 border-l-4 border-l-[#eb1c24]"
+                          : ""
+                      }`}
                     >
                       Test Loa, Micro, Webcam
                     </Link>
@@ -1216,13 +1355,17 @@ export default function Header() {
             <Link
               href="/tat-ca-san-pham"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between p-2.5 rounded-xl font-bold text-xs text-[#eb1c24] bg-red-50/70 hover:bg-red-100 transition-colors mb-1.5"
+              className={`flex items-center justify-between p-2.5 rounded-xl font-bold text-xs transition-colors mb-1.5 ${
+                isAllProductsActive
+                  ? "bg-[#eb1c24] text-white shadow-md shadow-red-500/20 font-black"
+                  : "text-[#eb1c24] bg-red-50/70 hover:bg-red-100"
+              }`}
             >
               <div className="flex items-center gap-2.5">
-                <Sparkles className="w-4 h-4 text-[#eb1c24]" />
+                <Sparkles className={`w-4 h-4 ${isAllProductsActive ? "text-white" : "text-[#eb1c24]"}`} />
                 <span>TẤT CẢ SẢN PHẨM</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-[#eb1c24]" />
+              <ChevronRight className={`w-4 h-4 ${isAllProductsActive ? "text-white" : "text-[#eb1c24]"}`} />
             </Link>
 
             {/* Category Accordion Items */}
@@ -1314,95 +1457,199 @@ export default function Header() {
               <Link
                 href="/thu-cu-doi-moi"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
+                  isTradeInActive
+                    ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
+                    : "hover:bg-gray-50 hover:text-[#eb1c24]"
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <RefreshCw className="w-4 h-4 text-gray-400" />
+                  <RefreshCw className={`w-4 h-4 ${isTradeInActive ? "text-[#eb1c24]" : "text-gray-400"}`} />
                   <span>Thu cũ đổi mới</span>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+                <ChevronRight className={`w-3.5 h-3.5 ${isTradeInActive ? "text-[#eb1c24]" : "text-gray-300"}`} />
               </Link>
 
               <Link
                 href="/gioi-thieu-ban-be"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
+                  isReferralActive
+                    ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
+                    : "hover:bg-gray-50 hover:text-[#eb1c24]"
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Users className="w-4 h-4 text-gray-400" />
+                  <Users className={`w-4 h-4 ${isReferralActive ? "text-[#eb1c24]" : "text-gray-400"}`} />
                   <span>Giới thiệu bạn bè</span>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+                <ChevronRight className={`w-3.5 h-3.5 ${isReferralActive ? "text-[#eb1c24]" : "text-gray-300"}`} />
               </Link>
 
               <Link
                 href="/he-thong-cua-hang"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
+                  isStoreLocationsActive
+                    ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
+                    : "hover:bg-gray-50 hover:text-[#eb1c24]"
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <MapPin className="w-4 h-4 text-gray-400" />
+                  <MapPin className={`w-4 h-4 ${isStoreLocationsActive ? "text-[#eb1c24]" : "text-gray-400"}`} />
                   <span>Hệ thống Showroom</span>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+                <ChevronRight className={`w-3.5 h-3.5 ${isStoreLocationsActive ? "text-[#eb1c24]" : "text-gray-300"}`} />
               </Link>
 
               <Link
                 href="/chinh-sach-bao-hanh"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
+                  pathname === "/chinh-sach-bao-hanh" || pathname === "/warranty-policy"
+                    ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
+                    : "hover:bg-gray-50 hover:text-[#eb1c24]"
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-gray-400" />
+                  <ShieldCheck className={`w-4 h-4 ${pathname === "/chinh-sach-bao-hanh" || pathname === "/warranty-policy" ? "text-[#eb1c24]" : "text-gray-400"}`} />
                   <span>Chính sách bảo hành</span>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+                <ChevronRight className={`w-3.5 h-3.5 ${pathname === "/chinh-sach-bao-hanh" || pathname === "/warranty-policy" ? "text-[#eb1c24]" : "text-gray-300"}`} />
               </Link>
 
               <Link
                 href="/chinh-sach-doi-tra"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
+                  pathname === "/chinh-sach-doi-tra" || pathname === "/return-policy"
+                    ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
+                    : "hover:bg-gray-50 hover:text-[#eb1c24]"
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <FileText className="w-4 h-4 text-gray-400" />
+                  <FileText className={`w-4 h-4 ${pathname === "/chinh-sach-doi-tra" || pathname === "/return-policy" ? "text-[#eb1c24]" : "text-gray-400"}`} />
                   <span>Chính sách đổi trả</span>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+                <ChevronRight className={`w-3.5 h-3.5 ${pathname === "/chinh-sach-doi-tra" || pathname === "/return-policy" ? "text-[#eb1c24]" : "text-gray-300"}`} />
               </Link>
 
               <Link
                 href="/chinh-sach-van-chuyen"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
+                  pathname === "/chinh-sach-van-chuyen" || pathname === "/shipping-policy"
+                    ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
+                    : "hover:bg-gray-50 hover:text-[#eb1c24]"
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <FileText className="w-4 h-4 text-gray-400" />
+                  <FileText className={`w-4 h-4 ${pathname === "/chinh-sach-van-chuyen" || pathname === "/shipping-policy" ? "text-[#eb1c24]" : "text-gray-400"}`} />
                   <span>Chính sách vận chuyển</span>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+                <ChevronRight className={`w-3.5 h-3.5 ${pathname === "/chinh-sach-van-chuyen" || pathname === "/shipping-policy" ? "text-[#eb1c24]" : "text-gray-300"}`} />
               </Link>
 
               <Link
                 href="/chinh-sach-bao-mat"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
+                  pathname === "/chinh-sach-bao-mat" || pathname === "/privacy-policy"
+                    ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
+                    : "hover:bg-gray-50 hover:text-[#eb1c24]"
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <FileText className="w-4 h-4 text-gray-400" />
+                  <FileText className={`w-4 h-4 ${pathname === "/chinh-sach-bao-mat" || pathname === "/privacy-policy" ? "text-[#eb1c24]" : "text-gray-400"}`} />
                   <span>Chính sách bảo mật</span>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+                <ChevronRight className={`w-3.5 h-3.5 ${pathname === "/chinh-sach-bao-mat" || pathname === "/privacy-policy" ? "text-[#eb1c24]" : "text-gray-300"}`} />
               </Link>
 
               <Link
                 href="/chinh-sach-thanh-toan"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-gray-50 hover:text-[#eb1c24] transition-colors"
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
+                  pathname === "/chinh-sach-thanh-toan" || pathname === "/payment-policy"
+                    ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
+                    : "hover:bg-gray-50 hover:text-[#eb1c24]"
+                }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <FileText className="w-4 h-4 text-gray-400" />
+                  <FileText className={`w-4 h-4 ${pathname === "/chinh-sach-thanh-toan" || pathname === "/payment-policy" ? "text-[#eb1c24]" : "text-gray-400"}`} />
                   <span>Chính sách thanh toán</span>
+                </div>
+                <ChevronRight className={`w-3.5 h-3.5 ${pathname === "/chinh-sach-thanh-toan" || pathname === "/payment-policy" ? "text-[#eb1c24]" : "text-gray-300"}`} />
+              </Link>
+            </div>
+          </div>
+
+          {/* Công cụ Test (Test Tools) */}
+          <div className="p-3">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400 px-2 block mb-2">
+              Công cụ Kiểm tra (Test Tools)
+            </span>
+
+            <div className="space-y-1 text-xs font-semibold text-gray-700">
+              <Link
+                href="/test-ban-phim"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
+                  pathname === "/test-ban-phim" ||
+                  pathname === "/keyboard-test" ||
+                  pathname === "/cong-cu-test/ban-phim" ||
+                  pathname === "/kiem-tra-ban-phim"
+                    ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
+                    : "hover:bg-gray-50 hover:text-[#eb1c24]"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Keyboard className={`w-4 h-4 ${
+                    pathname === "/test-ban-phim" || pathname === "/keyboard-test" ? "text-[#eb1c24]" : "text-gray-400"
+                  }`} />
+                  <span>Test Bàn Phím</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              </Link>
+
+              <Link
+                href="/test-man-hinh"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
+                  pathname === "/test-man-hinh" ||
+                  pathname === "/screen-test" ||
+                  pathname === "/cong-cu-test/man-hinh" ||
+                  pathname === "/kiem-tra-man-hinh"
+                    ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
+                    : "hover:bg-gray-50 hover:text-[#eb1c24]"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Monitor className={`w-4 h-4 ${
+                    pathname === "/test-man-hinh" || pathname === "/screen-test" ? "text-[#eb1c24]" : "text-gray-400"
+                  }`} />
+                  <span>Test Màn Hình</span>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+              </Link>
+
+              <Link
+                href="/test-loa-micro-webcam"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between p-2.5 rounded-xl transition-colors ${
+                  pathname === "/test-loa-micro-webcam" ||
+                  pathname === "/peripherals-test" ||
+                  pathname === "/cong-cu-test/loa-micro-webcam" ||
+                  pathname === "/kiem-tra-ngoai-vi"
+                    ? "bg-red-50 text-[#eb1c24] font-black border-l-4 border-l-[#eb1c24]"
+                    : "hover:bg-gray-50 hover:text-[#eb1c24]"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Zap className={`w-4 h-4 ${
+                    pathname === "/test-loa-micro-webcam" || pathname === "/peripherals-test" ? "text-[#eb1c24]" : "text-gray-400"
+                  }`} />
+                  <span>Test Loa, Micro, Webcam</span>
                 </div>
                 <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
               </Link>

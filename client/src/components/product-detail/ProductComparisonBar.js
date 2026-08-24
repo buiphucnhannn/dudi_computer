@@ -32,14 +32,14 @@ const ProductComparisonBar = ({
     return product?.slug || product?._id || product?.id;
   };
 
-  // When collapsed, render floating trigger pill on mobile & desktop
+  // When collapsed, render floating trigger pill on mobile & desktop (bên trái để không đè lên các nút liên hệ)
   if (isCollapsed) {
     return (
-      <div className="fixed bottom-4 right-4 z-[90] animate-bounce">
+      <div className="fixed bottom-6 left-4 sm:left-6 z-40">
         <button
           type="button"
           onClick={() => setIsCollapsed(false)}
-          className="flex items-center gap-2.5 bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 py-2.5 rounded-full shadow-2xl font-bold text-xs sm:text-sm uppercase tracking-wider cursor-pointer border-2 border-white"
+          className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white px-4 py-2.5 rounded-full shadow-2xl font-bold text-xs sm:text-sm uppercase tracking-wider cursor-pointer border-2 border-white transition-all hover:scale-105"
         >
           <Scale className="w-4 h-4" />
           <span>So sánh ({products.length}/3)</span>

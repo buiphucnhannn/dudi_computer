@@ -20,8 +20,8 @@ import {
 export default function CategorySidebar() {
   const categories = [
     {
-      name: "Laptop Cũ",
-      slug: "laptop-cu",
+      name: "Laptop",
+      slug: "laptop",
       icon: Laptop,
       hasSub: true,
       subGroups: [
@@ -56,8 +56,8 @@ export default function CategorySidebar() {
       ],
     },
     {
-      name: "PC Cũ",
-      slug: "pc-cu",
+      name: "PC",
+      slug: "pc",
       icon: Monitor,
       hasSub: false,
     },

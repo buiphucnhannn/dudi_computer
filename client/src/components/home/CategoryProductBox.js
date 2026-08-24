@@ -50,8 +50,18 @@ export default function CategoryProductBox({
     const prodId = item._id || item.id || item.slug;
     if (isCart) {
       dispatch(removeFromCartAsync(prodId));
+      showToast({
+        title: "Đã xóa khỏi giỏ",
+        message: `Đã bỏ "${item.name}" khỏi giỏ hàng`,
+        type: "info",
+      });
     } else {
       dispatch(addToCartAsync({ product: item, quantity: 1 }));
+      showToast({
+        title: "Đã thêm vào giỏ hàng",
+        message: `Đã thêm "${item.name}" vào giỏ hàng thành công!`,
+        type: "success",
+      });
     }
   };
 

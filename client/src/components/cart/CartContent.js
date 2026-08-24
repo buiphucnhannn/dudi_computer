@@ -122,9 +122,9 @@ export default function CartContent() {
           /* Has Items: 2 Columns Grid */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left Column: Product List (8 Cols) */}
-            <div className="lg:col-span-8 bg-white rounded-lg shadow-2xs border border-gray-200 overflow-hidden">
-              {/* Table Header */}
-              <div className="px-6 py-4 bg-gray-50/70 border-b border-gray-200 flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-600">
+            <div className="lg:col-span-8 bg-white rounded-xl shadow-2xs border border-gray-200 overflow-hidden">
+              {/* Table Header (Chỉ hiện trên desktop) */}
+              <div className="hidden sm:flex px-6 py-4 bg-gray-50/70 border-b border-gray-200 items-center justify-between text-xs sm:text-sm font-semibold text-gray-600">
                 <span className="w-[50%]">Sản phẩm</span>
                 <span className="w-[25%] text-center">Số lượng</span>
                 <span className="w-[25%] text-right">Thành tiền</span>
@@ -135,7 +135,7 @@ export default function CartContent() {
                 {cartItems.map((item) => (
                   <div
                     key={item._id}
-                    className="p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                    className="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4"
                   >
                     {/* Product Info */}
                     <div className="flex items-center gap-4 w-full sm:w-[50%]">

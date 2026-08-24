@@ -7,33 +7,33 @@ export const metadata = {
 
 export default function ShippingPolicyPage() {
   return (
-    <div className="bg-[#f8f9fa] min-h-screen py-10 sm:py-14">
-      <div className="w-full max-w-4xl mx-auto px-4">
+    <div className="bg-[#f8f9fa] min-h-screen py-6 sm:py-14 pb-28 sm:pb-20">
+      <div className="w-full max-w-4xl mx-auto px-3 sm:px-4">
         {/* Header Card (Red Background) */}
-        <div className="bg-[#eb1c24] text-white rounded-2xl p-6 sm:p-8 mb-8 flex items-center gap-5 sm:gap-6 shadow-lg relative overflow-hidden">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center shrink-0 border border-white/25">
-            <Truck className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+        <div className="bg-[#eb1c24] text-white rounded-2xl p-4 sm:p-8 mb-6 sm:mb-8 flex items-center gap-4 sm:gap-6 shadow-lg relative overflow-hidden">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center shrink-0 border border-white/25">
+            <Truck className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
+            <h1 className="text-xl sm:text-3xl font-black uppercase tracking-tight">
               CHÍNH SÁCH VẬN CHUYỂN
             </h1>
-            <p className="text-white/80 text-xs sm:text-sm mt-1 font-medium">
+            <p className="text-white/80 text-[11px] sm:text-sm mt-0.5 sm:mt-1 font-medium">
               Áp dụng cho tất cả đơn hàng tại DUDI SOFTWARE
             </p>
           </div>
         </div>
 
         {/* Content Card with 4 Sections */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden text-gray-700 text-sm sm:text-[14.5px] leading-relaxed">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden text-gray-700 text-xs sm:text-[14.5px] leading-relaxed">
           
           {/* Section 1 */}
-          <div className="p-6 sm:p-8 border-b border-gray-100">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="w-8 h-8 bg-[#eb1c24] text-white rounded-full flex items-center justify-center text-sm font-black shrink-0">
+          <div className="p-4 sm:p-8 border-b border-gray-100">
+            <div className="flex items-center gap-2.5 sm:gap-3 mb-3 sm:mb-4">
+              <span className="w-7 h-7 sm:w-8 sm:h-8 bg-[#eb1c24] text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-black shrink-0">
                 1
               </span>
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+              <h2 className="text-base sm:text-xl font-bold text-gray-900">
                 Phạm vi áp dụng
               </h2>
             </div>

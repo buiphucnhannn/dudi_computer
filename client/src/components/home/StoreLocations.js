@@ -4,15 +4,15 @@ export default function StoreLocations() {
   return (
     <div
       id="he-thong-showroom"
-      className="mb-12 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl p-8 lg:p-10 shadow-2xl relative overflow-hidden group transition-all duration-500 text-white"
+      className="mb-12 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-8 lg:p-10 shadow-2xl relative overflow-hidden group transition-all duration-500 text-white"
     >
       {/* Hiệu ứng đỏ mờ khi hover */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#eb1c24]/20 via-[#eb1c24]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0"></div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 items-center relative z-10">
         {/* Cột trái: Thông tin showroom */}
         <div>
-          <h3 className="text-xl md:text-2xl font-black text-white uppercase mb-6 flex items-center gap-3 tracking-tight">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-black text-white uppercase mb-4 sm:mb-6 flex items-center gap-2.5 sm:gap-3 tracking-tight">
             <span>HỆ THỐNG CỬA HÀNG DUDI SOFTWARE</span>
             {/* SVG Máy bay giấy xoay 45 độ */}
             <svg

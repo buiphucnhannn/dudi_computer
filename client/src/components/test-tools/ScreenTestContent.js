@@ -7,7 +7,6 @@ import {
   Monitor,
   MousePointerClick,
   Zap,
-  RotateCcw,
   Expand,
   CheckCircle2,
   X,
@@ -250,75 +249,272 @@ function TouchTestMode({ onExit }) {
   );
 }
 
+// Danh sách các chuẩn độ phân giải màn hình phần cứng tiêu chuẩn thế giới
+const STANDARD_HARDWARE_DISPLAYS = [
+  { name: "Full HD (1080p)", w: 1920, h: 1080, standard: "Full HD" },
+  { name: "2K QHD (1440p)", w: 2560, h: 1440, standard: "2K (QHD)" },
+  { name: "Full HD+ (16:10)", w: 1920, h: 1200, standard: "Full HD+" },
+  { name: "2.5K WQXGA", w: 2560, h: 1600, standard: "2.5K" },
+  { name: "2.8K OLED", w: 2880, h: 1800, standard: "2.8K" },
+  { name: "2.2K", w: 2240, h: 1400, standard: "2.2K" },
+  { name: "4K UHD (2160p)", w: 3840, h: 2160, standard: "4K UHD" },
+  { name: "HD WXGA", w: 1366, h: 768, standard: "HD" },
+  { name: "HD+", w: 1600, h: 900, standard: "HD+" },
+  { name: "WXGA (16:10)", w: 1280, h: 800, standard: "WXGA" },
+  { name: "HD 720p", w: 1280, h: 720, standard: "HD" },
+  { name: "UW-QHD", w: 3440, h: 1440, standard: "Ultrawide 2K+" },
+  { name: "5K Retina", w: 5120, h: 2880, standard: "5K" },
+  { name: "8K UHD", w: 7680, h: 4320, standard: "8K" },
+];
+
+// Hàm phân tích và tính toán kích thước màn hình & Tỉ lệ thu phóng chính xác 100%
+const calculateScreenMetrics = () => {
+  if (typeof window === "undefined") return null;
+
+  const dpr = window.devicePixelRatio || 1;
+  const sw = window.screen.width || window.innerWidth;
+  const sh = window.screen.height || window.innerHeight;
+
+  // Bước 1: Kiểm tra khớp 1:1 chuẩn xác không qua scale (Scale 100%)
+  for (const disp of STANDARD_HARDWARE_DISPLAYS) {
+    if (Math.abs(sw - disp.w) <= 2 && Math.abs(sh - disp.h) <= 2) {
+      return {
+        physicalW: disp.w,
+        physicalH: disp.h,
+        standard: disp.standard,
+        scale: Math.round(dpr * 100),
+        logicalW: sw,
+        logicalH: sh,
+      };
+    }
+  }
+
+  // Bước 2: Kiểm tra các hệ số thu phóng Windows phổ biến (125%, 150%, 175%, 200%, 225%, 250%)
+  const scaleFactors = [1.25, 1.5, 1.75, 2.0, 2.25, 2.5];
+  for (const disp of STANDARD_HARDWARE_DISPLAYS) {
+    for (const sf of scaleFactors) {
+      if (
+        Math.abs(sw - Math.round(disp.w / sf)) <= 3 &&
+        Math.abs(sh - Math.round(disp.h / sf)) <= 3
+      ) {
+        return {
+          physicalW: disp.w,
+          physicalH: disp.h,
+          standard: disp.standard,
+          scale: Math.round(dpr * 100),
+          logicalW: sw,
+          logicalH: sh,
+        };
+      }
+    }
+  }
+
+  // Bước 3: Tính theo dpr thực tế
+  const rawW = Math.round(sw * dpr);
+  const rawH = Math.round(sh * dpr);
+
+  for (const disp of STANDARD_HARDWARE_DISPLAYS) {
+    if (Math.abs(rawW - disp.w) <= 15 && Math.abs(rawH - disp.h) <= 15) {
+      return {
+        physicalW: disp.w,
+        physicalH: disp.h,
+        standard: disp.standard,
+        scale: Math.round(dpr * 100),
+        logicalW: sw,
+        logicalH: sh,
+      };
+    }
+  }
+
+  // Bước 4: Fallback
+  let std = "Custom";
+  const totalPx = rawW * rawH;
+  if (totalPx >= 33177600) std = "8K";
+  else if (totalPx >= 14745600) std = "5K";
+  else if (totalPx >= 8294400) std = "4K UHD";
+  else if (totalPx >= 4953600) std = "Ultrawide 2K+";
+  else if (totalPx >= 3686400) std = "2K (QHD)";
+  else if (totalPx >= 2073600) std = "Full HD";
+  else if (totalPx >= 1440000) std = "HD+";
+  else if (totalPx >= 921600) std = "HD";
+
+  return {
+    physicalW: rawW,
+    physicalH: rawH,
+    standard: std,
+    scale: Math.round(dpr * 100),
+    logicalW: sw,
+    logicalH: sh,
+  };
+};
+
 // Component Thẻ Đo Thông Tin Màn Hình (Screen Information Card)
 function ScreenInfoCard() {
-  const [screenInfo, setScreenInfo] = useState(null);
-  const [measuringKey, setMeasuringKey] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const [metrics, setMetrics] = useState(null);
+  const [hzInfo, setHzInfo] = useState({ hz: 60, rawHz: 60, isMeasuring: true });
 
+  // Khởi tạo phía client & cập nhật thông số màn hình Realtime 100%
+  useEffect(() => {
+    setMounted(true);
+    setMetrics(calculateScreenMetrics());
+
+    let lastDpr = window.devicePixelRatio;
+    let lastW = window.innerWidth;
+    let lastH = window.innerHeight;
+
+    const handleUpdate = () => {
+      const currentDpr = window.devicePixelRatio;
+      const currentW = window.innerWidth;
+      const currentH = window.innerHeight;
+
+      if (currentDpr !== lastDpr || currentW !== lastW || currentH !== lastH) {
+        lastDpr = currentDpr;
+        lastW = currentW;
+        lastH = currentH;
+        setMetrics(calculateScreenMetrics());
+      }
+    };
+
+    window.addEventListener("resize", handleUpdate);
+
+    // 1. Visual Viewport: Bắt ngay lập tức khi Pinch Zoom hoặc Zoom trình duyệt
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleUpdate);
+      window.visualViewport.addEventListener("scroll", handleUpdate);
+    }
+
+    // 2. Recursive matchMedia: Bắt sự kiện thay đổi devicePixelRatio
+    let currentMq = null;
+    const onDprChange = () => {
+      handleUpdate();
+      setupDprListener();
+    };
+
+    const setupDprListener = () => {
+      if (currentMq) {
+        if (currentMq.removeEventListener) {
+          currentMq.removeEventListener("change", onDprChange);
+        } else if (currentMq.removeListener) {
+          currentMq.removeListener(onDprChange);
+        }
+      }
+      try {
+        currentMq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+        if (currentMq.addEventListener) {
+          currentMq.addEventListener("change", onDprChange);
+        } else if (currentMq.addListener) {
+          currentMq.addListener(onDprChange);
+        }
+      } catch (_) {}
+    };
+
+    setupDprListener();
+
+    // 3. Phím tắt Zoom (Ctrl + +, Ctrl + -, Ctrl + 0)
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        requestAnimationFrame(handleUpdate);
+        setTimeout(handleUpdate, 50);
+        setTimeout(handleUpdate, 200);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    // 4. Cuộn chuột Zoom (Ctrl + MouseWheel)
+    const handleWheel = (e) => {
+      if (e.ctrlKey) {
+        requestAnimationFrame(handleUpdate);
+        setTimeout(handleUpdate, 50);
+      }
+    };
+    window.addEventListener("wheel", handleWheel, { passive: true });
+
+    // 5. Polling siêu nhẹ (150ms) đảm bảo bắt 100% trường hợp chỉnh zoom từ menu cài đặt trình duyệt
+    const interval = setInterval(handleUpdate, 150);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("resize", handleUpdate);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("wheel", handleWheel);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleUpdate);
+        window.visualViewport.removeEventListener("scroll", handleUpdate);
+      }
+      if (currentMq) {
+        if (currentMq.removeEventListener) {
+          currentMq.removeEventListener("change", onDprChange);
+        } else if (currentMq.removeListener) {
+          currentMq.removeListener(onDprChange);
+        }
+      }
+    };
+  }, []);
+
+  // Đo tần số quét thực tế (Refresh Rate) chuẩn xác 100% bằng thuật toán Delta-Frame
   useEffect(() => {
     let animId;
-    setScreenInfo(null);
+    setHzInfo({ hz: 60, rawHz: 60, isMeasuring: true });
 
+    const deltas = [];
+    let lastTimestamp = null;
     let frameCount = 0;
-    let startTime = performance.now();
-    const frameSamples = [];
 
-    const measureHz = () => {
+    const sampleFrame = (timestamp) => {
+      if (lastTimestamp !== null) {
+        const delta = timestamp - lastTimestamp;
+        // Bỏ qua các frame bị lag/jitter ngoại lai (> 50ms hoặc < 2ms)
+        if (delta >= 2 && delta <= 50) {
+          deltas.push(delta);
+        }
+      }
+      lastTimestamp = timestamp;
       frameCount++;
-      const currentTime = performance.now();
 
-      if (currentTime - startTime >= 1000) {
-        frameSamples.push(frameCount);
-        frameCount = 0;
-        startTime = currentTime;
+      // Lấy mẫu khoảng 80 frames hoặc tối đa 150 frames
+      if (deltas.length < 80 && frameCount < 150) {
+        animId = requestAnimationFrame(sampleFrame);
+      } else {
+        if (deltas.length >= 10) {
+          // Lọc nhiễu Trimmed-Mean: Bỏ 15% delta nhỏ nhất và 15% delta lớn nhất
+          deltas.sort((a, b) => a - b);
+          const startIdx = Math.floor(deltas.length * 0.15);
+          const endIdx = Math.ceil(deltas.length * 0.85);
+          const validDeltas = deltas.slice(startIdx, endIdx);
 
-        if (frameSamples.length < 2) {
-          animId = requestAnimationFrame(measureHz);
-        } else {
-          const rawAverage = Math.round(
-            frameSamples.reduce((a, b) => a + b, 0) / frameSamples.length
-          );
+          const avgDelta =
+            validDeltas.reduce((a, b) => a + b, 0) / validDeltas.length;
+          const calculatedHz = Math.round(1000 / avgDelta);
 
-          // Nhận diện tần số quét tiêu chuẩn
+          // Nhận diện tần số quét tiêu chuẩn quốc tế
           const standardRates = [60, 75, 90, 100, 120, 144, 165, 240, 360, 500];
-          let matchedHz = rawAverage;
+          let finalHz = calculatedHz;
           for (const rate of standardRates) {
-            if (Math.abs(rawAverage - rate) <= 4) {
-              matchedHz = rate;
+            if (Math.abs(calculatedHz - rate) <= Math.max(6, Math.round(rate * 0.06))) {
+              finalHz = rate;
               break;
             }
           }
 
-          setScreenInfo({
-            width: window.screen.width,
-            height: window.screen.height,
-            pixelRatio: window.devicePixelRatio || 1,
-            rawHz: rawAverage,
-            hz: matchedHz,
+          setHzInfo({
+            rawHz: calculatedHz,
+            hz: finalHz,
+            isMeasuring: false,
+          });
+        } else {
+          setHzInfo({
+            rawHz: 60,
+            hz: 60,
+            isMeasuring: false,
           });
         }
-      } else {
-        animId = requestAnimationFrame(measureHz);
       }
     };
 
-    animId = requestAnimationFrame(measureHz);
+    animId = requestAnimationFrame(sampleFrame);
     return () => cancelAnimationFrame(animId);
-  }, [measuringKey]);
-
-  // Phân loại độ phân giải chuẩn
-  const getResolutionStandard = (w, h, ratio) => {
-    const totalPixels = Math.round(w * ratio) * Math.round(h * ratio);
-    if (totalPixels >= 33177600) return "8K";
-    if (totalPixels >= 14745600) return "5K";
-    if (totalPixels >= 8294400) return "4K UHD";
-    if (totalPixels >= 4953600) return "Ultrawide 2K+";
-    if (totalPixels >= 3686400) return "2K (QHD)";
-    if (totalPixels >= 2073600) return "Full HD";
-    if (totalPixels >= 1440000) return "HD+";
-    if (totalPixels >= 921600) return "HD";
-    return "Custom";
-  };
+  }, []);
 
   return (
     <div className="relative group">
@@ -330,71 +526,70 @@ function ScreenInfoCard() {
           <Zap size={40} className="text-purple-500 relative z-10" />
         </div>
 
-        <div className="flex items-center gap-3 mb-4">
-          <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white">
-            Thông Tin Màn Hình
-          </h2>
-          <button
-            onClick={() => setMeasuringKey((prev) => prev + 1)}
-            className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors group/btn cursor-pointer"
-            title="Đo lại thông số"
-          >
-            <RotateCcw
-              size={18}
-              className="text-gray-300 group-hover/btn:rotate-180 transition-transform duration-500"
-            />
-          </button>
-        </div>
+        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white mb-4">
+          Thông Tin Màn Hình
+        </h2>
 
-        {screenInfo ? (
-          <div className="flex flex-col gap-3 w-full mt-4 text-left bg-white/5 p-5 rounded-2xl flex-grow justify-center shadow-inner border border-white/5">
-            {/* Chuẩn màn hình */}
-            <div className="flex justify-between items-center border-b border-white/10 pb-3">
-              <span className="text-gray-400 text-sm font-medium">Chuẩn</span>
-              <span className="text-white font-bold bg-white/10 px-2.5 py-0.5 rounded text-sm tracking-wide">
-                {getResolutionStandard(screenInfo.width, screenInfo.height, screenInfo.pixelRatio)}
-              </span>
-            </div>
+        <div className="flex flex-col gap-3 w-full mt-4 text-left bg-white/5 p-5 rounded-2xl flex-grow justify-center shadow-inner border border-white/5">
+          {/* Chuẩn màn hình */}
+          <div className="flex justify-between items-center border-b border-white/10 pb-3">
+            <span className="text-gray-400 text-sm font-medium">Chuẩn</span>
+            <span className="text-white font-bold bg-white/10 px-2.5 py-0.5 rounded text-sm tracking-wide">
+              {!mounted || !metrics || hzInfo.isMeasuring ? (
+                <span className="text-purple-400 font-medium text-xs animate-pulse">Đang đo...</span>
+              ) : (
+                metrics.standard
+              )}
+            </span>
+          </div>
 
-            {/* Độ phân giải vật lý */}
-            <div className="flex justify-between items-center border-b border-white/10 pb-3 pt-1">
-              <span className="text-gray-400 text-sm font-medium">Vật lý (Thực)</span>
-              <span className="text-white font-bold tracking-tight">
-                {Math.round(screenInfo.width * screenInfo.pixelRatio)} × {Math.round(screenInfo.height * screenInfo.pixelRatio)}
-              </span>
-            </div>
+          {/* Độ phân giải vật lý */}
+          <div className="flex justify-between items-center border-b border-white/10 pb-3 pt-1">
+            <span className="text-gray-400 text-sm font-medium">Vật lý (Thực)</span>
+            <span className="text-white font-bold tracking-tight">
+              {!mounted || !metrics || hzInfo.isMeasuring ? (
+                <span className="text-purple-400 font-medium text-xs animate-pulse">Đang đo...</span>
+              ) : (
+                `${metrics.physicalW} × ${metrics.physicalH}`
+              )}
+            </span>
+          </div>
 
-            {/* Tần số quét */}
-            <div className="flex justify-between items-center border-b border-white/10 pb-3 pt-1">
-              <span className="text-gray-400 text-sm font-medium">Tần số quét</span>
-              <div className="text-right">
-                <span className="text-purple-400 font-black text-xl block leading-tight">
-                  {screenInfo.hz} Hz
+          {/* Tần số quét */}
+          <div className="flex justify-between items-center border-b border-white/10 pb-3 pt-1">
+            <span className="text-gray-400 text-sm font-medium">Tần số quét</span>
+            <div className="text-right">
+              {!mounted || hzInfo.isMeasuring ? (
+                <span className="text-purple-400 font-medium text-xs animate-pulse">
+                  Đang đo...
                 </span>
-                {screenInfo.hz !== screenInfo.rawHz && (
-                  <span className="text-gray-500 text-[11px]">
-                    Đo được: ~{screenInfo.rawHz} Hz
+              ) : (
+                <>
+                  <span className="text-purple-400 font-black text-xl block leading-tight">
+                    {hzInfo.hz} Hz
                   </span>
-                )}
-              </div>
+                  {hzInfo.hz !== hzInfo.rawHz && (
+                    <span className="text-gray-500 text-[11px]">
+                      Đo được: ~{hzInfo.rawHz} Hz
+                    </span>
+                  )}
+                </>
+              )}
             </div>
+          </div>
 
-            {/* Tỉ lệ thu phóng */}
-            <div className="flex justify-between items-center pt-1">
-              <span className="text-gray-400 text-sm font-medium">Scale (Thu phóng)</span>
-              <span className="text-white font-bold">
-                {Math.round(100 * screenInfo.pixelRatio)}%
-              </span>
-            </div>
+          {/* Tỉ lệ thu phóng */}
+          <div className="flex justify-between items-center pt-1">
+            <span className="text-gray-400 text-sm font-medium">Scale (Thu phóng)</span>
+            <span className="text-white font-bold">
+              {!mounted || !metrics || hzInfo.isMeasuring ? (
+                <span className="text-purple-400 font-medium text-xs animate-pulse">Đang đo...</span>
+              ) : (
+                `${metrics.scale}%`
+              )}
+            </span>
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center my-auto flex-grow gap-4 py-8">
-            <div className="w-8 h-8 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
-            <p className="text-gray-400 leading-relaxed max-w-sm animate-pulse text-sm">
-              Đang phân tích màn hình...
-            </p>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

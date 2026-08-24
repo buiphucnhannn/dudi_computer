@@ -2,13 +2,20 @@
 
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/redux/slices/cartSlice";
+import { useToast } from "@/components/common/ToastContext";
 
 const ProductActions = ({ product }) => {
   const dispatch = useDispatch();
+  const { showToast } = useToast();
 
   const handleBuyNow = () => {
     if (!product) return;
     dispatch(addToCart({ product, quantity: 1 }));
+    showToast({
+      title: "Đã thêm vào giỏ hàng",
+      message: `Đã thêm "${product.name}" vào giỏ hàng thành công!`,
+      type: "success",
+    });
   };
 
   return (

@@ -72,8 +72,18 @@ export default function FlashSaleSection({ products = [] }) {
     const prodId = item._id || item.id || item.slug;
     if (isCart) {
       dispatch(removeFromCartAsync(prodId));
+      showToast({
+        title: "Đã xóa khỏi giỏ",
+        message: `Đã bỏ "${item.name}" khỏi giỏ hàng`,
+        type: "info",
+      });
     } else {
       dispatch(addToCartAsync({ product: item, quantity: 1 }));
+      showToast({
+        title: "Đã thêm vào giỏ hàng",
+        message: `Đã thêm "${item.name}" vào giỏ hàng thành công!`,
+        type: "success",
+      });
     }
   };
 
@@ -81,6 +91,11 @@ export default function FlashSaleSection({ products = [] }) {
     e.preventDefault();
     e.stopPropagation();
     dispatch(addToCartAsync({ product: item, quantity: 1 }));
+    showToast({
+      title: "Đã thêm vào giỏ hàng",
+      message: `Đã thêm "${item.name}" vào giỏ hàng thành công!`,
+      type: "success",
+    });
   };
 
   // Lọc sản phẩm Flash Sale theo Tab đang chọn
@@ -257,14 +272,14 @@ export default function FlashSaleSection({ products = [] }) {
             className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${activeTab === "pc" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
               }`}
           >
-            PC Cũ
+            PC
           </button>
           <button
             onClick={() => setActiveTab("laptop")}
             className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${activeTab === "laptop" ? "bg-gray-800 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
               }`}
           >
-            Laptop Cũ
+            Laptop
           </button>
         </div>
 

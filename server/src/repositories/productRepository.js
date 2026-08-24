@@ -11,6 +11,7 @@ class ProductRepository extends BaseRepository {
     categoryId,
     categoryName,
     brand,
+    condition,
     minPrice,
     maxPrice,
     isHot,
@@ -48,6 +49,17 @@ class ProductRepository extends BaseRepository {
     // Lọc theo Brand
     if (brand) {
       query.brand = { $regex: new RegExp(`^${brand}$`, "i") };
+    }
+
+    // Lọc theo Tình trạng (Mới / Cũ / Like New)
+    if (condition) {
+      if (condition === "new" || condition === "moi") {
+        query.condition = { $regex: /Mới|New/i };
+      } else if (condition === "used" || condition === "cu" || condition === "like_new") {
+        query.condition = { $regex: /Cũ|Like New|99%|Đã qua sử dụng|Lướt|Second Hand/i };
+      } else {
+        query.condition = { $regex: condition, $options: "i" };
+      }
     }
 
     // Lọc theo khoảng giá

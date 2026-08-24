@@ -70,9 +70,9 @@ export default function AboutPage() {
           <div className="relative w-full h-[320px] sm:h-[420px] md:h-[550px] lg:h-[650px] overflow-hidden">
             <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#0b0e14] to-transparent z-10 pointer-events-none" />
             <img
-              alt="DUDI SOFTWARE Storefront Showroom"
-              src="/storefront-hero.jpg"
-              className="w-full h-full object-cover object-[center_20%]"
+              alt="DUDI SOFTWARE Showroom"
+              src="/images/dudi/dudi_showroom_hero.jpg"
+              className="w-full h-full object-cover object-[center_35%]"
             />
             <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-gray-50 to-transparent z-10 pointer-events-none" />
           </div>
@@ -107,7 +107,7 @@ export default function AboutPage() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-[#eb1c24]/25 to-transparent rounded-3xl transform translate-x-3 translate-y-3 pointer-events-none" />
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white w-full h-[400px] md:h-[450px] bg-gray-900">
                   <img
-                    alt="ZComputer Store PC Showcase"
+                    alt="DUDI SOFTWARE Store PC Showcase"
                     loading="lazy"
                     className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
                     src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"

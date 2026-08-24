@@ -46,11 +46,11 @@ const productSchema = new mongoose.Schema(
     },
     categoryName: {
       type: String,
-      default: "Laptop Cũ",
+      default: "Laptop",
     },
     categorySlug: {
       type: String,
-      default: "laptop-cu",
+      default: "laptop",
       index: true,
     },
     // Giá bán & Khuyến mãi
@@ -141,7 +141,8 @@ const productSchema = new mongoose.Schema(
     },
     condition: {
       type: String,
-      default: "Chính hãng",
+      default: "Mới 100%",
+      index: true,
     },
     // Nhãn nổi bật
     isHot: {

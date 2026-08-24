@@ -7,9 +7,9 @@ export const metadata = {
 
 export default function WarrantyPolicyPage() {
   return (
-    <div className="bg-[#f8f9fa] min-h-screen pb-20">
+    <div className="bg-[#f8f9fa] min-h-screen pb-28 sm:pb-20">
       {/* 1. Hero Dark Banner */}
-      <div className="bg-[#111111] py-14 sm:py-16 relative overflow-hidden">
+      <div className="bg-[#111111] py-10 sm:py-16 relative overflow-hidden">
         {/* Glow Effects: Hào quang đỏ rực rỡ góc phải */}
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
         <div className="absolute -top-12 -right-12 w-[420px] h-[420px] bg-[#eb1c24] rounded-full blur-[110px] opacity-90 pointer-events-none"></div>
@@ -17,13 +17,13 @@ export default function WarrantyPolicyPage() {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-5 sm:mb-6 shadow-inner border border-white/10">
-              <ShieldCheck className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+            <div className="w-14 h-14 sm:w-20 sm:h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-inner border border-white/10">
+              <ShieldCheck className="w-7 h-7 sm:w-10 sm:h-10 text-white" />
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-3 sm:mb-4">
+            <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-2 sm:mb-4">
               QUY ĐỊNH BẢO HÀNH TẠI <span className="text-[#eb1c24]">DUDI SOFTWARE</span>
             </h1>
-            <p className="text-gray-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-medium">
+            <p className="text-gray-400 text-xs sm:text-base md:text-lg max-w-2xl mx-auto font-medium">
               Đảm bảo quyền lợi tối đa cho khách hàng khi mua sắm tại DUDI SOFTWARE.
             </p>
           </div>
@@ -31,9 +31,9 @@ export default function WarrantyPolicyPage() {
       </div>
 
       {/* 2. Main Content Card */}
-      <div className="container mx-auto px-4 -mt-8 relative z-20">
+      <div className="container mx-auto px-3 sm:px-4 -mt-6 sm:-mt-8 relative z-20">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 max-w-5xl mx-auto overflow-hidden">
-          <div className="p-6 sm:p-8 md:p-12 space-y-10 sm:space-y-12">
+          <div className="p-4 sm:p-8 md:p-12 space-y-8 sm:space-y-12">
             
             {/* Section I: THỜI GIAN VÀ PHẠM VI BẢO HÀNH */}
             <section>
