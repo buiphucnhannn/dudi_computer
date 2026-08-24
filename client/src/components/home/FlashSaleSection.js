@@ -30,9 +30,11 @@ import {
 } from "@/redux/slices/cartSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { useCompare } from "@/components/common/CompareContext";
+import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
 
 export default function FlashSaleSection({ products = [] }) {
   const [activeTab, setActiveTab] = useState("all");
+  const [buyModalItem, setBuyModalItem] = useState(null);
   const [timeLeft, setTimeLeft] = useState({
     days: 3,
     hours: 7,
@@ -90,12 +92,7 @@ export default function FlashSaleSection({ products = [] }) {
   const handleBuyNow = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(addToCartAsync({ product: item, quantity: 1 }));
-    showToast({
-      title: "Đã thêm vào giỏ hàng",
-      message: `Đã thêm "${item.name}" vào giỏ hàng thành công!`,
-      type: "success",
-    });
+    setBuyModalItem(item);
   };
 
   // Lọc sản phẩm Flash Sale theo Tab đang chọn
@@ -460,6 +457,20 @@ export default function FlashSaleSection({ products = [] }) {
           })}
         </div>
       </div>
+
+      {/* Direct Buy Checkout Modal */}
+      <OrderCheckoutModal
+        isOpen={!!buyModalItem}
+        onClose={() => setBuyModalItem(null)}
+        prefilledProduct={buyModalItem}
+        onOrderSuccess={(order) => {
+          showToast({
+            title: "Đặt hàng thành công",
+            message: `Mã đơn hàng #${order?.orderCode} đang được xử lý`,
+            type: "success",
+          });
+        }}
+      />
     </section>
   );
 }

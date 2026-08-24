@@ -82,6 +82,19 @@ apiClient.interceptors.response.use(
 export const productAPI = {
   getAll: (params) => apiClient.get("/products", { params }),
   getBySlug: (slug) => apiClient.get(`/products/${slug}`),
+  create: (data) => apiClient.post("/products", data),
+  update: (id, data) => apiClient.put(`/products/${id}`, data),
+  delete: (id) => apiClient.delete(`/products/${id}`),
+  updateStock: (id, stock) => apiClient.patch(`/products/${id}/stock`, { stock }),
+};
+
+export const orderAPI = {
+  getAll: (params) => apiClient.get("/orders", { params }),
+  getById: (id) => apiClient.get(`/orders/${id}`),
+  create: (data) => apiClient.post("/orders", data),
+  updateStatus: (id, status, note = "") =>
+    apiClient.patch(`/orders/${id}/status`, { status, note }),
+  delete: (id) => apiClient.delete(`/orders/${id}`),
 };
 
 export const categoryAPI = {
@@ -134,4 +147,19 @@ export const contactAPI = {
 export const jobAPI = {
   getAll: (params) => apiClient.get("/jobs", { params }),
   getBySlug: (slug) => apiClient.get(`/jobs/${slug}`),
+};
+
+export const statisticAPI = {
+  getSummary: () => apiClient.get("/statistics/summary"),
+  getRevenueChart: (period) => apiClient.get("/statistics/revenue-chart", { params: { period } }),
+  getSalesRatio: () => apiClient.get("/statistics/sales-ratio"),
+  getTopProducts: (params) => apiClient.get("/statistics/top-products", { params }),
+};
+
+export const notificationAPI = {
+  getAll: (params) => apiClient.get("/notifications", { params }),
+  getUnreadCount: () => apiClient.get("/notifications/unread-count"),
+  markAsRead: (id) => apiClient.patch(`/notifications/${id}/read`),
+  markAllAsRead: () => apiClient.patch("/notifications/read-all"),
+  delete: (id) => apiClient.delete(`/notifications/${id}`),
 };

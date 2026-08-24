@@ -1,159 +1,381 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
-
-const products = [
-  {
-    name: "ASUS ROG Strix GeForce RTX™ 4090 OC",
-    category: "VGA / Đen",
-    code: "ROG-STRIX-4090",
-    price: "₫52.990.000",
-    progress: 85,
-    sold: 142,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAX-qBsKDKwq1RUhddWglYHWG0t1D9X5tWtdmBaf9uka3zgUqTYivIZD9CvxJwpVYuPxeqwhkBD_RbaYizRpkJTKnTJcRRHvt8fdeG6rYqS-p_RvdGFx7cIIYE5dqr1uuusubdRDpngk_z5hm43eTT_Za74XJNIr1q8nU-Ga0inEtY80HjQwSSEi4F7YeWWY6J9y2xOhg07HIviVi_xRMVspxhNO7bfz8sSFWbDaM3NbCLYIMvjqCdF",
-  },
-  {
-    name: "Intel Core i9-14900K",
-    category: "CPU / LGA 1700",
-    code: "BX8071514900K",
-    price: "₫15.490.000",
-    progress: 72,
-    sold: 98,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDxAD-C4PFzhojyEidjbFEudUBwu_MSdnxetxXa1llv3OzdTN1Brdwrz6c4WSPXqsoxpng7AIOSZAuaYCozhRIis5Dge24yEL5FJi6XKTWZxC4EtBxRSAoTEKgBjlITlmGdJlBkIQOyrgouU1A6srKxwX5_l-fwMNAnEBEJrU8pxbqPmAvmC2ghTZ7_Sbu0RajFJYhUD1VQYTglPdArggLCInJBvaR65DWrOxlKtNclTkso0jyKUF47",
-  },
-  {
-    name: "MSI MEG Z790 GODLIKE MAX",
-    category: "Mainboard / E-ATX",
-    code: "MEG-Z790-GL-M",
-    price: "₫31.990.000",
-    progress: 45,
-    sold: 45,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAxGW6Bu4cyBT0iG3I2wS1NRvBeD2chTbMf2tIr2q9nspQmgIHyKL6SOusaot2IUXE_QJmGQiJzsjHJppDupI9UZcajAyKtLWAK1T9m3uM5P6Xamv4MmKQfwsBr1K7MZlcGhthjQhJHwHdIp8KmqSdnVQZx6FlcaCFeh3G8GfB2b45Q0ZE2jfX537GlKtA_K5M-0_ao4i4RFZQM7qxkaWPz8z2Fsw9CqF2GnfRE13YU_PyZVl7DLPq9",
-  },
-  {
-    name: "Corsair Dominator Titanium 64GB DDR5",
-    category: "RAM / 6000MHz",
-    code: "CMP64GX5M2B6000C30",
-    price: "₫9.290.000",
-    progress: 60,
-    sold: 76,
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAklNfxjma_HSvDzweJHbSxVoh74qbz_f9zF8_1QoXWOEcRMUUndULvzWpz2pJyicozcIdqLsZl8ipw4IduZhmnSvCDttLq_Ifu0FJV5eO1_0VtsGR7FcfOMieiqNibr6egvv6E09iRrN253QNZ1N0M6sk0EHpdxK7XEhMPsVer59IxArDrTwp9EfNx-JCLauh40Uxs7FEtnqKAklff8ymzoWlaSQDpsB5arNPOkVjOEuXUsCE450VV",
-  },
-];
+import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
+import {
+  ArrowRight,
+  Search,
+  X,
+  ExternalLink,
+  Star,
+  Loader2,
+} from "lucide-react";
+import { statisticAPI, categoryAPI } from "@/lib/api";
 
 export default function TopProductsTable() {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([{ key: "all", label: "Tất cả" }]);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("sold-desc"); // "sold-desc" | "revenue-desc" | "progress-desc"
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadData = async () => {
+      try {
+        const [prodRes, catRes] = await Promise.all([
+          statisticAPI.getTopProducts({ limit: 50 }),
+          categoryAPI.getAll(),
+        ]);
+
+        if (isMounted) {
+          if (prodRes.data?.data) {
+            setProducts(prodRes.data.data);
+          }
+
+          const catList = catRes.data?.data || catRes.data || [];
+          if (Array.isArray(catList) && catList.length > 0) {
+            const dynamicCategories = [
+              { key: "all", label: "Tất cả" },
+              ...catList.map((c) => ({
+                key: c.slug || c.name.toLowerCase(),
+                label: c.name,
+              })),
+            ];
+            setCategories(dynamicCategories);
+          }
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải top sản phẩm:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const filteredProducts = useMemo(() => {
+    let list = [...products];
+
+    if (search.trim()) {
+      const q = search.toLowerCase().trim();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.code.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q)
+      );
+    }
+
+    if (categoryFilter !== "all") {
+      list = list.filter(
+        (p) =>
+          p.categoryKey === categoryFilter ||
+          p.category?.toLowerCase().includes(categoryFilter.toLowerCase())
+      );
+    }
+
+    list.sort((a, b) => {
+      if (sortBy === "revenue-desc") return (b.revenue || 0) - (a.revenue || 0);
+      if (sortBy === "progress-desc") return (b.progress || 0) - (a.progress || 0);
+      return (b.sold || 0) - (a.sold || 0);
+    });
+
+    return list;
+  }, [products, search, categoryFilter, sortBy]);
+
   return (
     <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
-      {/* Header */}
-      <div className="p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-slate-150">
-        <div>
-          <h2 className="text-base sm:text-lg font-bold text-slate-900">
-            Top Sản phẩm bán chạy
-          </h2>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">
-            Danh sách linh kiện và cấu hình có doanh số cao nhất
-          </p>
+      {/* Header Controls */}
+      <div className="p-5 sm:p-6 border-b border-slate-150 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900">
+              Top Sản phẩm bán chạy nhất
+            </h2>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Xếp hạng theo doanh số và doanh thu thực tế
+            </p>
+          </div>
+
+          <Link
+            href="/admin/products"
+            className="text-red-600 hover:text-red-700 text-xs font-bold hover:underline flex items-center gap-1 cursor-pointer self-start sm:self-auto"
+          >
+            <span>Quản lý tất cả sản phẩm</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
 
-        <button className="text-red-600 hover:text-red-700 text-xs font-bold hover:underline flex items-center gap-1 cursor-pointer">
-          <span>Xem tất cả</span>
-          <ArrowRight className="h-3.5 w-3.5" />
-        </button>
+        {/* Filter Bar: Search + Category Pills + Sort */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 pt-2">
+          {/* Search */}
+          <div className="relative flex items-center rounded-xl bg-slate-50 px-3 py-1.5 border border-slate-200 focus-within:border-slate-300 focus-within:bg-white focus-within:ring-2 focus-within:ring-slate-900/10 transition w-full lg:w-72">
+            <Search className="h-4 w-4 text-slate-400 shrink-0" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm top sản phẩm..."
+              className="ml-2 w-full bg-transparent text-xs font-medium text-slate-800 placeholder:text-slate-400 outline-none"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Category Pills & Sort */}
+          <div className="flex flex-wrap items-center justify-between lg:justify-end gap-2.5">
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 max-w-[500px]">
+              {categories.map((c) => (
+                <button
+                  key={c.key}
+                  onClick={() => setCategoryFilter(c.key)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${categoryFilter === c.key
+                      ? "bg-slate-900 text-white shadow-2xs"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 outline-none cursor-pointer"
+            >
+              <option value="sold-desc">Đã bán nhiều nhất</option>
+              <option value="revenue-desc">Doanh thu cao nhất</option>
+              <option value="progress-desc">Tiến độ mục tiêu cao</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Table */}
       <div className="w-full overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[800px]">
-          <thead>
-            <tr className="bg-slate-50/90 text-slate-700 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
-              <th className="py-3.5 px-6 font-bold">Sản Phẩm</th>
-              <th className="py-3.5 px-4 font-bold w-36">Mã SP</th>
-              <th className="py-3.5 px-4 font-bold w-36">Giá Bán</th>
-              <th className="py-3.5 px-4 font-bold w-48">Tiến Độ (Mục tiêu)</th>
-              <th className="py-3.5 px-6 font-bold text-right w-28">Đã Bán</th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-slate-150 text-sm">
-            {products.map((product, index) => (
-              <tr
-                key={product.code}
-                className="hover:bg-slate-50/80 transition-colors cursor-pointer"
-              >
-                {/* Product */}
-                <td className="py-3.5 px-6">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-slate-50 overflow-hidden shrink-0 border border-slate-100 p-1">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-
-                    <div className="min-w-0">
-                      <h4 className="font-bold text-xs text-slate-900 truncate max-w-[280px]">
-                        {product.name}
-                      </h4>
-                      <p className="text-[11px] text-slate-400 font-medium mt-0.5">
-                        {product.category}
-                      </p>
-                    </div>
-                  </div>
-                </td>
-
-                {/* Code */}
-                <td className="py-3.5 px-4 text-xs font-medium text-slate-500">
-                  <span className="bg-slate-100 px-2 py-0.5 rounded text-[10.5px] font-bold text-slate-700">
-                    {product.code}
-                  </span>
-                </td>
-
-                {/* Price */}
-                <td className="py-3.5 px-4 text-xs font-black text-slate-900">
-                  {product.price}
-                </td>
-
-                {/* Progress */}
-                <td className="py-3.5 px-4">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${
-                          index === 0
-                            ? "bg-slate-900"
-                            : index === 1
-                            ? "bg-red-600"
-                            : "bg-blue-600"
-                        }`}
-                        style={{
-                          width: `${product.progress}%`,
-                        }}
-                      />
-                    </div>
-
-                    <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">
-                      {product.progress}%
-                    </span>
-                  </div>
-                </td>
-
-                {/* Sold */}
-                <td className="py-3.5 px-6 text-right">
-                  <span className="text-base font-black text-slate-900">
-                    {product.sold}
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-medium ml-1">cái</span>
-                </td>
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-7 w-7 animate-spin text-slate-400" />
+          </div>
+        ) : (
+          <table className="w-full text-left border-collapse min-w-[850px]">
+            <thead>
+              <tr className="bg-slate-50/90 text-slate-700 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                <th className="py-3.5 px-6 font-bold whitespace-nowrap">Sản Phẩm</th>
+                <th className="py-3.5 px-4 font-bold w-36 whitespace-nowrap">Mã SKU</th>
+                <th className="py-3.5 px-4 font-bold w-36 whitespace-nowrap">Giá Bán</th>
+                <th className="py-3.5 px-4 font-bold w-44 whitespace-nowrap">Tồn kho / Bán</th>
+                <th className="py-3.5 px-4 font-bold text-right w-40 whitespace-nowrap">Tổng Doanh Thu</th>
+                <th className="py-3.5 px-6 font-bold text-right w-28 whitespace-nowrap">Đã Bán</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody className="divide-y divide-slate-150 text-sm">
+              {filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="py-12 text-center text-xs text-slate-400 font-medium whitespace-nowrap">
+                    Không tìm thấy sản phẩm nào phù hợp với tiêu chí lọc.
+                  </td>
+                </tr>
+              ) : (
+                filteredProducts.map((product, index) => (
+                  <tr
+                    key={product.id || product.code}
+                    onClick={() => setSelectedProduct(product)}
+                    className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                  >
+                    {/* Product */}
+                    <td className="py-3.5 px-6 whitespace-nowrap">
+                      <div className="flex items-center gap-3.5">
+                        <span className={`w-5 text-center text-xs font-black shrink-0 ${index === 0 ? "text-amber-500" : index === 1 ? "text-slate-400" : index === 2 ? "text-amber-700" : "text-slate-300"
+                          }`}>
+                          #{index + 1}
+                        </span>
+
+                        <div className="w-12 h-12 rounded-xl bg-slate-50 overflow-hidden shrink-0 border border-slate-100 p-1">
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+
+                        <div className="min-w-0">
+                          <h4 className="font-bold text-xs text-slate-900 group-hover:text-red-600 transition truncate max-w-[280px] whitespace-nowrap">
+                            {product.name}
+                          </h4>
+                          <p className="text-[11px] text-slate-400 font-medium mt-0.5 whitespace-nowrap">
+                            {product.category}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Code */}
+                    <td className="py-3.5 px-4 text-xs font-medium text-slate-500 whitespace-nowrap">
+                      <span className="bg-slate-100 px-2 py-0.5 rounded text-[10.5px] font-bold text-slate-700 inline-block">
+                        {product.code}
+                      </span>
+                    </td>
+
+                    {/* Price */}
+                    <td className="py-3.5 px-4 text-xs font-black text-slate-900 whitespace-nowrap">
+                      {product.priceFormatted}
+                    </td>
+
+                    {/* Progress */}
+                    <td className="py-3.5 px-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden shrink-0">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${index === 0
+                                ? "bg-slate-900"
+                                : index === 1
+                                  ? "bg-red-600"
+                                  : "bg-blue-600"
+                              }`}
+                            style={{
+                              width: `${Math.max(5, product.progress || 10)}%`,
+                            }}
+                          />
+                        </div>
+
+                        <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">
+                          {product.stock} còn lại
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Revenue */}
+                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                      <span className="text-xs font-black text-slate-900">
+                        {(product.revenue || 0).toLocaleString("vi-VN")}₫
+                      </span>
+                    </td>
+
+                    {/* Sold */}
+                    <td className="py-3.5 px-6 text-right whitespace-nowrap">
+                      <span className="text-sm font-black text-slate-900">
+                        {product.sold || 0}
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-medium ml-1">cái</span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
+
+      {/* Product Detail Modal */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between border-b border-slate-150 pb-3 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-xl bg-slate-50 p-1 border border-slate-200 shrink-0">
+                  <img
+                    src={selectedProduct.image}
+                    alt={selectedProduct.name}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                    {selectedProduct.code}
+                  </span>
+                  <h3 className="text-xs font-bold text-slate-900 line-clamp-2">
+                    {selectedProduct.name}
+                  </h3>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedProduct(null)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-150">
+                  <span className="text-slate-400 font-medium text-[11px]">Đã bán ra:</span>
+                  <div className="text-base font-black text-slate-900 mt-0.5">
+                    {selectedProduct.sold || 0} chiếc
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-150">
+                  <span className="text-slate-400 font-medium text-[11px]">Tồn kho hiện tại:</span>
+                  <div className="text-base font-black text-red-600 mt-0.5">
+                    {selectedProduct.stock} cái
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-150 space-y-1.5">
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Giá bán:</span>
+                  <span className="font-bold text-slate-900">{selectedProduct.priceFormatted}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Tổng doanh thu:</span>
+                  <span className="font-black text-emerald-600">
+                    {(selectedProduct.revenue || 0).toLocaleString("vi-VN")}₫
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Đánh giá trung bình:</span>
+                  <span className="font-bold text-amber-600 flex items-center gap-1">
+                    <Star className="h-3 w-3 fill-amber-400" />
+                    <span>{selectedProduct.rating || 5} / 5.0</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center pt-4 border-t border-slate-150 mt-4">
+              {selectedProduct.slug ? (
+                <Link
+                  href={`/product-detail?slug=${selectedProduct.slug}`}
+                  target="_blank"
+                  className="flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-slate-900"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span>Xem trên shop</span>
+                </Link>
+              ) : (
+                <span />
+              )}
+
+              <button
+                onClick={() => setSelectedProduct(null)}
+                className="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-slate-800 cursor-pointer"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

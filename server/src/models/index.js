@@ -12,3 +12,4 @@ export { Otp } from "./Otp.js";
 export { Promotion } from "./Promotion.js";
 export { NewsCategory } from "./NewsCategory.js";
 export { Brand } from "./Brand.js";
+export { Notification } from "./Notification.js";

@@ -15,38 +15,35 @@ export default function ProductToolbar({
   const end = Math.min(currentPage * pageSize, total);
 
   return (
-    <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs md:flex-row md:items-center md:justify-between">
-      {/* Result */}
+    <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs sm:flex-row sm:items-center sm:justify-between">
+      {/* Result Count */}
       <div className="text-xs text-slate-500 font-medium">
         Hiển thị{" "}
         <strong className="text-slate-900 font-bold">
           {start}-{end}
         </strong>{" "}
-        của{" "}
-        <strong className="text-slate-900 font-bold">
-          {total}
-        </strong>{" "}
-        sản phẩm
+        của <strong className="text-slate-900 font-bold">{total}</strong> sản phẩm
       </div>
 
-      {/* Actions */}
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-xs text-slate-500 font-medium">
-          Sắp xếp theo:
-        </span>
+      {/* Sort & View Mode */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-slate-500 font-medium">Sắp xếp:</span>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 outline-none transition focus:bg-white focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
+          >
+            <option value="newest">Mới nhất</option>
+            <option value="price-desc">Giá từ cao đến thấp</option>
+            <option value="price-asc">Giá từ thấp đến cao</option>
+            <option value="name-asc">Tên A-Z</option>
+            <option value="stock-desc">Tồn kho nhiều nhất</option>
+            <option value="stock-asc">Tồn kho ít nhất</option>
+          </select>
+        </div>
 
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 outline-none transition focus:bg-white focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
-        >
-          <option value="price-desc">Giá từ cao đến thấp</option>
-          <option value="price-asc">Giá từ thấp đến cao</option>
-          <option value="name-asc">Tên A-Z</option>
-          <option value="newest">Mới nhất</option>
-        </select>
-
-        {/* View mode */}
+        {/* View mode toggle */}
         <div className="flex rounded-xl border border-slate-200 bg-slate-100 p-0.5">
           <button
             onClick={() => setViewMode("grid")}

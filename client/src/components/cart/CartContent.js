@@ -24,6 +24,7 @@ import {
   loadCartFromStorage,
 } from "@/redux/slices/cartSlice";
 import { formatVND } from "@/lib/utils";
+import OrderCheckoutModal from "./OrderCheckoutModal";
 
 export default function CartContent() {
   const router = useRouter();
@@ -242,121 +243,24 @@ export default function CartContent() {
 
               <button
                 onClick={() => setShowOrderModal(true)}
-                className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white py-3.5 px-4 rounded-md font-bold uppercase tracking-wide text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all transform active:scale-95 cursor-pointer mt-6"
+                className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white py-3.5 px-4 rounded-xl font-bold uppercase tracking-wide text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all transform active:scale-95 cursor-pointer mt-6"
               >
-                <span>NHẬN BÁO GIÁ / ĐẶT HÀNG</span>
+                <span>TIẾN HÀNH ĐẶT HÀNG</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
 
-        {/* Modal: LIÊN HỆ ĐỂ MUA HÀNG */}
-        {showOrderModal && (
-          <div
-            onClick={() => setShowOrderModal(false)}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200 cursor-pointer"
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="max-w-md w-full bg-white rounded-xl shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-200 cursor-default"
-            >
-              {/* Modal Red Header */}
-              <div className="bg-[#dc2626] text-white px-5 py-3.5 flex items-center justify-between">
-                <h3 className="font-bold text-sm sm:text-[15px] uppercase tracking-wide">
-                  LIÊN HỆ ĐỂ MUA HÀNG
-                </h3>
-                <button
-                  onClick={() => setShowOrderModal(false)}
-                  className="p-1 hover:bg-white/20 rounded-md transition-colors cursor-pointer"
-                  aria-label="Đóng modal"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Modal Body */}
-              <div className="p-5 space-y-3">
-                <p className="text-xs sm:text-[13px] text-gray-600 text-center leading-relaxed">
-                  Để mua hàng hoặc nhận báo giá chi tiết cho{" "}
-                  <strong className="text-[#dc2626] font-bold">
-                    {totalItems}
-                  </strong>{" "}
-                  sản phẩm bạn đã chọn, vui lòng liên hệ với chúng tôi qua các kênh
-                  sau:
-                </p>
-
-                {/* Option 1: Hotline */}
-                <a
-                  href="tel:0909163821"
-                  className="p-3 bg-gray-50 hover:bg-red-50/60 rounded-lg border border-gray-200 flex items-center gap-3.5 transition-all group cursor-pointer"
-                >
-                  <div className="w-10 h-10 bg-red-100 text-[#dc2626] rounded-full flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <Phone className="w-4 h-4" />
-                  </div>  
-                  <div>
-                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">
-                      GỌI HOTLINE
-                    </span>
-                    <strong className="text-sm font-black text-gray-900 group-hover:text-[#dc2626] transition-colors">
-                      (+84) 909 163 821
-                    </strong>
-                  </div>
-                </a>
-
-                {/* Option 2: Zalo */}
-                <a
-                  href="https://zalo.me/2871243904030074512"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-3 bg-gray-50 hover:bg-blue-50/60 rounded-lg border border-gray-200 flex items-center gap-3.5 transition-all group cursor-pointer"
-                >
-                  <div className="w-10 h-10 bg-blue-100 text-[#0068ff] rounded-full flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <MessageCircle className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">
-                      CHAT ZALO NHẬN BÁO GIÁ
-                    </span>
-                    <strong className="text-sm font-black text-gray-900 group-hover:text-[#0068ff] transition-colors">
-                      Gửi Cấu Hình
-                    </strong>
-                  </div>
-                </a>
-
-                {/* Option 3: Messenger / Facebook */}
-                <a
-                  href="https://www.facebook.com/dudi.websitechuyennghiep"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-3 bg-gray-50 hover:bg-blue-50/60 rounded-lg border border-gray-200 flex items-center gap-3.5 transition-all group cursor-pointer"
-                >
-                  <div className="w-10 h-10 bg-indigo-100 text-[#0084ff] rounded-full flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <MessageSquare className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">
-                      NHẮN TIN MESSENGER
-                    </span>
-                    <strong className="text-sm font-black text-gray-900 group-hover:text-[#0084ff] transition-colors">
-                      Fanpage Facebook
-                    </strong>
-                  </div>
-                </a>
-
-                {/* Close link */}
-                <div className="text-center pt-1.5">
-                  <button
-                    onClick={() => setShowOrderModal(false)}
-                    className="text-xs text-gray-500 hover:text-gray-900 font-medium transition-colors cursor-pointer"
-                  >
-                    Đóng cửa sổ này
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Real Checkout Modal */}
+        <OrderCheckoutModal
+          isOpen={showOrderModal}
+          onClose={() => setShowOrderModal(false)}
+          items={cartItems}
+          onOrderSuccess={(order) => {
+            dispatch(clearCartAsync());
+          }}
+        />
       </div>
     </div>
   );

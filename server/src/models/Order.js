@@ -5,7 +5,8 @@ const orderItemSchema = new mongoose.Schema(
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
-      required: true,
+      required: false,
+      default: null,
     },
     name: {
       type: String,
@@ -91,6 +92,7 @@ const orderSchema = new mongoose.Schema(
         type: String,
         required: [true, "Địa chỉ nhận hàng là bắt buộc"],
         trim: true,
+        default: "Giao hàng tận nơi",
       },
       province: {
         type: String,
@@ -108,7 +110,7 @@ const orderSchema = new mongoose.Schema(
     items: {
       type: [orderItemSchema],
       required: [true, "Đơn hàng phải có ít nhất 1 sản phẩm"],
-      validate: [(v) => v.length > 0, "Đơn hàng không được rỗng"],
+      validate: [(v) => Array.isArray(v) && v.length > 0, "Đơn hàng không được rỗng"],
     },
     totalAmount: {
       type: Number,
@@ -149,7 +151,7 @@ const orderSchema = new mongoose.Schema(
         "completed",   // Hoàn thành
         "cancelled",   // Đã hủy
       ],
-      default: "pending",
+      default: "processing",
       index: true,
     },
     timeline: {
@@ -171,12 +173,14 @@ orderSchema.pre("save", function (next) {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     this.orderCode = `ZC-${dateStr}-${randomSuffix}`;
   }
-  if (this.timeline.length === 0) {
-    this.timeline.push({
-      status: this.orderStatus,
-      note: "Đơn hàng được khởi tạo thành công",
-      updatedAt: new Date(),
-    });
+  if (!this.timeline || this.timeline.length === 0) {
+    this.timeline = [
+      {
+        status: this.orderStatus || "processing",
+        note: "Đơn hàng được khởi tạo thành công",
+        updatedAt: new Date(),
+      },
+    ];
   }
   next();
 });

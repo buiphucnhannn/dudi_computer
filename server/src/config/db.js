@@ -1,12 +1,23 @@
 import mongoose from "mongoose";
+import dns from "dns";
 import { Product } from "../models/Product.js";
 import { News } from "../models/News.js";
 import { performSeed } from "../seed.js";
 
+// Khắc phục lỗi querySrv ECONNREFUSED khi giải mã DNS SRV MongoDB Atlas trên môi trường Windows / mạng nội bộ
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (dnsErr) {
+  // Bỏ qua nếu môi trường không cho phép override DNS
+}
+
 export const connectDB = async () => {
   const uri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/zcomputer_clone";
   try {
-    const conn = await mongoose.connect(uri);
+    const conn = await mongoose.connect(uri, {
+      dbName: "zcomputer_clone",
+      serverSelectionTimeoutMS: 5000,
+    });
     console.log(`[Database] MongoDB Connected: ${conn.connection.host}`);
 
     // Tự động kiểm tra nếu Database chưa có dữ liệu thì thực hiện seed tự động

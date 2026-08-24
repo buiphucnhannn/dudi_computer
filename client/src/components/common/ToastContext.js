@@ -17,21 +17,33 @@ export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
 
   const showToast = useCallback(
-    ({
-      title = "Thông báo",
-      message = "",
-      type = "success", // success | error | info
-      duration = 4000,
-    }) => {
+    (options = {}) => {
+      let toastObj = {};
+      if (typeof options === "string") {
+        toastObj = {
+          title: options,
+          message: "",
+          type: "success",
+          duration: 4000,
+        };
+      } else {
+        toastObj = {
+          title: options.title || "Thông báo",
+          message: options.message || "",
+          type: options.type || "success", // success | error | info | warning
+          duration: options.duration ?? 4000,
+        };
+      }
+
       const id = Date.now() + Math.random().toString(36).substr(2, 9);
-      const newToast = { id, title, message, type, duration };
+      const newToast = { id, ...toastObj };
 
       setToasts((prev) => [...prev, newToast]);
 
-      if (duration > 0) {
+      if (newToast.duration > 0) {
         setTimeout(() => {
           setToasts((prev) => prev.filter((t) => t.id !== id));
-        }, duration);
+        }, newToast.duration);
       }
     },
     []

@@ -2,6 +2,7 @@ import { Router } from "express";
 import authRoutes from "./authRoutes.js";
 import categoryRoutes from "./categoryRoutes.js";
 import productRoutes from "./productRoutes.js";
+import orderRoutes from "./orderRoutes.js";
 import feedbackRoutes from "./feedbackRoutes.js";
 import cartRoutes from "./cartRoutes.js";
 import wishlistRoutes from "./cartRoutes.js";
@@ -13,6 +14,8 @@ import promotionRoutes from "./promotionRoutes.js";
 import brandRoutes from "./brandRoutes.js";
 import uploadRoutes from "./uploadRoutes.js";
 import newsCategoryRoutes from "./newsCategoryRoutes.js";
+import statisticRoutes from "./statisticRoutes.js";
+import notificationRoutes from "./notificationRoutes.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
 const router = Router();
@@ -28,6 +31,7 @@ router.use("/auth", authRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/products", productRoutes);
 router.use("/brands", brandRoutes);
+router.use("/orders", orderRoutes);
 router.use("/feedbacks", feedbackRoutes);
 router.use("/cart", cartRoutes);
 router.use("/wishlist", wishlistRoutes);
@@ -38,6 +42,7 @@ router.use("/jobs", jobRoutes);
 router.use("/users", userRoutes);
 router.use("/promotions", promotionRoutes);
 router.use("/upload", uploadRoutes);
+router.use("/statistics", statisticRoutes);
+router.use("/notifications", notificationRoutes);
 
 export default router;
-

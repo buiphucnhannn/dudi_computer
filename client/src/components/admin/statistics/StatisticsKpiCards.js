@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   DollarSign,
   ShoppingCart,
@@ -7,44 +8,101 @@ import {
   AlertCircle,
   TrendingUp,
   TrendingDown,
+  Loader2,
 } from "lucide-react";
+import { statisticAPI } from "@/lib/api";
 
-const kpis = [
-  {
-    title: "Tổng Doanh Thu",
-    value: "₫1.24B",
-    percent: "+12.5%",
-    icon: DollarSign,
-    iconBg: "bg-slate-900 text-white",
-    isPositive: true,
-  },
-  {
-    title: "Đơn Hàng Mới",
-    value: "342",
-    percent: "+8.2%",
-    icon: ShoppingCart,
-    iconBg: "bg-red-50 text-red-600 border border-red-100",
-    isPositive: true,
-  },
-  {
-    title: "Khách Hàng Mới",
-    value: "128",
-    percent: "+5.1%",
-    icon: Users,
-    iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
-    isPositive: true,
-  },
-  {
-    title: "Tỷ Lệ Hủy Đơn",
-    value: "1.2%",
-    percent: "-2.4%",
-    icon: AlertCircle,
-    iconBg: "bg-amber-50 text-amber-600 border border-amber-100",
-    isPositive: false,
-  },
-];
+function formatCompactMoney(amount = 0) {
+  if (amount >= 1_000_000_000) {
+    return `₫${(amount / 1_000_000_000).toFixed(2)}B`;
+  }
+  if (amount >= 1_000_000) {
+    return `₫${(amount / 1_000_000).toFixed(1)}M`;
+  }
+  return `${amount.toLocaleString("vi-VN")}₫`;
+}
 
 export default function StatisticsKpiCards() {
+  const [data, setData] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    cancelRate: 0,
+    todayGrowth: "+0.0%",
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchKPIs = async () => {
+      try {
+        const res = await statisticAPI.getSummary();
+        if (res.data?.data && isMounted) {
+          setData(res.data.data);
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải KPIs thống kê:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchKPIs();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const kpis = [
+    {
+      title: "Tổng Doanh Thu",
+      value: formatCompactMoney(data.totalRevenue),
+      percent: data.todayGrowth || "+0.0%",
+      icon: DollarSign,
+      iconBg: "bg-slate-900 text-white",
+      isPositive: !String(data.todayGrowth).startsWith("-"),
+    },
+    {
+      title: "Tổng Đơn Hàng",
+      value: data.totalOrders?.toLocaleString("vi-VN") || "0",
+      percent: `${data.todayOrdersCount || 0} hôm nay`,
+      icon: ShoppingCart,
+      iconBg: "bg-red-50 text-red-600 border border-red-100",
+      isPositive: true,
+    },
+    {
+      title: "Khách Hàng",
+      value: data.totalCustomers?.toLocaleString("vi-VN") || "0",
+      percent: "Đã đăng ký / Mua",
+      icon: Users,
+      iconBg: "bg-blue-50 text-blue-600 border border-blue-100",
+      isPositive: true,
+    },
+    {
+      title: "Tỷ Lệ Hủy Đơn",
+      value: `${data.cancelRate || 0}%`,
+      percent: data.cancelRate <= 5 ? "Tốt" : "Cần chú ý",
+      icon: AlertCircle,
+      iconBg: "bg-amber-50 text-amber-600 border border-amber-100",
+      isPositive: (data.cancelRate || 0) <= 5,
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="h-28 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex items-center justify-center animate-pulse"
+          >
+            <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
       {kpis.map((kpi) => {

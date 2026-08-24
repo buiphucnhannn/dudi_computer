@@ -14,6 +14,7 @@ import {
   Newspaper,
   Briefcase,
   Flame,
+  X,
 } from "lucide-react";
 
 const menuGroups = [
@@ -90,7 +91,7 @@ const menuGroups = [
   },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ isOpen, onClose }) {
   const pathname = usePathname();
 
   return (
@@ -99,7 +100,7 @@ export default function AdminSidebar() {
       <div className="flex items-center justify-between border-b border-slate-100 p-4">
         <Link href="/admin" className="flex items-center gap-3 group">
           <img
-            src="/images/dudi/dudisoftware4.png"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJg90SQjFIlEd2xvqMrzbiRyGKa2AZ87VXJ5Du7OBzu0Zd3o6iw8tIIDFvm6sPFBFbCvYSGagYCpaKEHG9vFSqL38i91uQRRrCo9UTXewIm28quM39SSupX2lsB688GiJUDHxtlFJvMgaV1u7mcyn5gZfEYAgBelIa62J_3HCI6UUUGx5aI93X7AlUsiq0AU_jwFNmLrAPqjsutR0aDRkc9L4jBs1HZvr4UNvJPSC6hnuMmQTn4a9QrPQg3pHMeLRb_A"
             alt="DUDI software"
             className="h-9 w-9 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform"
           />
@@ -108,11 +109,21 @@ export default function AdminSidebar() {
               <span>Admin Portal</span>
               <span className="px-1.5 py-0.2 rounded bg-red-100 text-[#eb1c24] text-[9px] font-extrabold">PRO</span>
             </div>
-            <div className="text-[10px] text-slate-400 font-medium tracking-wide">
+            <div className="text-[10px] text-slate-400 font-medium">
               DUDI SOFTWARE
             </div>
           </div>
         </Link>
+
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 lg:hidden cursor-pointer"
+            title="Đóng menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation Groups with Smooth Scrollbar */}
@@ -133,6 +144,9 @@ export default function AdminSidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={() => {
+                      if (onClose) onClose();
+                    }}
                     className={`group flex items-center justify-between rounded-xl px-3 py-2 text-[13px] font-bold transition-all duration-150 ${
                       isActive
                         ? "bg-red-50/80 text-[#eb1c24] border border-red-200/80 shadow-2xs font-extrabold"
@@ -158,14 +172,15 @@ export default function AdminSidebar() {
         ))}
       </nav>
 
-      {/* View Store Client Link (Mở trực tiếp trên trang hiện tại) */}
-      <div className="border-t border-slate-100 p-4 bg-slate-50/50">
+      {/* View Store Client Link */}
+      <div className="border-t border-slate-100 p-3">
         <Link
           href="/"
-          className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-2xs transition-all hover:bg-red-50 hover:border-red-200 hover:text-[#eb1c24] active:scale-98"
+          target="_blank"
+          className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:bg-red-50 hover:text-[#eb1c24] hover:border-red-200 shadow-2xs"
         >
-          <Store className="h-4 w-4 text-slate-500 group-hover:text-[#eb1c24]" />
-          <span>Về trang bán hàng</span>
+          <Store className="h-4 w-4 text-[#eb1c24]" />
+          <span>Xem trang bán hàng</span>
         </Link>
       </div>
     </aside>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   ChevronRight,
   Scale,
-  ShoppingCart,
+  Heart,
   Eye,
   Cpu,
   HardDrive,
@@ -13,16 +13,8 @@ import {
   Layers,
   ArrowRight,
   Flame,
-  Monitor,
-  Maximize2,
-  Zap,
-  Sparkles,
-  ShieldCheck,
-  Wifi,
-  Clock,
 } from "lucide-react";
 import { formatVND } from "@/lib/utils";
-import { getProductCardBadges } from "@/lib/specParser";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addToCartAsync,
@@ -30,7 +22,8 @@ import {
   selectCartItems,
 } from "@/redux/slices/cartSlice";
 import { useToast } from "@/components/common/ToastContext";
-import { useCompare } from "@/components/common/CompareContext";
+import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
+
 export default function CategoryProductBox({
   title,
   mainSlug,
@@ -38,42 +31,26 @@ export default function CategoryProductBox({
   products = [],
 }) {
   const [activeTab, setActiveTab] = useState(tabs[0]?.slug || "all");
+  const [buyModalItem, setBuyModalItem] = useState(null);
   const dispatch = useDispatch();
   const { showToast } = useToast();
-  const { addToCompare, isComparing } = useCompare();
   const cartItems = useSelector(selectCartItems) || [];
 
-  const handleToggleCart = (e, item) => {
+  const handleToggleFavorite = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
-    const isCart = cartItems.some((i) => (i._id || i.id || i.slug) === (item._id || item.id || item.slug));
-    const prodId = item._id || item.id || item.slug;
-    if (isCart) {
-      dispatch(removeFromCartAsync(prodId));
-      showToast({
-        title: "Đã xóa khỏi giỏ",
-        message: `Đã bỏ "${item.name}" khỏi giỏ hàng`,
-        type: "info",
-      });
+    const isFav = cartItems.some((i) => i._id === item._id);
+    if (isFav) {
+      dispatch(removeFromCartAsync(item._id));
     } else {
       dispatch(addToCartAsync({ product: item, quantity: 1 }));
-      showToast({
-        title: "Đã thêm vào giỏ hàng",
-        message: `Đã thêm "${item.name}" vào giỏ hàng thành công!`,
-        type: "success",
-      });
     }
   };
 
   const handleBuyNow = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(addToCartAsync({ product: item, quantity: 1 }));
-    showToast({
-      title: "Đã thêm vào giỏ hàng",
-      message: `Đã thêm "${item.name}" vào danh sách chọn mua.`,
-      type: "success",
-    });
+    setBuyModalItem(item);
   };
 
   const filteredProducts = useMemo(() => {
@@ -85,7 +62,7 @@ export default function CategoryProductBox({
         const brand = (p.brand || "").toLowerCase();
 
         // 1. Laptop tabs
-        if (activeTab === "laptop-van-phong" || activeTab === "van-phong") {
+        if (activeTab === "van-phong") {
           return (
             name.includes("văn phòng") ||
             name.includes("thinkpad") ||
@@ -95,13 +72,10 @@ export default function CategoryProductBox({
             name.includes("zenbook") ||
             name.includes("vivobook") ||
             name.includes("inspiron") ||
-            name.includes("pavilion") ||
-            name.includes("surface") ||
-            name.includes("yoga") ||
-            name.includes("xps")
+            name.includes("pavilion")
           );
         }
-        if (activeTab === "laptop-gaming" || activeTab === "gaming") {
+        if (activeTab === "gaming") {
           return (
             name.includes("gaming") ||
             name.includes("legion") ||
@@ -113,8 +87,7 @@ export default function CategoryProductBox({
             name.includes("nitro") ||
             name.includes("stealth") ||
             name.includes("alpha") ||
-            name.includes("loq") ||
-            name.includes("blade")
+            name.includes("loq")
           );
         }
         if (activeTab === "macbook") {
@@ -202,7 +175,6 @@ export default function CategoryProductBox({
         if (activeTab === "b760") return name.includes("b760");
         if (activeTab === "z790") return name.includes("z790");
         if (activeTab === "b650") return name.includes("b650");
-        if (activeTab === "b650") return name.includes("b650");
 
         return cat.includes(activeTab) || name.includes(activeTab);
       })
@@ -222,30 +194,29 @@ export default function CategoryProductBox({
   };
 
   return (
-    <section className="bg-white p-3.5 sm:p-7 md:p-8 rounded-2xl sm:rounded-[2.5rem] border-2 sm:border-[3px] md:border-4 border-[#eb1c24] shadow-md space-y-4 sm:space-y-5 mb-8 sm:mb-14 md:mb-16">
+    <section className="bg-white p-5 sm:p-7 md:p-8 rounded-[2.5rem] border-[3px] md:border-4 border-[#eb1c24] shadow-md space-y-5 mb-10 sm:mb-14 md:mb-16">
       {/* Box Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-gray-100">
         <div>
-          <h2 className="text-lg sm:text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tight">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tight">
             {title}
           </h2>
-          <div className="w-16 sm:w-24 h-1 sm:h-1.5 bg-[#eb1c24] rounded-full mt-1.5 shadow-xs"></div>
+          <div className="w-20 sm:w-24 h-1.5 bg-[#eb1c24] rounded-full mt-1.5 shadow-xs"></div>
         </div>
 
         {/* Filter Pills (chỉ hiển thị nếu danh mục có tabs) */}
         {tabs.length > 0 && (
-          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.slug;
               return (
                 <button
                   key={tab.slug}
                   onClick={() => setActiveTab(tab.slug)}
-                  className={`px-3.5 sm:px-5 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                    isActive
-                      ? "bg-[#eb1c24] text-white shadow-xs"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                  className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${isActive
+                    ? "bg-[#eb1c24] text-white shadow-xs"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
                 >
                   {tab.name}
                 </button>
@@ -269,15 +240,15 @@ export default function CategoryProductBox({
           Đang cập nhật thêm sản phẩm thuộc mục này...
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4.5">
           {filteredProducts.map((item, index) => {
             const discountPercent =
               item.discountPercent ||
               (item.originalPrice > item.price
                 ? Math.round(
-                    ((item.originalPrice - item.price) / item.originalPrice) *
-                      100,
-                  )
+                  ((item.originalPrice - item.price) / item.originalPrice) *
+                  100,
+                )
                 : 5);
             const originalPrice =
               item.originalPrice || Math.round(item.price * 1.05);
@@ -290,7 +261,7 @@ export default function CategoryProductBox({
             return (
               <div
                 key={item._id || item.id || index}
-                className="bg-white rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group/card relative"
+                className="bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group/card relative"
               >
                 {/* Product Image */}
                 <Link
@@ -333,34 +304,22 @@ export default function CategoryProductBox({
                 {/* Brand & Action Icons */}
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                   <span className="font-black text-gray-900 uppercase tracking-wider text-[11px]">
-                    {item.brand || "DUDI SOFTWARE"}
+                    {item.brand || "ZCOMPUTER"}
                   </span>
-                  <div className="flex items-center gap-1.5 text-gray-400">
+                  <div className="flex items-center gap-2 text-gray-400">
                     <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        addToCompare(item);
-                      }}
-                      className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                        isComparing(item.slug || item._id || item.id)
-                          ? "text-[#eb1c24] bg-red-50"
-                          : "hover:text-[#eb1c24] hover:bg-gray-100"
-                      }`}
-                      title="So sánh sản phẩm"
+                      className="hover:text-gray-700 cursor-pointer transition-colors"
+                      title="So sánh"
                     >
-                      <Scale className="w-[18px] h-[18px]" />
+                      <Scale className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={(e) => handleToggleCart(e, item)}
-                      className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                        cartItems.some((i) => (i._id || i.id || i.slug) === (item._id || item.id || item.slug))
-                          ? "text-[#eb1c24] bg-red-50"
-                          : "hover:text-[#eb1c24] hover:bg-gray-100"
-                      }`}
-                      title="Thêm vào giỏ hàng"
+                      onClick={(e) => handleToggleFavorite(e, item)}
+                      className={`cursor-pointer transition-colors ${isFav ? "text-red-500" : "hover:text-red-500"
+                        }`}
+                      title="Yêu thích"
                     >
-                      <ShoppingCart className="w-[18px] h-[18px]" />
+                      <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
                     </button>
                   </div>
                 </div>
@@ -389,38 +348,24 @@ export default function CategoryProductBox({
                 </div>
 
                 {/* Specs 2x2 Grid */}
-                {(() => {
-                  const badges = getProductCardBadges(item);
-
-                  const renderIcon = (iconName) => {
-                    const props = { className: "w-3.5 h-3.5 text-gray-400 shrink-0" };
-                    switch (iconName) {
-                      case "Cpu": return <Cpu {...props} />;
-                      case "Layers": return <Layers {...props} />;
-                      case "HardDrive": return <HardDrive {...props} />;
-                      case "CircuitBoard": return <CircuitBoard {...props} />;
-                      case "Monitor": return <Monitor {...props} />;
-                      case "Maximize2": return <Maximize2 {...props} />;
-                      case "Zap": return <Zap {...props} />;
-                      case "Sparkles": return <Sparkles {...props} />;
-                      case "ShieldCheck": return <ShieldCheck {...props} />;
-                      case "Wifi": return <Wifi {...props} />;
-                      case "Clock": return <Clock {...props} />;
-                      default: return <Sparkles {...props} />;
-                    }
-                  };
-
-                  return (
-                    <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-600 mb-2.5 border border-gray-100 min-h-[58px]">
-                      {badges.map((b, idx) => (
-                        <div key={idx} className="flex items-center gap-1 truncate" title={b.title || b.label}>
-                          {renderIcon(b.icon)}
-                          <span className="truncate font-medium">{b.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })()}
+                <div className="bg-gray-50 rounded-xl p-2.5 grid grid-cols-2 gap-2 text-[10px] text-gray-600 mb-3 border border-gray-100">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <Cpu className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    <span className="truncate">Intel / AMD</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <Layers className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    <span className="truncate">16GB / 32GB RAM</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <CircuitBoard className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    <span className="truncate">RTX GPU</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 truncate">
+                    <HardDrive className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    <span className="truncate">SSD NVMe</span>
+                  </div>
+                </div>
 
                 {/* Views & Add button */}
                 <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100">
@@ -440,6 +385,20 @@ export default function CategoryProductBox({
           })}
         </div>
       )}
+
+      {/* Direct Buy Checkout Modal */}
+      <OrderCheckoutModal
+        isOpen={!!buyModalItem}
+        onClose={() => setBuyModalItem(null)}
+        prefilledProduct={buyModalItem}
+        onOrderSuccess={(order) => {
+          showToast({
+            title: "Đặt hàng thành công",
+            message: `Mã đơn hàng #${order?.orderCode} đang được xử lý`,
+            type: "success",
+          });
+        }}
+      />
     </section>
   );
 }
