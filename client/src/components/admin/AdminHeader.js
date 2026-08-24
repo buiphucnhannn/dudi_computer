@@ -23,6 +23,7 @@ import {
   MessageCircle,
   Clock,
   Store,
+  Briefcase,
 } from "lucide-react";
 import { notificationAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
@@ -155,6 +156,12 @@ export default function AdminHeader({ onToggleSidebar }) {
         return {
           icon: MessageCircle,
           color: "text-purple-600 bg-purple-50 border-purple-100",
+        };
+      case "application":
+      case "contact":
+        return {
+          icon: Briefcase,
+          color: "text-indigo-600 bg-indigo-50 border-indigo-100",
         };
       case "system":
         return {

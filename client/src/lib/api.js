@@ -146,7 +146,13 @@ export const contactAPI = {
 
 export const jobAPI = {
   getAll: (params) => apiClient.get("/jobs", { params }),
+  getAdminAll: (params) => apiClient.get("/jobs/admin/all", { params }),
+  getById: (id) => apiClient.get(`/jobs/detail/${id}`),
   getBySlug: (slug) => apiClient.get(`/jobs/${slug}`),
+  create: (data) => apiClient.post("/jobs", data),
+  update: (id, data) => apiClient.put(`/jobs/${id}`, data),
+  delete: (id) => apiClient.delete(`/jobs/${id}`),
+  toggleStatus: (id) => apiClient.patch(`/jobs/${id}/toggle`),
 };
 
 export const statisticAPI = {

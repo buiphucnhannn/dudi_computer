@@ -12,6 +12,7 @@ import {
   Loader2,
   CheckCircle2,
   Shield,
+  LayoutDashboard,
 } from "lucide-react";
 import { authAPI } from "@/lib/api";
 import {
@@ -148,11 +149,22 @@ export default function ProfilePage() {
               <span>{user?.role === "admin" ? "QUẢN TRỊ VIÊN" : "KHÁCH HÀNG"}</span>
             </div>
 
-            {/* Navigation Tabs inside Sidebar - Căn giữa chuẩn xác */}
+            {/* Navigation Tabs inside Sidebar */}
             <div className="w-full mt-6 space-y-2.5">
+              {(user?.role === "admin" || user?.role?.toLowerCase() === "admin" || user?.isAdmin) && (
+                <button
+                  type="button"
+                  onClick={() => router.push("/admin")}
+                  className="w-full bg-gradient-to-r from-red-600 via-[#eb1c24] to-[#c9121a] hover:brightness-110 text-white py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-red-500/25 transition-all cursor-pointer text-center group/adm"
+                >
+                  <LayoutDashboard className="w-4 h-4 shrink-0 group-hover/adm:scale-110 transition-transform" />
+                  <span>Vào Trang Quản Trị</span>
+                </button>
+              )}
+
               <button
                 type="button"
-                className="w-full bg-[#eb1c24] hover:bg-[#b91c1c] text-white py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-red-500/20 transition-all cursor-default text-center"
+                className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-default text-center"
               >
                 <User className="w-4 h-4 shrink-0" />
                 <span>Thông tin cá nhân</span>

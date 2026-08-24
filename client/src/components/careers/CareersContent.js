@@ -43,266 +43,254 @@ export default function CareersContent() {
     fetchJobs();
   }, []);
 
-  const toggleJob = (id) => {
-    setExpandedJobId((prev) => (prev === id ? null : id));
+  const toggleExpand = (jobId) => {
+    setExpandedJobId(expandedJobId === jobId ? null : jobId);
+  };
+
+  const getGmailUrl = (jobTitle) => {
+    const email = "contact@dudisoftware.com";
+    const subject = `[Ứng tuyển ${jobTitle}] - [Họ và tên]`;
+    const body = `Kính gửi Phòng Nhân sự DUDI SOFTWARE,\n\nTôi viết email này để nộp hồ sơ ứng tuyển vào vị trí: "${jobTitle}".\n\nThông tin của tôi:\n- Họ và tên: \n- Số điện thoại: \n- Email liên hệ: \n- Link đính kèm CV / Portfolio: \n\nRất mong nhận được phản hồi từ Quý công ty.\nXin chân thành cảm ơn!`;
+
+    return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+      email
+    )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   return (
-    <main className="flex-1 w-full overflow-x-hidden font-sans">
-      <div className="bg-[#f8f9fa] min-h-screen pb-20">
-        
+    <main className="min-h-screen bg-[#0d0d0d] text-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto space-y-12">
         {/* ========================================================================= */}
-        {/* 1. HERO HEADER BANNER (Dark Glowing Background with Red Ambient Glow) */}
+        {/* 1. HERO HEADER */}
         {/* ========================================================================= */}
-        <div className="bg-[#0b0e14] py-16 md:py-24 relative overflow-hidden">
-          {/* Grid pattern */}
-          <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none" />
+        <div className="text-center space-y-4 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#eb1c24]/10 border border-[#eb1c24]/30 text-[#eb1c24] text-xs font-bold uppercase tracking-wider">
+            <Sparkles size={14} />
+            <span>Gia nhập đội ngũ DUDI SOFTWARE</span>
+          </div>
 
-          {/* Glowing Red Ambient Aura on Right */}
-          <div className="absolute -top-24 -right-16 w-[550px] h-[550px] bg-gradient-to-bl from-[#eb1c24]/45 via-[#eb1c24]/25 to-transparent rounded-full blur-[80px] pointer-events-none" />
-          <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-[#eb1c24]/35 rounded-full blur-[100px] pointer-events-none" />
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase">
+            Cơ Hội Nghề Nghiệp & Tuyển Dụng
+          </h1>
 
-          {/* Blue Ambient Aura on Left */}
-          <div className="absolute -bottom-20 -left-20 w-[450px] h-[450px] bg-blue-600/20 rounded-full blur-[110px] pointer-events-none" />
+          <p className="text-sm sm:text-base text-gray-400 leading-relaxed font-normal">
+            Chúng tôi luôn tìm kiếm những tài năng trẻ trung, đam mê công nghệ phần cứng và nhiệt huyết để cùng nhau xây dựng hệ thống thương mại điện tử linh kiện máy tính hàng đầu.
+          </p>
+        </div>
 
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tight mb-6">
-                TUYỂN DỤNG{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#eb1c24] via-red-500 to-orange-400">
-                  DUDI SOFTWARE
-                </span>
-              </h1>
-              <div className="w-24 h-1 bg-gradient-to-r from-[#eb1c24] to-orange-500 mx-auto mb-8 rounded-full shadow-[0_0_15px_rgba(235,28,36,0.6)]" />
-              <p className="text-gray-300 text-sm md:text-base lg:text-lg leading-relaxed">
-                Gia nhập đội ngũ DUDI SOFTWARE ngay hôm nay! Chúng tôi luôn tìm kiếm những con người đam mê công nghệ, nhiệt huyết và khát khao khẳng định bản thân.
-              </p>
+        {/* ========================================================================= */}
+        {/* 2. TẠI SAO NÊN CHỌN DUDI SOFTWARE? */}
+        {/* ========================================================================= */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-[#141414] border border-gray-800/80 rounded-2xl p-6 relative overflow-hidden group hover:border-[#eb1c24]/50 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-4">
+              <DollarSign size={24} />
             </div>
+            <h3 className="text-lg font-bold text-white mb-2">Thu nhập cạnh tranh</h3>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Lương cứng hấp dẫn theo năng lực + Thưởng doanh số, thưởng hiệu suất hàng tháng không giới hạn.
+            </p>
+          </div>
+
+          <div className="bg-[#141414] border border-gray-800/80 rounded-2xl p-6 relative overflow-hidden group hover:border-[#eb1c24]/50 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4">
+              <Star size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Môi trường năng động</h3>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Đồng nghiệp trẻ trung, hỗ trợ nhau hết mình. Văn phòng làm việc hiện đại trang bị dàn PC Gaming cao cấp.
+            </p>
+          </div>
+
+          <div className="bg-[#141414] border border-gray-800/80 rounded-2xl p-6 relative overflow-hidden group hover:border-[#eb1c24]/50 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-4">
+              <Award size={24} />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Lộ trình thăng tiến rõ ràng</h3>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Được đào tạo bài bản kiến thức phần cứng chuyên sâu. Cơ hội lên Trưởng nhóm / Quản lý sau 6-12 tháng.
+            </p>
           </div>
         </div>
 
-        <div className="container mx-auto px-4 -mt-10 relative z-20 max-w-6xl">
-          
-          {/* ========================================================================= */}
-          {/* 2. THREE BENEFIT CARDS */}
-          {/* ========================================================================= */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            {/* Card 1 */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col items-center text-center transform transition-transform duration-300 hover:-translate-y-2 group">
-              <div className="w-16 h-16 bg-red-50 text-[#eb1c24] rounded-2xl flex items-center justify-center mb-6 shadow-xs group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
-                <DollarSign className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3 uppercase tracking-tight">
-                Thu nhập hấp dẫn
-              </h3>
-              <p className="text-gray-500 leading-relaxed text-sm">
-                Lương cứng cạnh tranh, thưởng KPIs không giới hạn. Xét duyệt tăng lương định kỳ 6 tháng/lần.
+        {/* ========================================================================= */}
+        {/* 3. DANH SÁCH CÁC VỊ TRÍ ĐANG TUYỂN DỤNG */}
+        {/* ========================================================================= */}
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-4">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-white flex items-center gap-2.5">
+                <Briefcase className="text-[#eb1c24]" size={24} />
+                <span>Vị trí đang tuyển dụng</span>
+              </h2>
+              <p className="text-xs text-gray-400 mt-1">
+                Khám phá các vị trí phù hợp với năng lực và đam mê của bạn
               </p>
             </div>
 
-            {/* Card 2 */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col items-center text-center transform transition-transform duration-300 hover:-translate-y-2 group">
-              <div className="w-16 h-16 bg-red-50 text-[#eb1c24] rounded-2xl flex items-center justify-center mb-6 shadow-xs group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
-                <Star className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3 uppercase tracking-tight">
-                Môi trường năng động
-              </h3>
-              <p className="text-gray-500 leading-relaxed text-sm">
-                Làm việc trong môi trường trẻ trung, sáng tạo, tiếp xúc trực tiếp với các thiết bị công nghệ mới nhất.
-              </p>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 flex flex-col items-center text-center transform transition-transform duration-300 hover:-translate-y-2 group">
-              <div className="w-16 h-16 bg-red-50 text-[#eb1c24] rounded-2xl flex items-center justify-center mb-6 shadow-xs group-hover:bg-[#eb1c24] group-hover:text-white transition-colors duration-300">
-                <Award className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3 uppercase tracking-tight">
-                Lộ trình thăng tiến
-              </h3>
-              <p className="text-gray-500 leading-relaxed text-sm">
-                Cơ hội đào tạo chuyên sâu và thăng tiến rõ ràng lên các vị trí Trưởng nhóm, Quản lý cửa hàng.
-              </p>
-            </div>
+            <span className="px-3.5 py-1.5 rounded-full bg-gray-800 text-xs font-bold text-gray-300 w-fit">
+              {jobs.length} vị trí đang mở
+            </span>
           </div>
 
-          {/* ========================================================================= */}
-          {/* 3. VỊ TRÍ ĐANG TUYỂN (JOB LISTING FROM DATABASE) */}
-          {/* ========================================================================= */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-16">
-            <div className="p-6 sm:p-8 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-black text-gray-800 uppercase tracking-tight">
-                  Vị trí đang tuyển
-                </h2>
-                <p className="text-gray-500 mt-1 text-sm">
-                  Tìm kiếm cơ hội phù hợp với năng lực của bạn.
-                </p>
-              </div>
-              <Briefcase className="w-9 h-9 text-[#eb1c24] opacity-20 hidden sm:block" />
+          {loading ? (
+            <div className="py-12 text-center text-gray-400 text-sm">
+              Đang tải danh sách việc làm...
             </div>
+          ) : jobs.length === 0 ? (
+            <div className="py-12 text-center bg-[#141414] rounded-2xl border border-gray-800 text-gray-400 text-sm">
+              Hiện tại chưa có vị trí tuyển dụng nào đang mở. Vui lòng quay lại sau!
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {jobs.map((job) => {
+                const isExpanded = expandedJobId === job._id;
 
-            {/* Content list */}
-            {loading ? (
-              <div className="p-12 flex flex-col items-center justify-center">
-                <div className="w-8 h-8 border-4 border-[#eb1c24] border-t-transparent rounded-full animate-spin mb-3"></div>
-                <p className="text-xs text-gray-400 font-medium">Đang tải danh sách vị trí...</p>
-              </div>
-            ) : jobs.length === 0 ? (
-              <div className="py-16 px-6 text-center text-gray-500 text-sm sm:text-base font-medium">
-                <Briefcase className="w-12 h-12 mx-auto mb-3 text-gray-300 opacity-60" />
-                <p>Hiện tại ZComputer đã đủ nhân sự và chưa có đợt tuyển dụng mới. Xin vui lòng quay lại sau!</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-100">
-                {jobs.map((job) => {
-                  const isExpanded = expandedJobId === job._id;
-                  return (
-                    <div key={job._id} className="transition-colors hover:bg-gray-50/50">
-                      {/* Job Row Header */}
-                      <div
-                        onClick={() => toggleJob(job._id)}
-                        className="p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer select-none"
-                      >
-                        <div className="space-y-2">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="bg-red-50 text-[#eb1c24] font-extrabold text-[11px] uppercase px-2.5 py-0.5 rounded-md tracking-wider">
-                              {job.department || "Kỹ thuật"}
-                            </span>
-                            <span className="bg-gray-100 text-gray-600 font-semibold text-[11px] px-2.5 py-0.5 rounded-md">
-                              {job.type || "Toàn thời gian"}
-                            </span>
-                          </div>
-                          <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-[#eb1c24] transition-colors">
-                            {job.title}
-                          </h3>
-                          <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-gray-500 font-medium">
-                            <span className="flex items-center gap-1.5">
-                              <MapPin size={15} className="text-[#eb1c24]" />
-                              {job.location}
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                              <DollarSign size={15} className="text-emerald-600" />
-                              <strong className="text-emerald-600 font-bold">{job.salary}</strong>
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                              <Clock size={15} className="text-gray-400" />
-                              {job.experience}
-                            </span>
-                          </div>
+                return (
+                  <div
+                    key={job._id}
+                    className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 transition-all hover:shadow-md"
+                  >
+                    {/* Job Card Header */}
+                    <div
+                      onClick={() => toggleExpand(job._id)}
+                      className="p-5 sm:p-6 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none hover:bg-gray-50/80 transition-colors"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="px-2.5 py-0.5 rounded-md bg-red-50 text-[#eb1c24] text-[11px] font-bold uppercase tracking-wider">
+                            {job.department || "Khối Kinh Doanh"}
+                          </span>
+                          <span className="px-2.5 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[11px] font-medium">
+                            {job.type || "Toàn thời gian"}
+                          </span>
                         </div>
 
-                        <div className="flex items-center gap-3 shrink-0 self-start md:self-auto">
-                          <button
-                            type="button"
-                            className="text-xs sm:text-sm font-bold text-[#eb1c24] hover:underline flex items-center gap-1"
-                          >
-                            <span>{isExpanded ? "Thu gọn" : "Xem chi tiết & Ứng tuyển"}</span>
-                            {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                          </button>
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900">
+                          {job.title}
+                        </h3>
+
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 font-medium">
+                          <span className="flex items-center gap-1">
+                            <MapPin size={14} className="text-gray-400" />
+                            {job.location || "TP.HCM"}
+                          </span>
+                          <span className="flex items-center gap-1 text-[#eb1c24] font-bold">
+                            <DollarSign size={14} />
+                            {job.salary || "Thỏa thuận"}
+                          </span>
                         </div>
                       </div>
 
-                      {/* Expanded Job Details */}
-                      {isExpanded && (
-                        <div className="px-6 sm:px-8 pb-8 pt-2 bg-gray-50/70 border-t border-gray-100 space-y-6 text-sm text-gray-700">
-                          {job.description && (
-                            <div>
-                              <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">
-                                📋 Mô tả công việc:
-                              </h4>
-                              <p className="leading-relaxed text-gray-600 whitespace-pre-line">
-                                {job.description}
-                              </p>
-                            </div>
-                          )}
-
-                          {job.requirements && job.requirements.length > 0 && (
-                            <div>
-                              <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">
-                                🎯 Yêu cầu ứng viên:
-                              </h4>
-                              <ul className="space-y-1.5 text-gray-600">
-                                {job.requirements.map((req, i) => (
-                                  <li key={i} className="flex items-start gap-2">
-                                    <CheckCircle2 size={16} className="text-[#eb1c24] shrink-0 mt-0.5" />
-                                    <span>{req}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {job.benefits && job.benefits.length > 0 && (
-                            <div>
-                              <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">
-                                🎁 Quyền lợi được hưởng:
-                              </h4>
-                              <ul className="space-y-1.5 text-gray-600">
-                                {job.benefits.map((b, i) => (
-                                  <li key={i} className="flex items-start gap-2">
-                                    <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
-                                    <span>{b}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {/* Action Button to send CV email */}
-                          <div className="pt-4 flex flex-wrap items-center gap-4">
-                            <a
-                              href={`mailto:contact@dudisoftware.com?subject=${encodeURIComponent(
-                                `[Ứng tuyển ${job.title}] - [Họ và tên]`
-                              )}`}
-                              className="px-6 py-3 bg-[#eb1c24] hover:bg-[#d01720] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 transition-all hover:scale-102"
-                            >
-                              <Send size={14} />
-                              <span>Nộp hồ sơ ngay cho vị trí này</span>
-                            </a>
-                            <span className="text-xs text-gray-400">
-                              (Email: contact@dudisoftware.com)
-                            </span>
-                          </div>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
+                        <button
+                          type="button"
+                          className="px-4 py-2 bg-gray-900 hover:bg-[#eb1c24] text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <span>{isExpanded ? "Thu gọn" : "Xem chi tiết"}</span>
+                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
 
-          {/* ========================================================================= */}
-          {/* 4. CÁCH THỨC NỘP HỒ SƠ */}
-          {/* ========================================================================= */}
-          <div className="bg-gradient-to-br from-gray-900 to-[#111] rounded-2xl shadow-xl p-8 sm:p-10 text-center relative overflow-hidden border border-gray-800">
-            <div className="relative z-10">
-              <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-4">
-                Cách thức nộp hồ sơ
-              </h2>
-              <p className="text-gray-300 max-w-2xl mx-auto mb-8 text-sm sm:text-base leading-relaxed">
-                Gửi CV của bạn về địa chỉ Email:{" "}
-                <a
-                  href="mailto:contact@dudisoftware.com"
-                  className="font-bold text-[#eb1c24] hover:underline"
-                >
-                  contact@dudisoftware.com
-                </a>
-                <br />
-                Tiêu đề Email ghi rõ:{" "}
-                <span className="text-white font-semibold italic">
-                  [Vị trí ứng tuyển] - [Họ và tên]
-                </span>
-              </p>
-              <p className="text-xs sm:text-sm text-gray-400 italic">
-                Mọi thắc mắc vui lòng liên hệ Hotline Nhân sự:{" "}
-                <a href="tel:0909163821" className="text-white hover:underline font-bold">
-                  (+84) 909 163 821
-                </a>
-              </p>
+                    {/* Job Card Detail Body */}
+                    {isExpanded && (
+                      <div className="border-t border-gray-150 p-5 sm:p-6 bg-gray-50/50 space-y-5 text-xs sm:text-sm">
+                        {job.description && (
+                          <div>
+                            <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">
+                              📋 Mô tả công việc:
+                            </h4>
+                            <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                              {job.description}
+                            </p>
+                          </div>
+                        )}
+
+                        {job.requirements && job.requirements.length > 0 && (
+                          <div>
+                            <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">
+                              🎯 Yêu cầu ứng viên:
+                            </h4>
+                            <ul className="space-y-1.5 text-gray-600">
+                              {job.requirements.map((req, i) => (
+                                <li key={i} className="flex items-start gap-2">
+                                  <span className="text-[#eb1c24] font-bold">•</span>
+                                  <span>{req}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {job.benefits && job.benefits.length > 0 && (
+                          <div>
+                            <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">
+                              🎁 Quyền lợi được hưởng:
+                            </h4>
+                            <ul className="space-y-1.5 text-gray-600">
+                              {job.benefits.map((b, i) => (
+                                <li key={i} className="flex items-start gap-2">
+                                  <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
+                                  <span>{b}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Action Button: Mở trực tiếp Gmail Web soạn thư */}
+                        <div className="pt-4 flex flex-wrap items-center gap-4">
+                          <a
+                            href={getGmailUrl(job.title)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-6 py-3 bg-[#eb1c24] hover:bg-[#d01720] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center gap-2 transition-all hover:scale-102 cursor-pointer active:scale-98"
+                          >
+                            <Mail size={16} />
+                            <span>Nộp hồ sơ ngay cho vị trí này</span>
+                          </a>
+
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
+          )}
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 4. CÁCH THỨC NỘP HỒ SƠ */}
+        {/* ========================================================================= */}
+        <div className="bg-gradient-to-br from-gray-900 to-[#111] rounded-2xl shadow-xl p-8 sm:p-10 text-center relative overflow-hidden border border-gray-800">
+          <div className="relative z-10">
+            <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-4">
+              Cách thức nộp hồ sơ
+            </h2>
+            <p className="text-gray-300 max-w-2xl mx-auto mb-8 text-sm sm:text-base leading-relaxed">
+              Gửi CV của bạn về địa chỉ Email:{" "}
+              <a
+                href={getGmailUrl("Ứng viên")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-[#eb1c24] hover:underline"
+              >
+                contact@dudisoftware.com (Nhấn để mở Gmail)
+              </a>
+              <br />
+              Tiêu đề Email ghi rõ:{" "}
+              <span className="text-white font-semibold italic">
+                [Vị trí ứng tuyển] - [Họ và tên]
+              </span>
+            </p>
+            <p className="text-xs sm:text-sm text-gray-400 italic">
+              Mọi thắc mắc vui lòng liên hệ Hotline Nhân sự:{" "}
+              <a href="tel:0909163821" className="text-white hover:underline font-bold">
+                (+84) 909 163 821
+              </a>
+            </p>
           </div>
         </div>
       </div>

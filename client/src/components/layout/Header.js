@@ -723,45 +723,81 @@ export default function Header() {
                     </div>
                   </Link>
 
-                  {/* User Dropdown Menu with Hover Bridge (Căn khớp cả 2 mép trái phải với thẻ người dùng) */}
+                  {/* User Dropdown Menu with Hover Bridge */}
                   <div
-                    className={`absolute left-0 right-0 top-full pt-1.5 w-full z-50 transition-all duration-150 ${
+                    className={`absolute right-0 top-full pt-2 w-[270px] z-50 transition-all duration-200 ${
                       userDropdownOpen
                         ? "opacity-100 visible translate-y-0"
-                        : "opacity-0 invisible -translate-y-1 pointer-events-none"
+                        : "opacity-0 invisible -translate-y-1.5 pointer-events-none"
                     }`}
                   >
-                    <div className="bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-gray-100 p-1.5 overflow-hidden w-full space-y-0.5">
-                      {user?.role === "admin" && (
+                    <div className="bg-white rounded-2xl shadow-2xl shadow-slate-900/15 border border-gray-150 p-2 overflow-hidden w-full space-y-1.5 backdrop-blur-md">
+                      {/* User Quick Header */}
+                      <div className="px-3 py-2 bg-slate-50/80 rounded-xl border border-slate-100/80">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                            Tài khoản
+                          </span>
+                          {(user?.role === "admin" || user?.role?.toLowerCase() === "admin" || user?.isAdmin) && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-red-100 text-[#eb1c24] text-[9.5px] font-black uppercase tracking-wide">
+                              <ShieldCheck className="w-3 h-3" />
+                              Admin
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs font-black text-slate-900 truncate mt-0.5">
+                          {user?.name || "Người dùng"}
+                        </p>
+                        {user?.email && (
+                          <p className="text-[11px] text-slate-500 truncate">
+                            {user?.email}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Admin Dashboard Special Action Card */}
+                      {(user?.role === "admin" || user?.role?.toLowerCase() === "admin" || user?.isAdmin) && (
                         <Link
                           href="/admin"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center justify-between px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-red-50/60 rounded-xl transition-all"
+                          className="group/dash flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-red-600 via-[#eb1c24] to-[#c9121a] text-white shadow-md shadow-red-500/25 hover:shadow-lg hover:shadow-red-500/35 transition-all duration-200 hover:scale-[1.02] active:scale-98 cursor-pointer"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <LayoutDashboard className="w-4 h-4 text-gray-500 shrink-0" />
-                            <span>Trang Quản Trị</span>
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-xs flex items-center justify-center shrink-0 group-hover/dash:rotate-6 transition-transform">
+                              <LayoutDashboard className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="min-w-0">
+                              <span className="text-xs font-black block leading-tight tracking-tight text-white truncate">
+                                Trang Dashboard Quản Trị
+                              </span>
+                              <span className="text-[10px] text-red-100 font-medium block leading-tight truncate">
+                                Tổng quan, đơn hàng, kho & tin tức
+                              </span>
+                            </div>
                           </div>
-                          <span className="px-1.5 py-0.5 rounded-md bg-red-100 text-[#eb1c24] text-[9.5px] font-bold uppercase tracking-wide">
-                            Admin
-                          </span>
+                          <ChevronRight className="w-4 h-4 text-white/80 shrink-0 group-hover/dash:translate-x-1 transition-transform" />
                         </Link>
                       )}
 
+                      {/* Standard Profile Link */}
                       <Link
                         href="/profile"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all"
+                        className="flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-slate-700 hover:text-[#eb1c24] hover:bg-slate-50 rounded-xl transition-all"
                       >
-                        <User className="w-4 h-4 text-gray-500 shrink-0" />
-                        <span>Hồ sơ cá nhân</span>
+                        <User className="w-4 h-4 text-slate-400 shrink-0" />
+                        <span>Hồ sơ tài khoản</span>
                       </Link>
 
+                      <div className="h-px bg-slate-100 my-0.5" />
+
+                      {/* Logout Button */}
                       <button
+                        type="button"
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13.5px] font-semibold text-gray-600 hover:text-red-600 hover:bg-red-50/70 rounded-xl transition-all cursor-pointer"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs font-bold text-slate-600 hover:text-red-600 hover:bg-red-50/80 rounded-xl transition-all cursor-pointer"
                       >
-                        <LogOut className="w-4 h-4 shrink-0 text-gray-400" />
+                        <LogOut className="w-4 h-4 shrink-0 text-slate-400" />
                         <span>Đăng xuất</span>
                       </button>
                     </div>
@@ -1306,7 +1342,7 @@ export default function Header() {
 
           {/* Quick Access Badges Grid */}
           <div className="p-3 grid grid-cols-2 gap-2 bg-white">
-            {mounted && user?.role === "admin" && (
+            {mounted && (user?.role === "admin" || user?.role?.toLowerCase() === "admin" || user?.isAdmin) && (
               <Link
                 href="/admin"
                 onClick={() => setMobileMenuOpen(false)}
@@ -1317,10 +1353,10 @@ export default function Header() {
                 </div>
                 <div className="min-w-0">
                   <span className="text-xs font-bold text-[#eb1c24] block leading-tight">
-                    Trang Quản Trị (Admin)
+                    Trang Dashboard Quản Trị (Admin)
                   </span>
                   <span className="text-[10px] text-gray-500">
-                    Dashboard, sản phẩm, đơn hàng
+                    Dashboard, sản phẩm, đơn hàng, tuyển dụng
                   </span>
                 </div>
               </Link>
