@@ -1,11 +1,9 @@
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import FloatingWidgets from "@/components/layout/FloatingWidgets";
 import ReduxProvider from "@/redux/provider";
 import { ToastProvider } from "@/components/common/ToastContext";
 import { CompareProvider } from "@/components/common/CompareContext";
-import PromotionPopup from "@/components/common/PromotionPopup";
+import AppLayoutWrapper from "@/components/layout/AppLayoutWrapper";
+
 export const metadata = {
   title: {
     default: "DUDI SOFTWARE - PC Gaming, Laptop, Workstation",
@@ -28,13 +26,7 @@ export default function RootLayout({ children }) {
         <ReduxProvider>
           <ToastProvider>
             <CompareProvider>
-              <Header />
-              <main className="flex-1 w-full overflow-x-hidden">
-                {children}
-              </main>
-              <Footer />
-              <FloatingWidgets />
-              <PromotionPopup />
+              <AppLayoutWrapper>{children}</AppLayoutWrapper>
             </CompareProvider>
           </ToastProvider>
         </ReduxProvider>
