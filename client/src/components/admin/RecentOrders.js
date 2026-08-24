@@ -86,27 +86,27 @@ export default function RecentOrders() {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="mb-0.5 flex items-start justify-between">
-                    <span className="truncate text-xs font-bold text-slate-900 group-hover:text-red-600 transition">
+                  <div className="mb-0.5 flex items-start justify-between gap-2">
+                    <span className="truncate text-xs font-bold text-slate-900 group-hover:text-red-600 transition whitespace-nowrap">
                       {order.id} • {customerName}
                     </span>
 
-                    <span className="shrink-0 text-[11px] text-slate-400">
+                    <span className="shrink-0 text-[11px] text-slate-400 whitespace-nowrap">
                       {order.time || order.createdAt}
                     </span>
                   </div>
 
-                  <div className="mb-1.5 truncate text-xs text-slate-500 font-medium">
+                  <div className="mb-1.5 truncate text-xs text-slate-500 font-medium whitespace-nowrap">
                     {productName}
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-slate-900">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-black text-slate-900 whitespace-nowrap">
                       {orderPrice.toLocaleString("vi-VN")}₫
                     </span>
 
                     <span
-                      className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${badge.bg}`}
+                      className={`rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${badge.bg}`}
                     >
                       {badge.label}
                     </span>

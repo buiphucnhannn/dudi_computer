@@ -205,14 +205,14 @@ export default function RevenueChart() {
       ) : (
         /* Data Table View */
         <div className="overflow-x-auto rounded-xl border border-slate-200">
-          <table className="w-full text-left border-collapse text-xs">
+          <table className="w-full text-left border-collapse text-xs min-w-[600px]">
             <thead>
               <tr className="bg-slate-50 text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200">
-                <th className="py-3 px-4">Tháng</th>
-                <th className="py-3 px-4 text-right">Doanh thu</th>
-                <th className="py-3 px-4 text-right">Số đơn</th>
-                <th className="py-3 px-4 text-right">Lợi nhuận ước tính</th>
-                <th className="py-3 px-4 text-right">Tăng trưởng</th>
+                <th className="py-3 px-4 whitespace-nowrap">Tháng</th>
+                <th className="py-3 px-4 text-right whitespace-nowrap">Doanh thu</th>
+                <th className="py-3 px-4 text-right whitespace-nowrap">Số đơn</th>
+                <th className="py-3 px-4 text-right whitespace-nowrap">Lợi nhuận ước tính</th>
+                <th className="py-3 px-4 text-right whitespace-nowrap">Tăng trưởng</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-150">
@@ -224,15 +224,15 @@ export default function RevenueChart() {
                     selectedMonth?.month === item.month ? "bg-slate-50 font-bold" : ""
                   }`}
                 >
-                  <td className="py-3 px-4 font-bold text-slate-900">{item.month}</td>
-                  <td className="py-3 px-4 text-right font-black text-slate-900">
+                  <td className="py-3 px-4 font-bold text-slate-900 whitespace-nowrap">{item.month}</td>
+                  <td className="py-3 px-4 text-right font-black text-slate-900 whitespace-nowrap">
                     {item.revenue.toLocaleString("vi-VN")}₫
                   </td>
-                  <td className="py-3 px-4 text-right text-slate-600">{item.orders}</td>
-                  <td className="py-3 px-4 text-right text-slate-600">
+                  <td className="py-3 px-4 text-right text-slate-600 whitespace-nowrap">{item.orders}</td>
+                  <td className="py-3 px-4 text-right text-slate-600 whitespace-nowrap">
                     {item.profit.toLocaleString("vi-VN")}₫
                   </td>
-                  <td className="py-3 px-4 text-right">
+                  <td className="py-3 px-4 text-right whitespace-nowrap">
                     <span
                       className={`font-bold ${
                         String(item.growth).startsWith("+") ? "text-emerald-600" : "text-red-600"

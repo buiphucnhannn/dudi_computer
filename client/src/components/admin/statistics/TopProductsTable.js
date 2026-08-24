@@ -176,19 +176,19 @@ export default function TopProductsTable() {
           <table className="w-full text-left border-collapse min-w-[850px]">
             <thead>
               <tr className="bg-slate-50/90 text-slate-700 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
-                <th className="py-3.5 px-6 font-bold">Sản Phẩm</th>
-                <th className="py-3.5 px-4 font-bold w-36">Mã SKU</th>
-                <th className="py-3.5 px-4 font-bold w-36">Giá Bán</th>
-                <th className="py-3.5 px-4 font-bold w-44">Tồn kho / Bán</th>
-                <th className="py-3.5 px-4 font-bold text-right w-40">Tổng Doanh Thu</th>
-                <th className="py-3.5 px-6 font-bold text-right w-28">Đã Bán</th>
+                <th className="py-3.5 px-6 font-bold whitespace-nowrap">Sản Phẩm</th>
+                <th className="py-3.5 px-4 font-bold w-36 whitespace-nowrap">Mã SKU</th>
+                <th className="py-3.5 px-4 font-bold w-36 whitespace-nowrap">Giá Bán</th>
+                <th className="py-3.5 px-4 font-bold w-44 whitespace-nowrap">Tồn kho / Bán</th>
+                <th className="py-3.5 px-4 font-bold text-right w-40 whitespace-nowrap">Tổng Doanh Thu</th>
+                <th className="py-3.5 px-6 font-bold text-right w-28 whitespace-nowrap">Đã Bán</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-150 text-sm">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="py-12 text-center text-xs text-slate-400 font-medium">
+                  <td colSpan="6" className="py-12 text-center text-xs text-slate-400 font-medium whitespace-nowrap">
                     Không tìm thấy sản phẩm nào phù hợp với tiêu chí lọc.
                   </td>
                 </tr>
@@ -200,7 +200,7 @@ export default function TopProductsTable() {
                     className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
                   >
                     {/* Product */}
-                    <td className="py-3.5 px-6">
+                    <td className="py-3.5 px-6 whitespace-nowrap">
                       <div className="flex items-center gap-3.5">
                         <span className={`w-5 text-center text-xs font-black shrink-0 ${index === 0 ? "text-amber-500" : index === 1 ? "text-slate-400" : index === 2 ? "text-amber-700" : "text-slate-300"
                           }`}>
@@ -216,10 +216,10 @@ export default function TopProductsTable() {
                         </div>
 
                         <div className="min-w-0">
-                          <h4 className="font-bold text-xs text-slate-900 group-hover:text-red-600 transition truncate max-w-[280px]">
+                          <h4 className="font-bold text-xs text-slate-900 group-hover:text-red-600 transition truncate max-w-[280px] whitespace-nowrap">
                             {product.name}
                           </h4>
-                          <p className="text-[11px] text-slate-400 font-medium mt-0.5">
+                          <p className="text-[11px] text-slate-400 font-medium mt-0.5 whitespace-nowrap">
                             {product.category}
                           </p>
                         </div>
@@ -227,21 +227,21 @@ export default function TopProductsTable() {
                     </td>
 
                     {/* Code */}
-                    <td className="py-3.5 px-4 text-xs font-medium text-slate-500">
-                      <span className="bg-slate-100 px-2 py-0.5 rounded text-[10.5px] font-bold text-slate-700">
+                    <td className="py-3.5 px-4 text-xs font-medium text-slate-500 whitespace-nowrap">
+                      <span className="bg-slate-100 px-2 py-0.5 rounded text-[10.5px] font-bold text-slate-700 inline-block">
                         {product.code}
                       </span>
                     </td>
 
                     {/* Price */}
-                    <td className="py-3.5 px-4 text-xs font-black text-slate-900">
+                    <td className="py-3.5 px-4 text-xs font-black text-slate-900 whitespace-nowrap">
                       {product.priceFormatted}
                     </td>
 
                     {/* Progress */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 whitespace-nowrap">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden shrink-0">
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${index === 0
                                 ? "bg-slate-900"
@@ -262,14 +262,14 @@ export default function TopProductsTable() {
                     </td>
 
                     {/* Revenue */}
-                    <td className="py-3.5 px-4 text-right">
+                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <span className="text-xs font-black text-slate-900">
                         {(product.revenue || 0).toLocaleString("vi-VN")}₫
                       </span>
                     </td>
 
                     {/* Sold */}
-                    <td className="py-3.5 px-6 text-right">
+                    <td className="py-3.5 px-6 text-right whitespace-nowrap">
                       <span className="text-sm font-black text-slate-900">
                         {product.sold || 0}
                       </span>

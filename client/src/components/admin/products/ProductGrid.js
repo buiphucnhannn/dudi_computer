@@ -139,12 +139,12 @@ export default function ProductGrid({
               />
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 whitespace-nowrap">
                     {product.brand || "DUDI"} • {product.sku}
                   </span>
                   {product.badge && (
-                    <span className="bg-red-50 text-red-600 text-[10px] font-black px-2 py-0.5 rounded border border-red-100">
+                    <span className="bg-red-50 text-red-600 text-[10px] font-black px-2 py-0.5 rounded border border-red-100 whitespace-nowrap">
                       {product.badge}
                     </span>
                   )}
@@ -154,11 +154,11 @@ export default function ProductGrid({
                   {product.name}
                 </h3>
 
-                <div className="mt-1 flex items-baseline gap-3">
-                  <span className="text-base font-black text-red-600">
+                <div className="mt-1 flex items-baseline gap-3 whitespace-nowrap">
+                  <span className="text-base font-black text-red-600 whitespace-nowrap">
                     {formattedPrice}
                   </span>
-                  <span className="text-xs text-slate-500 font-medium">
+                  <span className="text-xs text-slate-500 font-medium whitespace-nowrap">
                     Danh mục: <strong className="text-slate-800 font-bold">{product.category}</strong>
                   </span>
                 </div>
