@@ -572,7 +572,8 @@ export const parseProductSpecs = (product) => {
 
   const type = detectProductType(product);
   const name = String(product.name || "");
-  const w = product.warranty || "Bảo hành 3 - 12 Tháng";
+  const rawW = product.warranty || "3 - 12 Tháng";
+  const w = rawW.replace(/^Bảo\s*hành\s*/i, "").trim() || "3 - 12 Tháng";
 
   // Build category specific specification rows
   switch (type) {
