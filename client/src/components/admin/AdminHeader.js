@@ -252,7 +252,7 @@ export default function AdminHeader() {
                   onClick={() => {
                     setShowUserMenu(false);
                     dispatch(logoutUser());
-                    router.push("/login");
+                    window.location.href = "/login";
                   }}
                   className="flex w-full items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition cursor-pointer"
                 >
