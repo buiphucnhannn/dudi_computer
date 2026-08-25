@@ -266,6 +266,57 @@ const ProductInfo = ({ product }) => {
     router.push(`/compare?products=${query}`);
   };
 
+  const handleShare = async () => {
+    const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+    const title = product?.name || "Chi tiết sản phẩm - ZComputer";
+    const text = `Xem sản phẩm ${product?.name || ""} tại ZComputer với giá ưu đãi!`;
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text,
+          url: currentUrl,
+        });
+        return;
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.log("Web Share API cancelled or not supported, fallback to clipboard.");
+        } else {
+          return;
+        }
+      }
+    }
+
+    // Fallback: Copy to clipboard
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(currentUrl);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = currentUrl;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+      showToast({
+        title: "Đã sao chép liên kết",
+        message: "Đã sao chép đường dẫn sản phẩm vào bộ nhớ tạm thành công!",
+        type: "success",
+      });
+    } catch (error) {
+      showToast({
+        title: "Không thể sao chép",
+        message: "Vui lòng sao chép liên kết sản phẩm trực tiếp từ thanh địa chỉ.",
+        type: "error",
+      });
+    }
+  };
+
   // =====================================================
   // RENDER
   // =====================================================
@@ -283,6 +334,7 @@ const ProductInfo = ({ product }) => {
 
           <button
             type="button"
+            onClick={handleShare}
             className="
               flex shrink-0 items-center gap-1.5
               rounded-full border border-slate-200
@@ -290,6 +342,7 @@ const ProductInfo = ({ product }) => {
               transition
               hover:border-red-600
               hover:text-red-600
+              cursor-pointer active:scale-95
             "
           >
             <Share2 size={14} />
