@@ -13,6 +13,12 @@ import {
   CheckCircle2,
   Shield,
   LayoutDashboard,
+  Lock,
+  KeyRound,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  Save,
 } from "lucide-react";
 import { authAPI } from "@/lib/api";
 import {
@@ -34,7 +40,18 @@ export default function ProfilePage() {
   const [mounted, setMounted] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [newPhone, setNewPhone] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [savingPhone, setSavingPhone] = useState(false);
+
+  // Password change state
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -80,7 +97,7 @@ export default function ProfilePage() {
       return;
     }
 
-    setSaving(true);
+    setSavingPhone(true);
     try {
       const res = await authAPI.updateProfile({
         phone: newPhone.trim(),
@@ -102,7 +119,82 @@ export default function ProfilePage() {
         type: "error",
       });
     } finally {
-      setSaving(false);
+      setSavingPhone(false);
+    }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+
+    if (!passwordForm.newPassword) {
+      showToast({
+        title: "Thiếu thông tin",
+        message: "Vui lòng nhập mật khẩu mới!",
+        type: "error",
+      });
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      showToast({
+        title: "Mật khẩu quá ngắn",
+        message: "Mật khẩu mới phải có ít nhất 6 ký tự!",
+        type: "error",
+      });
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      showToast({
+        title: "Mật khẩu không khớp",
+        message: "Xác nhận mật khẩu mới không trùng khớp. Vui lòng kiểm tra lại!",
+        type: "error",
+      });
+      return;
+    }
+
+    if (user?.authType !== "google" && !passwordForm.currentPassword) {
+      showToast({
+        title: "Thiếu mật khẩu hiện tại",
+        message: "Vui lòng nhập mật khẩu hiện tại để xác nhận đổi mật khẩu!",
+        type: "error",
+      });
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      const res = await authAPI.updateProfile({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+
+      const updatedUser = res.data?.data;
+      if (updatedUser) {
+        dispatch(setCredentials({ user: updatedUser }));
+      }
+
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+
+      showToast({
+        title: "Đổi mật khẩu thành công!",
+        message: "Mật khẩu tài khoản của bạn đã được cập nhật thành công.",
+        type: "success",
+      });
+    } catch (error) {
+      const msg =
+        error.response?.data?.message || "Không thể đổi mật khẩu. Vui lòng kiểm tra lại!";
+      showToast({
+        title: "Đổi mật khẩu thất bại",
+        message: msg,
+        type: "error",
+      });
+    } finally {
+      setSavingPassword(false);
     }
   };
 
@@ -149,7 +241,7 @@ export default function ProfilePage() {
               <span>{user?.role === "admin" ? "QUẢN TRỊ VIÊN" : "KHÁCH HÀNG"}</span>
             </div>
 
-            {/* Navigation Tabs inside Sidebar */}
+            {/* Actions inside Sidebar (No redundant black button) */}
             <div className="w-full mt-6 space-y-2.5">
               {(user?.role === "admin" || user?.role?.toLowerCase() === "admin" || user?.isAdmin) && (
                 <button
@@ -164,14 +256,6 @@ export default function ProfilePage() {
 
               <button
                 type="button"
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-default text-center"
-              >
-                <User className="w-4 h-4 shrink-0" />
-                <span>Thông tin cá nhân</span>
-              </button>
-
-              <button
-                type="button"
                 onClick={handleLogout}
                 className="w-full bg-gray-50/80 hover:bg-red-50 text-gray-700 hover:text-red-600 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-gray-100/80 hover:border-red-100 transition-all cursor-pointer shadow-2xs text-center"
               >
@@ -181,88 +265,233 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Right Column: Account Details */}
-          <div className="flex-1 w-full bg-white rounded-2xl shadow-xs border border-gray-100/80 p-6 sm:p-7 space-y-6">
-            <h2 className="text-lg sm:text-xl font-bold text-gray-900 pb-2 border-b border-gray-100">
-              Chi tiết tài khoản
-            </h2>
+          {/* Right Column: Account Details & Change Password */}
+          <div className="flex-1 w-full space-y-6">
+            {/* Card 1: Account Details */}
+            <div className="bg-white rounded-2xl shadow-xs border border-gray-100/80 p-6 sm:p-7 space-y-6">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 pb-2 border-b border-gray-100 flex items-center gap-2">
+                <User className="w-5 h-5 text-[#eb1c24]" />
+                <span>Chi tiết tài khoản</span>
+              </h2>
 
-            {/* Grid 2 Cols: Name & Email */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* Họ và tên */}
-              <div>
-                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-gray-400" />
-                  <span>HỌ VÀ TÊN</span>
-                </label>
-                <div className="w-full bg-[#f8f9fa] border border-gray-100/90 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-bold text-gray-800">
-                  {user?.name || "Chưa cập nhật"}
+              {/* Grid 2 Cols: Name & Email */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Họ và tên */}
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-gray-400" />
+                    <span>HỌ VÀ TÊN</span>
+                  </label>
+                  <div className="w-full bg-[#f8f9fa] border border-gray-100/90 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-bold text-gray-800">
+                    {user?.name || "Chưa cập nhật"}
+                  </div>
+                </div>
+
+                {/* Địa chỉ email */}
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-gray-400" />
+                    <span>ĐỊA CHỈ EMAIL</span>
+                  </label>
+                  <div className="w-full bg-[#f8f9fa] border border-gray-100/90 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-bold text-gray-800 truncate">
+                    {user?.email}
+                  </div>
                 </div>
               </div>
 
-              {/* Địa chỉ email */}
+              {/* Số điện thoại */}
               <div>
-                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5 text-gray-400" />
-                  <span>ĐỊA CHỈ EMAIL</span>
-                </label>
-                <div className="w-full bg-[#f8f9fa] border border-gray-100/90 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-bold text-gray-800 truncate">
-                  {user?.email}
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-gray-400" />
+                    <span>SỐ ĐIỆN THOẠI</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingPhone(!isEditingPhone)}
+                    className="text-xs text-[#eb1c24] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span>{isEditingPhone ? "Hủy" : "Thay đổi"}</span>
+                  </button>
                 </div>
+
+                {isEditingPhone ? (
+                  <form onSubmit={handleUpdatePhone} className="flex gap-2">
+                    <input
+                      type="tel"
+                      placeholder="Nhập số điện thoại của bạn"
+                      value={newPhone}
+                      onChange={(e) => setNewPhone(e.target.value)}
+                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-2 text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#eb1c24] focus:ring-2 focus:ring-red-500/15 transition-all"
+                      autoFocus
+                    />
+                    <button
+                      type="submit"
+                      disabled={savingPhone}
+                      className="bg-[#eb1c24] hover:bg-[#b91c1c] text-white px-5 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-1.5 shadow-sm"
+                    >
+                      {savingPhone ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                      )}
+                      <span>{savingPhone ? "Đang lưu..." : "Lưu"}</span>
+                    </button>
+                  </form>
+                ) : (
+                  <div className="w-full bg-[#f8f9fa] border border-gray-100/90 rounded-xl px-4 py-2.5 text-xs sm:text-sm">
+                    {user?.phone ? (
+                      <span className="font-bold text-gray-800">{user.phone}</span>
+                    ) : (
+                      <span className="text-gray-400 italic">
+                        Chưa cập nhật số điện thoại
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Số điện thoại */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Phone className="w-3.5 h-3.5 text-gray-400" />
-                  <span>SỐ ĐIỆN THOẠI</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setIsEditingPhone(!isEditingPhone)}
-                  className="text-xs text-[#eb1c24] font-bold hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <Edit3 className="w-3 h-3" />
-                  <span>{isEditingPhone ? "Hủy" : "Thay đổi"}</span>
-                </button>
+            {/* Card 2: Change / Set Password (Bảo mật tài khoản & Đổi mật khẩu) */}
+            <div className="bg-white rounded-2xl shadow-xs border border-gray-100/80 p-6 sm:p-7 space-y-6">
+              <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <KeyRound className="w-5 h-5 text-[#eb1c24]" />
+                  <span>
+                    {user?.authType === "google"
+                      ? "Thiết lập mật khẩu đăng nhập"
+                      : "Đổi mật khẩu tài khoản"}
+                  </span>
+                </h2>
+                <span className="text-xs text-gray-400 font-medium hidden sm:inline">
+                  Tối thiểu 6 ký tự
+                </span>
               </div>
 
-              {isEditingPhone ? (
-                <form onSubmit={handleUpdatePhone} className="flex gap-2">
-                  <input
-                    type="tel"
-                    placeholder="Nhập số điện thoại của bạn"
-                    value={newPhone}
-                    onChange={(e) => setNewPhone(e.target.value)}
-                    className="w-full bg-white border border-gray-300 rounded-xl px-4 py-2 text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#eb1c24] focus:ring-2 focus:ring-red-500/15 transition-all"
-                    autoFocus
-                  />
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="bg-[#eb1c24] hover:bg-[#b91c1c] text-white px-5 py-2 rounded-xl text-xs font-bold shrink-0 transition-colors cursor-pointer disabled:opacity-60 flex items-center gap-1.5 shadow-sm"
-                  >
-                    {saving ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                    )}
-                    <span>{saving ? "Đang lưu..." : "Lưu"}</span>
-                  </button>
-                </form>
-              ) : (
-                <div className="w-full bg-[#f8f9fa] border border-gray-100/90 rounded-xl px-4 py-2.5 text-xs sm:text-sm">
-                  {user?.phone ? (
-                    <span className="font-bold text-gray-800">{user.phone}</span>
-                  ) : (
-                    <span className="text-gray-400 italic">
-                      Chưa cập nhật số điện thoại
-                    </span>
-                  )}
+              {user?.authType === "google" && (
+                <div className="p-3.5 rounded-xl bg-red-50/80 border border-red-100 text-xs text-red-900 flex items-start gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-[#eb1c24] shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-bold text-red-950">
+                      Tài khoản liên kết Google OAuth
+                    </p>
+                    <p className="text-slate-600 leading-relaxed">
+                      Bạn đang đăng nhập trực tiếp qua tài khoản Google ({user?.email}). Khi tạo mật khẩu tại đây, bạn sẽ có thể đăng nhập linh hoạt bằng cả 2 hình thức: <strong>Đăng nhập với Google</strong> hoặc <strong>Nhập Email & Mật khẩu</strong>.
+                    </p>
+                  </div>
                 </div>
               )}
+
+              <form onSubmit={handlePasswordChange} className="space-y-4">
+                {/* Mật khẩu hiện tại (nếu là local auth) */}
+                {user?.authType !== "google" && (
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-gray-400" />
+                      <span>MẬT KHẨU HIỆN TẠI</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showCurrentPassword ? "text" : "password"}
+                        value={passwordForm.currentPassword}
+                        onChange={(e) =>
+                          setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
+                        }
+                        placeholder="Nhập mật khẩu hiện tại"
+                        className="w-full bg-[#f8f9fa] focus:bg-white border border-gray-200 focus:border-[#eb1c24] rounded-xl px-4 py-2.5 pr-11 text-xs sm:text-sm font-medium text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-red-500/10 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition cursor-pointer"
+                      >
+                        {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Grid 2 Cols: Mật khẩu mới & Xác nhận mật khẩu mới */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Mật khẩu mới */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <KeyRound className="w-3.5 h-3.5 text-gray-400" />
+                      <span>MẬT KHẨU MỚI</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showNewPassword ? "text" : "password"}
+                        value={passwordForm.newPassword}
+                        onChange={(e) =>
+                          setPasswordForm({ ...passwordForm, newPassword: e.target.value })
+                        }
+                        placeholder="Nhập mật khẩu mới (>= 6 ký tự)"
+                        className="w-full bg-[#f8f9fa] focus:bg-white border border-gray-200 focus:border-[#eb1c24] rounded-xl px-4 py-2.5 pr-11 text-xs sm:text-sm font-medium text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-red-500/10 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition cursor-pointer"
+                      >
+                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Nhập lại mật khẩu mới */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-gray-400" />
+                      <span>XÁC NHẬN MẬT KHẨU MỚI</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) =>
+                          setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
+                        }
+                        placeholder="Nhập lại mật khẩu mới"
+                        className="w-full bg-[#f8f9fa] focus:bg-white border border-gray-200 focus:border-[#eb1c24] rounded-xl px-4 py-2.5 pr-11 text-xs sm:text-sm font-medium text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-red-500/10 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition cursor-pointer"
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Submit button */}
+                <div className="flex justify-end pt-3">
+                  <button
+                    type="submit"
+                    disabled={savingPassword || (!passwordForm.newPassword && !passwordForm.confirmPassword)}
+                    className="flex items-center gap-2 bg-[#eb1c24] hover:bg-[#c9121a] disabled:bg-slate-300 text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 rounded-xl shadow-md shadow-red-600/20 transition cursor-pointer disabled:cursor-not-allowed active:scale-98"
+                  >
+                    {savingPassword ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Đang cập nhật...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        <span>
+                          {user?.authType === "google"
+                            ? "Thiết lập & Lưu mật khẩu"
+                            : "Lưu mật khẩu mới"}
+                        </span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

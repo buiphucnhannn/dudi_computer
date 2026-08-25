@@ -731,7 +731,7 @@ export default function Header() {
                   >
                     <div className="relative w-9 h-9 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-sm font-bold text-sm">
                       {user?.name ? user.name.charAt(0).toUpperCase() : <User className="w-4 h-4 text-white" />}
-                      {userUnreadCount > 0 && (
+                      {user?.role !== "admin" && userUnreadCount > 0 && (
                         <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-black text-white ring-2 ring-white animate-pulse">
                           {userUnreadCount > 99 ? "99+" : userUnreadCount}
                         </span>
@@ -780,22 +780,24 @@ export default function Header() {
                         <span>Hồ sơ cá nhân</span>
                       </Link>
 
-                      {/* Option: Theo dõi đơn hàng */}
-                      <Link
-                        href="/orders"
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center justify-between px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all group/item"
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <PackageCheck className="w-4 h-4 text-gray-500 group-hover/item:text-[#eb1c24] shrink-0 transition-colors" />
-                          <span>Theo dõi đơn hàng</span>
-                        </div>
-                        {userUnreadCount > 0 && (
-                          <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[9.5px] font-black">
-                            {userUnreadCount}
-                          </span>
-                        )}
-                      </Link>
+                      {/* Option: Theo dõi đơn hàng (Chỉ hiển thị cho khách hàng thông thường, Admin quản trị qua tab Đơn hàng) */}
+                      {user?.role !== "admin" && (
+                        <Link
+                          href="/orders"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center justify-between px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all group/item"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <PackageCheck className="w-4 h-4 text-gray-500 group-hover/item:text-[#eb1c24] shrink-0 transition-colors" />
+                            <span>Theo dõi đơn hàng</span>
+                          </div>
+                          {userUnreadCount > 0 && (
+                            <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[9.5px] font-black">
+                              {userUnreadCount}
+                            </span>
+                          )}
+                        </Link>
+                      )}
 
                       <button
                         onClick={handleLogout}
@@ -1381,30 +1383,32 @@ export default function Header() {
               </div>
             </Link>
 
-            <Link
-              href="/orders"
-              onClick={() => setMobileMenuOpen(false)}
-              className="p-2.5 bg-gray-50 hover:bg-amber-50 rounded-xl flex items-center gap-2.5 transition-colors border border-gray-100 col-span-2"
-            >
-              <div className="w-8 h-8 rounded-lg bg-amber-100/80 text-amber-700 flex items-center justify-center shrink-0">
-                <PackageCheck className="w-4 h-4" />
-              </div>
-              <div className="flex-1 min-w-0 flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold text-gray-800 block leading-tight">
-                    Theo dõi đơn hàng
-                  </span>
-                  <span className="text-[10px] text-gray-500">
-                    Tra cứu tiến độ & trạng thái
-                  </span>
+            {user?.role !== "admin" && (
+              <Link
+                href="/orders"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2.5 bg-gray-50 hover:bg-amber-50 rounded-xl flex items-center gap-2.5 transition-colors border border-gray-100 col-span-2"
+              >
+                <div className="w-8 h-8 rounded-lg bg-amber-100/80 text-amber-700 flex items-center justify-center shrink-0">
+                  <PackageCheck className="w-4 h-4" />
                 </div>
-                {userUnreadCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-bold">
-                    {userUnreadCount} mới
-                  </span>
-                )}
-              </div>
-            </Link>
+                <div className="flex-1 min-w-0 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-gray-800 block leading-tight">
+                      Theo dõi đơn hàng
+                    </span>
+                    <span className="text-[10px] text-gray-500">
+                      Tra cứu tiến độ & trạng thái
+                    </span>
+                  </div>
+                  {userUnreadCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-bold">
+                      {userUnreadCount} mới
+                    </span>
+                  )}
+                </div>
+              </Link>
+            )}
 
             <Link
               href="/back-to-school"

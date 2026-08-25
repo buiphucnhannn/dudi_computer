@@ -395,18 +395,37 @@ class AuthService {
     return user;
   }
 
-  async updateProfile(userId, { name, phone, address, avatar }) {
-    const updateData = {};
-    if (name !== undefined) updateData.name = name;
-    if (phone !== undefined) updateData.phone = phone;
-    if (address !== undefined) updateData.address = address;
-    if (avatar !== undefined) updateData.avatar = avatar;
-
-    const updatedUser = await userRepository.updateById(userId, updateData);
-
-    if (!updatedUser) {
+  async updateProfile(userId, { name, phone, address, avatar, currentPassword, newPassword }) {
+    const user = await userRepository.findById(userId);
+    if (!user) {
       throw new ApiError(404, "Không tìm thấy người dùng");
     }
+
+    if (newPassword) {
+      if (newPassword.length < 6) {
+        throw new ApiError(400, "Mật khẩu mới phải có ít nhất 6 ký tự.");
+      }
+
+      // Chỉ bắt buộc nhập mật khẩu cũ nếu là tài khoản đăng ký bằng email/mật khẩu truyền thống
+      if (user.authType === "local") {
+        if (!currentPassword) {
+          throw new ApiError(400, "Vui lòng nhập mật khẩu hiện tại để xác nhận đổi mật khẩu.");
+        }
+        const isPasswordCorrect = await user.isPasswordCorrect(currentPassword);
+        if (!isPasswordCorrect) {
+          throw new ApiError(400, "Mật khẩu hiện tại không chính xác.");
+        }
+      }
+
+      user.password = newPassword;
+    }
+
+    if (name !== undefined && name.trim()) user.name = name.trim();
+    if (phone !== undefined) user.phone = phone.trim();
+    if (address !== undefined) user.address = address.trim();
+    if (avatar !== undefined) user.avatar = avatar;
+
+    await user.save();
 
     return await userRepository.findByIdWithoutPassword(userId);
   }
