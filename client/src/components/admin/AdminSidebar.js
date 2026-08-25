@@ -171,8 +171,8 @@ export default function AdminSidebar({ isOpen, onClose }) {
       {/* Backdrop Overlay trên màn hình Mobile / Tablet - Click ngoài tự động thu sidebar */}
       <div
         className={`fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 transition-opacity duration-300 lg:hidden ${isOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+          ? "opacity-100 pointer-events-auto"
+          : "opacity-0 pointer-events-none"
           }`}
         onClick={onClose}
         aria-hidden="true"
@@ -180,9 +180,8 @@ export default function AdminSidebar({ isOpen, onClose }) {
 
       {/* Sidebar Panel Drawer */}
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-full w-[280px] flex-col border-r border-slate-200 bg-white shadow-2xl lg:shadow-xs transition-transform duration-300 ease-out ${
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`fixed left-0 top-0 z-50 flex h-full w-[280px] flex-col border-r border-slate-200 bg-white shadow-2xl lg:shadow-xs transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
         aria-label="Admin Navigation Sidebar"
       >
         {/* Logo & Brand */}
@@ -222,9 +221,8 @@ export default function AdminSidebar({ isOpen, onClose }) {
           <span className="text-slate-500 font-semibold whitespace-nowrap shrink-0">Vai trò:</span>
           <div className="flex items-center gap-1.5 min-w-0">
             <span
-              className={`px-2.5 py-0.5 rounded-lg border text-[10px] font-black uppercase tracking-tight whitespace-nowrap ${
-                roleInfo?.badgeBg || "bg-red-100 text-[#eb1c24] border-red-200"
-              }`}
+              className={`px-2.5 py-0.5 rounded-lg border text-[10px] font-black uppercase tracking-tight whitespace-nowrap ${roleInfo?.badgeBg || "bg-red-100 text-[#eb1c24] border-red-200"
+                }`}
             >
               {roleInfo?.shortLabel || "ADMIN"}
             </span>
@@ -253,8 +251,8 @@ export default function AdminSidebar({ isOpen, onClose }) {
                         if (onClose) onClose();
                       }}
                       className={`group flex items-center justify-between rounded-xl px-3 py-2 text-[13px] font-bold transition-all duration-150 ${isActive
-                          ? "bg-red-50/80 text-[#eb1c24] border border-red-200/80 shadow-2xs font-extrabold"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
+                        ? "bg-red-50/80 text-[#eb1c24] border border-red-200/80 shadow-2xs font-extrabold"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
                         }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
