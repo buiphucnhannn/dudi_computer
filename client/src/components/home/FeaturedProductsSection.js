@@ -37,9 +37,11 @@ import {
 } from "@/redux/slices/cartSlice";
 import { useCompare } from "@/components/common/CompareContext";
 import { useToast } from "@/components/common/ToastContext";
+import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
 
 export default function FeaturedProductsSection({ products = [] }) {
   const [activeTab, setActiveTab] = useState("all");
+  const [buyModalItem, setBuyModalItem] = useState(null);
   const sliderRef = useRef(null);
   const dispatch = useDispatch();
   const { addToCompare, isComparing } = useCompare();
@@ -167,6 +169,12 @@ export default function FeaturedProductsSection({ products = [] }) {
     }
   };
 
+  const handleBuyNow = (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setBuyModalItem(item);
+  };
+
   const renderSpecIcon = (iconName) => {
     const props = { className: "w-3.5 h-3.5 text-gray-400 shrink-0" };
     switch (iconName) {
@@ -187,11 +195,9 @@ export default function FeaturedProductsSection({ products = [] }) {
 
   return (
     <section className="bg-gradient-to-b from-amber-100/70 via-amber-50/50 to-yellow-100/60 rounded-[2.5rem] p-4 sm:p-7 md:p-9 border-[3px] md:border-4 border-amber-300 shadow-xl relative overflow-hidden mb-10 sm:mb-14 md:mb-16">
-      {/* Background Glowing Blobs */}
       <div className="absolute -top-32 -right-32 w-96 h-96 bg-yellow-400/40 rounded-full blur-[80px] pointer-events-none hidden md:block" />
       <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-orange-500/30 rounded-full blur-[80px] pointer-events-none hidden md:block" />
 
-      {/* Header with Fiery Gradient Title */}
       <div className="flex flex-col items-center justify-center mb-6 gap-3 relative z-10 w-full text-center">
         <h3 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-red-500 to-orange-600 uppercase tracking-tight relative inline-block drop-shadow-md py-2 leading-tight">
           SẢN PHẨM NỔI BẬT
@@ -199,7 +205,6 @@ export default function FeaturedProductsSection({ products = [] }) {
         </h3>
       </div>
 
-      {/* 3 Filter Tabs */}
       <div className="flex flex-wrap items-center justify-center gap-2.5 mb-7 relative z-10">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -219,9 +224,7 @@ export default function FeaturedProductsSection({ products = [] }) {
         })}
       </div>
 
-      {/* Slider Carousel Area */}
       <div className="relative group/slider mt-2">
-        {/* Left Arrow Button */}
         <button
           onClick={scrollLeft}
           className="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 bg-white border border-yellow-200 rounded-full shadow-lg flex items-center justify-center text-yellow-600 hover:text-orange-500 hover:scale-110 z-40 opacity-0 group-hover/slider:opacity-100 transition-all focus:outline-none cursor-pointer"
@@ -230,7 +233,6 @@ export default function FeaturedProductsSection({ products = [] }) {
           <ChevronLeft className="w-6 h-6" />
         </button>
 
-        {/* Horizontal Smooth Scroll Track */}
         <div
           ref={sliderRef}
           className="flex overflow-x-auto gap-4 py-2 px-1 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
@@ -260,19 +262,16 @@ export default function FeaturedProductsSection({ products = [] }) {
                 className="w-[260px] sm:w-[280px] lg:w-[calc(25%-12px)] shrink-0 bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group/card relative"
               >
                 <div>
-                  {/* Product Image Area */}
                   <Link
                     href={detailHref}
                     className="block relative aspect-square w-full rounded-xl overflow-hidden border-2 border-red-500 mb-3 bg-white group/img p-2"
                   >
-                    {/* Top Left Discount Badge (Chỉ hiện khi có giảm giá thật) */}
                     {hasDiscount && (
                       <div className="absolute top-2 left-2 z-20 bg-[#eb1c24] text-white text-[11px] font-black px-2 py-0.5 rounded shadow-sm">
                         Giảm {discountPercent}%
                       </div>
                     )}
 
-                    {/* Top Right '🔥 HOT SALE' Badge */}
                     {showHotSaleBadge && (
                       <div className="absolute top-2 right-2 z-20 bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
                         <Flame className="w-3 h-3 fill-white" />
@@ -291,14 +290,12 @@ export default function FeaturedProductsSection({ products = [] }) {
                       }}
                     />
 
-                    {/* Watermark góc dưới bên trái */}
                     <div className="absolute bottom-1 left-2 pointer-events-none opacity-85 z-20">
                       <span className="text-[9px] font-black text-[#eb1c24] tracking-tight uppercase">
                         DUDI SOFTWARE
                       </span>
                     </div>
 
-                    {/* Center Hover Pill */}
                     <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover/card:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
                       <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover/card:scale-100 transition-all duration-300 whitespace-nowrap">
                         <span>Xem chi tiết</span>
@@ -307,7 +304,6 @@ export default function FeaturedProductsSection({ products = [] }) {
                     </div>
                   </Link>
 
-                  {/* Brand & Action Icons */}
                   <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
                     <span className="font-black text-gray-900 uppercase tracking-wider text-[11px]">
                       {item.brand || "ZCOMPUTER"}
@@ -342,7 +338,6 @@ export default function FeaturedProductsSection({ products = [] }) {
                     </div>
                   </div>
 
-                  {/* Product Title */}
                   <Link
                     href={detailHref}
                     className="font-bold text-xs sm:text-[13px] text-gray-900 hover:text-[#eb1c24] group-hover/card:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors"
@@ -351,7 +346,6 @@ export default function FeaturedProductsSection({ products = [] }) {
                     {item.name}
                   </Link>
 
-                  {/* Price Box */}
                   <div className="mb-3">
                     {hasDiscount && (
                       <div className="text-xs text-gray-400 line-through">
@@ -371,7 +365,6 @@ export default function FeaturedProductsSection({ products = [] }) {
                   </div>
                 </div>
 
-                {/* Specs 2x2 Grid trích xuất từ specs DB */}
                 {(() => {
                   const badges = getProductCardBadges(item);
                   return (
@@ -390,25 +383,24 @@ export default function FeaturedProductsSection({ products = [] }) {
                   );
                 })()}
 
-                {/* Card Footer: Views & Order Link */}
                 <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100">
                   <span className="flex items-center gap-1">
                     <Eye className="w-3.5 h-3.5" />
                     <span>{item.views || 68} lượt xem</span>
                   </span>
-                  <Link
-                    href={detailHref}
+                  <button
+                    type="button"
+                    onClick={(e) => handleBuyNow(e, item)}
                     className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
                   >
                     + Mua ngay
-                  </Link>
+                  </button>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Right Arrow Button */}
         <button
           onClick={scrollRight}
           className="absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 bg-white border border-yellow-200 rounded-full shadow-lg flex items-center justify-center text-yellow-600 hover:text-orange-500 hover:scale-110 z-40 opacity-0 group-hover/slider:opacity-100 transition-all focus:outline-none cursor-pointer"
@@ -417,6 +409,13 @@ export default function FeaturedProductsSection({ products = [] }) {
           <ChevronRight className="w-6 h-6" />
         </button>
       </div>
+
+      <OrderCheckoutModal
+        isOpen={!!buyModalItem}
+        onClose={() => setBuyModalItem(null)}
+        product={buyModalItem}
+        quantity={1}
+      />
     </section>
   );
 }

@@ -9,16 +9,16 @@ export default function ShippingPolicyPage() {
   return (
     <div className="bg-[#f8f9fa] min-h-screen py-6 sm:py-14 pb-28 sm:pb-20">
       <div className="w-full max-w-4xl mx-auto px-3 sm:px-4">
-        {/* Header Card (Red Background) */}
-        <div className="bg-[#eb1c24] text-white rounded-2xl p-4 sm:p-8 mb-6 sm:mb-8 flex items-center gap-4 sm:gap-6 shadow-lg relative overflow-hidden">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center shrink-0 border border-white/25">
-            <Truck className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+        {/* Header Card */}
+        <div className="bg-gray-800 text-white rounded-2xl p-6 sm:p-8 mb-6 sm:mb-8 flex items-center gap-5 sm:gap-6 shadow-md">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center shrink-0 border border-white/10">
+            <Truck className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-3xl font-black uppercase tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
               CHÍNH SÁCH VẬN CHUYỂN
             </h1>
-            <p className="text-white/80 text-[11px] sm:text-sm mt-0.5 sm:mt-1 font-medium">
+            <p className="text-gray-300 text-xs sm:text-sm mt-1 font-medium">
               Áp dụng cho tất cả đơn hàng tại DUDI SOFTWARE
             </p>
           </div>

@@ -57,8 +57,8 @@ export function ToastProvider({ children }) {
     <ToastContext.Provider value={{ showToast }}>
       {children}
 
-      {/* Floating Toast Container */}
-      <div className="fixed top-5 right-4 sm:right-6 z-[100] flex flex-col gap-3 max-w-sm w-[calc(100vw-32px)] sm:w-96 pointer-events-none">
+      {/* Floating Toast Container (Always on top of all modals and popups) */}
+      <div className="fixed top-5 right-4 sm:right-6 z-[99999] flex flex-col gap-3 max-w-sm w-[calc(100vw-32px)] sm:w-96 pointer-events-none">
         {toasts.map((toast) => {
           const isSuccess = toast.type === "success";
           const isError = toast.type === "error";

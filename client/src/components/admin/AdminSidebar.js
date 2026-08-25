@@ -15,6 +15,7 @@ import {
   Newspaper,
   Briefcase,
   Flame,
+  MessageSquare,
   X,
 } from "lucide-react";
 
@@ -82,6 +83,11 @@ const menuGroups = [
         label: "Quản lý khách hàng",
         href: "/admin/users",
         icon: Users,
+      },
+      {
+        label: "Liên hệ & Góp ý",
+        href: "/admin/contacts",
+        icon: MessageSquare,
       },
       {
         label: "Cài đặt hệ thống",

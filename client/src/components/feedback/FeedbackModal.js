@@ -36,7 +36,13 @@ export default function FeedbackModal({ isOpen, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.fullName.trim()) {
+    const fullName = formData.fullName.trim();
+    const phone = formData.phone.trim().replace(/[\s.-]/g, "").replace(/^\+84/, "0");
+    const email = formData.email.trim();
+    const content = formData.content.trim();
+
+    // 1. Validate Họ và tên
+    if (!fullName) {
       showToast({
         title: "Thiếu thông tin",
         message: "Vui lòng nhập họ và tên của bạn.",
@@ -44,20 +50,76 @@ export default function FeedbackModal({ isOpen, onClose }) {
       });
       return;
     }
-
-    if (!formData.email.trim()) {
+    if (fullName.length < 2) {
       showToast({
-        title: "Thiếu thông tin",
-        message: "Vui lòng nhập địa chỉ email của bạn.",
+        title: "Họ và tên không hợp lệ",
+        message: "Họ và tên quá ngắn. Vui lòng nhập tối thiểu 2 ký tự.",
+        type: "error",
+      });
+      return;
+    }
+    if (fullName.length > 100) {
+      showToast({
+        title: "Họ và tên quá dài",
+        message: "Họ và tên không được vượt quá 100 ký tự.",
         type: "error",
       });
       return;
     }
 
-    if (!formData.content.trim()) {
+    // 2. Validate Số điện thoại (10 chữ số di động VN)
+    if (!phone) {
+      showToast({
+        title: "Thiếu thông tin",
+        message: "Vui lòng nhập số điện thoại liên hệ của bạn.",
+        type: "error",
+      });
+      return;
+    }
+    const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+    if (!phoneRegex.test(phone)) {
+      showToast({
+        title: "Số điện thoại không hợp lệ",
+        message: "Vui lòng nhập đúng 10 số điện thoại di động (ví dụ: 0909163821 hoặc 0388999888).",
+        type: "error",
+      });
+      return;
+    }
+
+    // 3. Validate Email (Không bắt buộc, nhưng nếu nhập thì phải đúng chuẩn)
+    if (email) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        showToast({
+          title: "Email không hợp lệ",
+          message: "Địa chỉ email không đúng định dạng (ví dụ: name@gmail.com) hoặc bạn có thể để trống.",
+          type: "error",
+        });
+        return;
+      }
+    }
+
+    // 4. Validate Nội dung góp ý
+    if (!content) {
       showToast({
         title: "Thiếu thông tin",
         message: "Vui lòng nhập nội dung bạn muốn góp ý.",
+        type: "error",
+      });
+      return;
+    }
+    if (content.length < 6) {
+      showToast({
+        title: "Nội dung quá ngắn",
+        message: "Vui lòng chia sẻ chi tiết hơn (tối thiểu 6 ký tự) để chúng tôi có thể hỗ trợ tốt nhất.",
+        type: "error",
+      });
+      return;
+    }
+    if (content.length > 3000) {
+      showToast({
+        title: "Nội dung quá dài",
+        message: "Nội dung góp ý không được vượt quá 3000 ký tự.",
         type: "error",
       });
       return;
@@ -66,7 +128,13 @@ export default function FeedbackModal({ isOpen, onClose }) {
     setLoading(true);
 
     try {
-      await feedbackAPI.create(formData);
+      await feedbackAPI.create({
+        fullName,
+        phone,
+        email,
+        message: content,
+        type: "feedback",
+      });
 
       // Reset form
       setFormData({
@@ -150,10 +218,10 @@ export default function FeedbackModal({ isOpen, onClose }) {
 
           <div>
             <input
-              type="email"
-              name="email"
-              placeholder="Địa chỉ Email *"
-              value={formData.email}
+              type="tel"
+              name="phone"
+              placeholder="Số điện thoại của bạn *"
+              value={formData.phone}
               onChange={handleChange}
               disabled={loading}
               className="w-full bg-gray-50/80 border border-gray-200/90 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#8b5cf6] focus:ring-3 focus:ring-[#8b5cf6]/15 transition-all"
@@ -162,10 +230,10 @@ export default function FeedbackModal({ isOpen, onClose }) {
 
           <div>
             <input
-              type="tel"
-              name="phone"
-              placeholder="Số điện thoại (không bắt buộc)"
-              value={formData.phone}
+              type="email"
+              name="email"
+              placeholder="Địa chỉ Email (không bắt buộc)"
+              value={formData.email}
               onChange={handleChange}
               disabled={loading}
               className="w-full bg-gray-50/80 border border-gray-200/90 rounded-xl px-4 py-3 text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#8b5cf6] focus:ring-3 focus:ring-[#8b5cf6]/15 transition-all"

@@ -130,8 +130,8 @@ export const authAPI = {
 };
 
 export const feedbackAPI = {
-  create: (data) => apiClient.post("/feedbacks", data),
-  getAll: (params) => apiClient.get("/feedbacks", { params }),
+  create: (data) => apiClient.post("/contacts", { ...data, type: "feedback" }),
+  getAll: (params) => apiClient.get("/contacts", { params: { ...params, type: "feedback" } }),
 };
 
 export const cartAPI = {
@@ -156,6 +156,9 @@ export const newsAPI = {
 export const contactAPI = {
   create: (data) => apiClient.post("/contacts", data),
   getAll: (params) => apiClient.get("/contacts", { params }),
+  getStats: () => apiClient.get("/contacts/stats"),
+  updateStatus: (id, data) => apiClient.patch(`/contacts/${id}/status`, data),
+  delete: (id) => apiClient.delete(`/contacts/${id}`),
 };
 
 export const jobAPI = {

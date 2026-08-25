@@ -33,7 +33,13 @@ export default function ContactContent() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.fullName.trim()) {
+    const fullName = formData.fullName.trim();
+    const phone = formData.phone.trim().replace(/[\s.-]/g, "").replace(/^\+84/, "0");
+    const email = formData.email.trim();
+    const message = formData.message.trim();
+
+    // 1. Validate Họ và tên
+    if (!fullName) {
       showToast({
         title: "Thiếu thông tin",
         message: "Vui lòng nhập họ và tên của bạn",
@@ -41,8 +47,25 @@ export default function ContactContent() {
       });
       return;
     }
+    if (fullName.length < 2) {
+      showToast({
+        title: "Họ và tên không hợp lệ",
+        message: "Họ và tên quá ngắn. Vui lòng nhập tối thiểu 2 ký tự.",
+        type: "warning",
+      });
+      return;
+    }
+    if (fullName.length > 100) {
+      showToast({
+        title: "Họ và tên quá dài",
+        message: "Họ và tên không được vượt quá 100 ký tự.",
+        type: "warning",
+      });
+      return;
+    }
 
-    if (!formData.phone.trim()) {
+    // 2. Validate Số điện thoại (10 chữ số di động VN)
+    if (!phone) {
       showToast({
         title: "Thiếu thông tin",
         message: "Vui lòng nhập số điện thoại liên hệ",
@@ -50,8 +73,31 @@ export default function ContactContent() {
       });
       return;
     }
+    const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+    if (!phoneRegex.test(phone)) {
+      showToast({
+        title: "Số điện thoại không hợp lệ",
+        message: "Vui lòng nhập đúng 10 số điện thoại di động (ví dụ: 0909163821 hoặc 0388999888).",
+        type: "warning",
+      });
+      return;
+    }
 
-    if (!formData.message.trim()) {
+    // 3. Validate Email (Không bắt buộc, nhưng nếu nhập thì phải đúng chuẩn)
+    if (email) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        showToast({
+          title: "Email không hợp lệ",
+          message: "Địa chỉ email không đúng định dạng (ví dụ: name@gmail.com) hoặc bạn có thể để trống.",
+          type: "warning",
+        });
+        return;
+      }
+    }
+
+    // 4. Validate Nội dung tin nhắn
+    if (!message) {
       showToast({
         title: "Thiếu thông tin",
         message: "Vui lòng nhập nội dung tin nhắn hoặc nhu cầu tư vấn",
@@ -59,10 +105,32 @@ export default function ContactContent() {
       });
       return;
     }
+    if (message.length < 6) {
+      showToast({
+        title: "Nội dung quá ngắn",
+        message: "Vui lòng nhập nội dung chi tiết hơn (tối thiểu 6 ký tự) để chúng tôi hỗ trợ tốt nhất.",
+        type: "warning",
+      });
+      return;
+    }
+    if (message.length > 3000) {
+      showToast({
+        title: "Nội dung quá dài",
+        message: "Nội dung không được vượt quá 3000 ký tự.",
+        type: "warning",
+      });
+      return;
+    }
 
     setSubmitting(true);
     try {
-      await contactAPI.create(formData);
+      await contactAPI.create({
+        fullName,
+        phone,
+        email,
+        message,
+        type: "contact",
+      });
       setSubmittedSuccess(true);
       setFormData({
         fullName: "",

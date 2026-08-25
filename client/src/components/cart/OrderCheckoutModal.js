@@ -31,6 +31,8 @@ export default function OrderCheckoutModal({
   items = [],
   onOrderSuccess,
   prefilledProduct = null,
+  product = null,
+  quantity = 1,
 }) {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -53,17 +55,23 @@ export default function OrderCheckoutModal({
   const [copiedCode, setCopiedCode] = useState(false);
 
   // Determine the active product list
-  const activeItems = prefilledProduct
+  const single = prefilledProduct || product;
+  const activeItems = single
     ? [
         {
-          _id: prefilledProduct._id || prefilledProduct.id,
-          id: prefilledProduct._id || prefilledProduct.id,
-          product: prefilledProduct._id || prefilledProduct.id,
-          name: prefilledProduct.name,
-          slug: prefilledProduct.slug,
-          price: prefilledProduct.price || 0,
-          thumbnail: prefilledProduct.thumbnail || (prefilledProduct.images && prefilledProduct.images[0]) || "",
-          quantity: prefilledProduct.quantity || 1,
+          _id: single._id || single.id || single.slug,
+          id: single._id || single.id || single.slug,
+          product: single._id || single.id || single.slug,
+          name: single.name || single.title || "Sản phẩm",
+          slug: single.slug,
+          price: Number(single.price || 0),
+          thumbnail:
+            single.thumbnail ||
+            (Array.isArray(single.images) &&
+              (single.images[0]?.url || single.images[0])) ||
+            single.image ||
+            "/images/dudi/dudisoftware1.png",
+          quantity: Number(single.quantity || quantity || 1),
         },
       ]
     : items;
@@ -158,6 +166,12 @@ export default function OrderCheckoutModal({
 
       if (newOrder) {
         setCreatedOrder(newOrder);
+        showToast({
+          title: "Đặt hàng thành công",
+          message: `Mã đơn hàng #${newOrder?.orderCode || newOrder?._id} đang được tiếp nhận xử lý`,
+          type: "success",
+          duration: 5000,
+        });
         if (onOrderSuccess) {
           onOrderSuccess(newOrder);
         }
