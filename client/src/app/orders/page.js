@@ -102,7 +102,9 @@ function OrderTrackingContent() {
           }
         }
       } catch (err) {
-        console.error("Lỗi khi tải danh sách đơn hàng:", err);
+        if (err?.response?.status !== 401) {
+          console.error("Lỗi khi tải danh sách đơn hàng:", err);
+        }
       } finally {
         if (!isBackground) setLoading(false);
       }
