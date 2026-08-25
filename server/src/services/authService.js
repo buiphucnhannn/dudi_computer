@@ -395,18 +395,49 @@ class AuthService {
     return user;
   }
 
-  async updateProfile(userId, { name, phone, address, avatar }) {
-    const updateData = {};
-    if (name !== undefined) updateData.name = name;
-    if (phone !== undefined) updateData.phone = phone;
-    if (address !== undefined) updateData.address = address;
-    if (avatar !== undefined) updateData.avatar = avatar;
-
-    const updatedUser = await userRepository.updateById(userId, updateData);
-
-    if (!updatedUser) {
-      throw new ApiError(404, "Không tìm thấy người dùng");
+  async updateProfile(
+    userId,
+    { name, phone, address, avatar, currentPassword, newPassword }
+  ) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, "Không tìm thấy tài khoản người dùng");
     }
+
+    if (name !== undefined) user.name = name.trim();
+    if (phone !== undefined) user.phone = phone.trim();
+    if (address !== undefined) user.address = address;
+    if (avatar !== undefined) user.avatar = avatar;
+
+    // Logic đổi mật khẩu
+    if (newPassword) {
+      if (!currentPassword) {
+        throw new ApiError(
+          400,
+          "Vui lòng cung cấp mật khẩu hiện tại để xác thực thay đổi mật khẩu mới"
+        );
+      }
+
+      if (user.authType === "local" || user.password) {
+        const isCurrentPasswordCorrect = await user.isPasswordCorrect(currentPassword);
+        if (!isCurrentPasswordCorrect) {
+          throw new ApiError(400, "Mật khẩu hiện tại không chính xác. Vui lòng kiểm tra lại");
+        }
+      }
+
+      if (newPassword.length < 6) {
+        throw new ApiError(400, "Mật khẩu mới phải có ít nhất 6 ký tự");
+      }
+
+      if (currentPassword && newPassword === currentPassword) {
+        throw new ApiError(400, "Mật khẩu mới không được trùng với mật khẩu hiện tại");
+      }
+
+      user.password = newPassword; // Pre-save hook will hash it automatically
+      user.authType = "local";
+    }
+
+    await user.save();
 
     return await userRepository.findByIdWithoutPassword(userId);
   }

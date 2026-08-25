@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Eye,
@@ -21,6 +21,7 @@ import { useToast } from "@/components/common/ToastContext";
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -49,16 +50,19 @@ export default function LoginForm() {
   const otpInputRefs = useRef([]);
   const gsiInitializedRef = useRef(false);
 
-  // Nếu đã đăng nhập: Admin vào thẳng /admin, User vào /
+  // Nếu đã đăng nhập: Chuyển hướng theo redirect hoặc vai trò
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (user.role === "admin") {
+      const redirectUrl = searchParams?.get("redirect") || searchParams?.get("callbackUrl");
+      if (redirectUrl && user.role !== "admin") {
+        router.push(redirectUrl);
+      } else if (user.role === "admin") {
         router.push("/admin");
       } else {
         router.push("/");
       }
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, router, searchParams]);
 
   // Cooldown timers for OTP
   useEffect(() => {
@@ -158,7 +162,10 @@ export default function LoginForm() {
   }, []);
 
   const handleSuccessfulLoginRedirect = (loggedInUser) => {
-    if (loggedInUser?.role === "admin") {
+    const redirectUrl = searchParams?.get("redirect") || searchParams?.get("callbackUrl");
+    if (redirectUrl && loggedInUser?.role !== "admin") {
+      router.push(redirectUrl);
+    } else if (loggedInUser?.role === "admin") {
       router.push("/admin");
     } else {
       router.push("/");

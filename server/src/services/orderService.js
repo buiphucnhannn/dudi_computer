@@ -70,6 +70,11 @@ class OrderService {
       user,
     } = orderData;
 
+    const finalUserId = userId || user;
+    if (!finalUserId) {
+      throw new ApiError(401, "Vui lòng đăng nhập để tiến hành đặt hàng.");
+    }
+
     const finalCustomerName = customerName || fullName;
     if (!finalCustomerName || !phone) {
       throw new ApiError(400, "Vui lòng nhập họ tên khách hàng và số điện thoại người nhận");

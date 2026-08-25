@@ -23,23 +23,50 @@ import {
   clearCartAsync,
   loadCartFromStorage,
 } from "@/redux/slices/cartSlice";
+import { selectIsAuthenticated } from "@/redux/slices/authSlice";
+import { useToast } from "@/components/common/ToastContext";
 import { formatVND } from "@/lib/utils";
 import OrderCheckoutModal from "./OrderCheckoutModal";
 
 export default function CartContent() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { showToast } = useToast();
   const [mounted, setMounted] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
 
   const cartItems = useSelector(selectCartItems);
   const totalPrice = useSelector(selectTotalPrice);
   const totalItems = useSelector(selectTotalItems);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   useEffect(() => {
     setMounted(true);
     dispatch(loadCartFromStorage());
   }, [dispatch]);
+
+  // Nếu chuyển hướng từ login về có ?checkout=true và đã đăng nhập thành công
+  useEffect(() => {
+    if (typeof window !== "undefined" && isAuthenticated) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("checkout") === "true") {
+        setShowOrderModal(true);
+      }
+    }
+  }, [isAuthenticated]);
+
+  const handleProceedToCheckout = () => {
+    if (!isAuthenticated) {
+      showToast({
+        title: "Yêu cầu đăng nhập",
+        message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
+        type: "warning",
+      });
+      router.push(`/login?redirect=${encodeURIComponent("/cart?checkout=true")}`);
+      return;
+    }
+    setShowOrderModal(true);
+  };
 
   // Đóng modal bằng phím Escape
   useEffect(() => {
@@ -242,7 +269,7 @@ export default function CartContent() {
               </div>
 
               <button
-                onClick={() => setShowOrderModal(true)}
+                onClick={handleProceedToCheckout}
                 className="w-full bg-[#dc2626] hover:bg-[#b91c1c] text-white py-3.5 px-4 rounded-xl font-bold uppercase tracking-wide text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all transform active:scale-95 cursor-pointer mt-6"
               >
                 <span>TIẾN HÀNH ĐẶT HÀNG</span>

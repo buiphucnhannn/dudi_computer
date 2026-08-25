@@ -1,18 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 import { useToast } from "@/components/common/ToastContext";
+import { selectIsAuthenticated } from "@/redux/slices/authSlice";
 import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
 
 const ProductActions = ({ product }) => {
+  const router = useRouter();
   const { showToast } = useToast();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+
+  const handleOpenBuyModal = () => {
+    if (!isAuthenticated) {
+      showToast({
+        title: "Yêu cầu đăng nhập",
+        message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
+        type: "warning",
+      });
+      const currentUrl = typeof window !== "undefined" ? window.location.pathname : "/";
+      router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
+      return;
+    }
+    setIsBuyModalOpen(true);
+  };
 
   return (
     <>
       <div className="flex flex-col sm:flex-row gap-4 mt-2">
         <button
-          onClick={() => setIsBuyModalOpen(true)}
+          onClick={handleOpenBuyModal}
           className="flex-1 bg-red-600 text-white min-h-14 rounded-xl font-bold text-lg hover:bg-red-700 transition-colors shadow-md flex flex-col items-center justify-center cursor-pointer"
         >
           <span>MUA NGAY</span>
@@ -22,7 +40,7 @@ const ProductActions = ({ product }) => {
         </button>
 
         <button
-          onClick={() => setIsBuyModalOpen(true)}
+          onClick={handleOpenBuyModal}
           className="flex-1 bg-white text-red-600 border-2 border-red-600 min-h-14 rounded-xl font-bold text-lg hover:bg-red-50 transition-colors shadow-sm flex flex-col items-center justify-center cursor-pointer"
         >
           <span>MUA TRẢ GÓP</span>

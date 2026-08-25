@@ -67,9 +67,15 @@ export const getOrderById = async (req, res, next) => {
 
 export const createOrder = async (req, res, next) => {
   try {
+    if (!req.user?._id) {
+      return next(
+        new ApiError(401, "Vui lòng đăng nhập để tiến hành đặt hàng.")
+      );
+    }
     const orderPayload = {
       ...req.body,
-      userId: req.user?._id || req.body.userId,
+      userId: req.user._id,
+      user: req.user._id,
     };
     const order = await orderService.createOrder(orderPayload);
     return res.status(201).json(

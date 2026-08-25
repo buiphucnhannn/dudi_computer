@@ -77,10 +77,12 @@ export default function AccountSettings() {
       return;
     }
 
-    if (form.newPassword && form.newPassword.length < 6) {
+    const isChangingPassword = Boolean(form.newPassword || form.currentPassword);
+
+    if (form.currentPassword && !form.newPassword) {
       showToast({
-        title: "Mật khẩu không hợp lệ",
-        message: "Mật khẩu mới phải có ít nhất 6 ký tự!",
+        title: "Thiếu mật khẩu mới",
+        message: "Vui lòng nhập mật khẩu mới cần thay đổi!",
         type: "error",
       });
       return;
@@ -90,6 +92,24 @@ export default function AccountSettings() {
       showToast({
         title: "Xác thực mật khẩu",
         message: "Vui lòng nhập mật khẩu hiện tại để xác nhận đổi mật khẩu mới!",
+        type: "error",
+      });
+      return;
+    }
+
+    if (form.newPassword && form.newPassword.length < 6) {
+      showToast({
+        title: "Mật khẩu không hợp lệ",
+        message: "Mật khẩu mới phải có ít nhất 6 ký tự!",
+        type: "error",
+      });
+      return;
+    }
+
+    if (form.newPassword && form.currentPassword && form.newPassword === form.currentPassword) {
+      showToast({
+        title: "Mật khẩu không hợp lệ",
+        message: "Mật khẩu mới không được trùng với mật khẩu hiện tại!",
         type: "error",
       });
       return;
@@ -122,12 +142,16 @@ export default function AccountSettings() {
 
       showToast({
         title: "Cập nhật thành công",
-        message: "Đã lưu thay đổi thông tin tài khoản quản trị viên!",
+        message: isChangingPassword
+          ? "Đã cập nhật thông tin và đổi mật khẩu tài khoản thành công!"
+          : "Đã lưu thay đổi thông tin tài khoản quản trị viên!",
         type: "success",
       });
     } catch (err) {
       console.error("Lỗi khi cập nhật tài khoản:", err);
-      const errMsg = err.response?.data?.message || "Không thể cập nhật thông tin tài khoản. Vui lòng thử lại!";
+      const errMsg =
+        err.response?.data?.message ||
+        "Không thể cập nhật thông tin tài khoản. Vui lòng kiểm tra lại mật khẩu hiện tại!";
       showToast({
         title: "Cập nhật thất bại",
         message: errMsg,

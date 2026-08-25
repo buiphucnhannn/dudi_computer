@@ -23,7 +23,7 @@ import {
   ShieldCheck,
   PhoneCall,
 } from "lucide-react";
-import { orderAPI } from "@/lib/api";
+import { orderAPI, notificationAPI } from "@/lib/api";
 import { selectCurrentUser, selectIsAuthenticated } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { formatVND, formatDate } from "@/lib/utils";
@@ -94,13 +94,18 @@ function OrderTrackingContent() {
   useEffect(() => {
     fetchOrders(false);
 
+    // Đánh dấu đã đọc toàn bộ thông báo đơn hàng khi vào trang
+    if (isAuthenticated) {
+      notificationAPI.markAllAsRead().catch(() => {});
+    }
+
     // Auto-polling update every 15s
     const timer = setInterval(() => {
       fetchOrders(true);
     }, 15000);
 
     return () => clearInterval(timer);
-  }, [fetchOrders]);
+  }, [fetchOrders, isAuthenticated]);
 
   // Handle direct single order lookup (useful for guests or specific codes)
   const handleQuickLookup = async (e) => {
