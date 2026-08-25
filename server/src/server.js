@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 5000;
 await connectDB();
 
 app.listen(PORT, () => {
-  console.log(`🚀 [Server] DUDI SOFTWARE Backend đang chạy tại: http://localhost:${PORT}`);
-  console.log(`📡 [API Health] http://localhost:${PORT}/health`);
+  console.log(`🚀 [Server] DUDI SOFTWARE Server đang sẵn sàng tại: http://localhost:${PORT}`);
+  console.log(`📡 [Health Check] http://localhost:${PORT}/health`);
 });
 
