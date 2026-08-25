@@ -21,10 +21,11 @@ import {
   MessageCircle,
   Clock,
   Briefcase,
+  LayoutDashboard,
 } from "lucide-react";
 import { notificationAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
-import { selectCurrentUser, logoutUser } from "@/redux/slices/authSlice";
+import { selectCurrentUser, selectRoleInfo, logoutUser } from "@/redux/slices/authSlice";
 import { formatDate } from "@/lib/utils";
 
 function formatTimeAgo(dateString) {
@@ -47,6 +48,7 @@ export default function AdminHeader({ onToggleSidebar }) {
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector(selectCurrentUser);
+  const roleInfo = useSelector(selectRoleInfo);
   const { showToast } = useToast();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -299,14 +301,14 @@ export default function AdminHeader({ onToggleSidebar }) {
         >
           <Link
             href="/profile"
-            className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/80 transition-all cursor-pointer shadow-xs w-[215px]"
+            className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/80 transition-all cursor-pointer shadow-xs min-w-[220px] max-w-[280px]"
           >
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#eb1c24] text-white shadow-xs font-bold text-sm shrink-0">
               {user?.name ? user.name.charAt(0).toUpperCase() : <User className="h-4 w-4 text-white" />}
             </div>
             <div className="text-left flex-1 min-w-0">
-              <span className="text-[11px] text-slate-400 font-medium block leading-tight">
-                Quản trị viên
+              <span className="text-[11px] text-slate-500 font-bold block leading-tight truncate">
+                {roleInfo?.shortLabel || roleInfo?.label || "Quản trị viên"}
               </span>
               <span className="text-[13.5px] font-black text-slate-900 leading-tight block truncate">
                 {user?.name || "Admin DUDI Software"}
@@ -316,28 +318,42 @@ export default function AdminHeader({ onToggleSidebar }) {
 
           {/* User Menu Dropdown */}
           <div
-            className={`absolute left-0 right-0 top-full pt-1.5 w-full z-50 transition-all duration-150 ${showUserMenu
+            className={`absolute right-0 top-full pt-1.5 w-[290px] z-50 transition-all duration-150 ${showUserMenu
               ? "opacity-100 visible translate-y-0"
               : "opacity-0 invisible -translate-y-1 pointer-events-none"
               }`}
           >
             <div className="bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-gray-100 p-1.5 overflow-hidden w-full space-y-0.5">
               <Link
+                href="/admin"
+                onClick={() => setShowUserMenu(false)}
+                className="flex items-center justify-between px-3 py-2 text-[13px] font-bold text-gray-800 hover:text-[#eb1c24] hover:bg-red-50/80 rounded-xl transition-all border border-red-100/80 bg-red-50/40"
+              >
+                <div className="flex items-center gap-2 shrink-0">
+                  <LayoutDashboard className="h-4 w-4 text-[#eb1c24] shrink-0" />
+                  <span className="whitespace-nowrap font-bold">Trang Tổng Quan</span>
+                </div>
+                <span className={`px-2 py-0.5 rounded-md text-[9.5px] font-black tracking-tight border shrink-0 whitespace-nowrap ${roleInfo?.badgeBg || "bg-red-100 text-[#eb1c24] border-red-200"}`}>
+                  {roleInfo?.shortLabel || "ADMIN"}
+                </span>
+              </Link>
+
+              <Link
                 href="/"
                 onClick={() => setShowUserMenu(false)}
-                className="flex items-center gap-2.5 px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-red-50/60 rounded-xl transition-all"
+                className="flex items-center gap-2.5 px-3 py-2 text-[13px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-red-50/60 rounded-xl transition-all"
               >
                 <ExternalLink className="h-4 w-4 text-gray-500 shrink-0" />
-                <span>Về trang bán hàng</span>
+                <span className="whitespace-nowrap">Về trang bán hàng</span>
               </Link>
 
               <Link
                 href="/profile"
                 onClick={() => setShowUserMenu(false)}
-                className="flex items-center gap-2.5 px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all"
+                className="flex items-center gap-2.5 px-3 py-2 text-[13px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all"
               >
                 <User className="h-4 w-4 text-gray-500 shrink-0" />
-                <span>Hồ sơ cá nhân</span>
+                <span className="whitespace-nowrap">Hồ sơ cá nhân</span>
               </Link>
 
 

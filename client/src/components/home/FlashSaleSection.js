@@ -34,6 +34,7 @@ import {
   removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
+import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { useCompare } from "@/components/common/CompareContext";
 import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
@@ -46,11 +47,17 @@ export default function FlashSaleSection() {
   const [fallbackProducts, setFallbackProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(null);
+  const [mounted, setMounted] = useState(false);
 
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const { addToCompare, isComparing } = useCompare();
   const cartItems = useSelector(selectCartItems) || [];
+  const isAdmin = useSelector(selectIsAdmin);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch Flash Sale data từ API
   useEffect(() => {
@@ -489,17 +496,20 @@ export default function FlashSaleSection() {
                       >
                         <Scale className="w-[18px] h-[18px]" />
                       </button>
-                      <button
-                        onClick={(e) => handleToggleCart(e, item)}
-                        className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                          isFav
-                            ? "text-[#eb1c24] bg-red-50"
-                            : "hover:text-[#eb1c24] hover:bg-gray-100"
-                        }`}
-                        title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
-                      >
-                        <ShoppingCart className="w-[18px] h-[18px]" />
-                      </button>
+
+                      {mounted && !isAdmin && (
+                        <button
+                          onClick={(e) => handleToggleCart(e, item)}
+                          className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                            isFav
+                              ? "text-[#eb1c24] bg-red-50"
+                              : "hover:text-[#eb1c24] hover:bg-gray-100"
+                          }`}
+                          title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
+                        >
+                          <ShoppingCart className="w-[18px] h-[18px]" />
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -512,35 +522,28 @@ export default function FlashSaleSection() {
                     {item.name}
                   </Link>
 
-                  {/* Price Box */}
-                  <div className="mb-3">
-                    {hasDiscount && (
-                      <div className="text-xs text-gray-400 line-through">
-                        {formatVND(originalPrice)}
-                      </div>
-                    )}
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-base sm:text-lg font-black text-[#eb1c24]">
-                        {formatVND(price)}
+                  {/* Price */}
+                  <div className="flex items-baseline gap-2 mb-2.5">
+                    <span className="text-base sm:text-lg font-black text-[#eb1c24]">
+                      {formatVND(item.price || 0)}
+                    </span>
+                    {item.originalPrice > item.price && (
+                      <span className="text-xs text-gray-400 line-through">
+                        {formatVND(item.originalPrice)}
                       </span>
-                      {hasDiscount && (
-                        <span className="bg-red-50 text-[#eb1c24] text-[10px] font-bold px-1.5 py-0.5 rounded border border-red-100">
-                          -{discountPercent}%
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </div>
 
-                  {/* Specs 2x2 Box */}
+                  {/* Key specs badges */}
                   {(() => {
                     const badges = getProductCardBadges(item);
+                    if (!badges || badges.length === 0) return null;
                     return (
-                      <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[10px] text-gray-600 mb-2.5 border border-gray-100 min-h-[50px]">
-                        {badges.map((b, idx) => (
+                      <div className="flex flex-wrap gap-1 mb-2.5">
+                        {badges.slice(0, 3).map((b, idx) => (
                           <div
                             key={idx}
-                            className="flex items-center gap-1 truncate"
-                            title={b.title || b.label}
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-gray-50 border border-gray-200 text-[10.5px] text-gray-600 max-w-full"
                           >
                             {renderSpecIcon(b.icon)}
                             <span className="truncate font-medium">{b.label}</span>
@@ -556,12 +559,21 @@ export default function FlashSaleSection() {
                       <Eye className="w-3.5 h-3.5" />
                       <span>{item.views || 49} lượt xem</span>
                     </span>
-                    <button
-                      onClick={(e) => handleBuyNow(e, item)}
-                      className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
-                    >
-                      + Mua ngay
-                    </button>
+                    {mounted && isAdmin ? (
+                      <Link
+                        href={detailHref}
+                        className="text-slate-800 font-bold hover:underline"
+                      >
+                        Chi tiết →
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={(e) => handleBuyNow(e, item)}
+                        className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                      >
+                        + Mua ngay
+                      </button>
+                    )}
                   </div>
                 </div>
               );

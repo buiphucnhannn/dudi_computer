@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSelector } from "react-redux";
 import {
   LayoutDashboard,
   Package,
@@ -18,77 +19,93 @@ import {
   MessageSquare,
   Image as ImageIcon,
   X,
+  ShieldCheck,
 } from "lucide-react";
+import { selectCurrentUser, selectRoleInfo, hasAdminModulePermission } from "@/redux/slices/authSlice";
 
-const menuGroups = [
+const rawMenuGroups = [
   {
     title: "TỔNG QUAN & BÁO CÁO",
+    moduleKey: "overview",
     items: [
       {
         label: "Tổng quan",
         href: "/admin",
         icon: LayoutDashboard,
         exact: true,
+        moduleKey: "overview",
       },
       {
         label: "Báo cáo thống kê",
         href: "/admin/statistics",
         icon: BarChart3,
+        moduleKey: "commerce", // Báo cáo thương mại chuyên sâu
       },
     ],
   },
   {
     title: "THƯƠNG MẠI & BÁN HÀNG",
+    moduleKey: "commerce",
     items: [
       {
         label: "Quản lý sản phẩm",
         href: "/admin/products",
         icon: Package,
+        moduleKey: "commerce",
       },
       {
         label: "Danh mục sản phẩm",
         href: "/admin/categories",
         icon: FolderTree,
+        moduleKey: "commerce",
       },
       {
         label: "Quản lý đơn hàng",
         href: "/admin/orders",
         icon: ShoppingCart,
+        moduleKey: "commerce",
       },
       {
         label: "Khuyến mãi sản phẩm",
         href: "/admin/promotions",
         icon: Flame,
+        moduleKey: "commerce",
       },
     ],
   },
   {
     title: "NỘI DUNG & QUẢNG CÁO",
+    moduleKey: "content",
     items: [
       {
         label: "Quản lý Banner",
         href: "/admin/banners",
         icon: ImageIcon,
+        moduleKey: "content",
       },
       {
         label: "Tin tức & Bài viết",
         href: "/admin/news",
         icon: Newspaper,
+        moduleKey: "content",
       },
       {
         label: "Tuyển dụng việc làm",
         href: "/admin/careers",
         icon: Briefcase,
+        moduleKey: "content",
       },
     ],
   },
   {
     title: "HỆ THỐNG & KHÁCH HÀNG",
+    moduleKey: "customers",
     items: [
       {
         label: "Quản lý khách hàng",
         href: "/admin/users",
         icon: Users,
+        moduleKey: "customers",
       },
       {
         label: "Liên hệ & Góp ý",
@@ -99,6 +116,7 @@ const menuGroups = [
         label: "Cài đặt hệ thống",
         href: "/admin/settings",
         icon: Settings,
+        moduleKey: "settings", // Chỉ Super Admin
       },
     ],
   },
@@ -106,6 +124,24 @@ const menuGroups = [
 
 export default function AdminSidebar({ isOpen, onClose }) {
   const pathname = usePathname();
+  const user = useSelector(selectCurrentUser);
+  const roleInfo = useSelector(selectRoleInfo);
+
+  // Lọc các menu item theo vai trò phân quyền
+  const filteredMenuGroups = useMemo(() => {
+    const role = user?.role || "user";
+    return rawMenuGroups
+      .map((group) => {
+        const allowedItems = group.items.filter((item) =>
+          hasAdminModulePermission(role, item.moduleKey)
+        );
+        return {
+          ...group,
+          items: allowedItems,
+        };
+      })
+      .filter((group) => group.items.length > 0);
+  }, [user]);
 
   // Đóng sidebar khi nhấn phím Escape trên mobile/tablet
   useEffect(() => {
@@ -134,11 +170,10 @@ export default function AdminSidebar({ isOpen, onClose }) {
     <>
       {/* Backdrop Overlay trên màn hình Mobile / Tablet - Click ngoài tự động thu sidebar */}
       <div
-        className={`fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 transition-opacity duration-300 lg:hidden ${
-          isOpen
+        className={`fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 transition-opacity duration-300 lg:hidden ${isOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
-        }`}
+          }`}
         onClick={onClose}
         aria-hidden="true"
       />
@@ -151,19 +186,18 @@ export default function AdminSidebar({ isOpen, onClose }) {
         aria-label="Admin Navigation Sidebar"
       >
         {/* Logo & Brand */}
-        <div className="flex items-center justify-between border-b border-slate-100 p-4">
-          <Link href="/admin" className="flex items-center gap-3 group">
+        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3.5">
+          <Link href="/admin" className="flex items-center gap-3 group min-w-0">
             <img
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJg90SQjFIlEd2xvqMrzbiRyGKa2AZ87VXJ5Du7OBzu0Zd3o6iw8tIIDFvm6sPFBFbCvYSGagYCpaKEHG9vFSqL38i91uQRRrCo9UTXewIm28quM39SSupX2lsB688GiJUDHxtlFJvMgaV1u7mcyn5gZfEYAgBelIa62J_3HCI6UUUGx5aI93X7AlUsiq0AU_jwFNmLrAPqjsutR0aDRkc9L4jBs1HZvr4UNvJPSC6hnuMmQTn4a9QrPQg3pHMeLRb_A"
               alt="DUDI software"
-              className="h-9 w-9 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform"
+              className="h-9 w-9 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform shrink-0"
             />
             <div className="border-l border-slate-200 pl-3">
-              <div className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
-                <span>Admin Portal</span>
-                <span className="px-1.5 py-0.2 rounded bg-red-100 text-[#eb1c24] text-[9px] font-extrabold">PRO</span>
+              <div className="text-[13px] font-black uppercase tracking-wider text-slate-900 leading-tight whitespace-nowrap">
+                Admin Portal
               </div>
-              <div className="text-[10px] text-slate-400 font-medium">
+              <div className="text-[10.5px] text-slate-400 font-bold tracking-wide leading-tight">
                 DUDI SOFTWARE
               </div>
             </div>
@@ -174,7 +208,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-[#eb1c24] lg:hidden transition-colors cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-[#eb1c24] lg:hidden transition-colors cursor-pointer shrink-0 ml-2"
               aria-label="Đóng sidebar"
               title="Đóng sidebar"
             >
@@ -183,15 +217,29 @@ export default function AdminSidebar({ isOpen, onClose }) {
           )}
         </div>
 
+        {/* Role Banner nhỏ chỉ định quyền hạn */}
+        <div className="px-4 py-2.5 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between text-[11px] gap-2">
+          <span className="text-slate-500 font-semibold whitespace-nowrap shrink-0">Vai trò:</span>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span
+              className={`px-2.5 py-0.5 rounded-lg border text-[10px] font-black uppercase tracking-tight whitespace-nowrap ${
+                roleInfo?.badgeBg || "bg-red-100 text-[#eb1c24] border-red-200"
+              }`}
+            >
+              {roleInfo?.shortLabel || "ADMIN"}
+            </span>
+          </div>
+        </div>
+
         {/* Navigation Groups with Smooth Scrollbar */}
         <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4 text-left">
-          {menuGroups.map((group, gIdx) => (
+          {filteredMenuGroups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-1">
               <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 {group.title}
               </div>
               <div className="space-y-0.5">
-                {menuGroups[gIdx].items.map((item) => {
+                {group.items.map((item) => {
                   const Icon = item.icon;
                   const isActive = item.exact
                     ? pathname === item.href
@@ -204,17 +252,15 @@ export default function AdminSidebar({ isOpen, onClose }) {
                       onClick={() => {
                         if (onClose) onClose();
                       }}
-                      className={`group flex items-center justify-between rounded-xl px-3 py-2 text-[13px] font-bold transition-all duration-150 ${
-                        isActive
+                      className={`group flex items-center justify-between rounded-xl px-3 py-2 text-[13px] font-bold transition-all duration-150 ${isActive
                           ? "bg-red-50/80 text-[#eb1c24] border border-red-200/80 shadow-2xs font-extrabold"
                           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <Icon
-                          className={`h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-110 ${
-                            isActive ? "text-[#eb1c24]" : "text-slate-400 group-hover:text-slate-700"
-                          }`}
+                          className={`h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-110 ${isActive ? "text-[#eb1c24]" : "text-slate-400 group-hover:text-slate-700"
+                            }`}
                         />
                         <span className="truncate">{item.label}</span>
                       </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Camera, Save, User, Mail, Phone, Lock, ShieldCheck, Loader2 } from "lucide-react";
-import { selectCurrentUser, setCredentials } from "@/redux/slices/authSlice";
+import { selectCurrentUser, setCredentials, getAdminRoleInfo } from "@/redux/slices/authSlice";
 import { authAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
 
@@ -164,7 +164,8 @@ export default function AccountSettings() {
 
   const displayName = form.name || currentUser?.name || "Quản trị viên";
   const displayEmail = form.email || currentUser?.email || "admin@dudisoftware.com";
-  const userRole = currentUser?.role === "admin" ? "Quản trị viên cấp cao (Admin)" : "Nhân viên quản trị";
+  const roleInfo = getAdminRoleInfo(currentUser?.role);
+  const userRole = roleInfo.label;
   const initialLetter = displayName.charAt(0).toUpperCase();
 
   return (

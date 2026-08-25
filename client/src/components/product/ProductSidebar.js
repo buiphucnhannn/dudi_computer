@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { X, Filter, RotateCcw, Check } from "lucide-react";
 import FilterGroup from "./FilterGroup";
+import { detectProductType, PRODUCT_TYPES } from "@/lib/specParser";
 
-const categories = [
+const BASE_CATEGORIES = [
   { label: "Laptop", value: "laptop" },
   { label: "PC", value: "pc" },
   { label: "Màn hình máy tính", value: "man-hinh" },
@@ -20,26 +21,9 @@ const categories = [
   { label: "Tản nhiệt Cooling", value: "tan-nhiet-cooling" },
 ];
 
-const conditions = [
-  { label: "Mới 100%", value: "new" },
-  { label: "Cũ (Like New)", value: "used" },
-];
-
-const brands = [
-  "Lenovo",
-  "Dell",
-  "ASUS",
-  "HP",
-  "Acer",
-  "MSI",
-  "Custom",
-  "Samsung",
-  "LG",
-  "Gigabyte",
-];
-
 export default function ProductSidebar({
   filters,
+  products = [],
   onFilterChange,
   isMobileOpen = false,
   onCloseMobile = () => {},
@@ -56,6 +40,127 @@ export default function ProductSidebar({
       document.body.style.overflow = "";
     };
   }, [isMobileOpen]);
+
+  // 1. Calculate Real Category Counts
+  const computedCategories = useMemo(() => {
+    const counts = {};
+    products.forEach((p) => {
+      const type = detectProductType(p);
+      const catSlug = (p.categorySlug || "").toLowerCase();
+      const catName = (p.categoryName || "").toLowerCase();
+
+      const inc = (key) => {
+        counts[key] = (counts[key] || 0) + 1;
+      };
+
+      if (type === PRODUCT_TYPES.LAPTOP || catSlug.includes("laptop") || catName.includes("laptop")) inc("laptop");
+      else if (type === PRODUCT_TYPES.PC || catSlug === "pc" || catName === "pc" || catSlug.includes("pc-") || catName.includes("bộ máy tính")) inc("pc");
+      else if (type === PRODUCT_TYPES.MONITOR || catSlug.includes("man-hinh") || catName.includes("màn hình")) inc("man-hinh");
+      else if (type === PRODUCT_TYPES.MAINBOARD || catSlug.includes("mainboard") || catName.includes("bo mạch")) inc("mainboard-bo-mach-chu");
+      else if (type === PRODUCT_TYPES.PSU || catSlug.includes("psu") || catName.includes("nguồn")) inc("psu-nguon-may-tinh");
+      else if (type === PRODUCT_TYPES.CPU || catSlug.includes("cpu") || catName.includes("vi xử lý")) inc("cpu-bo-vi-xu-ly");
+      else if (type === PRODUCT_TYPES.VGA || catSlug.includes("vga") || catName.includes("card màn hình")) inc("vga-card-man-hinh");
+      else if (type === PRODUCT_TYPES.RAM || catSlug.includes("ram") || catName.includes("bộ nhớ")) inc("ram-bo-nho-trong");
+      else if (type === PRODUCT_TYPES.SSD || catSlug.includes("o-cung") || catName.includes("ổ cứng") || catSlug.includes("ssd")) inc("o-cung-hdd-ssd");
+      else if (type === PRODUCT_TYPES.CASE || catSlug.includes("case") || catName.includes("vỏ máy")) inc("case-vo-may-tinh");
+      else if (type === PRODUCT_TYPES.MOUSE || catSlug.includes("chuot") || catName.includes("chuột")) inc("chuot");
+      else if (type === PRODUCT_TYPES.KEYBOARD || catSlug.includes("ban-phim") || catName.includes("bàn phím")) inc("ban-phim");
+      else if (type === PRODUCT_TYPES.COOLER || catSlug.includes("tan-nhiet") || catName.includes("tản nhiệt")) inc("tan-nhiet-cooling");
+      else {
+        const matched = BASE_CATEGORIES.find((c) => catSlug.includes(c.value) || catName.includes(c.label.toLowerCase()));
+        if (matched) inc(matched.value);
+      }
+    });
+
+    return BASE_CATEGORIES.map((c) => ({
+      ...c,
+      count: counts[c.value] || 0,
+    }));
+  }, [products]);
+
+  // 2. Calculate Real Condition Counts
+  const computedConditions = useMemo(() => {
+    let newCount = 0;
+    let usedCount = 0;
+
+    products.forEach((p) => {
+      const cond = (p.condition || "").toLowerCase();
+      const name = (p.name || "").toLowerCase();
+      const isUsed =
+        cond.includes("cũ") ||
+        cond.includes("like new") ||
+        cond.includes("99%") ||
+        cond.includes("used") ||
+        cond.includes("lướt") ||
+        cond.includes("second hand") ||
+        name.includes("cũ") ||
+        name.includes("like new") ||
+        name.includes("99%") ||
+        name.includes("lướt") ||
+        name.includes("second hand");
+
+      if (isUsed) {
+        usedCount++;
+      } else {
+        newCount++;
+      }
+    });
+
+    return [
+      { label: "Mới 100%", value: "new", count: newCount },
+      { label: "Cũ (Like New)", value: "used", count: usedCount },
+    ];
+  }, [products]);
+
+  // 3. Calculate Real Brand Counts
+  const computedBrands = useMemo(() => {
+    const brandCounts = {};
+    products.forEach((p) => {
+      if (p.brand) {
+        const b = p.brand.trim();
+        brandCounts[b] = (brandCounts[b] || 0) + 1;
+      }
+    });
+
+    const brandNames = Object.keys(brandCounts).sort((a, b) => brandCounts[b] - brandCounts[a]);
+    if (brandNames.length === 0) {
+      return [
+        "Lenovo",
+        "Dell",
+        "ASUS",
+        "HP",
+        "Acer",
+        "MSI",
+        "Samsung",
+        "LG",
+        "Gigabyte",
+      ].map((b) => ({ label: b, value: b, count: 0 }));
+    }
+
+    return brandNames.map((b) => ({
+      label: b,
+      value: b,
+      count: brandCounts[b] || 0,
+    }));
+  }, [products]);
+
+  // 4. Calculate Real Promotion Counts
+  const computedPromotions = useMemo(() => {
+    const discountCount = products.filter(
+      (p) =>
+        Number(p.originalPrice || 0) > Number(p.price || 0) ||
+        p.discountPercent > 0
+    ).length;
+
+    const hotCount = products.filter(
+      (p) => p.isHot || p.isFlashSale || p.badge === "HOT" || (p.soldCount && p.soldCount > 10)
+    ).length;
+
+    return [
+      { label: "Đang giảm giá", value: "discount", count: discountCount },
+      { label: "Sản phẩm Hot Sale", value: "hot", count: hotCount },
+    ];
+  }, [products]);
 
   const handleConditionChange = (condition) => {
     onFilterChange({
@@ -101,7 +206,7 @@ export default function ProductSidebar({
     <div className="space-y-4">
       <FilterGroup
         title="Tình trạng"
-        items={conditions}
+        items={computedConditions}
         selected={filters.condition || ""}
         type="single"
         onChange={handleConditionChange}
@@ -109,7 +214,7 @@ export default function ProductSidebar({
 
       <FilterGroup
         title="Danh mục"
-        items={categories}
+        items={computedCategories}
         selected={filters.category}
         type="single"
         onChange={handleCategoryChange}
@@ -117,16 +222,7 @@ export default function ProductSidebar({
 
       <FilterGroup
         title="Ưu đãi"
-        items={[
-          {
-            label: "Đang giảm giá",
-            value: "discount",
-          },
-          {
-            label: "Sản phẩm Hot Sale",
-            value: "hot",
-          },
-        ]}
+        items={computedPromotions}
         selected={filters.promotions}
         type="multiple"
         onChange={handlePromotionChange}
@@ -134,7 +230,7 @@ export default function ProductSidebar({
 
       <FilterGroup
         title="Thương hiệu"
-        items={brands}
+        items={computedBrands}
         selected={filters.brands}
         type="multiple"
         onChange={handleBrandChange}

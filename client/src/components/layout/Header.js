@@ -49,6 +49,8 @@ import {
   logoutUser,
   selectCurrentUser,
   selectIsAuthenticated,
+  isAdminRole,
+  getAdminRoleInfo,
 } from "@/redux/slices/authSlice";
 import { authAPI, productAPI, notificationAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
@@ -213,6 +215,8 @@ export default function Header() {
   const totalItems = useSelector(selectTotalItems);
   const user = useSelector(selectCurrentUser);
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const isUserAdmin = isAdminRole(user?.role);
+  const roleInfo = getAdminRoleInfo(user?.role);
 
   // Active Navigation Route Checks
   const isAllProductsActive =
@@ -700,47 +704,55 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Cart */}
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Link
-              href="/cart"
-              className={`relative p-2 transition-colors flex items-center gap-1 ${isCartActive ? "text-[#eb1c24]" : "text-gray-700 hover:text-[#eb1c24]"
-                }`}
-              title="Giỏ hàng"
-            >
-              <ShoppingCart className="w-6 h-6" />
-              {mounted && totalItems > 0 && (
-                <span className="absolute top-0 right-0 bg-[#eb1c24] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
-          </div>
+          {/* Cart (Chỉ hiển thị cho Khách hàng / Khách vãng lai, ẩn hoàn toàn đối với Admin) */}
+          {user?.role !== "admin" && (
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Link
+                href="/cart"
+                className={`relative p-2 transition-colors flex items-center gap-1 ${isCartActive ? "text-[#eb1c24]" : "text-gray-700 hover:text-[#eb1c24]"
+                  }`}
+                title="Giỏ hàng"
+              >
+                <ShoppingCart className="w-6 h-6" />
+                {mounted && totalItems > 0 && (
+                  <span className="absolute top-0 right-0 bg-[#eb1c24] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                    {totalItems}
+                  </span>
+                )}
+              </Link>
+            </div>
+          )}
 
           {/* User Auth Links (Đăng nhập | Đăng ký | Dropdown Profile) */}
           <div className="hidden sm:flex items-center gap-2 pl-2 relative">
             {mounted && isAuthenticated ? (
               <div className="flex items-center gap-2">
                 <div
-                  className="relative group/user py-1 w-[215px]"
+                  className="relative group/user py-1"
                   onMouseEnter={() => setUserDropdownOpen(true)}
                   onMouseLeave={() => setUserDropdownOpen(false)}
                 >
                   <Link
-                    href="/profile"
-                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-gray-50 hover:bg-gray-100/90 border border-gray-200/60 transition-all cursor-pointer shadow-xs w-full"
+                    href={isUserAdmin ? "/admin" : "/profile"}
+                    className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-gray-50 hover:bg-gray-100/90 border border-gray-200/60 transition-all cursor-pointer shadow-xs min-w-[220px] max-w-[280px]"
                   >
                     <div className="relative w-9 h-9 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-sm font-bold text-sm">
                       {user?.name ? user.name.charAt(0).toUpperCase() : <User className="w-4 h-4 text-white" />}
-                      {user?.role !== "admin" && userUnreadCount > 0 && (
+                      {!isUserAdmin && userUnreadCount > 0 && (
                         <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-black text-white ring-2 ring-white animate-pulse">
                           {userUnreadCount > 99 ? "99+" : userUnreadCount}
                         </span>
                       )}
                     </div>
                     <div className="text-left flex-1 min-w-0">
-                      <span className="text-[11px] text-gray-500 font-medium block leading-tight">
-                        Xin chào,
+                      <span className="text-[11px] text-gray-500 font-bold block leading-tight truncate">
+                        {isUserAdmin ? (
+                          <span className="text-[#eb1c24] font-bold flex items-center gap-1">
+                            <span>{roleInfo?.shortLabel || "Admin"}</span>
+                          </span>
+                        ) : (
+                          "Xin chào,"
+                        )}
                       </span>
                       <span className="text-[14px] font-black text-gray-900 leading-tight block truncate">
                         {user?.name}
@@ -748,26 +760,26 @@ export default function Header() {
                     </div>
                   </Link>
 
-                  {/* User Dropdown Menu with Hover Bridge (Căn khớp cả 2 mép trái phải với thẻ người dùng) */}
+                  {/* User Dropdown Menu with Hover Bridge */}
                   <div
-                    className={`absolute left-0 right-0 top-full pt-1.5 w-full z-50 transition-all duration-150 ${userDropdownOpen
+                    className={`absolute right-0 top-full pt-1.5 w-[290px] z-50 transition-all duration-150 ${userDropdownOpen
                         ? "opacity-100 visible translate-y-0"
                         : "opacity-0 invisible -translate-y-1 pointer-events-none"
                       }`}
                   >
                     <div className="bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-gray-100 p-1.5 overflow-hidden w-full space-y-0.5">
-                      {user?.role === "admin" && (
+                      {isUserAdmin && (
                         <Link
                           href="/admin"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center justify-between px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-red-50/60 rounded-xl transition-all"
+                          className="flex items-center justify-between px-3 py-2 text-[13px] font-bold text-gray-800 hover:text-[#eb1c24] hover:bg-red-50/80 rounded-xl transition-all border border-red-100/80 bg-red-50/40 group/adminlink"
                         >
-                          <div className="flex items-center gap-2.5">
-                            <LayoutDashboard className="w-4 h-4 text-gray-500 shrink-0" />
-                            <span>Trang Quản Trị</span>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <LayoutDashboard className="w-4 h-4 text-[#eb1c24] shrink-0 group-hover/adminlink:scale-110 transition-transform" />
+                            <span className="whitespace-nowrap font-bold">Trang Quản Trị</span>
                           </div>
-                          <span className="px-1.5 py-0.5 rounded-md bg-red-100 text-[#eb1c24] text-[9.5px] font-bold uppercase tracking-wide">
-                            Admin
+                          <span className={`px-2 py-0.5 rounded-md text-[9.5px] font-black tracking-tight border shrink-0 whitespace-nowrap ${roleInfo?.badgeBg || "bg-red-100 text-[#eb1c24] border-red-200"}`}>
+                            {roleInfo?.shortLabel || "ADMIN"}
                           </span>
                         </Link>
                       )}
@@ -775,14 +787,14 @@ export default function Header() {
                       <Link
                         href="/profile"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all"
+                        className="flex items-center gap-2.5 px-3 py-2 text-[13px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all"
                       >
                         <User className="w-4 h-4 text-gray-500 shrink-0" />
-                        <span>Hồ sơ cá nhân</span>
+                        <span className="whitespace-nowrap">Hồ sơ cá nhân</span>
                       </Link>
 
                       {/* Option: Theo dõi đơn hàng (Chỉ hiển thị cho khách hàng thông thường, Admin quản trị qua tab Đơn hàng) */}
-                      {user?.role !== "admin" && (
+                      {!isUserAdmin && (
                         <Link
                           href="/orders"
                           onClick={async () => {
@@ -792,11 +804,11 @@ export default function Header() {
                               await notificationAPI.markAllAsRead();
                             } catch (e) {}
                           }}
-                          className="flex items-center justify-between px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all group/item"
+                          className="flex items-center justify-between px-3 py-2 text-[13px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all group/item"
                         >
                           <div className="flex items-center gap-2.5">
                             <PackageCheck className="w-4 h-4 text-gray-500 group-hover/item:text-[#eb1c24] shrink-0 transition-colors" />
-                            <span>Theo dõi đơn hàng</span>
+                            <span className="whitespace-nowrap">Theo dõi đơn hàng</span>
                           </div>
                           {userUnreadCount > 0 && (
                             <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[9.5px] font-black">
@@ -1336,7 +1348,7 @@ export default function Header() {
 
           {/* Quick Access Badges Grid */}
           <div className="p-3 grid grid-cols-2 gap-2 bg-white">
-            {mounted && user?.role === "admin" && (
+            {mounted && isUserAdmin && (
               <Link
                 href="/admin"
                 onClick={() => setMobileMenuOpen(false)}
@@ -1345,12 +1357,12 @@ export default function Header() {
                 <div className="w-8 h-8 rounded-lg bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-xs">
                   <LayoutDashboard className="w-4 h-4 text-white" />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <span className="text-xs font-bold text-[#eb1c24] block leading-tight">
-                    Trang Quản Trị (Admin)
+                    {roleInfo?.label || "Trang Quản Trị"}
                   </span>
-                  <span className="text-[10px] text-gray-500">
-                    Dashboard, sản phẩm, đơn hàng
+                  <span className="text-[10px] text-gray-500 truncate block">
+                    {roleInfo?.description || "Dashboard quản trị hệ thống"}
                   </span>
                 </div>
               </Link>

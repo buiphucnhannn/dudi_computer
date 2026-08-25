@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Heart,
@@ -17,6 +17,7 @@ import {
   removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
+import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 
 const formatPrice = (price) => {
@@ -25,9 +26,15 @@ const formatPrice = (price) => {
 };
 
 export default function SimilarProductCard({ product }) {
+  const [mounted, setMounted] = useState(false);
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems) || [];
+  const isAdmin = useSelector(selectIsAdmin);
   const { showToast } = useToast();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const productId = product.id || product._id || product.slug;
   const isCart = cartItems.some(
@@ -109,29 +116,31 @@ export default function SimilarProductCard({ product }) {
           </span>
         )}
 
-        {/* Cart Toggle Button */}
-        <button
-          type="button"
-          aria-label="Thêm vào giỏ hàng"
-          onClick={handleToggleCart}
-          className={`
-            absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center
-            rounded-full bg-white/90 backdrop-blur-xs shadow-xs
-            transition-all duration-200 hover:scale-110 cursor-pointer
-            ${
-              isCart
-                ? "bg-red-600 text-white shadow-sm"
-                : "text-slate-500 hover:text-red-600"
-            }
-          `}
-          title={isCart ? "Đã có trong giỏ hàng (Bấm để bỏ)" : "Thêm vào giỏ hàng"}
-        >
-          <ShoppingCart
-            className={`w-4 h-4 transition-colors ${
-              isCart ? "text-white" : ""
-            }`}
-          />
-        </button>
+        {/* Cart Toggle Button (Ẩn đối với Admin) */}
+        {mounted && !isAdmin && (
+          <button
+            type="button"
+            aria-label="Thêm vào giỏ hàng"
+            onClick={handleToggleCart}
+            className={`
+              absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center
+              rounded-full bg-white/90 backdrop-blur-xs shadow-xs
+              transition-all duration-200 hover:scale-110 cursor-pointer
+              ${
+                isCart
+                  ? "bg-red-600 text-white shadow-sm"
+                  : "text-slate-500 hover:text-red-600"
+              }
+            `}
+            title={isCart ? "Đã có trong giỏ hàng (Bấm để bỏ)" : "Thêm vào giỏ hàng"}
+          >
+            <ShoppingCart
+              className={`w-4 h-4 transition-colors ${
+                isCart ? "text-white" : ""
+              }`}
+            />
+          </button>
+        )}
 
         {/* Out of stock Overlay */}
         {product.outOfStock && (

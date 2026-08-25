@@ -9,8 +9,7 @@ import {
   removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
-import { selectIsAuthenticated } from "@/redux/slices/authSlice";
-
+import { selectCurrentUser, selectIsAuthenticated, selectIsAdmin } from "@/redux/slices/authSlice";
 import {
   Check,
   CheckCircle,
@@ -34,7 +33,13 @@ const ProductInfo = ({ product }) => {
   const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const isAdmin = useSelector(selectIsAdmin);
   const [allProducts, setAllProducts] = useState([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Tải danh sách sản phẩm từ API
   useEffect(() => {
@@ -261,6 +266,57 @@ const ProductInfo = ({ product }) => {
     router.push(`/compare?products=${query}`);
   };
 
+  const handleShare = async () => {
+    const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+    const title = product?.name || "Chi tiết sản phẩm - ZComputer";
+    const text = `Xem sản phẩm ${product?.name || ""} tại ZComputer với giá ưu đãi!`;
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text,
+          url: currentUrl,
+        });
+        return;
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.log("Web Share API cancelled or not supported, fallback to clipboard.");
+        } else {
+          return;
+        }
+      }
+    }
+
+    // Fallback: Copy to clipboard
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(currentUrl);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = currentUrl;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+      showToast({
+        title: "Đã sao chép liên kết",
+        message: "Đã sao chép đường dẫn sản phẩm vào bộ nhớ tạm thành công!",
+        type: "success",
+      });
+    } catch (error) {
+      showToast({
+        title: "Không thể sao chép",
+        message: "Vui lòng sao chép liên kết sản phẩm trực tiếp từ thanh địa chỉ.",
+        type: "error",
+      });
+    }
+  };
+
   // =====================================================
   // RENDER
   // =====================================================
@@ -278,6 +334,7 @@ const ProductInfo = ({ product }) => {
 
           <button
             type="button"
+            onClick={handleShare}
             className="
               flex shrink-0 items-center gap-1.5
               rounded-full border border-slate-200
@@ -285,6 +342,7 @@ const ProductInfo = ({ product }) => {
               transition
               hover:border-red-600
               hover:text-red-600
+              cursor-pointer active:scale-95
             "
           >
             <Share2 size={14} />
@@ -442,83 +500,108 @@ const ProductInfo = ({ product }) => {
           </div>
         </div>
 
-        {/* COMPARE / FAVORITE */}
-        <div className="flex w-full gap-3">
+        {/* COMPARE / FAVORITE / CART / BUY */}
+        {mounted && isAdmin ? (
+          /* Giao diện dành riêng cho Admin: Chỉ có nút So sánh, ẩn hoàn toàn chức năng mua hàng */
+          <div className="flex w-full">
+            <button
+              type="button"
+              onClick={handleOpenComparison}
+              className="
+                flex h-11 w-full items-center
+                justify-center gap-2 rounded-lg
+                border-2 border-red-600
+                px-3 text-xs font-bold uppercase
+                text-red-600 transition
+                hover:bg-red-50
+                sm:text-sm cursor-pointer
+              "
+            >
+              <Scale size={17} />
+              {comparisonProducts.length > 0
+                ? `So sánh cấu hình (${comparisonProducts.length}/3)`
+                : "So sánh cấu hình"}
+            </button>
+          </div>
+        ) : (
+          /* Giao diện đầy đủ dành cho Khách hàng thông thường */
+          <>
+            <div className="flex w-full gap-3">
+              {/* SO SÁNH */}
+              <button
+                type="button"
+                onClick={handleOpenComparison}
+                className="
+                  flex h-11 flex-1 items-center
+                  justify-center gap-2 rounded-lg
+                  border-2 border-red-600
+                  px-3 text-xs font-bold uppercase
+                  text-red-600 transition
+                  hover:bg-red-50
+                  sm:text-sm cursor-pointer
+                "
+              >
+                <Scale size={17} />
+                {comparisonProducts.length > 0
+                  ? `So sánh (${comparisonProducts.length}/3)`
+                  : "So sánh"}
+              </button>
 
-          {/* SO SÁNH */}
-          <button
-            type="button"
-            onClick={handleOpenComparison}
-            className="
-              flex h-11 flex-1 items-center
-              justify-center gap-2 rounded-lg
-              border-2 border-red-600
-              px-3 text-xs font-bold uppercase
-              text-red-600 transition
-              hover:bg-red-50
-              sm:text-sm
-            "
-          >
-            <Scale size={17} />
+              {/* CART TOGGLE */}
+              <button
+                type="button"
+                onClick={handleToggleCart}
+                className={`
+                  flex h-11 flex-1 items-center
+                  justify-center gap-2 rounded-lg
+                  border-2 border-red-600
+                  px-3 text-xs font-bold uppercase transition
+                  cursor-pointer sm:text-sm
+                  ${isCart
+                    ? "bg-red-600 text-white shadow-sm hover:bg-red-700"
+                    : "bg-transparent text-red-600 hover:bg-red-50"
+                  }
+                `}
+              >
+                <ShoppingCart
+                  size={17}
+                  className={isCart ? "text-white" : "text-red-600"}
+                />
+                {isCart ? "Đã trong giỏ" : "Thêm vào giỏ"}
+              </button>
+            </div>
 
-            {comparisonProducts.length > 0
-              ? `So sánh (${comparisonProducts.length}/3)`
-              : "So sánh"}
-          </button>
-
-          {/* CART TOGGLE */}
-          <button
-            type="button"
-            onClick={handleToggleCart}
-            className={`
-              flex h-11 flex-1 items-center
-              justify-center gap-2 rounded-lg
-              border-2 border-red-600
-              px-3 text-xs font-bold uppercase transition
-              cursor-pointer sm:text-sm
-              ${isCart
-                ? "bg-red-600 text-white shadow-sm hover:bg-red-700"
-                : "bg-transparent text-red-600 hover:bg-red-50"
-              }
-            `}
-          >
-            <ShoppingCart
-              size={17}
-              className={isCart ? "text-white" : "text-red-600"}
-            />
-            {isCart ? "Đã trong giỏ" : "Thêm vào giỏ"}
-          </button>
-        </div>
-
-        {/* BUY */}
-        <button
-          type="button"
-          onClick={() => {
-            if (!isAuthenticated) {
-              showToast({
-                title: "Yêu cầu đăng nhập",
-                message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
-                type: "warning",
-              });
-              const currentUrl = typeof window !== "undefined" ? window.location.pathname : "/";
-              router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
-              return;
-            }
-            setIsBuyModalOpen(true);
-          }}
-          className="
-            flex h-12 w-full items-center
-            justify-center gap-2 rounded-lg
-            bg-red-600 px-4
-            text-base font-bold uppercase
-            text-white shadow-sm transition
-            hover:bg-red-700
-            active:scale-[0.99]
-          "
-        >
-          <ShoppingCart size={20} />
-          Mua ngay
-        </button>
+            {/* BUY */}
+            <button
+              type="button"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  showToast({
+                    title: "Yêu cầu đăng nhập",
+                    message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
+                    type: "warning",
+                  });
+                  const currentUrl = typeof window !== "undefined" ? window.location.pathname : "/";
+                  router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
+                  return;
+                }
+                setIsBuyModalOpen(true);
+              }}
+              className="
+                flex h-12 w-full items-center
+                justify-center gap-2 rounded-lg
+                bg-red-600 px-4
+                text-base font-bold uppercase
+                text-white shadow-sm transition
+                hover:bg-red-700
+                active:scale-[0.99] cursor-pointer
+              "
+            >
+              <ShoppingCart size={20} />
+              Mua ngay
+            </button>
+          </>
+        )}
       </div>
 
       {/* BUY CHECKOUT MODAL */}

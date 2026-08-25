@@ -6,14 +6,14 @@ import {
   updateCategory,
   deleteCategory,
 } from "../controllers/categoryController.js";
-import { verifyJWT, requireAdmin } from "../middlewares/authMiddleware.js";
+import { verifyJWT, requireSalesAdmin } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
 router.get("/", getAllCategories);
 router.get("/:id", getCategoryById);
-router.post("/", verifyJWT, requireAdmin, createCategory);
-router.put("/:id", verifyJWT, requireAdmin, updateCategory);
-router.delete("/:id", verifyJWT, requireAdmin, deleteCategory);
+router.post("/", verifyJWT, requireSalesAdmin, createCategory);
+router.put("/:id", verifyJWT, requireSalesAdmin, updateCategory);
+router.delete("/:id", verifyJWT, requireSalesAdmin, deleteCategory);
 
 export default router;

@@ -8,7 +8,12 @@ import {
   updateOrderStatus,
   deleteOrder,
 } from "../controllers/orderController.js";
-import { verifyJWT, verifyOptionalJWT } from "../middlewares/authMiddleware.js";
+import {
+  verifyJWT,
+  verifyOptionalJWT,
+  preventAdminShopping,
+  requireSalesAdmin,
+} from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
@@ -19,9 +24,9 @@ router.get("/track/:codeOrId", trackOrder);
 // Routes chung & Admin
 router.get("/", getAllOrders);
 router.get("/:id", getOrderById);
-router.post("/", verifyJWT, createOrder);
-router.patch("/:id/status", updateOrderStatus);
-router.put("/:id/status", updateOrderStatus);
-router.delete("/:id", deleteOrder);
+router.post("/", verifyJWT, preventAdminShopping, createOrder);
+router.patch("/:id/status", verifyJWT, requireSalesAdmin, updateOrderStatus);
+router.put("/:id/status", verifyJWT, requireSalesAdmin, updateOrderStatus);
+router.delete("/:id", verifyJWT, requireSalesAdmin, deleteOrder);
 
 export default router;

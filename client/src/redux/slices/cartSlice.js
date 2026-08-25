@@ -28,6 +28,7 @@ export const syncCartWithCloud = createAsyncThunk(
   "cart/syncCartWithCloud",
   async (_, { getState, rejectWithValue }) => {
     try {
+      if (getState().auth?.user?.role === "admin") return [];
       const localItems = getState().cart.items || getLocalCart();
       const res = await cartAPI.sync(localItems);
       return res.data?.data || [];
@@ -42,8 +43,9 @@ export const syncWishlistWithCloud = syncCartWithCloud;
 // Async Thunk: Tải Giỏ hàng từ Cloud khi vào app nếu đã đăng nhập
 export const fetchCloudCart = createAsyncThunk(
   "cart/fetchCloudCart",
-  async (_, { rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
+      if (getState().auth?.user?.role === "admin") return [];
       const res = await cartAPI.get();
       return res.data?.data || [];
     } catch (error) {
@@ -58,6 +60,8 @@ export const fetchCloudWishlist = fetchCloudCart;
 export const addToCartAsync = createAsyncThunk(
   "cart/addToCartAsync",
   async ({ product, quantity = 1 }, { getState, dispatch }) => {
+    if (getState().auth?.user?.role === "admin") return;
+
     // 1. Cập nhật state cục bộ ngay lập tức (0ms delay)
     dispatch(addToCart({ product, quantity }));
 

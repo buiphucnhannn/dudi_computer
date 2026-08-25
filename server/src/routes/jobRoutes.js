@@ -9,7 +9,7 @@ import {
   deleteJob,
   toggleJobStatus,
 } from "../controllers/jobController.js";
-import { verifyJWT, requireAdmin } from "../middlewares/authMiddleware.js";
+import { verifyJWT, requireContentAdmin } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
@@ -19,11 +19,11 @@ router.get("/detail/:id", getJobById);
 router.get("/:slug", getJobBySlug);
 
 // Admin routes
-router.get("/admin/all", verifyJWT, requireAdmin, getAdminJobs);
-router.post("/", verifyJWT, requireAdmin, createJob);
-router.put("/:id", verifyJWT, requireAdmin, updateJob);
-router.delete("/:id", verifyJWT, requireAdmin, deleteJob);
-router.patch("/:id/toggle-status", verifyJWT, requireAdmin, toggleJobStatus);
-router.patch("/:id/toggle", verifyJWT, requireAdmin, toggleJobStatus);
+router.get("/admin/all", verifyJWT, requireContentAdmin, getAdminJobs);
+router.post("/", verifyJWT, requireContentAdmin, createJob);
+router.put("/:id", verifyJWT, requireContentAdmin, updateJob);
+router.delete("/:id", verifyJWT, requireContentAdmin, deleteJob);
+router.patch("/:id/toggle-status", verifyJWT, requireContentAdmin, toggleJobStatus);
+router.patch("/:id/toggle", verifyJWT, requireContentAdmin, toggleJobStatus);
 
 export default router;

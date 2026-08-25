@@ -47,6 +47,18 @@ export const userController = {
     }
   },
 
+  updateUserRole: async (req, res, next) => {
+    try {
+      const { role } = req.body;
+      const updated = await userService.updateUserRole(req.params.id, role);
+      return res
+        .status(200)
+        .json(new ApiResponse(200, updated, `Cập nhật phân quyền tài khoản thành công`));
+    } catch (error) {
+      next(error);
+    }
+  },
+
   deleteCustomer: async (req, res, next) => {
     try {
       await userService.deleteCustomer(req.params.id);

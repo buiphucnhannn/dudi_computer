@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import {
   ChevronLeft,
@@ -35,6 +35,7 @@ import {
   removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
+import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useCompare } from "@/components/common/CompareContext";
 import { useToast } from "@/components/common/ToastContext";
 import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
@@ -42,11 +43,17 @@ import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
 export default function FeaturedProductsSection({ products = [] }) {
   const [activeTab, setActiveTab] = useState("all");
   const [buyModalItem, setBuyModalItem] = useState(null);
+  const [mounted, setMounted] = useState(false);
   const sliderRef = useRef(null);
   const dispatch = useDispatch();
   const { addToCompare, isComparing } = useCompare();
   const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
+  const isAdmin = useSelector(selectIsAdmin);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const tabs = [
     { id: "all", name: "Tất cả" },
@@ -324,17 +331,20 @@ export default function FeaturedProductsSection({ products = [] }) {
                       >
                         <Scale className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={(e) => handleToggleCart(e, item)}
-                        className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                          isFav
-                            ? "text-[#eb1c24] bg-red-50"
-                            : "hover:text-[#eb1c24] hover:bg-gray-100"
-                        }`}
-                        title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
-                      >
-                        <ShoppingCart className="w-4 h-4" />
-                      </button>
+
+                      {mounted && !isAdmin && (
+                        <button
+                          onClick={(e) => handleToggleCart(e, item)}
+                          className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                            isFav
+                              ? "text-[#eb1c24] bg-red-50"
+                              : "hover:text-[#eb1c24] hover:bg-gray-100"
+                          }`}
+                          title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -388,13 +398,22 @@ export default function FeaturedProductsSection({ products = [] }) {
                     <Eye className="w-3.5 h-3.5" />
                     <span>{item.views || 68} lượt xem</span>
                   </span>
-                  <button
-                    type="button"
-                    onClick={(e) => handleBuyNow(e, item)}
-                    className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
-                  >
-                    + Mua ngay
-                  </button>
+                  {isAdmin ? (
+                    <Link
+                      href={detailHref}
+                      className="font-bold hover:underline cursor-pointer text-slate-800"
+                    >
+                      Chi tiết →
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => handleBuyNow(e, item)}
+                      className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                    >
+                      + Mua ngay
+                    </button>
+                  )}
                 </div>
               </div>
             );

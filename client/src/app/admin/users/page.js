@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useSelector } from "react-redux";
 import {
   Users,
   Search,
@@ -22,13 +23,19 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Shield,
+  UserCog,
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { apiClient } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { useDebounce } from "@/lib/useDebounce";
+import { selectCurrentUser, getAdminRoleInfo } from "@/redux/slices/authSlice";
 
 export default function AdminUsersPage() {
+  const currentUser = useSelector(selectCurrentUser);
+  const isSuperAdmin = currentUser?.role === "admin" || currentUser?.role === "admin_super";
+
   const [customers, setCustomers] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
@@ -41,6 +48,7 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [authTypeFilter, setAuthTypeFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -79,28 +87,27 @@ export default function AdminUsersPage() {
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      // 1. Lấy danh sách khách hàng (chỉ lấy tài khoản khách hàng)
       let url = `/users?search=${encodeURIComponent(debouncedSearch)}`;
       if (statusFilter !== "all") url += `&status=${statusFilter}`;
       if (authTypeFilter !== "all") url += `&authType=${authTypeFilter}`;
+      if (roleFilter !== "all") url += `&role=${roleFilter}`;
 
       const res = await apiClient.get(url);
       const json = res.data;
       if (json.statusCode === 200 || json.success) {
         const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
-        // Đảm bảo không load bất kỳ tài khoản admin nào vào giao diện
-        setCustomers(items.filter((c) => c.role !== "admin"));
+        setCustomers(items);
       }
 
-      // 2. Lấy thống kê
+      // Lấy thống kê
       const statRes = await apiClient.get("/users/stats");
       const statJson = statRes.data;
       if (statJson.statusCode === 200 || statJson.success) {
         setStats(statJson.data || {});
       }
     } catch (error) {
-      console.error("Lỗi tải khách hàng:", error);
-      showToast("Không thể tải danh sách khách hàng!", "error");
+      console.error("Lỗi tải người dùng:", error);
+      showToast("Không thể tải danh sách tài khoản!", "error");
     } finally {
       setLoading(false);
     }
@@ -109,12 +116,29 @@ export default function AdminUsersPage() {
   useEffect(() => {
     fetchCustomers();
     setCurrentPage(1);
-  }, [debouncedSearch, statusFilter, authTypeFilter]);
+  }, [debouncedSearch, statusFilter, authTypeFilter, roleFilter]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setCurrentPage(1);
     fetchCustomers();
+  };
+
+  // Cập nhật vai trò / phân quyền người dùng (Dành cho Super Admin)
+  const handleRoleChange = async (userId, targetRole, userName) => {
+    if (!isSuperAdmin) {
+      showToast("Chỉ Admin Toàn Quyền mới có quyền thay đổi vai trò tài khoản", "error");
+      return;
+    }
+
+    try {
+      await apiClient.patch(`/users/${userId}/role`, { role: targetRole });
+      const targetRoleInfo = getAdminRoleInfo(targetRole);
+      showToast(`Đã phân quyền tài khoản "${userName}" thành "${targetRoleInfo.label}" thành công!`);
+      fetchCustomers();
+    } catch (error) {
+      showToast(error.response?.data?.message || "Lỗi khi phân quyền tài khoản", "error");
+    }
   };
 
   // Phân trang
@@ -298,39 +322,53 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Filters & Search Form */}
-      <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
-        <div className="sm:col-span-6 relative">
+      <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
+        <div className="sm:col-span-2 lg:col-span-3 relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Tìm theo tên khách hàng, email hoặc SĐT..."
+            placeholder="Tìm theo tên, email, SĐT..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-red-500 transition shadow-2xs"
+            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-[13px] text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-medium"
           />
         </div>
 
-        <div className="sm:col-span-3">
+        <div className="sm:col-span-1 lg:col-span-3">
           <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-[13px] text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
           >
-            <option value="all">Tất cả trạng thái</option>
-            <option value="active">Hoạt động (Active)</option>
-            <option value="banned">Đang bị khóa (Banned)</option>
+            <option value="all">Tất cả vai trò</option>
+            <option value="user">Khách hàng (User)</option>
+            <option value="admin_sales">Admin Bán Hàng</option>
+            <option value="admin_content">Admin Nội Dung</option>
+            <option value="admin_customer">Admin Khách Hàng</option>
           </select>
         </div>
 
-        <div className="sm:col-span-3">
+        <div className="sm:col-span-1 lg:col-span-3">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-[13px] text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
+          >
+            <option value="all">Tất cả trạng thái</option>
+            <option value="active">Đang hoạt động</option>
+            <option value="banned">Bị hạn chế / Khóa</option>
+          </select>
+        </div>
+
+        <div className="sm:col-span-2 lg:col-span-3">
           <select
             value={authTypeFilter}
             onChange={(e) => setAuthTypeFilter(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-[13px] text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
           >
             <option value="all">Tất cả hình thức</option>
             <option value="google">Google OAuth</option>
-            <option value="local">Email / Pass</option>
+            <option value="local">Email & Mật khẩu</option>
           </select>
         </div>
       </form>
@@ -342,15 +380,15 @@ export default function AdminUsersPage() {
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-black uppercase tracking-wider text-slate-500">
                 <th className="py-3.5 px-4 w-12 text-center whitespace-nowrap">STT</th>
-                <th className="py-3.5 px-4 min-w-[240px] whitespace-nowrap text-left">Tài Khoản & Người Dùng</th>
-                <th className="py-3.5 px-4 min-w-[220px] text-center whitespace-nowrap">Liên Hệ (Email / SĐT)</th>
-                <th className="py-3.5 px-4 w-36 text-center whitespace-nowrap">Hình Thức</th>
-                <th className="py-3.5 px-4 w-40 text-center whitespace-nowrap">Ngày Tham Gia</th>
-                <th className="py-3.5 px-4 w-36 text-center whitespace-nowrap">Trạng Thái</th>
-                <th className="py-3.5 px-4 w-32 text-center whitespace-nowrap">Thao Tác</th>
+                <th className="py-3.5 px-4 min-w-[220px] whitespace-nowrap text-left">Tài Khoản & Người Dùng</th>
+                <th className="py-3.5 px-4 min-w-[200px] text-center whitespace-nowrap">Liên Hệ</th>
+                <th className="py-3.5 px-4 w-44 text-center whitespace-nowrap">Vai Trò / Phân Quyền</th>
+                <th className="py-3.5 px-4 w-32 text-center whitespace-nowrap">Hình Thức</th>
+                <th className="py-3.5 px-4 w-32 text-center whitespace-nowrap">Trạng Thái</th>
+                <th className="py-3.5 px-4 w-28 text-center whitespace-nowrap">Thao Tác</th>
               </tr>
             </thead>
-            <tbody key={debouncedSearch + statusFilter + authTypeFilter + currentPage} className="divide-y divide-slate-100 text-xs animate-smooth-fade">
+            <tbody key={debouncedSearch + statusFilter + authTypeFilter + roleFilter + currentPage} className="divide-y divide-slate-100 text-xs animate-smooth-fade">
               {loading ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">
@@ -365,105 +403,135 @@ export default function AdminUsersPage() {
                   </td>
                 </tr>
               ) : (
-                paginatedCustomers.map((c, idx) => (
-                  <tr key={c._id} className="hover:bg-slate-50/70 transition group">
-                    <td className="py-3.5 px-4 text-center text-slate-400 font-mono font-medium whitespace-nowrap">
-                      {(currentPage - 1) * pageSize + idx + 1}
-                    </td>
-                    <td className="py-3.5 px-4 text-left whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-xs shrink-0 bg-red-50 text-[#eb1c24] border border-red-100">
-                          {c.name ? c.name.charAt(0).toUpperCase() : "U"}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-bold text-slate-900 group-hover:text-[#eb1c24] transition truncate max-w-[200px] flex items-center gap-1.5">
-                            <span>{c.name}</span>
+                paginatedCustomers.map((c, idx) => {
+                  const roleObj = getAdminRoleInfo(c.role);
+                  return (
+                    <tr key={c._id} className="hover:bg-slate-50/70 transition group">
+                      <td className="py-3.5 px-4 text-center text-slate-400 font-mono font-medium whitespace-nowrap">
+                        {(currentPage - 1) * pageSize + idx + 1}
+                      </td>
+                      <td className="py-3.5 px-4 text-left whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-xs shrink-0 bg-red-50 text-[#eb1c24] border border-red-100">
+                            {c.name ? c.name.charAt(0).toUpperCase() : "U"}
                           </div>
-                          <div className="text-[10.5px] text-slate-400 font-mono">
-                            ID: {c._id.slice(-6)}
+                          <div className="min-w-0">
+                            <div className="font-bold text-slate-900 group-hover:text-[#eb1c24] transition truncate max-w-[180px] flex items-center gap-1.5">
+                              <span>{c.name}</span>
+                            </div>
+                            <div className="text-[10.5px] text-slate-400 font-mono">
+                              ID: {c._id.slice(-6)}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      <div className="inline-flex flex-col items-center">
-                        <div className="flex items-center gap-1 text-slate-700 font-medium truncate max-w-[200px]">
-                          <Mail className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span>{c.email}</span>
+                      </td>
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        <div className="inline-flex flex-col items-center">
+                          <div className="flex items-center gap-1 text-slate-700 font-medium truncate max-w-[180px]">
+                            <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span>{c.email}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
+                            <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span>{c.phone || "Chưa cập nhật"}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
-                          <Phone className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span>{c.phone || "Chưa cập nhật SĐT"}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      {c.authType === "google" ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[10.5px]">
-                          Google OAuth
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 font-bold text-[10.5px]">
-                          Email / Pass
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-center whitespace-nowrap text-slate-600 font-medium">
-                      <div className="inline-flex items-center gap-1.5">
-                        <Calendar className="w-3 h-3 text-slate-400" />
-                        <span>{formatDate(c.createdAt)}</span>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      {c.status === "banned" ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 text-red-600 border border-red-200 font-bold text-[10.5px]">
-                          <Ban className="w-3 h-3" />
-                          Đã bị khóa
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold text-[10.5px]">
-                          <CheckCircle2 className="w-3 h-3" />
-                          Hoạt động
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <button
-                          onClick={() => handleOpenDetail(c._id)}
-                          className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-slate-600 transition cursor-pointer"
-                          title="Xem chi tiết & đơn hàng"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
+                      </td>
 
-                        <button
-                          onClick={() => handleToggleStatus(c._id, c.status, c.name)}
-                          className={`p-1.5 rounded-lg border transition cursor-pointer ${
-                            c.status === "banned"
-                              ? "border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                              : "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100"
-                          }`}
-                          title={c.status === "banned" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
-                        >
-                          {c.status === "banned" ? (
-                            <Unlock className="w-4 h-4" />
-                          ) : (
-                            <Ban className="w-4 h-4" />
+                      {/* Role column / Dropdown for Super Admin */}
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        {isSuperAdmin ? (
+                          <select
+                            value={c.role || "user"}
+                            onChange={(e) => handleRoleChange(c._id, e.target.value, c.name)}
+                            className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition shadow-2xs cursor-pointer focus:outline-none focus:ring-1 focus:ring-slate-900 ${
+                              c.role === "admin_sales"
+                                ? "bg-blue-50 text-blue-700 border-blue-200"
+                                : c.role === "admin_content"
+                                ? "bg-purple-50 text-purple-700 border-purple-200"
+                                : c.role === "admin_customer"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                : "bg-slate-50 text-slate-700 border-slate-200"
+                            }`}
+                          >
+                            <option value="user">Khách hàng (User)</option>
+                            <option value="admin_sales">Admin Bán Hàng</option>
+                            <option value="admin_content">Admin Nội Dung</option>
+                            <option value="admin_customer">Admin Khách Hàng</option>
+                          </select>
+                        ) : (
+                          <span
+                            className={`inline-block px-2.5 py-1 rounded-lg border font-bold text-[10.5px] ${roleObj.badgeBg}`}
+                          >
+                            {roleObj.label}
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        {c.authType === "google" ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[10.5px]">
+                            Google OAuth
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 font-bold text-[10.5px]">
+                            Email / Pass
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        {c.status === "banned" ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 text-red-600 border border-red-200 font-bold text-[10.5px]">
+                            <Ban className="w-3 h-3" />
+                            Đã bị khóa
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold text-[10.5px]">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Hoạt động
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            onClick={() => handleOpenDetail(c._id)}
+                            className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-slate-600 transition cursor-pointer"
+                            title="Xem chi tiết & đơn hàng"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+
+                          <button
+                            onClick={() => handleToggleStatus(c._id, c.status, c.name)}
+                            className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                              c.status === "banned"
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                                : "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100"
+                            }`}
+                            title={c.status === "banned" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
+                          >
+                            {c.status === "banned" ? (
+                              <Unlock className="w-4 h-4" />
+                            ) : (
+                              <Ban className="w-4 h-4" />
+                            )}
+                          </button>
+
+                          {isSuperAdmin && (
+                            <button
+                              onClick={() => handleDeleteCustomer(c._id, c.name)}
+                              className="p-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition cursor-pointer"
+                              title="Xóa vĩnh viễn khách hàng"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           )}
-                        </button>
-
-                        <button
-                          onClick={() => handleDeleteCustomer(c._id, c.name)}
-                          className="p-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition cursor-pointer"
-                          title="Xóa vĩnh viễn khách hàng"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -560,8 +628,18 @@ export default function AdminUsersPage() {
                   <span className="font-bold text-slate-800">{selectedCustomer.phone || "Chưa có"}</span>
                 </div>
                 <div>
+                  <span className="text-slate-400 font-medium block">Vai trò tài khoản:</span>
+                  <span className="font-bold text-slate-800">{getAdminRoleInfo(selectedCustomer.role).label}</span>
+                </div>
+                <div>
                   <span className="text-slate-400 font-medium block">Hình thức đăng ký:</span>
                   <span className="font-bold text-slate-800 uppercase">{selectedCustomer.authType}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 font-medium block">Trạng thái:</span>
+                  <span className={`font-bold ${selectedCustomer.status === "banned" ? "text-red-600" : "text-emerald-600"}`}>
+                    {selectedCustomer.status === "banned" ? "Bị khóa" : "Hoạt động"}
+                  </span>
                 </div>
                 <div className="col-span-2">
                   <span className="text-slate-400 font-medium block">Địa chỉ giao hàng:</span>

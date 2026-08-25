@@ -5,16 +5,16 @@ import {
   createBackup,
   clearCache,
 } from "../controllers/settingController.js";
-import { verifyJWT, requireAdmin } from "../middlewares/authMiddleware.js";
+import { verifyJWT, requireSuperAdmin } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
 // Public / Client read
 router.get("/", getSettings);
 
-// Admin restricted updates
-router.put("/", verifyJWT, requireAdmin, updateSettings);
-router.post("/backup", verifyJWT, requireAdmin, createBackup);
-router.post("/clear-cache", verifyJWT, requireAdmin, clearCache);
+// Admin restricted updates (Chỉ Super Admin)
+router.put("/", verifyJWT, requireSuperAdmin, updateSettings);
+router.post("/backup", verifyJWT, requireSuperAdmin, createBackup);
+router.post("/clear-cache", verifyJWT, requireSuperAdmin, clearCache);
 
 export default router;

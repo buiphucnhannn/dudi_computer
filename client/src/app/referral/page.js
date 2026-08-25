@@ -11,14 +11,14 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <main className="w-full bg-[#f8f9fa]">
+    <main className="w-full bg-white">
       <ReferralHero />
 
       <ReferralBenefits />
 
-      <ReferralProcess />
-
       <ReferralRewards />
+
+      <ReferralProcess />
 
       <ReferralCTA />
     </main>
