@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { CheckCircle2, AlertTriangle, RotateCcw } from "lucide-react";
+import { useDebounce } from "@/lib/useDebounce";
 import { productAPI } from "@/lib/api";
 import ProductPageHeader from "@/components/admin/products/ProductPageHeader";
 import ProductFilters from "@/components/admin/products/ProductFilters";
@@ -20,11 +22,19 @@ export default function AdminProductsPage() {
     category: "",
     brand: "",
   });
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams?.get("search") || "");
   const [sort, setSort] = useState("newest");
   const [viewMode, setViewMode] = useState("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 8;
+
+  useEffect(() => {
+    const q = searchParams?.get("search");
+    if (q !== null && q !== undefined) {
+      setSearchQuery(q);
+    }
+  }, [searchParams]);
 
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -107,13 +117,19 @@ export default function AdminProductsPage() {
     };
   }, [products]);
 
+  const debouncedSearch = useDebounce(searchQuery, 1500);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, filters, sort]);
+
   // Filtered & Sorted products
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
     // Search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase().trim();
       result = result.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||

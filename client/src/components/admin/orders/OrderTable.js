@@ -35,7 +35,7 @@ export default function OrderTable({ orders, onSelectOrder, isLoading }) {
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-slate-150 text-sm text-slate-600">
+        <tbody className="divide-y divide-slate-150 text-sm text-slate-600 animate-smooth-fade">
           {isLoading ? (
             // Skeleton Loader Rows
             [1, 2, 3, 4, 5].map((idx) => (

@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { formatDate } from "@/lib/utils";
+import { useDebounce } from "@/lib/useDebounce";
 import { jobAPI, apiClient } from "@/lib/api";
 
 const generateSlug = (text) => {
@@ -126,11 +127,13 @@ export default function AdminCareersPage() {
     setTimeout(() => setToast(null), 3500);
   };
 
+  const debouncedSearch = useDebounce(searchTerm, 1500);
+
   const fetchJobs = async () => {
     setLoading(true);
     try {
       const res = await jobAPI.getAdminAll({
-        search: searchTerm.trim() || undefined,
+        search: debouncedSearch.trim() || undefined,
         department: selectedDept !== "all" ? selectedDept : undefined,
         isActive: selectedStatus !== "all" ? selectedStatus === "active" : undefined,
       });
@@ -153,7 +156,7 @@ export default function AdminCareersPage() {
   useEffect(() => {
     fetchJobs();
     setCurrentPage(1);
-  }, [selectedDept, selectedStatus]);
+  }, [debouncedSearch, selectedDept, selectedStatus]);
 
   const totalPages = Math.ceil(jobs.length / pageSize) || 1;
   const paginatedJobs = useMemo(() => {
@@ -429,7 +432,7 @@ export default function AdminCareersPage() {
                 <th className="py-3.5 px-4 w-28 text-center whitespace-nowrap">Thao Tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
+            <tbody key={debouncedSearch + selectedDept + selectedStatus + currentPage} className="divide-y divide-slate-100 text-xs animate-smooth-fade">
               {loading ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-slate-400 whitespace-nowrap">

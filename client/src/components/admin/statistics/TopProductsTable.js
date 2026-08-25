@@ -13,6 +13,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { statisticAPI, categoryAPI } from "@/lib/api";
+import { useDebounce } from "@/lib/useDebounce";
 
 export default function TopProductsTable() {
   const [products, setProducts] = useState([]);
@@ -65,11 +66,13 @@ export default function TopProductsTable() {
     };
   }, []);
 
+  const debouncedSearch = useDebounce(search, 1500);
+
   const filteredProducts = useMemo(() => {
     let list = [...products];
 
-    if (search.trim()) {
-      const q = search.toLowerCase().trim();
+    if (debouncedSearch.trim()) {
+      const q = debouncedSearch.toLowerCase().trim();
       list = list.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
@@ -93,11 +96,11 @@ export default function TopProductsTable() {
     });
 
     return list;
-  }, [products, search, categoryFilter, sortBy]);
+  }, [products, debouncedSearch, categoryFilter, sortBy]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, categoryFilter, sortBy]);
+  }, [debouncedSearch, categoryFilter, sortBy]);
 
   const totalPages = Math.ceil(filteredProducts.length / pageSize) || 1;
   const paginatedProducts = useMemo(() => {
@@ -199,7 +202,7 @@ export default function TopProductsTable() {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-slate-150 text-sm">
+            <tbody key={debouncedSearch + categoryFilter + sortBy + currentPage} className="divide-y divide-slate-150 text-sm animate-smooth-fade">
               {filteredProducts.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="py-12 text-center text-xs text-slate-400 font-medium whitespace-nowrap">

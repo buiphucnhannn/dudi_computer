@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { apiClient } from "@/lib/api";
+import { useDebounce } from "@/lib/useDebounce";
 
 const generateSlug = (text) => {
   return text
@@ -378,8 +379,19 @@ export default function AdminCategoriesAndBrandsPage() {
     return categories.filter((c) => !c.parent).sort((a, b) => (a.order || 0) - (b.order || 0));
   }, [categories]);
 
+  const debouncedCategorySearch = useDebounce(categorySearchTerm, 1500);
+  const debouncedBrandSearch = useDebounce(brandSearchTerm, 1500);
+
+  useEffect(() => {
+    setCategoryPage(1);
+  }, [debouncedCategorySearch, selectedGroupFilter]);
+
+  useEffect(() => {
+    setBrandPage(1);
+  }, [debouncedBrandSearch, brandStatusFilter]);
+
   const categoryTree = useMemo(() => {
-    const query = categorySearchTerm.toLowerCase().trim();
+    const query = debouncedCategorySearch.toLowerCase().trim();
 
     return rootCategories
       .filter((root) => {
@@ -406,7 +418,7 @@ export default function AdminCategoriesAndBrandsPage() {
         return { root, children };
       })
       .filter(Boolean);
-  }, [rootCategories, categories, selectedGroupFilter, categorySearchTerm]);
+  }, [rootCategories, categories, selectedGroupFilter, debouncedCategorySearch]);
 
   const totalCategoryPages = Math.ceil(categoryTree.length / categoryPageSize) || 1;
   const paginatedCategoryTree = useMemo(() => {
@@ -415,7 +427,7 @@ export default function AdminCategoriesAndBrandsPage() {
   }, [categoryTree, categoryPage, categoryPageSize]);
 
   const filteredBrands = useMemo(() => {
-    const query = brandSearchTerm.toLowerCase().trim();
+    const query = debouncedBrandSearch.toLowerCase().trim();
     return brands.filter((b) => {
       if (brandStatusFilter !== "all") {
         if (brandStatusFilter === "active" && !b.isActive) return false;
@@ -428,7 +440,7 @@ export default function AdminCategoriesAndBrandsPage() {
       }
       return true;
     });
-  }, [brands, brandSearchTerm, brandStatusFilter]);
+  }, [brands, debouncedBrandSearch, brandStatusFilter]);
 
   const totalBrandPages = Math.ceil(filteredBrands.length / brandPageSize) || 1;
   const paginatedBrands = useMemo(() => {
@@ -593,7 +605,7 @@ export default function AdminCategoriesAndBrandsPage() {
                     <th className="py-3.5 px-4 w-28 text-center whitespace-nowrap">Thao Tác</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
+                <tbody key={debouncedCategorySearch + selectedGroupFilter + categoryPage} className="divide-y divide-slate-100 text-xs animate-smooth-fade">
                   {loadingCategories ? (
                     <tr>
                       <td colSpan={6} className="py-12 text-center text-slate-400">
@@ -856,7 +868,7 @@ export default function AdminCategoriesAndBrandsPage() {
                     <th className="py-3.5 px-4 w-28 text-center whitespace-nowrap">Thao Tác</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
+                <tbody key={debouncedBrandSearch + brandStatusFilter + brandPage} className="divide-y divide-slate-100 text-xs animate-smooth-fade">
                   {loadingBrands ? (
                     <tr>
                       <td colSpan={7} className="py-12 text-center text-slate-400">

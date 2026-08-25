@@ -26,6 +26,7 @@ import {
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { apiClient } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
+import { useDebounce } from "@/lib/useDebounce";
 
 const generateSlug = (text) => {
   return text
@@ -150,21 +151,27 @@ export default function AdminPromotionsPage() {
     fetchCategories();
   }, []);
 
+  const debouncedSearch = useDebounce(searchTerm, 1500);
+
   useEffect(() => {
     fetchPromotions();
     setCurrentPage(1);
   }, [statusFilter]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+
   // --- Filter & Pagination ---
   const filteredPromotions = useMemo(() => {
-    const query = searchTerm.toLowerCase().trim();
+    const query = debouncedSearch.toLowerCase().trim();
     if (!query) return promotions;
     return promotions.filter(
       (p) =>
         p.name?.toLowerCase().includes(query) ||
         p.description?.toLowerCase().includes(query)
     );
-  }, [promotions, searchTerm]);
+  }, [promotions, debouncedSearch]);
 
   const totalPages = Math.ceil(filteredPromotions.length / pageSize) || 1;
   const paginatedPromotions = useMemo(() => {
@@ -472,7 +479,7 @@ export default function AdminPromotionsPage() {
                 <th className="py-3.5 px-4 w-28 text-center whitespace-nowrap">Thao Tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
+            <tbody key={debouncedSearch + statusFilter + currentPage} className="divide-y divide-slate-100 text-xs animate-smooth-fade">
               {loading ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">

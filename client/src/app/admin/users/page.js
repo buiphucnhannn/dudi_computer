@@ -26,6 +26,7 @@ import {
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { apiClient } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
+import { useDebounce } from "@/lib/useDebounce";
 
 export default function AdminUsersPage() {
   const [customers, setCustomers] = useState([]);
@@ -73,11 +74,13 @@ export default function AdminUsersPage() {
     setTimeout(() => setToast(null), 3500);
   };
 
+  const debouncedSearch = useDebounce(searchTerm, 1500);
+
   const fetchCustomers = async () => {
     setLoading(true);
     try {
       // 1. Lấy danh sách khách hàng (chỉ lấy tài khoản khách hàng)
-      let url = `/users?search=${encodeURIComponent(searchTerm)}`;
+      let url = `/users?search=${encodeURIComponent(debouncedSearch)}`;
       if (statusFilter !== "all") url += `&status=${statusFilter}`;
       if (authTypeFilter !== "all") url += `&authType=${authTypeFilter}`;
 
@@ -105,7 +108,8 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchCustomers();
-  }, [statusFilter, authTypeFilter]);
+    setCurrentPage(1);
+  }, [debouncedSearch, statusFilter, authTypeFilter]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -346,7 +350,7 @@ export default function AdminUsersPage() {
                 <th className="py-3.5 px-4 w-32 text-center whitespace-nowrap">Thao Tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
+            <tbody key={debouncedSearch + statusFilter + authTypeFilter + currentPage} className="divide-y divide-slate-100 text-xs animate-smooth-fade">
               {loading ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">

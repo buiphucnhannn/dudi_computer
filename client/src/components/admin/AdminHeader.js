@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Menu,
@@ -27,6 +27,7 @@ import { notificationAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
 import { selectCurrentUser, logoutUser } from "@/redux/slices/authSlice";
 import { formatDate } from "@/lib/utils";
+import { useDebounce } from "@/lib/useDebounce";
 
 function formatTimeAgo(dateString) {
   if (!dateString) return "";
@@ -46,11 +47,23 @@ function formatTimeAgo(dateString) {
 
 export default function AdminHeader({ onToggleSidebar }) {
   const router = useRouter();
+  const pathname = usePathname();
   const dispatch = useDispatch();
   const user = useSelector(selectCurrentUser);
   const { showToast } = useToast();
 
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 1500);
+
+  useEffect(() => {
+    if (debouncedSearch && debouncedSearch.trim().length > 0) {
+      if (pathname === "/admin/products") {
+        router.push(`/admin/products?search=${encodeURIComponent(debouncedSearch.trim())}`);
+      } else {
+        router.push(`/admin/products?search=${encodeURIComponent(debouncedSearch.trim())}`);
+      }
+    }
+  }, [debouncedSearch, pathname, router]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);

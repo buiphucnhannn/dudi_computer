@@ -13,6 +13,7 @@ import {
   normalizeOrderStatus,
   formatOrderInitials,
 } from "@/components/admin/orders/orderStore";
+import { useDebounce } from "@/lib/useDebounce";
 
 export default function OrdersPage() {
   // Always start with empty list and loading state so stale data is NEVER rendered on reload
@@ -59,9 +60,15 @@ export default function OrdersPage() {
     fetchOrdersFromDatabase(true);
   }, [fetchOrdersFromDatabase]);
 
+  const debouncedKeyword = useDebounce(keyword, 1500);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedKeyword, status]);
+
   const filteredOrders = useMemo(() => {
     return ordersList.filter((order) => {
-      const search = keyword.toLowerCase().trim();
+      const search = debouncedKeyword.toLowerCase().trim();
 
       const matchKeyword =
         !search ||
@@ -74,7 +81,7 @@ export default function OrdersPage() {
 
       return matchKeyword && matchStatus;
     });
-  }, [ordersList, keyword, status]);
+  }, [ordersList, debouncedKeyword, status]);
 
   const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
 

@@ -40,6 +40,7 @@ import {
 import { apiClient } from "@/lib/api";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { formatDate } from "@/lib/utils";
+import { useDebounce } from "@/lib/useDebounce";
 
 // Hàm tạo slug chuẩn SEO không dấu
 const generateSlug = (text) => {
@@ -174,11 +175,14 @@ export default function AdminNewsPage() {
     }
   }, [isArticleModalOpen]);
 
+  const debouncedSearch = useDebounce(searchTerm, 1500);
+  const debouncedCategorySearch = useDebounce(categorySearchTerm, 1500);
+
   // --- Fetch Dữ Liệu Dùng apiClient Tự Động Refresh Token Khi Hết Hạn ---
   const fetchNews = async () => {
     setLoadingArticles(true);
     try {
-      let url = `/news/admin/all?search=${encodeURIComponent(searchTerm)}`;
+      let url = `/news/admin/all?search=${encodeURIComponent(debouncedSearch)}`;
       if (selectedCategory !== "all") url += `&category=${encodeURIComponent(selectedCategory)}`;
       if (selectedPublishStatus !== "all")
         url += `&isPublished=${selectedPublishStatus === "published"}`;
@@ -225,7 +229,11 @@ export default function AdminNewsPage() {
   useEffect(() => {
     fetchNews();
     setArticlePage(1);
-  }, [selectedCategory, selectedPublishStatus]);
+  }, [debouncedSearch, selectedCategory, selectedPublishStatus]);
+
+  useEffect(() => {
+    setCategoryPage(1);
+  }, [debouncedCategorySearch]);
 
   // --- Rich Text Editor Formatting Commands (WYSIWYG Word-like Realtime) ---
   const formatDoc = (cmd, value = null) => {
@@ -736,12 +744,12 @@ export default function AdminNewsPage() {
 
   // --- Filtering & Pagination ---
   const filteredArticles = useMemo(() => {
-    const query = searchTerm.toLowerCase().trim();
+    const query = debouncedSearch.toLowerCase().trim();
     return articles.filter((art) => {
       if (query && !art.title?.toLowerCase().includes(query)) return false;
       return true;
     });
-  }, [articles, searchTerm]);
+  }, [articles, debouncedSearch]);
 
   const totalArticlePages = Math.ceil(filteredArticles.length / articlePageSize) || 1;
   const paginatedArticles = useMemo(() => {
@@ -750,13 +758,13 @@ export default function AdminNewsPage() {
   }, [filteredArticles, articlePage, articlePageSize]);
 
   const filteredCategories = useMemo(() => {
-    const query = categorySearchTerm.toLowerCase().trim();
+    const query = debouncedCategorySearch.toLowerCase().trim();
     return categories.filter((c) => {
       if (query && !c.name?.toLowerCase().includes(query) && !c.description?.toLowerCase().includes(query))
         return false;
       return true;
     });
-  }, [categories, categorySearchTerm]);
+  }, [categories, debouncedCategorySearch]);
 
   const totalCategoryPages = Math.ceil(filteredCategories.length / categoryPageSize) || 1;
   const paginatedCategories = useMemo(() => {
@@ -1018,7 +1026,7 @@ export default function AdminNewsPage() {
                     <th className="py-3.5 px-4 w-28 text-center whitespace-nowrap">Thao Tác</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
+                <tbody key={debouncedSearch + selectedCategory + selectedPublishStatus + articlePage} className="divide-y divide-slate-100 text-xs animate-smooth-fade">
                   {loadingArticles ? (
                     <tr>
                       <td colSpan={7} className="py-12 text-center text-slate-400">
@@ -1218,7 +1226,7 @@ export default function AdminNewsPage() {
                     <th className="py-3.5 px-4 w-28 text-center whitespace-nowrap">Thao Tác</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
+                <tbody key={debouncedCategorySearch + categoryPage} className="divide-y divide-slate-100 text-xs animate-smooth-fade">
                   {loadingCategories ? (
                     <tr>
                       <td colSpan={6} className="py-12 text-center text-slate-400">

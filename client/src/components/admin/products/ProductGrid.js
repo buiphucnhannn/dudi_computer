@@ -134,7 +134,7 @@ export default function ProductGrid({
                 <th className="py-3.5 px-4 w-32 text-center whitespace-nowrap">Thao Tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-xs">
+            <tbody className="divide-y divide-slate-100 text-xs animate-smooth-fade">
               {products.map((product, idx) => {
                 const formattedPrice =
                   typeof product.price === "number"
@@ -270,7 +270,7 @@ export default function ProductGrid({
 
   // 4. Render Grid View
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-smooth-fade">
       {products.map((product) => (
         <ProductCard
           key={product.id}
