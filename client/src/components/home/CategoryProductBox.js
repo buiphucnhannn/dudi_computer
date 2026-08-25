@@ -41,17 +41,23 @@ import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
 
 export default function CategoryProductBox({
   title,
-  mainSlug,
+  icon: Icon,
+  banner,
   tabs = [],
   products = [],
 }) {
   const [activeTab, setActiveTab] = useState(tabs[0]?.slug || "all");
   const [buyModalItem, setBuyModalItem] = useState(null);
+  const [mounted, setMounted] = useState(false);
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const { addToCompare, isComparing } = useCompare();
   const cartItems = useSelector(selectCartItems) || [];
   const isAdmin = useSelector(selectIsAdmin);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleToggleFavorite = (e, item) => {
     e.preventDefault();
@@ -342,7 +348,7 @@ export default function CategoryProductBox({
                     >
                       <Scale className="w-4 h-4" />
                     </button>
-                    {!isAdmin && (
+                    {mounted && !isAdmin && (
                       <button
                         onClick={(e) => handleToggleFavorite(e, item)}
                         className={`cursor-pointer transition-colors ${

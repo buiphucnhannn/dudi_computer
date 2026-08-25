@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { useToast } from "@/components/common/ToastContext";
@@ -12,6 +13,11 @@ const ProductActions = ({ product }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const isAdmin = useSelector(selectIsAdmin);
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleOpenBuyModal = () => {
     if (!isAuthenticated) {
@@ -29,7 +35,7 @@ const ProductActions = ({ product }) => {
 
   return (
     <>
-      {!isAdmin && (
+      {mounted && !isAdmin && (
         <div className="flex flex-col sm:flex-row gap-4 mt-2">
           <button
             onClick={handleOpenBuyModal}

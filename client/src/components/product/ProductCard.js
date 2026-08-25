@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -28,12 +29,17 @@ import { getProductCardBadges } from "@/lib/specParser";
 import { getProductDiscountInfo, getProductImage } from "@/lib/productHelpers";
 
 export default function ProductCard({ product }) {
+  const [mounted, setMounted] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
   const { addToCompare, isComparing } = useCompare();
   const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
   const isAdmin = useSelector(selectIsAdmin);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!product) return null;
 
@@ -134,7 +140,7 @@ export default function ProductCard({ product }) {
           <Scale className="w-3.5 h-3.5" />
         </button>
 
-        {!isAdmin && (
+        {mounted && !isAdmin && (
           <button
             onClick={handleToggleCart}
             className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${

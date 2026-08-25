@@ -157,44 +157,39 @@ export default function AdminSidebar({ isOpen, onClose }) {
     <>
       {/* Backdrop Overlay trên màn hình Mobile / Tablet - Click ngoài tự động thu sidebar */}
       <div
-        className={`fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 transition-opacity duration-300 lg:hidden ${
-          isOpen
+        className={`fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 transition-opacity duration-300 lg:hidden ${isOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
-        }`}
+          }`}
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Sidebar Panel Drawer */}
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-full w-[288px] flex-col border-r border-slate-200 bg-white shadow-2xl lg:shadow-xs transition-transform duration-300 ease-out ${
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`fixed left-0 top-0 z-50 flex h-full w-[280px] flex-col border-r border-slate-200 bg-white shadow-2xl lg:shadow-xs transition-transform duration-300 ease-out ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
         aria-label="Admin Navigation Sidebar"
       >
         {/* Logo & Brand */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-3.5 py-3.5">
-          <Link href="/admin" className="flex items-center gap-2.5 group min-w-0 flex-1">
+        <div className="flex items-center justify-between border-b border-slate-100 p-4">
+          <Link href="/admin" className="flex items-center gap-3 group">
             <img
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJg90SQjFIlEd2xvqMrzbiRyGKa2AZ87VXJ5Du7OBzu0Zd3o6iw8tIIDFvm6sPFBFbCvYSGagYCpaKEHG9vFSqL38i91uQRRrCo9UTXewIm28quM39SSupX2lsB688GiJUDHxtlFJvMgaV1u7mcyn5gZfEYAgBelIa62J_3HCI6UUUGx5aI93X7AlUsiq0AU_jwFNmLrAPqjsutR0aDRkc9L4jBs1HZvr4UNvJPSC6hnuMmQTn4a9QrPQg3pHMeLRb_A"
               alt="DUDI software"
-              className="h-8.5 w-8.5 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform shrink-0"
+              className="h-9 w-9 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform"
             />
-            <div className="border-l border-slate-200 pl-2.5 flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-1.5">
-                <span className="text-[12px] font-black uppercase tracking-tight text-slate-900 whitespace-nowrap">
-                  Admin Portal
-                </span>
+            <div className="border-l border-slate-200 pl-3">
+              <div className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                <span>Admin Portal</span>
                 <span
-                  className={`px-1.5 py-0.5 rounded border text-[8.5px] font-black uppercase tracking-tight whitespace-nowrap shrink-0 ${
-                    roleInfo?.badgeBg || "bg-red-100 text-[#eb1c24] border-red-200"
-                  }`}
+                  className={`px-1.5 py-0.2 rounded border text-[9px] font-extrabold tracking-tight ${roleInfo?.badgeBg || "bg-red-100 text-[#eb1c24] border-red-200"
+                    }`}
                 >
-                  {roleInfo?.shortLabel?.replace("Admin ", "") || "PRO"}
+                  {roleInfo?.shortLabel || "ADMIN"}
                 </span>
               </div>
-              <div className="text-[10px] text-slate-400 font-semibold tracking-wide leading-tight">
+              <div className="text-[10px] text-slate-400 font-medium">
                 DUDI SOFTWARE
               </div>
             </div>
@@ -205,23 +200,21 @@ export default function AdminSidebar({ isOpen, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex h-7.5 w-7.5 items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-[#eb1c24] lg:hidden transition-colors cursor-pointer shrink-0 ml-1.5"
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-[#eb1c24] lg:hidden transition-colors cursor-pointer"
               aria-label="Đóng sidebar"
               title="Đóng sidebar"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4.5 w-4.5" />
             </button>
           )}
         </div>
 
         {/* Role Banner nhỏ chỉ định quyền hạn */}
-        <div className="px-3.5 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px]">
-          <span className="text-slate-500 font-medium whitespace-nowrap shrink-0">Vai trò:</span>
-          <span className="font-bold text-slate-800 flex items-center gap-1 min-w-0 pl-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#eb1c24] shrink-0" />
-            <span className="truncate whitespace-nowrap" title={roleInfo?.label}>
-              {roleInfo?.label || "Quản trị viên"}
-            </span>
+        <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px]">
+          <span className="text-slate-500 font-medium">Vai trò:</span>
+          <span className="font-bold text-slate-800 flex items-center gap-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#eb1c24]" />
+            <span>{roleInfo?.label || "Quản trị viên"}</span>
           </span>
         </div>
 
@@ -246,17 +239,15 @@ export default function AdminSidebar({ isOpen, onClose }) {
                       onClick={() => {
                         if (onClose) onClose();
                       }}
-                      className={`group flex items-center justify-between rounded-xl px-3 py-2 text-[13px] font-bold transition-all duration-150 ${
-                        isActive
+                      className={`group flex items-center justify-between rounded-xl px-3 py-2 text-[13px] font-bold transition-all duration-150 ${isActive
                           ? "bg-red-50/80 text-[#eb1c24] border border-red-200/80 shadow-2xs font-extrabold"
                           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <Icon
-                          className={`h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-110 ${
-                            isActive ? "text-[#eb1c24]" : "text-slate-400 group-hover:text-slate-700"
-                          }`}
+                          className={`h-4 w-4 shrink-0 transition-transform duration-150 group-hover:scale-110 ${isActive ? "text-[#eb1c24]" : "text-slate-400 group-hover:text-slate-700"
+                            }`}
                         />
                         <span className="truncate">{item.label}</span>
                       </div>

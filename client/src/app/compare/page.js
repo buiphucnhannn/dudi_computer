@@ -64,6 +64,11 @@ function CompareContent() {
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Tải danh sách tất cả sản phẩm phục vụ Modal tìm kiếm
   useEffect(() => {
@@ -475,7 +480,7 @@ function CompareContent() {
                       </div>
 
                       {/* BUY NOW (USER) OR VIEW DETAILS (ADMIN) */}
-                      {isAdmin ? (
+                      {mounted && isAdmin ? (
                         <button
                           type="button"
                           onClick={() => {

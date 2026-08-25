@@ -35,6 +35,11 @@ const ProductInfo = ({ product }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const isAdmin = useSelector(selectIsAdmin);
   const [allProducts, setAllProducts] = useState([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Tải danh sách sản phẩm từ API
   useEffect(() => {
@@ -443,7 +448,7 @@ const ProductInfo = ({ product }) => {
         </div>
 
         {/* COMPARE / FAVORITE / CART / BUY */}
-        {isAdmin ? (
+        {mounted && isAdmin ? (
           /* Giao diện dành riêng cho Admin: Chỉ có nút So sánh, ẩn hoàn toàn chức năng mua hàng */
           <div className="flex w-full">
             <button

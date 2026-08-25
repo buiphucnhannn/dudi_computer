@@ -41,12 +41,17 @@ import { useToast } from "@/components/common/ToastContext";
 
 export default function FeaturedProductsSection({ products = [] }) {
   const [activeTab, setActiveTab] = useState("all");
+  const [mounted, setMounted] = useState(false);
   const sliderRef = useRef(null);
   const dispatch = useDispatch();
   const { addToCompare, isComparing } = useCompare();
   const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
   const isAdmin = useSelector(selectIsAdmin);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const tabs = [
     { id: "all", name: "Tất cả" },
@@ -331,7 +336,7 @@ export default function FeaturedProductsSection({ products = [] }) {
                         <Scale className="w-4 h-4" />
                       </button>
 
-                      {!isAdmin && (
+                      {mounted && !isAdmin && (
                         <button
                           onClick={(e) => handleToggleCart(e, item)}
                           className={`p-1.5 rounded-full transition-all cursor-pointer ${

@@ -318,12 +318,26 @@ export default function AdminHeader({ onToggleSidebar }) {
 
           {/* User Menu Dropdown */}
           <div
-            className={`absolute right-0 top-full pt-1.5 w-[230px] z-50 transition-all duration-150 ${showUserMenu
+            className={`absolute right-0 top-full pt-1.5 w-[290px] z-50 transition-all duration-150 ${showUserMenu
               ? "opacity-100 visible translate-y-0"
               : "opacity-0 invisible -translate-y-1 pointer-events-none"
               }`}
           >
             <div className="bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-gray-100 p-1.5 overflow-hidden w-full space-y-0.5">
+              <Link
+                href="/admin"
+                onClick={() => setShowUserMenu(false)}
+                className="flex items-center justify-between px-3 py-2 text-[13px] font-bold text-gray-800 hover:text-[#eb1c24] hover:bg-red-50/80 rounded-xl transition-all border border-red-100/80 bg-red-50/40"
+              >
+                <div className="flex items-center gap-2 shrink-0">
+                  <LayoutDashboard className="h-4 w-4 text-[#eb1c24] shrink-0" />
+                  <span className="whitespace-nowrap font-bold">Trang Tổng Quan</span>
+                </div>
+                <span className={`px-2 py-0.5 rounded-md text-[9.5px] font-black tracking-tight border shrink-0 whitespace-nowrap ${roleInfo?.badgeBg || "bg-red-100 text-[#eb1c24] border-red-200"}`}>
+                  {roleInfo?.shortLabel || "ADMIN"}
+                </span>
+              </Link>
+
               <Link
                 href="/"
                 onClick={() => setShowUserMenu(false)}

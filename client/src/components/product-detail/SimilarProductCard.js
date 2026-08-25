@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Heart,
@@ -26,10 +26,15 @@ const formatPrice = (price) => {
 };
 
 export default function SimilarProductCard({ product }) {
+  const [mounted, setMounted] = useState(false);
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems) || [];
   const isAdmin = useSelector(selectIsAdmin);
   const { showToast } = useToast();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const productId = product.id || product._id || product.slug;
   const isCart = cartItems.some(
@@ -112,7 +117,7 @@ export default function SimilarProductCard({ product }) {
         )}
 
         {/* Cart Toggle Button (Ẩn đối với Admin) */}
-        {!isAdmin && (
+        {mounted && !isAdmin && (
           <button
             type="button"
             aria-label="Thêm vào giỏ hàng"
