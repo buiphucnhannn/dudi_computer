@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { productRepository, categoryRepository } from "../repositories/index.js";
 import { ApiError } from "../utils/apiError.js";
+import { uploadToCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 
 class ProductService {
   async getProducts(queryParams) {
@@ -68,7 +69,7 @@ class ProductService {
     return await productRepository.findFlashSale(Number(limit));
   }
 
-  async createProduct(productData) {
+  async createProduct(productData, files = []) {
     const { name, price } = productData;
     let { slug } = productData;
 
@@ -91,12 +92,63 @@ class ProductService {
       slug = `${slug}-${Math.floor(100 + Math.random() * 900)}`;
     }
 
+    // 1. Xử lý ảnh hiện có (nếu có gửi kèm dạng URL / object)
+    let initialImages = [];
+    if (productData.existingImages) {
+      try {
+        const parsed =
+          typeof productData.existingImages === "string"
+            ? JSON.parse(productData.existingImages)
+            : productData.existingImages;
+        if (Array.isArray(parsed)) {
+          initialImages = parsed.map((item) =>
+            typeof item === "string" ? { url: item, public_id: "" } : item
+          );
+        }
+      } catch (e) {
+        console.warn("Lỗi parse existingImages:", e);
+      }
+    } else if (Array.isArray(productData.images)) {
+      initialImages = productData.images.map((item) =>
+        typeof item === "string" ? { url: item, public_id: "" } : item
+      );
+    }
+
+    // 2. Upload các file ảnh mới lên Cloudinary qua buffer (Multer memoryStorage)
+    const uploadedImages = [];
+    if (files && Array.isArray(files) && files.length > 0) {
+      for (const file of files) {
+        if (file.buffer) {
+          const res = await uploadToCloudinary(
+            file.buffer,
+            "dudi_software/products",
+            "image"
+          );
+          uploadedImages.push({
+            url: res.url,
+            public_id: res.public_id,
+          });
+        }
+      }
+    }
+
+    const allImages = [...initialImages, ...uploadedImages];
+
+    // Nếu có thumbnail thủ công hoặc lấy ảnh đầu tiên
+    let thumbnail = productData.thumbnail || "";
+    if (!thumbnail && allImages.length > 0) {
+      thumbnail = allImages[0].url;
+    }
+
     const newProduct = {
       ...productData,
       slug,
       shortName: productData.shortName || name,
       stock: Number(productData.stock ?? 10),
       price: Number(price),
+      originalPrice: productData.originalPrice ? Number(productData.originalPrice) : 0,
+      images: allImages,
+      thumbnail: thumbnail,
     };
 
     const createdProduct = await productRepository.create(newProduct);
@@ -124,7 +176,7 @@ class ProductService {
     return createdProduct;
   }
 
-  async updateProduct(id, updateData) {
+  async updateProduct(id, updateData, files = []) {
     if (!id) {
       throw new ApiError(400, "ID sản phẩm không hợp lệ");
     }
@@ -134,13 +186,97 @@ class ProductService {
       throw new ApiError(404, "Không tìm thấy sản phẩm cần sửa");
     }
 
-    // If price / originalPrice changed, calculate discount
+    // 1. Phân tích danh sách ảnh giữ lại (existingImages)
+    let remainingImages = [];
+    if (updateData.existingImages !== undefined) {
+      try {
+        const parsed =
+          typeof updateData.existingImages === "string"
+            ? JSON.parse(updateData.existingImages)
+            : updateData.existingImages;
+        if (Array.isArray(parsed)) {
+          remainingImages = parsed.map((item) =>
+            typeof item === "string" ? { url: item, public_id: "" } : item
+          );
+        }
+      } catch (e) {
+        console.warn("Lỗi parse existingImages:", e);
+      }
+    } else if (Array.isArray(updateData.images)) {
+      remainingImages = updateData.images.map((item) =>
+        typeof item === "string" ? { url: item, public_id: "" } : item
+      );
+    } else {
+      // Giữ nguyên ảnh cũ nếu không truyền existingImages
+      remainingImages = Array.isArray(product.images)
+        ? product.images.map((item) =>
+            typeof item === "string" ? { url: item, public_id: "" } : item
+          )
+        : [];
+    }
+
+    // 2. Upload các file mới lên Cloudinary
+    const uploadedImages = [];
+    if (files && Array.isArray(files) && files.length > 0) {
+      for (const file of files) {
+        if (file.buffer) {
+          const res = await uploadToCloudinary(
+            file.buffer,
+            "dudi_software/products",
+            "image"
+          );
+          uploadedImages.push({
+            url: res.url,
+            public_id: res.public_id,
+          });
+        }
+      }
+    }
+
+    const updatedImagesList = [...remainingImages, ...uploadedImages];
+
+    // 3. Xóa các ảnh đã bị loại bỏ khỏi Cloudinary
+    if (Array.isArray(product.images)) {
+      const remainingPublicIds = new Set(
+        updatedImagesList.map((img) => img.public_id).filter(Boolean)
+      );
+
+      for (const oldImg of product.images) {
+        const oldPublicId = typeof oldImg === "object" ? oldImg.public_id : null;
+        if (oldPublicId && !remainingPublicIds.has(oldPublicId)) {
+          // Ảnh này đã bị xóa khỏi sản phẩm -> Xóa vĩnh viễn trên Cloudinary
+          await deleteFromCloudinary(oldPublicId);
+        }
+      }
+    }
+
+    updateData.images = updatedImagesList;
+
+    // Cập nhật thumbnail
+    if (updatedImagesList.length > 0) {
+      updateData.thumbnail = updatedImagesList[0].url;
+    } else if (updateData.thumbnail) {
+      updateData.thumbnail = updateData.thumbnail;
+    } else {
+      updateData.thumbnail = "";
+    }
+
+    // Tính toán lại % giảm giá nếu có thay đổi giá
     if (updateData.price && updateData.originalPrice) {
       const p = Number(updateData.price);
       const op = Number(updateData.originalPrice);
       if (op > p) {
         updateData.discountPercent = Math.round(((op - p) / op) * 100);
+      } else {
+        updateData.discountPercent = 0;
       }
+    }
+
+    if (updateData.stock !== undefined) {
+      updateData.stock = Number(updateData.stock);
+    }
+    if (updateData.price !== undefined) {
+      updateData.price = Number(updateData.price);
     }
 
     return await productRepository.updateById(id, updateData);
@@ -154,6 +290,16 @@ class ProductService {
     const product = await productRepository.findById(id);
     if (!product) {
       throw new ApiError(404, "Không tìm thấy sản phẩm để xóa");
+    }
+
+    // Xóa toàn bộ ảnh liên quan trên Cloudinary
+    if (Array.isArray(product.images)) {
+      for (const img of product.images) {
+        const publicId = typeof img === "object" ? img.public_id : null;
+        if (publicId) {
+          await deleteFromCloudinary(publicId);
+        }
+      }
     }
 
     return await productRepository.deleteById(id);

@@ -82,8 +82,20 @@ apiClient.interceptors.response.use(
 export const productAPI = {
   getAll: (params) => apiClient.get("/products", { params }),
   getBySlug: (slug) => apiClient.get(`/products/${slug}`),
-  create: (data) => apiClient.post("/products", data),
-  update: (id, data) => apiClient.put(`/products/${id}`, data),
+  create: (data) =>
+    apiClient.post("/products", data, {
+      headers:
+        typeof FormData !== "undefined" && data instanceof FormData
+          ? { "Content-Type": "multipart/form-data" }
+          : undefined,
+    }),
+  update: (id, data) =>
+    apiClient.put(`/products/${id}`, data, {
+      headers:
+        typeof FormData !== "undefined" && data instanceof FormData
+          ? { "Content-Type": "multipart/form-data" }
+          : undefined,
+    }),
   delete: (id) => apiClient.delete(`/products/${id}`),
   updateStock: (id, stock) => apiClient.patch(`/products/${id}/stock`, { stock }),
 };

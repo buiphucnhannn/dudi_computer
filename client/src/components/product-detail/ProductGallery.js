@@ -58,7 +58,7 @@ const ProductGallery = ({ product }) => {
 
   const rawImages = (
     product?.images?.length
-      ? product.images
+      ? product.images.map((img) => (typeof img === "object" ? img.url : img))
       : [product?.thumbnail]
   ).filter(Boolean);
 

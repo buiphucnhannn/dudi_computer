@@ -46,7 +46,7 @@ export const getFlashSaleProducts = async (req, res, next) => {
 
 export const createProduct = async (req, res, next) => {
   try {
-    const product = await productService.createProduct(req.body);
+    const product = await productService.createProduct(req.body, req.files);
     return res
       .status(201)
       .json(new ApiResponse(201, product, "Thêm sản phẩm mới thành công"));
@@ -58,7 +58,7 @@ export const createProduct = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const product = await productService.updateProduct(id, req.body);
+    const product = await productService.updateProduct(id, req.body, req.files);
     return res
       .status(200)
       .json(new ApiResponse(200, product, "Cập nhật thông tin sản phẩm thành công"));
