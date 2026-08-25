@@ -17,6 +17,32 @@ class OrderService {
   }
 
   /**
+   * Lấy danh sách đơn hàng của người dùng theo userId / phone / email
+   */
+  async getMyOrders(params = {}) {
+    const { userId, phone, email, status, search, page = 1, limit = 50 } = params;
+    return await orderRepository.findMyOrders({
+      userId,
+      phone,
+      email,
+      status,
+      search,
+      page,
+      limit,
+    });
+  }
+
+  /**
+   * Tra cứu đơn hàng theo mã đơn (orderCode) hoặc ID hoặc số điện thoại
+   */
+  async trackOrder(codeOrId) {
+    if (!codeOrId) throw new ApiError(400, "Vui lòng cung cấp mã đơn hàng hoặc số điện thoại");
+    const order = await orderRepository.findByCodeOrId(codeOrId);
+    if (!order) throw new ApiError(404, "Không tìm thấy đơn hàng tương ứng");
+    return order;
+  }
+
+  /**
    * Tạo đơn hàng chuẩn Enterprise:
    * 1. Kiểm tra thông tin người nhận
    * 2. Truy vấn Database lấy giá, tên, hình ảnh thực tế từ Product model
@@ -53,17 +79,23 @@ class OrderService {
       throw new ApiError(400, "Vui lòng nhập địa chỉ nhận hàng");
     }
 
-    // Normalize payment method to enum ["cod", "banking", "installment", "momo", "vnpay"]
+    // Normalize payment method to enum ["cod", "banking", "installment"]
     let normalizedPayment = "cod";
     if (paymentMethod) {
       const pm = String(paymentMethod).toLowerCase();
-      if (pm.includes("bank") || pm.includes("chuyển khoản") || pm.includes("chuyen khoan") || pm.includes("vietqr")) {
+      if (
+        pm.includes("bank") ||
+        pm.includes("chuyển khoản") ||
+        pm.includes("chuyen khoan") ||
+        pm.includes("vietqr") ||
+        pm.includes("qr")
+      ) {
         normalizedPayment = "banking";
-      } else if (pm.includes("momo")) {
-        normalizedPayment = "momo";
-      } else if (pm.includes("vnpay")) {
-        normalizedPayment = "vnpay";
-      } else if (pm.includes("tra gop") || pm.includes("trả góp") || pm.includes("installment")) {
+      } else if (
+        pm.includes("tra gop") ||
+        pm.includes("trả góp") ||
+        pm.includes("installment")
+      ) {
         normalizedPayment = "installment";
       } else {
         normalizedPayment = "cod";
@@ -71,15 +103,16 @@ class OrderService {
     }
 
     // Process & Verify items directly from MongoDB Products
-    const rawItems = items && Array.isArray(items) && items.length > 0
-      ? items
-      : [
-          {
-            name: product || "Sản phẩm đặt hàng",
-            price: Number(totalAmount || price || 0),
-            quantity: 1,
-          },
-        ];
+    const rawItems =
+      items && Array.isArray(items) && items.length > 0
+        ? items
+        : [
+            {
+              name: product || "Sản phẩm đặt hàng",
+              price: Number(totalAmount || price || 0),
+              quantity: 1,
+            },
+          ];
 
     const formattedItems = [];
 
@@ -103,11 +136,16 @@ class OrderService {
 
       if (targetProduct) {
         // Lấy giá bán thực tế từ Database (ưu tiên discountPrice nếu có giá trị)
-        const livePrice = (targetProduct.discountPrice && targetProduct.discountPrice > 0)
-          ? targetProduct.discountPrice
-          : targetProduct.price;
+        const livePrice =
+          targetProduct.discountPrice && targetProduct.discountPrice > 0
+            ? targetProduct.discountPrice
+            : targetProduct.price;
 
-        const liveThumbnail = targetProduct.thumbnail || (targetProduct.images && targetProduct.images[0]) || item.thumbnail || item.image || "";
+        const firstImg = targetProduct.images && targetProduct.images[0];
+        const firstImgUrl = typeof firstImg === "object" ? firstImg?.url : firstImg;
+        const liveThumbnail = String(
+          targetProduct.thumbnail || firstImgUrl || item.thumbnail || item.image || ""
+        );
 
         formattedItems.push({
           product: targetProduct._id,
@@ -130,7 +168,7 @@ class OrderService {
           slug: item.slug || "",
           price: Number(item.price || 0),
           quantity,
-          thumbnail: item.thumbnail || item.image || "",
+          thumbnail: String(item.thumbnail || item.image || ""),
           specs: item.specs || {},
         });
       }
@@ -165,7 +203,12 @@ class OrderService {
       discountAmount: 0,
       finalAmount: calculatedSum,
       paymentMethod: normalizedPayment,
-      paymentStatus: normalizedPayment === "banking" || normalizedPayment === "vnpay" || normalizedPayment === "momo" ? "pending" : "pending",
+      paymentStatus:
+        normalizedPayment === "banking" ||
+        normalizedPayment === "vnpay" ||
+        normalizedPayment === "momo"
+          ? "pending"
+          : "pending",
       orderStatus: "processing", // Luôn bắt đầu bằng "processing" (Đang xử lý)
       timeline: [
         {
@@ -183,11 +226,14 @@ class OrderService {
       const { notificationService } = await import("./notificationService.js");
       await notificationService.createNotification({
         title: `Đơn hàng mới #${createdOrder.orderCode}`,
-        message: `Khách hàng ${finalCustomerName} (${phone}) vừa đặt đơn hàng trị giá ${new Intl.NumberFormat("vi-VN").format(calculatedSum)}₫`,
+        message: `Khách hàng ${finalCustomerName} (${phone}) vừa đặt đơn hàng trị giá ${new Intl.NumberFormat(
+          "vi-VN"
+        ).format(calculatedSum)}₫`,
         type: "order",
         link: "/admin/orders",
         entityId: createdOrder._id,
         entityType: "Order",
+        recipientRole: "admin",
         metadata: {
           orderCode: createdOrder.orderCode,
           customerName: finalCustomerName,
@@ -207,17 +253,29 @@ class OrderService {
     const order = await orderRepository.findById(id);
     if (!order) throw new ApiError(404, "Không tìm thấy đơn hàng");
 
-    const validStatuses = ["pending", "confirmed", "processing", "shipping", "completed", "cancelled"];
+    const validStatuses = [
+      "pending",
+      "confirmed",
+      "processing",
+      "shipping",
+      "completed",
+      "cancelled",
+    ];
     let normalized = status;
     if (!validStatuses.includes(normalized)) {
       if (normalized === "chờ xử lý" || normalized === "cho xu ly") normalized = "processing";
       else if (normalized === "đang giao" || normalized === "dang giao") normalized = "shipping";
-      else if (normalized === "đã hoàn thành" || normalized === "da hoan thanh") normalized = "completed";
+      else if (normalized === "đã hoàn thành" || normalized === "da hoan thanh")
+        normalized = "completed";
       else if (normalized === "đã hủy" || normalized === "da huy") normalized = "cancelled";
       else normalized = "processing";
     }
 
     order.orderStatus = normalized;
+    if (!Array.isArray(order.timeline)) {
+      order.timeline = [];
+    }
+
     order.timeline.push({
       status: normalized,
       note: note || `Đơn hàng chuyển sang trạng thái: ${normalized}`,
@@ -226,29 +284,53 @@ class OrderService {
 
     const updatedOrder = await order.save();
 
-    // Tự động tạo thông báo Admin khi đơn hàng đổi trạng thái
+    const statusVNMap = {
+      processing: "Đang xử lý",
+      confirmed: "Đã xác nhận",
+      shipping: "Đang giao hàng",
+      completed: "Đã hoàn thành",
+      cancelled: "Đã hủy",
+      pending: "Chờ thanh toán",
+    };
+
+    // 1. Tự động tạo thông báo Admin khi đơn hàng đổi trạng thái
     try {
       const { notificationService } = await import("./notificationService.js");
-      const statusVNMap = {
-        processing: "Đang xử lý",
-        confirmed: "Đã xác nhận",
-        shipping: "Đang giao hàng",
-        completed: "Đã hoàn thành",
-        cancelled: "Đã hủy",
-        pending: "Chờ thanh toán",
-      };
       await notificationService.createNotification({
         title: `Đơn hàng #${order.orderCode} cập nhật trạng thái`,
-        message: `Trạng thái chuyển sang: "${statusVNMap[normalized] || normalized}" - ${note || "Cập nhật thành công"}`,
+        message: `Trạng thái chuyển sang: "${statusVNMap[normalized] || normalized}" - ${
+          note || "Cập nhật thành công"
+        }`,
         type: "order_status",
         link: "/admin/orders",
         entityId: order._id,
         entityType: "Order",
+        recipientRole: "admin",
         metadata: {
           orderCode: order.orderCode,
           orderStatus: normalized,
         },
       });
+
+      // 2. Tự động tạo thông báo User nếu đơn hàng thuộc về user
+      if (order.user) {
+        await notificationService.createNotification({
+          title: `Đơn hàng #${order.orderCode} đã cập nhật`,
+          message: `Đơn hàng #${order.orderCode} đã chuyển sang trạng thái: "${
+            statusVNMap[normalized] || normalized
+          }". ${note ? `Ghi chú: ${note}` : ""}`,
+          type: "order_status",
+          link: "/orders",
+          entityId: order._id,
+          entityType: "Order",
+          user: order.user,
+          recipientRole: "user",
+          metadata: {
+            orderCode: order.orderCode,
+            orderStatus: normalized,
+          },
+        });
+      }
     } catch (notifErr) {
       console.error("Lỗi khi tạo notification đổi trạng thái đơn hàng:", notifErr);
     }

@@ -6,6 +6,11 @@ const statusConfig = {
     dot: "bg-amber-500",
     className: "bg-amber-50 text-amber-700 border-amber-200",
   },
+  confirmed: {
+    label: "Đã xác nhận",
+    dot: "bg-indigo-500",
+    className: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  },
   shipping: {
     label: "Đang giao",
     dot: "bg-blue-500",

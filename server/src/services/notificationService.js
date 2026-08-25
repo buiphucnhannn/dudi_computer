@@ -13,6 +13,8 @@ class NotificationService {
       link = "/admin",
       entityId = null,
       entityType = null,
+      user = null,
+      recipientRole = "admin",
       metadata = {},
     } = data;
 
@@ -27,6 +29,8 @@ class NotificationService {
       link: link.trim(),
       entityId,
       entityType,
+      user,
+      recipientRole,
       isRead: false,
       metadata,
     });
@@ -36,15 +40,22 @@ class NotificationService {
    * Lấy danh sách thông báo theo bộ lọc
    */
   async getNotifications(queryParams = {}) {
-    const { isRead, type, page = 1, limit = 30 } = queryParams;
-    return await notificationRepository.findWithFilters({ isRead, type, page, limit });
+    const { isRead, type, userId, recipientRole, page = 1, limit = 30 } = queryParams;
+    return await notificationRepository.findWithFilters({
+      isRead,
+      type,
+      userId,
+      recipientRole,
+      page,
+      limit,
+    });
   }
 
   /**
    * Đếm số thông báo chưa đọc
    */
-  async getUnreadCount() {
-    const count = await notificationRepository.countUnread();
+  async getUnreadCount(userId = null) {
+    const count = await notificationRepository.countUnread(userId);
     return { unreadCount: count };
   }
 
@@ -63,8 +74,8 @@ class NotificationService {
   /**
    * Đánh dấu tất cả thông báo đã đọc
    */
-  async markAllAsRead() {
-    await notificationRepository.markAllAsRead();
+  async markAllAsRead(userId = null) {
+    await notificationRepository.markAllAsRead(userId);
     return { success: true, message: "Đã đánh dấu tất cả thông báo là đã đọc" };
   }
 

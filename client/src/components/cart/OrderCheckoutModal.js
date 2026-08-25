@@ -162,23 +162,9 @@ export default function OrderCheckoutModal({
     {
       id: "banking",
       title: "Chuyển khoản QR (VietQR / Internet Banking)",
-      desc: "Xác nhận tự động 24/7 qua mã QR ngân hàng",
+      desc: "Xác nhận nhanh 24/7 qua mã QR ngân hàng",
       icon: QrCode,
       color: "text-blue-600 bg-blue-50 border-blue-200",
-    },
-    {
-      id: "vnpay",
-      title: "VNPAY Online",
-      desc: "Thẻ ATM nội địa, Visa, Mastercard, JCB",
-      icon: CreditCard,
-      color: "text-red-600 bg-red-50 border-red-200",
-    },
-    {
-      id: "momo",
-      title: "Ví điện tử MoMo",
-      desc: "Thanh toán tiện lợi qua ứng dụng MoMo",
-      icon: Wallet,
-      color: "text-pink-600 bg-pink-50 border-pink-200",
     },
   ];
 

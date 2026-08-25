@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 const statuses = [
   { value: "all", label: "Tất cả" },
   { value: "processing", label: "Đang xử lý" },
+  { value: "confirmed", label: "Đã xác nhận" },
   { value: "shipping", label: "Đang giao" },
   { value: "completed", label: "Đã hoàn thành" },
   { value: "cancelled", label: "Đã hủy" },

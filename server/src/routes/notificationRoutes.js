@@ -6,12 +6,13 @@ import {
   markAllAsRead,
   deleteNotification,
 } from "../controllers/notificationController.js";
+import { verifyOptionalJWT } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
-router.get("/", getNotifications);
-router.get("/unread-count", getUnreadCount);
-router.patch("/read-all", markAllAsRead);
+router.get("/", verifyOptionalJWT, getNotifications);
+router.get("/unread-count", verifyOptionalJWT, getUnreadCount);
+router.patch("/read-all", verifyOptionalJWT, markAllAsRead);
 router.patch("/:id/read", markAsRead);
 router.delete("/:id", deleteNotification);
 

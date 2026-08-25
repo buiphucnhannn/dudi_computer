@@ -35,6 +35,8 @@ import {
   ShieldCheck,
   FileText,
   LayoutDashboard,
+  PackageCheck,
+  Bell,
 } from "lucide-react";
 import {
   fetchCloudWishlist,
@@ -48,7 +50,7 @@ import {
   selectCurrentUser,
   selectIsAuthenticated,
 } from "@/redux/slices/authSlice";
-import { authAPI, productAPI } from "@/lib/api";
+import { authAPI, productAPI, notificationAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
 import { useCompare } from "@/components/common/CompareContext";
 
@@ -198,6 +200,7 @@ export default function Header() {
   const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [userUnreadCount, setUserUnreadCount] = useState(0);
 
   const searchContainerRef = useRef(null);
   const mobileSearchRef = useRef(null);
@@ -290,6 +293,25 @@ export default function Header() {
       })
       .catch(() => { });
   }, []);
+
+  // Polling unread notifications for logged in user
+  useEffect(() => {
+    if (mounted && isAuthenticated) {
+      const fetchUnread = async () => {
+        try {
+          const res = await notificationAPI.getUnreadCount();
+          setUserUnreadCount(res.data?.data?.unreadCount || 0);
+        } catch (e) {
+          // Bỏ qua lỗi ngầm
+        }
+      };
+      fetchUnread();
+      const interval = setInterval(fetchUnread, 15000);
+      return () => clearInterval(interval);
+    } else {
+      setUserUnreadCount(0);
+    }
+  }, [mounted, isAuthenticated]);
 
   // Instant live search results
   const searchResults = useMemo(() => {
@@ -707,8 +729,13 @@ export default function Header() {
                     href="/profile"
                     className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-gray-50 hover:bg-gray-100/90 border border-gray-200/60 transition-all cursor-pointer shadow-xs w-full"
                   >
-                    <div className="w-9 h-9 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-sm font-bold text-sm">
+                    <div className="relative w-9 h-9 rounded-full bg-[#eb1c24] text-white flex items-center justify-center shrink-0 shadow-sm font-bold text-sm">
                       {user?.name ? user.name.charAt(0).toUpperCase() : <User className="w-4 h-4 text-white" />}
+                      {userUnreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-black text-white ring-2 ring-white animate-pulse">
+                          {userUnreadCount > 99 ? "99+" : userUnreadCount}
+                        </span>
+                      )}
                     </div>
                     <div className="text-left flex-1 min-w-0">
                       <span className="text-[11px] text-gray-500 font-medium block leading-tight">
@@ -751,6 +778,23 @@ export default function Header() {
                       >
                         <User className="w-4 h-4 text-gray-500 shrink-0" />
                         <span>Hồ sơ cá nhân</span>
+                      </Link>
+
+                      {/* Option: Theo dõi đơn hàng */}
+                      <Link
+                        href="/orders"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center justify-between px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all group/item"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <PackageCheck className="w-4 h-4 text-gray-500 group-hover/item:text-[#eb1c24] shrink-0 transition-colors" />
+                          <span>Theo dõi đơn hàng</span>
+                        </div>
+                        {userUnreadCount > 0 && (
+                          <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[9.5px] font-black">
+                            {userUnreadCount}
+                          </span>
+                        )}
                       </Link>
 
                       <button
@@ -1334,6 +1378,31 @@ export default function Header() {
                   So sánh
                 </span>
                 <span className="text-[10px] text-gray-400">Cấu hình PC</span>
+              </div>
+            </Link>
+
+            <Link
+              href="/orders"
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2.5 bg-gray-50 hover:bg-amber-50 rounded-xl flex items-center gap-2.5 transition-colors border border-gray-100 col-span-2"
+            >
+              <div className="w-8 h-8 rounded-lg bg-amber-100/80 text-amber-700 flex items-center justify-center shrink-0">
+                <PackageCheck className="w-4 h-4" />
+              </div>
+              <div className="flex-1 min-w-0 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-gray-800 block leading-tight">
+                    Theo dõi đơn hàng
+                  </span>
+                  <span className="text-[10px] text-gray-500">
+                    Tra cứu tiến độ & trạng thái
+                  </span>
+                </div>
+                {userUnreadCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-bold">
+                    {userUnreadCount} mới
+                  </span>
+                )}
               </div>
             </Link>
 

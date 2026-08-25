@@ -27,25 +27,19 @@ export default function OrderDetailModal({
   const { showToast } = useToast();
   if (!isOpen || !order) return null;
 
-  // Mock list of items for this order if not explicitly passed
-  const orderItems = order.items || [
-    {
-      id: 1,
-      name: order.productName || "PC Gaming Z-Nova Core i5 13400F / RTX 4060 8GB / 16GB RAM",
-      sku: "PCG-13400F-4060",
-      image: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80",
-      price: order.total ? Math.round(order.total * 0.85) : 18590000,
-      quantity: 1,
-    },
-    {
-      id: 2,
-      name: "Chuột Gaming Không Dây Logitech G Pro X Superlight 2 Hero",
-      sku: "LOG-GPX-SL2",
-      image: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&auto=format&fit=crop&q=80",
-      price: order.total ? Math.round(order.total * 0.15) : 3200000,
-      quantity: 1,
-    },
-  ];
+  // Real list of items for this order from Database
+  const orderItems = Array.isArray(order.items) && order.items.length > 0
+    ? order.items
+    : [
+        {
+          id: 1,
+          name: order.product || "Sản phẩm đơn hàng",
+          sku: order.sku || "SKU-PROD",
+          image: order.image || order.thumbnail || "/images/dudi/dudisoftware1.png",
+          price: order.total || 0,
+          quantity: 1,
+        },
+      ];
 
   const subtotal = order.total || orderItems.reduce((s, i) => s + i.price * i.quantity, 0);
   const shippingFee = 0;
@@ -57,6 +51,7 @@ export default function OrderDetailModal({
 
   const statusOptions = [
     { key: "processing", label: "Chờ xử lý", color: "hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300" },
+    { key: "confirmed", label: "Đã xác nhận", color: "hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-300" },
     { key: "shipping", label: "Đang giao", color: "hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300" },
     { key: "completed", label: "Hoàn thành", color: "hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300" },
     { key: "cancelled", label: "Đã hủy", color: "hover:bg-red-50 hover:text-red-700 hover:border-red-300" },
@@ -127,7 +122,7 @@ export default function OrderDetailModal({
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
               {statusOptions.map((st) => {
                 const isActive = order.status === st.key;
                 return (

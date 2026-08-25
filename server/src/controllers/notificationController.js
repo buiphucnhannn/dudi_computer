@@ -3,7 +3,14 @@ import { ApiResponse } from "../utils/apiResponse.js";
 
 export const getNotifications = async (req, res, next) => {
   try {
-    const data = await notificationService.getNotifications(req.query);
+    const userId = req.user?._id || req.query.userId;
+    const recipientRole = req.user?.role === "admin" ? req.query.recipientRole : "user";
+
+    const data = await notificationService.getNotifications({
+      ...req.query,
+      userId: req.user?.role === "admin" ? req.query.userId : userId,
+      recipientRole: req.user?.role === "admin" ? req.query.recipientRole : recipientRole,
+    });
     return res
       .status(200)
       .json(new ApiResponse(200, data, "Lấy danh sách thông báo thành công"));
@@ -14,7 +21,8 @@ export const getNotifications = async (req, res, next) => {
 
 export const getUnreadCount = async (req, res, next) => {
   try {
-    const data = await notificationService.getUnreadCount();
+    const userId = req.user?.role === "admin" ? null : req.user?._id || req.query.userId;
+    const data = await notificationService.getUnreadCount(userId);
     return res
       .status(200)
       .json(new ApiResponse(200, data, "Lấy số lượng thông báo chưa đọc thành công"));
@@ -37,7 +45,8 @@ export const markAsRead = async (req, res, next) => {
 
 export const markAllAsRead = async (req, res, next) => {
   try {
-    const result = await notificationService.markAllAsRead();
+    const userId = req.user?.role === "admin" ? null : req.user?._id;
+    const result = await notificationService.markAllAsRead(userId);
     return res
       .status(200)
       .json(new ApiResponse(200, result, "Đã đánh dấu tất cả thông báo là đã đọc"));

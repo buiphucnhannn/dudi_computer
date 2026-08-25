@@ -16,18 +16,14 @@ const paymentMethods = [
   {
     name: (
       <>
-        VNPAY<span className="text-blue-600">QR</span>
+        Viet<span className="text-red-600">QR</span>
       </>
     ),
-    className: "text-red-600",
+    className: "text-blue-700 font-black",
   },
   {
-    name: (
-      <>
-        Zalo<span className="text-blue-700">pay</span>
-      </>
-    ),
-    className: "text-sky-600",
+    name: "COD",
+    className: "text-amber-600 font-black",
   },
   {
     name: "napas",

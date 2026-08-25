@@ -33,6 +33,18 @@ const notificationSchema = new mongoose.Schema(
       enum: ["Order", "Product", "Contact", "User", null],
       default: null,
     },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+      index: true,
+    },
+    recipientRole: {
+      type: String,
+      enum: ["all", "admin", "user"],
+      default: "admin",
+      index: true,
+    },
     isRead: {
       type: Boolean,
       default: false,

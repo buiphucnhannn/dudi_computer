@@ -120,6 +120,7 @@ export default function OrdersPage() {
 
       const statusLabels = {
         processing: "Chờ xử lý",
+        confirmed: "Đã xác nhận",
         shipping: "Đang giao hàng",
         completed: "Đã hoàn thành",
         cancelled: "Đã hủy",

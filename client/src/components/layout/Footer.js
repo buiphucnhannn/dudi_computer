@@ -157,18 +157,17 @@ export default function Footer() {
                   </svg>
                 </div>
 
-                {/* VNPAY QR */}
+                {/* VietQR */}
                 <div className="bg-white border border-gray-100 rounded-md flex items-center justify-center p-2 shadow-xs h-[42px] hover:shadow-md transition-all">
-                  <span className="font-bold text-[14px] tracking-tighter text-[#ED1C24] font-sans">
-                    VNPAY<sup className="text-[7px] font-black text-[#005BAB] ml-[1px]">QR</sup>
+                  <span className="font-bold text-[14px] tracking-tighter font-sans">
+                    <span className="text-[#005BAB]">Viet</span><span className="text-[#ED1C24]">QR</span>
                   </span>
                 </div>
 
-                {/* Zalopay */}
+                {/* COD */}
                 <div className="bg-white border border-gray-100 rounded-md flex items-center justify-center p-2 shadow-xs h-[42px] hover:shadow-md transition-all">
-                  <span className="font-bold text-[15px] tracking-tight font-sans">
-                    <span className="text-[#0052CC]">Zalo</span>
-                    <span className="text-[#00B14F]">pay</span>
+                  <span className="font-black text-[14px] tracking-wide text-amber-600 font-sans">
+                    COD
                   </span>
                 </div>
 
