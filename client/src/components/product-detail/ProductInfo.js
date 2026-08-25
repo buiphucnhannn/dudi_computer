@@ -61,8 +61,18 @@ const ProductInfo = ({ product }) => {
     const productId = product._id || product.id || product.slug;
     if (isCart) {
       dispatch(removeFromCartAsync(productId));
+      showToast({
+        title: "Đã xóa khỏi giỏ",
+        message: `Đã bỏ "${product.name}" khỏi giỏ hàng`,
+        type: "info",
+      });
     } else {
       dispatch(addToCartAsync({ product, quantity: 1 }));
+      showToast({
+        title: "Đã thêm vào giỏ hàng",
+        message: `Đã thêm "${product.name}" vào giỏ hàng thành công!`,
+        type: "success",
+      });
     }
   };
 
