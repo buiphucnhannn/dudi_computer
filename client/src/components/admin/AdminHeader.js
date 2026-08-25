@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Menu,
-  Search,
   Bell,
   User,
   X,
@@ -50,10 +49,8 @@ export default function AdminHeader({ onToggleSidebar }) {
   const user = useSelector(selectCurrentUser);
   const { showToast } = useToast();
 
-  const [search, setSearch] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -177,8 +174,8 @@ export default function AdminHeader({ onToggleSidebar }) {
 
   return (
     <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur-md sm:px-6 shadow-2xs">
-      {/* Left: Mobile Toggle & Page Search */}
-      <div className="flex items-center gap-3 sm:gap-4 flex-1 max-w-xl">
+      {/* Left: Mobile Toggle */}
+      <div className="flex items-center gap-3">
         <button
           onClick={onToggleSidebar}
           className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 lg:hidden cursor-pointer"
@@ -186,39 +183,10 @@ export default function AdminHeader({ onToggleSidebar }) {
         >
           <Menu className="h-5 w-5" />
         </button>
-
-        {/* Global Admin Search Bar */}
-        <div className="hidden sm:flex items-center flex-1 rounded-2xl bg-slate-100/90 border border-slate-200/80 px-3.5 py-1.5 focus-within:bg-white focus-within:border-red-500 focus-within:ring-2 focus-within:ring-red-500/10 transition-all shadow-2xs">
-          <Search className="h-4 w-4 text-slate-400 shrink-0" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm kiếm sản phẩm, đơn hàng..."
-            className="ml-2.5 w-full border-none bg-transparent text-xs font-medium text-slate-800 placeholder:text-slate-400 outline-none focus:ring-0"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Right User & Actions */}
       <div className="flex items-center gap-2 sm:gap-4">
-        {/* Mobile Search Toggle */}
-        <button
-          onClick={() => setShowMobileSearch(!showMobileSearch)}
-          className="flex sm:hidden h-9 w-9 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 cursor-pointer"
-          title="Tìm kiếm"
-        >
-          <Search className="h-4 w-4" />
-        </button>
-
         {/* Notifications Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
@@ -401,29 +369,6 @@ export default function AdminHeader({ onToggleSidebar }) {
           </div>
         </div>
       </div>
-
-      {/* Mobile Search Overlay Bar */}
-      {showMobileSearch && (
-        <div className="absolute inset-x-0 top-16 z-20 flex items-center bg-white px-4 py-2.5 border-b border-slate-200 shadow-md sm:hidden animate-in slide-in-from-top-2 duration-200">
-          <div className="flex-1 flex items-center rounded-xl bg-slate-100 px-3 py-1.5">
-            <Search className="h-4 w-4 text-slate-400 shrink-0" />
-            <input
-              type="text"
-              autoFocus
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Tìm kiếm..."
-              className="ml-2 w-full bg-transparent text-xs outline-none"
-            />
-          </div>
-          <button
-            onClick={() => setShowMobileSearch(false)}
-            className="ml-2 p-1 text-slate-500 hover:text-slate-900"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
     </header>
   );
 }
