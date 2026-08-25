@@ -46,12 +46,14 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 
-// Health Check Endpoint (Dành cho UptimeRobot ping giữ server luôn thức 24/7)
+// Health Check Endpoint (Dành cho UptimeRobot / Ping giữ server luôn thức 24/7)
 app.get(["/", "/health"], (req, res) => {
   res.status(200).json({
     status: "OK",
-    message: "ZComputer API Server is awake and running",
+    service: "DUDI SOFTWARE API",
+    message: "DUDI SOFTWARE Backend Server is healthy and running smoothly",
     timestamp: new Date().toISOString(),
+    version: "1.0.0",
   });
 });
 
