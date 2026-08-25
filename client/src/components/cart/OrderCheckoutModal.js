@@ -15,7 +15,9 @@ import {
   ArrowRight,
   Copy,
   Check,
+  Loader2,
   Package,
+  ShoppingBag,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { orderAPI } from "@/lib/api";
