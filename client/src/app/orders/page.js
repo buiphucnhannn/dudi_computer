@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { Suspense, useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -39,7 +39,7 @@ const STATUS_TABS = [
   { id: "cancelled", label: "Đã hủy", icon: XCircle },
 ];
 
-export default function OrderTrackingPage() {
+function OrderTrackingContent() {
   const searchParams = useSearchParams();
   const initialCode = searchParams?.get("code") || "";
 
@@ -462,5 +462,19 @@ export default function OrderTrackingPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function OrderTrackingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="w-8 h-8 border-3 border-[#eb1c24] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      }
+    >
+      <OrderTrackingContent />
+    </Suspense>
   );
 }

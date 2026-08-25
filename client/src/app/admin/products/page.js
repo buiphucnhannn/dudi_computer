@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, AlertTriangle, RotateCcw } from "lucide-react";
 import { useDebounce } from "@/lib/useDebounce";
@@ -12,7 +12,7 @@ import ProductGrid from "@/components/admin/products/ProductGrid";
 import ProductPagination from "@/components/admin/products/ProductPagination";
 import ProductModal from "@/components/admin/products/ProductModal";
 
-export default function AdminProductsPage() {
+function AdminProductsContent() {
   // Always start with empty list and loading state so stale/mock data is NEVER rendered on reload
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -448,5 +448,19 @@ export default function AdminProductsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AdminProductsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="w-8 h-8 border-3 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      }
+    >
+      <AdminProductsContent />
+    </Suspense>
   );
 }
