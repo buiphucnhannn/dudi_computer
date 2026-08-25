@@ -15,13 +15,13 @@ import {
   ArrowRight,
   Copy,
   Check,
-  Loader2,
   Package,
-  ShoppingBag,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { orderAPI } from "@/lib/api";
 import { formatVND } from "@/lib/utils";
-import { selectCurrentUser } from "@/redux/slices/authSlice";
+import { selectCurrentUser, selectIsAuthenticated } from "@/redux/slices/authSlice";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function OrderCheckoutModal({
   isOpen,
@@ -30,8 +30,11 @@ export default function OrderCheckoutModal({
   onOrderSuccess,
   prefilledProduct = null,
 }) {
+  const router = useRouter();
   const dispatch = useDispatch();
+  const { showToast } = useToast();
   const currentUser = useSelector(selectCurrentUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -68,9 +71,21 @@ export default function OrderCheckoutModal({
     0
   );
 
-  // Autofill user info if logged in
+  // Autofill user info if logged in or redirect to login if unauthenticated
   useEffect(() => {
     if (isOpen) {
+      if (!isAuthenticated) {
+        showToast({
+          title: "Yêu cầu đăng nhập",
+          message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
+          type: "warning",
+        });
+        onClose();
+        const currentUrl = typeof window !== "undefined" ? window.location.pathname + window.location.search : "/cart";
+        router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
+        return;
+      }
+
       setCreatedOrder(null);
       setErrors({});
       setFormData((prev) => ({
@@ -81,9 +96,9 @@ export default function OrderCheckoutModal({
         address: currentUser?.address || prev.address || "",
       }));
     }
-  }, [isOpen, currentUser]);
+  }, [isOpen, currentUser, isAuthenticated]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !isAuthenticated) return null;
 
   const validate = () => {
     const errs = {};
@@ -100,6 +115,17 @@ export default function OrderCheckoutModal({
 
   const handleCreateOrder = async (e) => {
     e.preventDefault();
+    if (!isAuthenticated || !currentUser) {
+      showToast({
+        title: "Yêu cầu đăng nhập",
+        message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
+        type: "warning",
+      });
+      onClose();
+      router.push(`/login?redirect=${encodeURIComponent("/cart")}`);
+      return;
+    }
+
     if (!validate()) return;
     if (activeItems.length === 0) return;
 

@@ -16,6 +16,7 @@ import uploadRoutes from "./uploadRoutes.js";
 import newsCategoryRoutes from "./newsCategoryRoutes.js";
 import statisticRoutes from "./statisticRoutes.js";
 import notificationRoutes from "./notificationRoutes.js";
+import settingRoutes from "./settingRoutes.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
 const router = Router();
@@ -44,5 +45,6 @@ router.use("/promotions", promotionRoutes);
 router.use("/upload", uploadRoutes);
 router.use("/statistics", statisticRoutes);
 router.use("/notifications", notificationRoutes);
+router.use("/settings", settingRoutes);
 
 export default router;

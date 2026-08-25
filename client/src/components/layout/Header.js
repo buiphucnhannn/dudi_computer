@@ -784,7 +784,13 @@ export default function Header() {
                       {user?.role !== "admin" && (
                         <Link
                           href="/orders"
-                          onClick={() => setUserDropdownOpen(false)}
+                          onClick={async () => {
+                            setUserDropdownOpen(false);
+                            setUserUnreadCount(0);
+                            try {
+                              await notificationAPI.markAllAsRead();
+                            } catch (e) {}
+                          }}
                           className="flex items-center justify-between px-3 py-2 text-[13.5px] font-semibold text-gray-700 hover:text-[#eb1c24] hover:bg-gray-50 rounded-xl transition-all group/item"
                         >
                           <div className="flex items-center gap-2.5">
@@ -1386,7 +1392,13 @@ export default function Header() {
             {user?.role !== "admin" && (
               <Link
                 href="/orders"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={async () => {
+                  setMobileMenuOpen(false);
+                  setUserUnreadCount(0);
+                  try {
+                    await notificationAPI.markAllAsRead();
+                  } catch (e) {}
+                }}
                 className="p-2.5 bg-gray-50 hover:bg-amber-50 rounded-xl flex items-center gap-2.5 transition-colors border border-gray-100 col-span-2"
               >
                 <div className="w-8 h-8 rounded-lg bg-amber-100/80 text-amber-700 flex items-center justify-center shrink-0">

@@ -9,6 +9,7 @@ import {
   removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
+import { selectIsAuthenticated } from "@/redux/slices/authSlice";
 
 import {
   Check,
@@ -32,6 +33,7 @@ const ProductInfo = ({ product }) => {
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [allProducts, setAllProducts] = useState([]);
 
   // Tải danh sách sản phẩm từ API
@@ -491,9 +493,19 @@ const ProductInfo = ({ product }) => {
         {/* BUY */}
         <button
           type="button"
-          onClick={() =>
-            setIsBuyModalOpen(true)
-          }
+          onClick={() => {
+            if (!isAuthenticated) {
+              showToast({
+                title: "Yêu cầu đăng nhập",
+                message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
+                type: "warning",
+              });
+              const currentUrl = typeof window !== "undefined" ? window.location.pathname : "/";
+              router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
+              return;
+            }
+            setIsBuyModalOpen(true);
+          }}
           className="
             flex h-12 w-full items-center
             justify-center gap-2 rounded-lg

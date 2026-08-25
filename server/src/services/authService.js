@@ -396,36 +396,48 @@ class AuthService {
     return user;
   }
 
-  async updateProfile(userId, { name, phone, address, avatar, currentPassword, newPassword }) {
+  async updateProfile(
+    userId,
+    { name, phone, address, avatar, currentPassword, newPassword }
+  ) {
     const user = await userRepository.findById(userId);
     if (!user) {
-      throw new ApiError(404, "Không tìm thấy người dùng");
+      throw new ApiError(404, "Không tìm thấy tài khoản người dùng");
     }
 
+    if (name !== undefined && name.trim()) user.name = name.trim();
+    if (phone !== undefined) user.phone = phone.trim();
+    if (address !== undefined) user.address = typeof address === "string" ? address.trim() : address;
+    if (avatar !== undefined) user.avatar = avatar;
+
+    // Logic đổi / thiết lập mật khẩu
     if (newPassword) {
       if (newPassword.length < 6) {
-        throw new ApiError(400, "Mật khẩu mới phải có ít nhất 6 ký tự.");
+        throw new ApiError(400, "Mật khẩu mới phải có ít nhất 6 ký tự");
       }
 
       // Chỉ bắt buộc nhập mật khẩu cũ nếu là tài khoản đăng ký bằng email/mật khẩu truyền thống HOẶC tài khoản google đã từng thiết lập mật khẩu
       if (user.authType === "local" || user.isPasswordSet) {
         if (!currentPassword) {
-          throw new ApiError(400, "Vui lòng nhập mật khẩu hiện tại để xác nhận đổi mật khẩu.");
+          throw new ApiError(
+            400,
+            "Vui lòng cung cấp mật khẩu hiện tại để xác thực thay đổi mật khẩu mới"
+          );
         }
-        const isPasswordCorrect = await user.isPasswordCorrect(currentPassword);
-        if (!isPasswordCorrect) {
-          throw new ApiError(400, "Mật khẩu hiện tại không chính xác.");
+
+        const isCurrentPasswordCorrect = await user.isPasswordCorrect(currentPassword);
+        if (!isCurrentPasswordCorrect) {
+          throw new ApiError(400, "Mật khẩu hiện tại không chính xác. Vui lòng kiểm tra lại");
+        }
+
+        if (newPassword === currentPassword) {
+          throw new ApiError(400, "Mật khẩu mới không được trùng với mật khẩu hiện tại");
         }
       }
 
       user.password = newPassword;
       user.isPasswordSet = true;
     }
-
-    if (name !== undefined && name.trim()) user.name = name.trim();
-    if (phone !== undefined) user.phone = phone.trim();
-    if (address !== undefined) user.address = address.trim();
-    if (avatar !== undefined) user.avatar = avatar;
 
     await user.save();
 
