@@ -62,6 +62,24 @@ export default function ProfilePage() {
   }, []);
 
   useEffect(() => {
+    const fetchLiveProfile = async () => {
+      try {
+        const res = await authAPI.getProfile();
+        const liveUser = res.data?.data;
+        if (liveUser) {
+          dispatch(setCredentials({ user: liveUser }));
+        }
+      } catch (err) {
+        // Fallback silently if offline or token expired
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchLiveProfile();
+    }
+  }, [dispatch, isAuthenticated]);
+
+  useEffect(() => {
     if (mounted && !isAuthenticated) {
       router.push("/login");
     }

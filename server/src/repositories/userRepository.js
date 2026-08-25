@@ -11,7 +11,15 @@ class UserRepository extends BaseRepository {
   }
 
   async findByIdWithoutPassword(id) {
-    return await this.findOne({ _id: id }, "", "-password");
+    const user = await this.findOne({ _id: id }, "", "-password");
+    if (!user) return null;
+    const userObj = user.toObject ? user.toObject() : { ...user };
+    delete userObj.password;
+    delete userObj.refreshToken;
+    const isSet = userObj.authType === "local" || Boolean(userObj.isPasswordSet);
+    userObj.isPasswordSet = isSet;
+    userObj.hasPassword = isSet;
+    return userObj;
   }
 }
 
