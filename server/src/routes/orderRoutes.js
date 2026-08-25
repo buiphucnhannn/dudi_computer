@@ -13,7 +13,7 @@ import { verifyJWT, verifyOptionalJWT } from "../middlewares/authMiddleware.js";
 const router = Router();
 
 // Routes cho khách hàng / tra cứu
-router.get("/my-orders", verifyOptionalJWT, getMyOrders);
+router.get("/my-orders", verifyJWT, getMyOrders);
 router.get("/track/:codeOrId", trackOrder);
 
 // Routes chung & Admin

@@ -194,11 +194,10 @@ export default function AdminHeader({ onToggleSidebar }) {
               setShowNotifications(!showNotifications);
               if (!showNotifications) fetchNotifications(true);
             }}
-            className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition cursor-pointer ${
-              showNotifications
-                ? "bg-[#eb1c24] text-white shadow-xs"
-                : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-            }`}
+            className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition cursor-pointer ${showNotifications
+              ? "bg-[#eb1c24] text-white shadow-xs"
+              : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+              }`}
             title="Thông báo hệ thống"
           >
             <Bell className="h-4 w-4" />
@@ -234,8 +233,6 @@ export default function AdminHeader({ onToggleSidebar }) {
                   </button>
                 )}
               </div>
-
-              {/* Notifications List */}
               <div className="max-h-80 overflow-y-auto space-y-1.5 divide-y divide-slate-100 pr-0.5">
                 {notifications.length === 0 ? (
                   <div className="py-8 text-center text-slate-400">
@@ -251,11 +248,10 @@ export default function AdminHeader({ onToggleSidebar }) {
                       <div
                         key={n._id}
                         onClick={() => handleNotificationClick(n)}
-                        className={`flex items-start gap-3 p-2.5 rounded-xl transition cursor-pointer pt-3 ${
-                          isUnread
-                            ? "bg-slate-50/90 font-medium hover:bg-slate-100/90 border border-slate-200/50 shadow-2xs"
-                            : "opacity-75 hover:opacity-100 hover:bg-slate-50"
-                        }`}
+                        className={`flex items-start gap-3 p-2.5 rounded-xl transition cursor-pointer pt-3 ${isUnread
+                          ? "bg-slate-50/90 font-medium hover:bg-slate-100/90 border border-slate-200/50 shadow-2xs"
+                          : "opacity-75 hover:opacity-100 hover:bg-slate-50"
+                          }`}
                       >
                         <div
                           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${color}`}
@@ -266,9 +262,8 @@ export default function AdminHeader({ onToggleSidebar }) {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-1">
                             <p
-                              className={`text-xs leading-snug truncate ${
-                                isUnread ? "font-bold text-slate-900" : "text-slate-700 font-medium"
-                              }`}
+                              className={`text-xs leading-snug truncate ${isUnread ? "font-bold text-slate-900" : "text-slate-700 font-medium"
+                                }`}
                             >
                               {n.title}
                             </p>
@@ -321,11 +316,10 @@ export default function AdminHeader({ onToggleSidebar }) {
 
           {/* User Menu Dropdown */}
           <div
-            className={`absolute left-0 right-0 top-full pt-1.5 w-full z-50 transition-all duration-150 ${
-              showUserMenu
-                ? "opacity-100 visible translate-y-0"
-                : "opacity-0 invisible -translate-y-1 pointer-events-none"
-            }`}
+            className={`absolute left-0 right-0 top-full pt-1.5 w-full z-50 transition-all duration-150 ${showUserMenu
+              ? "opacity-100 visible translate-y-0"
+              : "opacity-0 invisible -translate-y-1 pointer-events-none"
+              }`}
           >
             <div className="bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-gray-100 p-1.5 overflow-hidden w-full space-y-0.5">
               <Link

@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import {
   Package,
@@ -22,6 +22,8 @@ import {
   ExternalLink,
   ShieldCheck,
   PhoneCall,
+  Loader2,
+  Lock,
 } from "lucide-react";
 import { orderAPI, notificationAPI } from "@/lib/api";
 import { selectCurrentUser, selectIsAuthenticated } from "@/redux/slices/authSlice";
@@ -40,6 +42,7 @@ const STATUS_TABS = [
 ];
 
 function OrderTrackingContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialCode = searchParams?.get("code") || "";
 
@@ -47,6 +50,7 @@ function OrderTrackingContent() {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const { showToast } = useToast();
 
+  const [mounted, setMounted] = useState(false);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
@@ -56,6 +60,21 @@ function OrderTrackingContent() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isAuthenticated) {
+      showToast({
+        title: "Yêu cầu đăng nhập",
+        message: "Vui lòng đăng nhập để xem danh sách và theo dõi đơn hàng của bạn!",
+        type: "warning",
+      });
+      router.push(`/login?redirect=${encodeURIComponent("/orders")}`);
+    }
+  }, [mounted, isAuthenticated, router]);
 
   // Fetch user orders from database
   const fetchOrders = useCallback(

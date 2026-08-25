@@ -18,9 +18,14 @@ export const getAllOrders = async (req, res, next) => {
 
 export const getMyOrders = async (req, res, next) => {
   try {
-    const userId = req.user?._id || req.query.userId;
-    const phone = req.query.phone || req.user?.phone;
-    const email = req.query.email || req.user?.email;
+    if (!req.user?._id) {
+      return next(
+        new ApiError(401, "Vui lòng đăng nhập để xem danh sách đơn hàng của bạn.")
+      );
+    }
+    const userId = req.user._id;
+    const phone = req.user.phone || req.query.phone;
+    const email = req.user.email || req.query.email;
 
     const { orders, pagination } = await orderService.getMyOrders({
       ...req.query,

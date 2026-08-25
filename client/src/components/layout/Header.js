@@ -392,6 +392,7 @@ export default function Header() {
         message: "Bạn đã đăng xuất tài khoản thành công!",
         type: "info",
       });
+      router.push("/login");
     }
   };
 
