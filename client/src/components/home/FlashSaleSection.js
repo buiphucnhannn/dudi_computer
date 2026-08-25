@@ -587,13 +587,6 @@ export default function FlashSaleSection() {
         isOpen={!!buyModalItem}
         onClose={() => setBuyModalItem(null)}
         prefilledProduct={buyModalItem}
-        onOrderSuccess={(order) => {
-          showToast({
-            title: "Đặt hàng thành công",
-            message: `Mã đơn hàng #${order?.orderCode} đang được xử lý`,
-            type: "success",
-          });
-        }}
       />
     </section>
   );

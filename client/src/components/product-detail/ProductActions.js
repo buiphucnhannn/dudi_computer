@@ -80,13 +80,6 @@ const ProductActions = ({ product }) => {
         isOpen={isBuyModalOpen}
         onClose={() => setIsBuyModalOpen(false)}
         prefilledProduct={product}
-        onOrderSuccess={(order) => {
-          showToast({
-            title: "Đặt hàng thành công",
-            message: `Mã đơn hàng #${order?.orderCode} đang được xử lý`,
-            type: "success",
-          });
-        }}
       />
     </>
   );
