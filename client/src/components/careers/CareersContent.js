@@ -16,6 +16,11 @@ import {
   Users,
   CheckCircle2,
   Sparkles,
+  FileText,
+  Target,
+  Gift,
+  PhoneCall,
+  ArrowRight,
 } from "lucide-react";
 import { jobAPI } from "@/lib/api";
 
@@ -198,10 +203,11 @@ export default function CareersContent() {
                       <div className="border-t border-gray-150 p-5 sm:p-6 bg-gray-50/50 space-y-5 text-xs sm:text-sm">
                         {job.description && (
                           <div>
-                            <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">
-                              📋 Mô tả công việc:
+                            <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2 flex items-center gap-2">
+                              <FileText size={15} className="text-[#eb1c24]" />
+                              <span>Mô tả công việc:</span>
                             </h4>
-                            <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                            <p className="text-gray-600 leading-relaxed whitespace-pre-line pl-6">
                               {job.description}
                             </p>
                           </div>
@@ -209,10 +215,11 @@ export default function CareersContent() {
 
                         {job.requirements && job.requirements.length > 0 && (
                           <div>
-                            <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">
-                              🎯 Yêu cầu ứng viên:
+                            <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2 flex items-center gap-2">
+                              <Target size={15} className="text-[#eb1c24]" />
+                              <span>Yêu cầu ứng viên:</span>
                             </h4>
-                            <ul className="space-y-1.5 text-gray-600">
+                            <ul className="space-y-1.5 text-gray-600 pl-6">
                               {job.requirements.map((req, i) => (
                                 <li key={i} className="flex items-start gap-2">
                                   <span className="text-[#eb1c24] font-bold">•</span>
@@ -225,10 +232,11 @@ export default function CareersContent() {
 
                         {job.benefits && job.benefits.length > 0 && (
                           <div>
-                            <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">
-                              🎁 Quyền lợi được hưởng:
+                            <h4 className="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2 flex items-center gap-2">
+                              <Gift size={15} className="text-[#eb1c24]" />
+                              <span>Quyền lợi được hưởng:</span>
                             </h4>
-                            <ul className="space-y-1.5 text-gray-600">
+                            <ul className="space-y-1.5 text-gray-600 pl-6">
                               {job.benefits.map((b, i) => (
                                 <li key={i} className="flex items-start gap-2">
                                   <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" />
@@ -250,7 +258,6 @@ export default function CareersContent() {
                             <Mail size={16} />
                             <span>Nộp hồ sơ ngay cho vị trí này</span>
                           </a>
-
                         </div>
                       </div>
                     )}
@@ -265,19 +272,25 @@ export default function CareersContent() {
         {/* 4. CÁCH THỨC NỘP HỒ SƠ */}
         {/* ========================================================================= */}
         <div className="bg-gradient-to-br from-gray-900 to-[#111] rounded-2xl shadow-xl p-8 sm:p-10 text-center relative overflow-hidden border border-gray-800">
-          <div className="relative z-10">
-            <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-4">
+          <div className="relative z-10 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#eb1c24]/10 text-[#eb1c24] border border-[#eb1c24]/20 flex items-center justify-center mx-auto mb-2">
+              <Send size={24} />
+            </div>
+
+            <h2 className="text-2xl font-black text-white uppercase tracking-tight">
               Cách thức nộp hồ sơ
             </h2>
-            <p className="text-gray-300 max-w-2xl mx-auto mb-8 text-sm sm:text-base leading-relaxed">
+            <p className="text-gray-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
               Gửi CV của bạn về địa chỉ Email:{" "}
               <a
                 href={getGmailUrl("Ứng viên")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-bold text-[#eb1c24] hover:underline"
+                className="font-bold text-[#eb1c24] hover:underline inline-flex items-center gap-1"
               >
-                contact@dudisoftware.com (Nhấn để mở Gmail)
+                <Mail size={16} />
+                <span>contact@dudisoftware.com</span>
+                <span className="text-xs text-gray-400 font-normal">(Nhấn để mở Gmail)</span>
               </a>
               <br />
               Tiêu đề Email ghi rõ:{" "}
@@ -285,12 +298,13 @@ export default function CareersContent() {
                 [Vị trí ứng tuyển] - [Họ và tên]
               </span>
             </p>
-            <p className="text-xs sm:text-sm text-gray-400 italic">
-              Mọi thắc mắc vui lòng liên hệ Hotline Nhân sự:{" "}
+            <div className="pt-2 flex items-center justify-center gap-2 text-xs sm:text-sm text-gray-400">
+              <PhoneCall size={15} className="text-[#eb1c24]" />
+              <span>Mọi thắc mắc vui lòng liên hệ Hotline Nhân sự:</span>
               <a href="tel:0909163821" className="text-white hover:underline font-bold">
                 (+84) 909 163 821
               </a>
-            </p>
+            </div>
           </div>
         </div>
       </div>

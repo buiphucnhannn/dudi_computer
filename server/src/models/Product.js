@@ -82,11 +82,13 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    // Hình ảnh
-    images: {
-      type: [String],
-      default: [],
-    },
+    // Hình ảnh lưu trữ Cloudinary (url + public_id)
+    images: [
+      {
+        url: { type: String, required: true },
+        public_id: { type: String, default: "" },
+      },
+    ],
     thumbnail: {
       type: String,
       default: "",
@@ -186,6 +188,19 @@ productSchema.index({
   tags: "text",
 });
 
+// Middleware chuẩn hóa dữ liệu trước khi validate
+productSchema.pre("validate", function (next) {
+  if (Array.isArray(this.images)) {
+    this.images = this.images.map((img) => {
+      if (typeof img === "string") {
+        return { url: img, public_id: "" };
+      }
+      return img;
+    });
+  }
+  next();
+});
+
 // Middleware tính toán trước khi lưu
 productSchema.pre("save", function (next) {
   if (this.originalPrice && this.originalPrice > this.price) {
@@ -193,8 +208,11 @@ productSchema.pre("save", function (next) {
       ((this.originalPrice - this.price) / this.originalPrice) * 100
     );
   }
-  if (!this.thumbnail && this.images && this.images.length > 0) {
-    this.thumbnail = this.images[0];
+  if (Array.isArray(this.images) && this.images.length > 0) {
+    const firstImg = this.images[0];
+    if (!this.thumbnail) {
+      this.thumbnail = typeof firstImg === "string" ? firstImg : firstImg?.url || "";
+    }
   }
   if (!this.shortName) {
     this.shortName = this.name;
@@ -203,3 +221,4 @@ productSchema.pre("save", function (next) {
 });
 
 export const Product = mongoose.model("Product", productSchema);
+

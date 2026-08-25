@@ -58,22 +58,28 @@ export default function AdminProductsPage() {
       const items = res.data?.data?.products || res.data?.products;
 
       if (items && Array.isArray(items)) {
-        const mapped = items.map((p, idx) => ({
-          id: p._id || `prod-db-${idx}`,
-          _id: p._id,
-          sku: p.sku || `SKU-${1000 + idx}`,
-          name: p.name,
-          slug: p.slug,
-          price: p.price,
-          oldPrice: p.originalPrice || null,
-          stock: typeof p.stock === "number" ? p.stock : 10,
-          rating: p.ratings?.average || 5.0,
-          badge: p.isHot ? "HOT" : p.isFlashSale ? "SALE" : null,
-          category: p.categoryName || (typeof p.category === "object" ? p.category?.name : p.category) || "Linh kiện PC",
-          brand: p.brand || "DUDI",
-          status: p.stock === 0 ? "out-of-stock" : "active",
-          image: p.thumbnail || p.images?.[0] || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800",
-        }));
+        const mapped = items.map((p, idx) => {
+          const firstImgUrl = typeof p.images?.[0] === "object" ? p.images?.[0]?.url : p.images?.[0];
+          const thumb = p.thumbnail || firstImgUrl || "";
+          return {
+            id: p._id || `prod-db-${idx}`,
+            _id: p._id,
+            sku: p.sku || `SKU-${1000 + idx}`,
+            name: p.name,
+            slug: p.slug,
+            price: p.price,
+            oldPrice: p.originalPrice || null,
+            stock: typeof p.stock === "number" ? p.stock : 10,
+            rating: p.ratings?.average || 5.0,
+            badge: p.isHot ? "HOT" : p.isFlashSale ? "SALE" : null,
+            category: p.categoryName || (typeof p.category === "object" ? p.category?.name : p.category) || "Linh kiện PC",
+            brand: p.brand || "DUDI",
+            status: p.stock === 0 ? "out-of-stock" : "active",
+            image: thumb,
+            thumbnail: thumb,
+            images: p.images || [],
+          };
+        });
 
         setProducts(mapped);
       }
@@ -194,37 +200,49 @@ export default function AdminProductsPage() {
     setCurrentPage(1);
   };
 
-  // FLOW: Thêm / Sửa → API cập nhật Database thành công → Fetch lại data mới nhất → Cập nhật state → Render UI
+  // FLOW: Thêm / Sửa → Upload ảnh lên Cloudinary qua multipart/form-data → Cập nhật DB → Fetch lại data mới nhất
   const handleSaveProduct = async (productData) => {
     const isEdit = Boolean(productData.id || productData._id);
     const targetId = productData._id || productData.id;
 
     try {
-      if (isEdit && targetId) {
-        // 1. Gửi request cập nhật vào Database
-        await productAPI.update(targetId, {
-          name: productData.name,
-          sku: productData.sku,
-          price: productData.price,
-          originalPrice: productData.oldPrice,
-          stock: productData.stock,
-          categoryName: productData.category,
-          brand: productData.brand,
-          thumbnail: productData.image,
+      const formData = new FormData();
+      formData.append("name", productData.name);
+      formData.append("sku", productData.sku || "");
+      formData.append("price", productData.price);
+      if (
+        productData.oldPrice !== null &&
+        productData.oldPrice !== undefined &&
+        productData.oldPrice !== ""
+      ) {
+        formData.append("originalPrice", productData.oldPrice);
+      }
+      formData.append("stock", productData.stock);
+      formData.append("categoryName", productData.category);
+      formData.append("brand", productData.brand);
+
+      if (productData.existingImages && productData.existingImages.length > 0) {
+        formData.append(
+          "existingImages",
+          JSON.stringify(productData.existingImages)
+        );
+      } else {
+        formData.append("existingImages", JSON.stringify([]));
+      }
+
+      if (productData.newFiles && productData.newFiles.length > 0) {
+        productData.newFiles.forEach((file) => {
+          formData.append("images", file);
         });
+      }
+
+      if (isEdit && targetId) {
+        // 1. Gửi request cập nhật vào Database (multipart/form-data)
+        await productAPI.update(targetId, formData);
         showToast(`Đã lưu thay đổi cho "${productData.name}" thành công!`);
       } else {
-        // 1. Gửi request tạo mới vào Database
-        await productAPI.create({
-          name: productData.name,
-          sku: productData.sku,
-          price: productData.price,
-          originalPrice: productData.oldPrice,
-          stock: productData.stock,
-          categoryName: productData.category,
-          brand: productData.brand,
-          thumbnail: productData.image,
-        });
+        // 1. Gửi request tạo mới vào Database (multipart/form-data)
+        await productAPI.create(formData);
         showToast(`Đã thêm sản phẩm "${productData.name}" thành công!`);
       }
 
