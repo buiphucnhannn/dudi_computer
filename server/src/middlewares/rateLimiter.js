@@ -5,6 +5,7 @@ const createLimiter = (options) => {
   return rateLimit({
     standardHeaders: true, // Trả về RateLimit-* headers chuẩn RFC
     legacyHeaders: false, // Tắt X-RateLimit-* cũ
+    validate: { trustProxy: false, xForwardedForHeader: false },
     handler: (req, res) => {
       return res.status(429).json({
         success: false,

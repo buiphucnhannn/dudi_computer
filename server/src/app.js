@@ -9,6 +9,9 @@ import { globalLimiter } from "./middlewares/rateLimiter.js";
 
 const app = express();
 
+// Trust reverse proxy headers (Render, Cloudflare, Vercel)
+app.set("trust proxy", 1);
+
 // Disable ETag caching
 app.set("etag", false);
 

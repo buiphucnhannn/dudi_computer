@@ -3,7 +3,6 @@ import ReferralBenefits from "@/components/referral/ReferralBenefits";
 import ReferralProcess from "@/components/referral/ReferralProcess";
 import ReferralRewards from "@/components/referral/ReferralRewards";
 import ReferralCTA from "@/components/referral/ReferralCTA";
-import ShowroomSection from "@/components/referral/ShowroomSection";
 
 export const metadata = {
   title: "Giới Thiệu Bạn Bè - Nhận Quà Liền Tay",
@@ -22,8 +21,6 @@ export default function Page() {
       <ReferralRewards />
 
       <ReferralCTA />
-
-      <ShowroomSection />
     </main>
   );
 }

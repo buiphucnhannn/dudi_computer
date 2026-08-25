@@ -245,12 +245,22 @@ function ProductsContent() {
 
         // 11. Nhóm Chuột
         if (selectedCat === "chuot" || selectedCat === "chuột") {
-          return prodType === PRODUCT_TYPES.MOUSE;
+          return (
+            prodType === PRODUCT_TYPES.MOUSE ||
+            catSlug.includes("chuot") ||
+            catName.includes("chuột") ||
+            name.includes("chuột")
+          );
         }
 
         // 12. Nhóm Bàn phím
         if (selectedCat === "ban-phim" || selectedCat === "bàn phím") {
-          return prodType === PRODUCT_TYPES.KEYBOARD;
+          return (
+            prodType === PRODUCT_TYPES.KEYBOARD ||
+            catSlug.includes("ban-phim") ||
+            catName.includes("bàn phím") ||
+            name.includes("bàn phím")
+          );
         }
 
         // 13. Nhóm Tản nhiệt

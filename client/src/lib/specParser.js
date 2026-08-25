@@ -16,6 +16,8 @@ export const PRODUCT_TYPES = {
   CPU: "cpu",
   COOLER: "cooler",
   CASE: "case",
+  KEYBOARD: "keyboard",
+  MOUSE: "mouse",
   GEAR: "gear",
   GENERAL: "general",
 };
@@ -47,6 +49,10 @@ export const getProductTypeLabel = (type) => {
       return "Vỏ máy tính (Case)";
     case PRODUCT_TYPES.COOLER:
       return "Tản nhiệt (Cooling)";
+    case PRODUCT_TYPES.KEYBOARD:
+      return "Bàn phím máy tính";
+    case PRODUCT_TYPES.MOUSE:
+      return "Chuột máy tính";
     case PRODUCT_TYPES.GEAR:
       return "Phụ kiện / Gaming Gear";
     default:
@@ -196,16 +202,36 @@ export const detectProductType = (product) => {
     }
   }
 
-  // 10. Bàn phím / Chuột / Gear
+  // 10. Bàn phím
   if (
     cat.includes("bàn phím") ||
     cat.includes("ban-phim") ||
+    cat.includes("keyboard") ||
+    name.startsWith("bàn phím") ||
+    name.includes("bàn phím") ||
+    name.startsWith("kit phím")
+  ) {
+    return PRODUCT_TYPES.KEYBOARD;
+  }
+
+  // 11. Chuột
+  if (
     cat.includes("chuột") ||
     cat.includes("chuot") ||
-    cat.includes("gear") ||
-    name.startsWith("bàn phím") ||
+    cat.includes("mouse") ||
     name.startsWith("chuột") ||
-    name.startsWith("tai nghe")
+    name.includes("chuột")
+  ) {
+    return PRODUCT_TYPES.MOUSE;
+  }
+
+  // 12. Tai nghe / Phụ kiện khác
+  if (
+    cat.includes("gear") ||
+    cat.includes("phụ kiện") ||
+    name.startsWith("tai nghe") ||
+    name.includes("tai nghe") ||
+    name.includes("lót chuột")
   ) {
     return PRODUCT_TYPES.GEAR;
   }
