@@ -74,12 +74,22 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, cat
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-200 bg-white shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      {/* Backdrop Layer - Bấm ra ngoài để đóng */}
+      <div
+        className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative z-10 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-200 bg-white shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden"
+      >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-150 px-6 py-4 bg-slate-50/50">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-slate-900 text-white rounded-xl">
+            <div className="p-2 bg-red-50 text-[#eb1c24] border border-red-100 rounded-xl">
               <Package className="h-4 w-4" />
             </div>
             <div>
@@ -291,7 +301,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData, cat
 
             <button
               type="submit"
-              className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-xs hover:bg-slate-800 transition cursor-pointer active:scale-98"
+              className="flex items-center gap-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98"
             >
               <Save className="h-4 w-4" />
               <span>{initialData ? "Lưu thay đổi" : "Thêm vào danh sách"}</span>

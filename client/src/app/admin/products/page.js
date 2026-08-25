@@ -283,7 +283,7 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="relative flex w-full flex-col px-3.5 sm:px-6 py-5 sm:py-8 max-w-[1600px] mx-auto">
+    <div className="space-y-6 w-full">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-2xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-2xl animate-in slide-in-from-bottom-3 duration-300 border border-slate-700">
@@ -361,8 +361,18 @@ export default function AdminProductsPage() {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          {/* Backdrop Layer - Bấm ra ngoài để đóng */}
+          <div
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setDeleteConfirmProduct(null)}
+            aria-hidden="true"
+          />
+
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative z-10 w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+          >
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-100">
                 <AlertTriangle className="h-6 w-6" />

@@ -128,7 +128,7 @@ export default function ProductFilters({
           onClick={() => setFilters((prev) => ({ ...prev, category: "" }))}
           className={`shrink-0 rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
             !filters.category
-              ? "bg-slate-900 text-white shadow-xs"
+              ? "bg-[#eb1c24] text-white shadow-xs"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >

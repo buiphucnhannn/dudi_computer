@@ -193,7 +193,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="flex flex-col w-full px-3.5 sm:px-6 py-5 sm:py-8 max-w-[1600px] mx-auto">
+    <div className="flex flex-col w-full gap-6">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-2xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-2xl animate-in slide-in-from-bottom-3 duration-300 border border-slate-700">
@@ -225,7 +225,7 @@ export default function OrdersPage() {
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-slate-800 cursor-pointer active:scale-98 whitespace-nowrap"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98 whitespace-nowrap"
           >
             <Plus className="h-4 w-4 stroke-[2.5] shrink-0" />
             <span className="whitespace-nowrap">Tạo đơn hàng mới</span>

@@ -70,6 +70,12 @@ const promotionSchema = new mongoose.Schema(
       default: true,
       index: true,
     },
+    // Đánh dấu promotion này là Flash Sale (hiển thị trên trang chủ với countdown timer)
+    isFlashSale: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     // Ưu tiên khi sản phẩm nằm trong nhiều chương trình (số lớn = ưu tiên cao)
     priority: {
       type: Number,

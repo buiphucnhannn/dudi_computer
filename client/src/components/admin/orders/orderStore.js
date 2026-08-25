@@ -1,6 +1,7 @@
 "use client";
 
 import { orderAPI } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
 
 export const ADMIN_ORDERS_STORAGE_KEY = "dudi_admin_master_orders_v4";
 
@@ -286,8 +287,8 @@ export const mapBackendOrderToMaster = (o, idx = 0) => {
     email: o.customerInfo?.email || "",
     address: o.customerInfo?.address || "Giao hàng tận nơi",
     initials: formatOrderInitials(customerName),
-    createdAt: orderDate.toLocaleString("vi-VN"),
-    time: isToday ? "Hôm nay" : orderDate.toLocaleDateString("vi-VN"),
+    createdAt: formatDate(orderDate),
+    time: isToday ? "Hôm nay" : formatDate(orderDate),
     total,
     price: total,
     product: productSummary,

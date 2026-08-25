@@ -33,7 +33,7 @@ export default function OrderFilter({ keyword, setKeyword, status, setStatus }) 
             onClick={() => setStatus(item.value)}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
               status === item.value
-                ? "bg-slate-900 text-white shadow-xs"
+                ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/20 font-black"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >

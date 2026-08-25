@@ -24,6 +24,7 @@ import { addToCart, addToCartAsync, removeFromCartAsync, selectCartItems } from 
 import { useCompare } from "@/components/common/CompareContext";
 import { useToast } from "@/components/common/ToastContext";
 import { getProductCardBadges } from "@/lib/specParser";
+import { getProductDiscountInfo, getProductImage } from "@/lib/productHelpers";
 
 export default function ProductCard({ product }) {
   const dispatch = useDispatch();
@@ -37,10 +38,16 @@ export default function ProductCard({ product }) {
   const isCart = cartItems.some((i) => (i._id || i.id || i.slug) === (product._id || product.id || product.slug));
   const isComp = isComparing(product.slug || product._id || product.id);
 
-  const thumbnail =
-    product.thumbnail ||
-    product.images?.[0] ||
-    "/images/dudi/dudisoftware1.png";
+  const {
+    price,
+    originalPrice,
+    discountPercent,
+    hasDiscount,
+    isFlashSale,
+    showHotSaleBadge,
+  } = getProductDiscountInfo(product);
+
+  const thumbnail = getProductImage(product);
 
   const detailHref = `/product-detail?slug=${encodeURIComponent(
     product.slug || product._id,
@@ -89,7 +96,7 @@ export default function ProductCard({ product }) {
   };
 
   // Tính ước tính trả góp (khoảng 10-12% giá trị sản phẩm / tháng)
-  const installmentEst = Math.round(product.price / 12);
+  const installmentEst = Math.round(price / 12);
 
   return (
     <div
@@ -105,9 +112,9 @@ export default function ProductCard({ product }) {
       className="bg-white rounded-xl border border-gray-150/90 shadow-2xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative cursor-pointer"
     >
       {/* Discount badge */}
-      {product.discountPercent > 0 && (
-        <span className="absolute top-2 left-2 z-20 bg-[#dc2626] text-white text-[10.5px] font-black px-2 py-0.5 rounded shadow-sm">
-          -{product.discountPercent}%
+      {hasDiscount && (
+        <span className="absolute top-2 left-2 z-20 bg-[#eb1c24] text-white text-[10.5px] font-black px-2 py-0.5 rounded shadow-sm">
+          -{discountPercent}%
         </span>
       )}
 
@@ -117,8 +124,8 @@ export default function ProductCard({ product }) {
           onClick={handleToggleCompare}
           className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${
             isComp
-              ? "bg-red-600 text-white"
-              : "bg-white/80 hover:bg-white text-gray-700 hover:text-red-600"
+              ? "bg-[#eb1c24] text-white"
+              : "bg-white/80 hover:bg-white text-gray-700 hover:text-[#eb1c24]"
           }`}
           title="So sánh sản phẩm"
         >
@@ -128,8 +135,8 @@ export default function ProductCard({ product }) {
           onClick={handleToggleCart}
           className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${
             isCart
-              ? "bg-red-600 text-white shadow-sm"
-              : "bg-white/80 hover:bg-white text-gray-700 hover:text-red-600"
+              ? "bg-[#eb1c24] text-white shadow-sm"
+              : "bg-white/80 hover:bg-white text-gray-700 hover:text-[#eb1c24]"
           }`}
           title={isCart ? "Đã có trong giỏ hàng (Bấm để xóa)" : "Thêm vào giỏ hàng"}
         >
@@ -138,14 +145,24 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Image container */}
-      <div className="block relative aspect-square w-full p-3 bg-white overflow-hidden">
+      <div className="block relative aspect-square w-full p-3 bg-white overflow-hidden border-b border-gray-100">
         <div className="w-full h-full relative flex items-center justify-center">
           <img
             src={thumbnail}
             alt={product.name}
             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
             loading="lazy"
+            onError={(e) => {
+              e.currentTarget.src =
+                "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
+            }}
           />
+        </div>
+        {/* Watermark */}
+        <div className="absolute bottom-1 left-2 pointer-events-none opacity-80 z-20">
+          <span className="text-[9px] font-black text-[#eb1c24] tracking-tight uppercase">
+            DUDI SOFTWARE
+          </span>
         </div>
       </div>
 
@@ -204,12 +221,17 @@ export default function ProductCard({ product }) {
         {/* Price & Actions */}
         <div className="mt-1.5 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-gray-100">
           <div className="flex flex-wrap items-baseline gap-1 sm:gap-2 mb-1">
-            <span className="text-xs sm:text-[15px] font-black text-[#dc2626]">
-              {formatVND(product.price)}
+            <span className="text-xs sm:text-[15px] font-black text-[#eb1c24]">
+              {formatVND(price)}
             </span>
-            {product.originalPrice > product.price && (
+            {hasDiscount && (
               <span className="text-[10px] sm:text-[11px] text-gray-400 line-through">
-                {formatVND(product.originalPrice)}
+                {formatVND(originalPrice)}
+              </span>
+            )}
+            {hasDiscount && (
+              <span className="text-[10px] font-bold text-[#eb1c24] bg-red-50 border border-red-100 px-1 py-0.2 rounded">
+                -{discountPercent}%
               </span>
             )}
           </div>

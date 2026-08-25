@@ -21,10 +21,11 @@ import {
   Upload,
   ChevronLeft,
   ChevronRight,
+  Zap,
 } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+import { apiClient } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
 
 const generateSlug = (text) => {
   return text
@@ -79,6 +80,7 @@ export default function AdminPromotionsPage() {
     startDate: new Date().toISOString().split("T")[0],
     endDate: "2026-12-31",
     isActive: true,
+    isFlashSale: false,
   });
 
   useEffect(() => {
@@ -98,15 +100,23 @@ export default function AdminPromotionsPage() {
   const fetchPromotions = async () => {
     setLoading(true);
     try {
-      let url = `${API_BASE}/promotions/admin/all?search=${encodeURIComponent(searchTerm)}`;
+      let url = `/promotions/admin/all?search=${encodeURIComponent(searchTerm)}`;
       if (statusFilter !== "all") url += `&status=${statusFilter}`;
-      const res = await fetch(url, { credentials: "include" });
-      const json = await res.json();
+      const res = await apiClient.get(url);
+      const json = res.data;
       if (json.statusCode === 200 || json.success) {
-        setPromotions(json.data.items || []);
+        const items = json.data?.items || (Array.isArray(json.data) ? json.data : []);
+        setPromotions(items);
       }
     } catch (error) {
-      showToast("Không thể tải danh sách khuyến mãi!", "error");
+      try {
+        const publicRes = await apiClient.get("/promotions");
+        const items = publicRes.data?.data?.items || (Array.isArray(publicRes.data?.data) ? publicRes.data.data : []);
+        setPromotions(items);
+      } catch (e) {
+        console.error("Lỗi tải khuyến mãi:", e);
+        showToast("Không thể tải danh sách khuyến mãi!", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -114,8 +124,8 @@ export default function AdminPromotionsPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`${API_BASE}/products?limit=500`, { credentials: "include" });
-      const json = await res.json();
+      const res = await apiClient.get("/products?limit=500");
+      const json = res.data;
       const items = json.data?.products || json.data?.items || (Array.isArray(json.data) ? json.data : []);
       setAllProducts(Array.isArray(items) ? items : []);
     } catch {
@@ -125,8 +135,8 @@ export default function AdminPromotionsPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(`${API_BASE}/categories`, { credentials: "include" });
-      const json = await res.json();
+      const res = await apiClient.get("/categories");
+      const json = res.data;
       const items = Array.isArray(json.data) ? json.data : json.data?.categories || [];
       setAllCategories(Array.isArray(items) ? items : []);
     } catch {
@@ -179,6 +189,7 @@ export default function AdminPromotionsPage() {
       startDate: new Date().toISOString().split("T")[0],
       endDate: "2026-12-31",
       isActive: true,
+      isFlashSale: false,
     });
     setIsModalOpen(true);
   };
@@ -199,32 +210,34 @@ export default function AdminPromotionsPage() {
       startDate: promo.startDate ? new Date(promo.startDate).toISOString().split("T")[0] : "",
       endDate: promo.endDate ? new Date(promo.endDate).toISOString().split("T")[0] : "",
       isActive: promo.isActive !== undefined ? promo.isActive : true,
+      isFlashSale: promo.isFlashSale !== undefined ? promo.isFlashSale : false,
     });
     setIsModalOpen(true);
   };
 
-  const handleBannerUpload = (e) => {
+  const handleBannerUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const localPreviewUrl = URL.createObjectURL(file);
     setFormData((prev) => ({ ...prev, banner: localPreviewUrl }));
     setUploadingBanner(true);
-    const data = new FormData();
-    data.append("image", file);
-    data.append("folder", "dudi_software/promotions");
-    fetch(`${API_BASE}/upload/image`, { method: "POST", credentials: "include", body: data })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then((json) => {
-        if (json.data?.url) {
-          setFormData((prev) => ({ ...prev, banner: json.data.url }));
-          showToast("Tải ảnh banner thành công!");
-        }
-      })
-      .catch(() => showToast("Không thể tải ảnh lên", "error"))
-      .finally(() => setUploadingBanner(false));
+    try {
+      const data = new FormData();
+      data.append("image", file);
+      data.append("folder", "dudi_software/promotions");
+      const uploadRes = await apiClient.post("/upload/image", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const url = uploadRes.data?.data?.url || uploadRes.data?.url;
+      if (url) {
+        setFormData((prev) => ({ ...prev, banner: url }));
+        showToast("Tải ảnh banner thành công!");
+      }
+    } catch {
+      showToast("Không thể tải ảnh lên", "error");
+    } finally {
+      setUploadingBanner(false);
+    }
   };
 
   const toggleProduct = (productId) => {
@@ -273,17 +286,15 @@ export default function AdminPromotionsPage() {
       };
       const url =
         modalMode === "create"
-          ? `${API_BASE}/promotions`
-          : `${API_BASE}/promotions/${currentPromo._id}`;
-      const method = modalMode === "create" ? "POST" : "PUT";
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.message || "Thao tác thất bại");
+          ? `/promotions`
+          : `/promotions/${currentPromo._id}`;
+
+      if (modalMode === "create") {
+        await apiClient.post(url, payload);
+      } else {
+        await apiClient.put(url, payload);
+      }
+
       showToast(
         modalMode === "create"
           ? "Tạo chương trình khuyến mãi thành công!"
@@ -292,7 +303,7 @@ export default function AdminPromotionsPage() {
       setIsModalOpen(false);
       fetchPromotions();
     } catch (error) {
-      showToast(error.message || "Lỗi lưu khuyến mãi", "error");
+      showToast(error.response?.data?.message || error.message || "Lỗi lưu khuyến mãi", "error");
     } finally {
       setSaving(false);
     }
@@ -300,15 +311,11 @@ export default function AdminPromotionsPage() {
 
   const handleToggle = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/promotions/${id}/toggle`, {
-        method: "PATCH",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error();
+      await apiClient.patch(`/promotions/${id}/toggle`);
       showToast("Đã thay đổi trạng thái khuyến mãi!");
       fetchPromotions();
-    } catch {
-      showToast("Lỗi cập nhật trạng thái", "error");
+    } catch (error) {
+      showToast(error.response?.data?.message || "Lỗi cập nhật trạng thái", "error");
     }
   };
 
@@ -323,16 +330,12 @@ export default function AdminPromotionsPage() {
       onConfirm: async () => {
         setConfirmState((prev) => ({ ...prev, loading: true }));
         try {
-          const res = await fetch(`${API_BASE}/promotions/${id}`, {
-            method: "DELETE",
-            credentials: "include",
-          });
-          if (!res.ok) throw new Error();
+          await apiClient.delete(`/promotions/${id}`);
           showToast("Đã xóa và khôi phục giá gốc sản phẩm thành công!");
           setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
           fetchPromotions();
-        } catch {
-          showToast("Lỗi xóa khuyến mãi", "error");
+        } catch (error) {
+          showToast(error.response?.data?.message || "Lỗi xóa khuyến mãi", "error");
           setConfirmState((prev) => ({ ...prev, loading: false }));
         }
       },
@@ -391,43 +394,37 @@ export default function AdminPromotionsPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="p-3 rounded-2xl bg-red-50 text-[#eb1c24] border border-red-100 shadow-xs shrink-0">
-              <Flame className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                Khuyến Mãi Sản Phẩm
-              </h1>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                Tạo chiến dịch giảm giá, Flash Sale và áp dụng trực tiếp lên nhiều sản phẩm cùng lúc
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5">
-            <button
-              onClick={() => {
-                fetchPromotions();
-                setCurrentPage(1);
-              }}
-              className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition shadow-2xs cursor-pointer"
-              title="Làm mới"
-            >
-              <RefreshCw
-                className={`w-4 h-4 ${loading ? "animate-spin text-[#eb1c24]" : ""}`}
-              />
-            </button>
-            <button
-              onClick={handleOpenCreate}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#eb1c24] hover:bg-[#c9121a] text-white text-xs sm:text-sm font-bold shadow-lg shadow-red-600/20 transition cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Tạo Chiến Dịch</span>
-            </button>
-          </div>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-slate-900">
+            Khuyến mãi sản phẩm
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium max-w-2xl">
+            Tạo chiến dịch giảm giá, Flash Sale và áp dụng trực tiếp lên các sản phẩm hiện có tại DUDI SOFTWARE.
+          </p>
+        </div>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <button
+            onClick={() => {
+              fetchPromotions();
+              setCurrentPage(1);
+            }}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 shadow-2xs transition hover:bg-slate-50 hover:text-slate-900 cursor-pointer"
+            title="Làm mới"
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${loading ? "animate-spin text-[#eb1c24]" : ""}`}
+            />
+            <span>Làm mới</span>
+          </button>
+          <button
+            onClick={handleOpenCreate}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-red-600/20 transition cursor-pointer active:scale-98"
+          >
+            <Plus className="w-4 h-4 stroke-[2.5]" />
+            <span>Tạo chiến dịch</span>
+          </button>
         </div>
       </div>
 
@@ -544,8 +541,7 @@ export default function AdminPromotionsPage() {
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-center text-slate-600 font-medium whitespace-nowrap text-xs">
-                        {new Date(promo.startDate).toLocaleDateString("vi-VN")} —{" "}
-                        {new Date(promo.endDate).toLocaleDateString("vi-VN")}
+                        {formatDate(promo.startDate)} — {formatDate(promo.endDate)}
                       </td>
                       <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <button
@@ -780,7 +776,7 @@ export default function AdminPromotionsPage() {
                     type="button"
                     onClick={() => bannerInputRef.current?.click()}
                     disabled={uploadingBanner}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition shrink-0 cursor-pointer disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] text-white font-bold transition shrink-0 cursor-pointer disabled:opacity-50 shadow-xs"
                   >
                     <Upload className="w-3.5 h-3.5" />
                     <span>Tải lên</span>
@@ -966,6 +962,26 @@ export default function AdminPromotionsPage() {
                   className="font-bold text-slate-800 cursor-pointer"
                 >
                   Kích hoạt ngay khi tạo
+                </label>
+              </div>
+
+              {/* Flash Sale checkbox - Hiển thị trên trang chủ */}
+              <div className="flex items-center gap-2 p-3.5 bg-amber-50 border border-amber-200 rounded-xl">
+                <input
+                  type="checkbox"
+                  id="isFlashSalePromo"
+                  checked={formData.isFlashSale}
+                  onChange={(e) =>
+                    setFormData({ ...formData, isFlashSale: e.target.checked })
+                  }
+                  className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
+                />
+                <label
+                  htmlFor="isFlashSalePromo"
+                  className="font-bold text-amber-900 cursor-pointer flex items-center gap-2"
+                >
+                  <Zap className="w-4 h-4 text-amber-600 fill-amber-600" />
+                  <span>Đánh dấu là Flash Sale (hiển thị trên trang chủ)</span>
                 </label>
               </div>
 

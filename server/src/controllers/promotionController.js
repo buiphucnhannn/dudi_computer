@@ -1,6 +1,22 @@
 import { promotionService } from "../services/promotionService.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
+export const getFlashSalePromotion = async (req, res, next) => {
+  try {
+    const data = await promotionService.getFlashSalePromotion();
+    if (!data) {
+      return res
+        .status(200)
+        .json(new ApiResponse(200, { promotion: null, products: [] }, "Không có Flash Sale đang chạy"));
+    }
+    return res
+      .status(200)
+      .json(new ApiResponse(200, data, "Lấy Flash Sale thành công"));
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getActivePromotions = async (req, res, next) => {
   try {
     const data = await promotionService.getActivePromotions(req.query);

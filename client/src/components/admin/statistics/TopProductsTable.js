@@ -9,6 +9,8 @@ import {
   ExternalLink,
   Star,
   Loader2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { statisticAPI, categoryAPI } from "@/lib/api";
 
@@ -20,6 +22,8 @@ export default function TopProductsTable() {
   const [sortBy, setSortBy] = useState("sold-desc"); // "sold-desc" | "revenue-desc" | "progress-desc"
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
 
   useEffect(() => {
     let isMounted = true;
@@ -91,6 +95,16 @@ export default function TopProductsTable() {
     return list;
   }, [products, search, categoryFilter, sortBy]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, categoryFilter, sortBy]);
+
+  const totalPages = Math.ceil(filteredProducts.length / pageSize) || 1;
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredProducts.slice(start, start + pageSize);
+  }, [filteredProducts, currentPage, pageSize]);
+
   return (
     <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
       {/* Header Controls */}
@@ -144,7 +158,7 @@ export default function TopProductsTable() {
                   key={c.key}
                   onClick={() => setCategoryFilter(c.key)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${categoryFilter === c.key
-                      ? "bg-slate-900 text-white shadow-2xs"
+                      ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/20"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                 >
@@ -176,12 +190,12 @@ export default function TopProductsTable() {
           <table className="w-full text-left border-collapse min-w-[850px]">
             <thead>
               <tr className="bg-slate-50/90 text-slate-700 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
-                <th className="py-3.5 px-6 font-bold whitespace-nowrap">Sản Phẩm</th>
-                <th className="py-3.5 px-4 font-bold w-36 whitespace-nowrap">Mã SKU</th>
-                <th className="py-3.5 px-4 font-bold w-36 whitespace-nowrap">Giá Bán</th>
-                <th className="py-3.5 px-4 font-bold w-44 whitespace-nowrap">Tồn kho / Bán</th>
-                <th className="py-3.5 px-4 font-bold text-right w-40 whitespace-nowrap">Tổng Doanh Thu</th>
-                <th className="py-3.5 px-6 font-bold text-right w-28 whitespace-nowrap">Đã Bán</th>
+                <th className="py-3.5 px-6 font-bold whitespace-nowrap text-left">Sản Phẩm</th>
+                <th className="py-3.5 px-4 font-bold w-36 whitespace-nowrap text-center">Mã SKU</th>
+                <th className="py-3.5 px-4 font-bold w-36 whitespace-nowrap text-center">Giá Bán</th>
+                <th className="py-3.5 px-4 font-bold w-44 whitespace-nowrap text-center">Tồn kho / Bán</th>
+                <th className="py-3.5 px-4 font-bold w-40 whitespace-nowrap text-center">Tổng Doanh Thu</th>
+                <th className="py-3.5 px-6 font-bold w-28 whitespace-nowrap text-center">Đã Bán</th>
               </tr>
             </thead>
 
@@ -193,19 +207,22 @@ export default function TopProductsTable() {
                   </td>
                 </tr>
               ) : (
-                filteredProducts.map((product, index) => (
-                  <tr
-                    key={product.id || product.code}
-                    onClick={() => setSelectedProduct(product)}
-                    className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
-                  >
-                    {/* Product */}
-                    <td className="py-3.5 px-6 whitespace-nowrap">
-                      <div className="flex items-center gap-3.5">
-                        <span className={`w-5 text-center text-xs font-black shrink-0 ${index === 0 ? "text-amber-500" : index === 1 ? "text-slate-400" : index === 2 ? "text-amber-700" : "text-slate-300"
-                          }`}>
-                          #{index + 1}
-                        </span>
+                paginatedProducts.map((product, index) => {
+                  const actualIdx = (currentPage - 1) * pageSize + index + 1;
+
+                  return (
+                    <tr
+                      key={product.id || product.code}
+                      onClick={() => setSelectedProduct(product)}
+                      className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    >
+                      {/* Product */}
+                      <td className="py-3.5 px-6 whitespace-nowrap text-left">
+                        <div className="flex items-center gap-3.5">
+                          <span className={`w-5 text-center text-xs font-black shrink-0 ${actualIdx === 1 ? "text-amber-500" : actualIdx === 2 ? "text-slate-400" : actualIdx === 3 ? "text-amber-700" : "text-slate-300"
+                            }`}>
+                            #{actualIdx}
+                          </span>
 
                         <div className="w-12 h-12 rounded-xl bg-slate-50 overflow-hidden shrink-0 border border-slate-100 p-1">
                           <img
@@ -227,21 +244,21 @@ export default function TopProductsTable() {
                     </td>
 
                     {/* Code */}
-                    <td className="py-3.5 px-4 text-xs font-medium text-slate-500 whitespace-nowrap">
-                      <span className="bg-slate-100 px-2 py-0.5 rounded text-[10.5px] font-bold text-slate-700 inline-block">
+                    <td className="py-3.5 px-4 text-xs font-medium text-slate-500 whitespace-nowrap text-center">
+                      <span className="bg-slate-100 px-2 py-0.5 rounded text-[10.5px] font-bold text-slate-700 inline-block font-mono">
                         {product.code}
                       </span>
                     </td>
 
                     {/* Price */}
-                    <td className="py-3.5 px-4 text-xs font-black text-slate-900 whitespace-nowrap">
+                    <td className="py-3.5 px-4 text-xs font-black text-slate-900 whitespace-nowrap text-center">
                       {product.priceFormatted}
                     </td>
 
                     {/* Progress */}
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden shrink-0">
+                    <td className="py-3.5 px-4 whitespace-nowrap text-center">
+                      <div className="inline-flex items-center justify-center gap-2.5">
+                        <div className="w-20 h-2 bg-slate-100 rounded-full overflow-hidden shrink-0">
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${index === 0
                                 ? "bg-slate-900"
@@ -256,37 +273,97 @@ export default function TopProductsTable() {
                         </div>
 
                         <span className="text-[11px] font-bold text-slate-600 whitespace-nowrap">
-                          {product.stock} còn lại
+                          {product.stock} còn
                         </span>
                       </div>
                     </td>
 
                     {/* Revenue */}
-                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      <span className="text-xs font-black text-slate-900">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                      <span className="text-xs font-black text-red-600">
                         {(product.revenue || 0).toLocaleString("vi-VN")}₫
                       </span>
                     </td>
 
                     {/* Sold */}
-                    <td className="py-3.5 px-6 text-right whitespace-nowrap">
+                    <td className="py-3.5 px-6 text-center whitespace-nowrap">
                       <span className="text-sm font-black text-slate-900">
                         {product.sold || 0}
                       </span>
                       <span className="text-[11px] text-slate-400 font-medium ml-1">cái</span>
                     </td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>
+        )}
+
+        {/* Thanh Phân Trang Đồng Bộ */}
+        {!loading && filteredProducts.length > 0 && (
+          <div className="p-4 bg-white flex flex-col sm:flex-row gap-3 items-center justify-between border-t border-slate-100">
+            <span className="text-xs text-slate-500 font-medium">
+              Hiển thị{" "}
+              <strong className="text-slate-800 font-bold">
+                {filteredProducts.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}-
+                {Math.min(currentPage * pageSize, filteredProducts.length)}
+              </strong>{" "}
+              trong tổng số{" "}
+              <strong className="text-slate-800 font-bold">{filteredProducts.length}</strong> sản phẩm
+            </span>
+
+            <div className="flex items-center gap-1">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
+                title="Trang trước"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-8 h-8 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    page === currentPage
+                      ? "bg-[#eb1c24] text-white shadow-xs"
+                      : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                className="w-8 h-8 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition shadow-2xs"
+                title="Trang sau"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
       {/* Product Detail Modal */}
       {selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          {/* Backdrop Layer - Bấm ra ngoài để đóng */}
+          <div
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setSelectedProduct(null)}
+            aria-hidden="true"
+          />
+
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative z-10 w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+          >
             <div className="flex items-start justify-between border-b border-slate-150 pb-3 mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-14 h-14 rounded-xl bg-slate-50 p-1 border border-slate-200 shrink-0">
@@ -368,7 +445,7 @@ export default function TopProductsTable() {
 
               <button
                 onClick={() => setSelectedProduct(null)}
-                className="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-slate-800 cursor-pointer"
+                className="rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] px-5 py-2 text-xs font-bold text-white shadow-md shadow-red-600/20 transition cursor-pointer"
               >
                 Đóng
               </button>

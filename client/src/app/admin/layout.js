@@ -23,7 +23,9 @@ export default function AdminLayout({ children }) {
         />
 
         {/* Main Content Area */}
-        <main className="flex-1 pt-16">{children}</main>
+        <main className="flex-1 pt-16 p-4 sm:p-6 lg:p-8 bg-slate-50 w-full min-h-[calc(100vh-64px)]">
+          {children}
+        </main>
       </div>
     </div>
   );

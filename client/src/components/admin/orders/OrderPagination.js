@@ -100,7 +100,7 @@ export default function OrderPagination({
               onClick={() => onPageChange(page)}
               className={`w-8 h-8 rounded-xl text-xs font-bold transition cursor-pointer ${
                 isCurrent
-                  ? "bg-slate-900 text-white shadow-xs"
+                  ? "bg-[#eb1c24] text-white shadow-md shadow-red-600/20 font-black"
                   : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs"
               }`}
             >

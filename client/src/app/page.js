@@ -14,6 +14,7 @@ import CategoryProductBox from "@/components/home/CategoryProductBox";
 import HomeNewsSection from "@/components/home/HomeNewsSection";
 import CustomerGallery from "@/components/home/CustomerGallery";
 import { productAPI } from "@/lib/api";
+import { sortProductsByPriority } from "@/lib/productHelpers";
 
 export default function Home() {
   const [selectedCategoryPill, setSelectedCategoryPill] = useState("all");
@@ -22,12 +23,15 @@ export default function Home() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const res = await productAPI.getAll({ limit: 100 });
+        const res = await productAPI.getAll({ limit: 200 });
+        let rawProducts = [];
         if (res.data && res.data.data && res.data.data.products) {
-          setProducts(res.data.data.products);
+          rawProducts = res.data.data.products;
         } else if (res.data && Array.isArray(res.data.data)) {
-          setProducts(res.data.data);
+          rawProducts = res.data.data;
         }
+        // Sắp xếp ưu tiên: Giảm giá nhiều nhất/Hot Sale -> Mới nhất -> Nhiều lượt xem
+        setProducts(sortProductsByPriority(rawProducts));
       } catch (error) {
         console.error("Lỗi khi tải sản phẩm từ Database:", error);
       }
@@ -233,9 +237,9 @@ export default function Home() {
         />
       </div>
 
-      {/* 5. ⚡ FLASH SALE HÀNG NGÀY GIÁ CỰC SỐC */}
+      {/* 5. ⚡ FLASH SALE HÀNG NGÀY GIÁ CỰC SỐC - Tự động fetch từ API */}
       <div className="mb-6 sm:mb-8">
-        <FlashSaleSection products={products} />
+        <FlashSaleSection />
       </div>
 
       {/* 6. ZComputer Shorts / Video ngắn */}

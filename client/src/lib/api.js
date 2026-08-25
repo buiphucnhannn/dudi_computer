@@ -169,3 +169,14 @@ export const notificationAPI = {
   markAllAsRead: () => apiClient.patch("/notifications/read-all"),
   delete: (id) => apiClient.delete(`/notifications/${id}`),
 };
+
+export const promotionAPI = {
+  getFlashSale: () => apiClient.get("/promotions/flash-sale"),
+  getActive: (params) => apiClient.get("/promotions", { params }),
+  getAll: (params) => apiClient.get("/promotions/admin/all", { params }),
+  getById: (id) => apiClient.get(`/promotions/${id}`),
+  create: (data) => apiClient.post("/promotions", data),
+  update: (id, data) => apiClient.put(`/promotions/${id}`, data),
+  toggle: (id) => apiClient.patch(`/promotions/${id}/toggle`),
+  delete: (id) => apiClient.delete(`/promotions/${id}`),
+};

@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getFlashSalePromotion,
   getActivePromotions,
   getAdminPromotions,
   getPromotionById,
@@ -13,6 +14,7 @@ import { verifyJWT, requireAdmin } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 // Public
+router.get("/flash-sale", getFlashSalePromotion);
 router.get("/", getActivePromotions);
 
 // Admin
