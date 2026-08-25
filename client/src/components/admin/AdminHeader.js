@@ -45,7 +45,6 @@ function formatTimeAgo(dateString) {
 
 export default function AdminHeader({ onToggleSidebar }) {
   const router = useRouter();
-  const pathname = usePathname();
   const dispatch = useDispatch();
   const user = useSelector(selectCurrentUser);
   const { showToast } = useToast();
