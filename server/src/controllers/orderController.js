@@ -16,6 +16,43 @@ export const getAllOrders = async (req, res, next) => {
   }
 };
 
+export const getMyOrders = async (req, res, next) => {
+  try {
+    const userId = req.user?._id || req.query.userId;
+    const phone = req.query.phone || req.user?.phone;
+    const email = req.query.email || req.user?.email;
+
+    const { orders, pagination } = await orderService.getMyOrders({
+      ...req.query,
+      userId,
+      phone,
+      email,
+    });
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        { orders, pagination },
+        "Lấy danh sách đơn hàng của bạn thành công"
+      )
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const trackOrder = async (req, res, next) => {
+  try {
+    const { codeOrId } = req.params;
+    const order = await orderService.trackOrder(codeOrId);
+    return res.status(200).json(
+      new ApiResponse(200, order, "Tra cứu đơn hàng thành công")
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getOrderById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -30,7 +67,11 @@ export const getOrderById = async (req, res, next) => {
 
 export const createOrder = async (req, res, next) => {
   try {
-    const order = await orderService.createOrder(req.body);
+    const orderPayload = {
+      ...req.body,
+      userId: req.user?._id || req.body.userId,
+    };
+    const order = await orderService.createOrder(orderPayload);
     return res.status(201).json(
       new ApiResponse(201, order, "Tạo đơn hàng mới thành công")
     );

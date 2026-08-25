@@ -8,10 +8,11 @@ export const ADMIN_ORDERS_STORAGE_KEY = "dudi_admin_master_orders_v4";
 export const normalizeOrderStatus = (st) => {
   if (!st) return "processing";
   const s = String(st).toLowerCase().trim();
-  if (s === "pending" || s === "confirmed" || s === "processing" || s === "cho_xu_ly") return "processing";
-  if (s === "shipping" || s === "delivering" || s === "dang_giao") return "shipping";
-  if (s === "completed" || s === "delivered" || s === "hoan_thanh") return "completed";
-  if (s === "cancelled" || s === "canceled" || s === "da_huy") return "cancelled";
+  if (s === "confirmed" || s === "da_xac_nhan" || s === "da xac nhan") return "confirmed";
+  if (s === "pending" || s === "processing" || s === "cho_xu_ly" || s === "cho xu ly") return "processing";
+  if (s === "shipping" || s === "delivering" || s === "dang_giao" || s === "dang giao") return "shipping";
+  if (s === "completed" || s === "delivered" || s === "hoan_thanh" || s === "hoan thanh" || s === "da_giao") return "completed";
+  if (s === "cancelled" || s === "canceled" || s === "da_huy" || s === "da huy") return "cancelled";
   return "processing";
 };
 
@@ -250,29 +251,24 @@ export const saveMasterOrders = (orders) => {
 
 export const mapBackendOrderToMaster = (o, idx = 0) => {
   const customerName = o.customerInfo?.fullName || "Khách hàng";
-  const total = o.finalAmount || o.totalAmount || (o.items && o.items[0]?.price) || 15000000;
-  const items = Array.isArray(o.items) && o.items.length > 0
-    ? o.items.map((it, itemIdx) => ({
-        id: it._id || itemIdx + 1,
-        name: it.name || "Sản phẩm linh kiện máy tính",
-        sku: it.sku || `SKU-${100 + itemIdx}`,
-        image: it.image || "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80",
-        price: it.price || total,
-        quantity: it.quantity || 1,
-      }))
-    : [
-        {
-          id: 1,
-          name: o.items?.[0]?.name || "Sản phẩm đặt hàng",
-          sku: `SKU-${100 + idx}`,
-          image: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80",
-          price: total,
-          quantity: 1,
-        },
-      ];
+  const total = o.finalAmount || o.totalAmount || 0;
+  const items =
+    Array.isArray(o.items) && o.items.length > 0
+      ? o.items.map((it, itemIdx) => ({
+          id: it._id || itemIdx + 1,
+          name: it.name || "Sản phẩm",
+          sku: it.sku || `SKU-${100 + itemIdx}`,
+          image: it.thumbnail || it.image || "/images/dudi/dudisoftware1.png",
+          price: it.price || 0,
+          quantity: it.quantity || 1,
+        }))
+      : [];
 
   const firstItemName = items[0]?.name || "Sản phẩm đơn hàng";
-  const productSummary = items.length > 1 ? `${firstItemName} (+${items.length - 1} sp khác)` : firstItemName;
+  const productSummary =
+    items.length > 1
+      ? `${firstItemName} (+${items.length - 1} sp khác)`
+      : firstItemName;
 
   const orderDate = new Date(o.createdAt || Date.now());
   const now = new Date();
@@ -293,9 +289,15 @@ export const mapBackendOrderToMaster = (o, idx = 0) => {
     price: total,
     product: productSummary,
     status: normalizeOrderStatus(o.orderStatus),
-    paymentMethod: o.paymentMethod || "COD (Thanh toán khi nhận)",
+    paymentMethod:
+      o.paymentMethod === "banking"
+        ? "Chuyển khoản QR (VietQR)"
+        : o.paymentMethod === "cod"
+        ? "COD (Thanh toán khi nhận)"
+        : o.paymentMethod || "COD",
     note: o.customerInfo?.note || "",
     items,
+    timeline: o.timeline || [],
     isToday,
     rawCreatedAt: o.createdAt || new Date().toISOString(),
   };

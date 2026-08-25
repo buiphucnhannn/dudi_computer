@@ -6,7 +6,7 @@ class NotificationRepository extends BaseRepository {
     super(Notification);
   }
 
-  async findWithFilters({ isRead, type, page = 1, limit = 30 } = {}) {
+  async findWithFilters({ isRead, type, userId, recipientRole, page = 1, limit = 30 } = {}) {
     const query = {};
     if (typeof isRead === "boolean") {
       query.isRead = isRead;
@@ -18,11 +18,17 @@ class NotificationRepository extends BaseRepository {
       query.type = type;
     }
 
+    if (userId) {
+      query.$or = [{ user: userId }, { recipientRole: "all" }, { recipientRole: "user" }];
+    } else if (recipientRole) {
+      query.recipientRole = recipientRole;
+    }
+
     const skip = (Number(page) - 1) * Number(limit);
     const [notifications, total, unreadCount] = await Promise.all([
       this.model.find(query).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
       this.model.countDocuments(query),
-      this.model.countDocuments({ isRead: false }),
+      this.model.countDocuments({ ...query, isRead: false }),
     ]);
 
     return {
@@ -35,12 +41,20 @@ class NotificationRepository extends BaseRepository {
     };
   }
 
-  async countUnread() {
-    return await this.model.countDocuments({ isRead: false });
+  async countUnread(userId = null) {
+    const query = { isRead: false };
+    if (userId) {
+      query.$or = [{ user: userId }, { recipientRole: "all" }, { recipientRole: "user" }];
+    }
+    return await this.model.countDocuments(query);
   }
 
-  async markAllAsRead() {
-    return await this.model.updateMany({ isRead: false }, { $set: { isRead: true } });
+  async markAllAsRead(userId = null) {
+    const query = { isRead: false };
+    if (userId) {
+      query.$or = [{ user: userId }, { recipientRole: "all" }, { recipientRole: "user" }];
+    }
+    return await this.model.updateMany(query, { $set: { isRead: true } });
   }
 }
 

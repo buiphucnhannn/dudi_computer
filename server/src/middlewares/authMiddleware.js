@@ -51,3 +51,24 @@ export const requireAdmin = (req, res, next) => {
   }
 };
 
+export const verifyOptionalJWT = async (req, res, next) => {
+  try {
+    const token =
+      req.cookies?.accessToken ||
+      req.header("Authorization")?.replace("Bearer ", "");
+
+    if (token) {
+      const secret = process.env.JWT_SECRET;
+      const decodedToken = jwt.verify(token, secret);
+      const user = await User.findById(decodedToken?._id).select("-password");
+      if (user && user.status !== "banned") {
+        req.user = user;
+      }
+    }
+  } catch (error) {
+    // Bỏ qua lỗi nếu không có token hoặc token hết hạn trong chế độ optional
+  }
+  next();
+};
+
+

@@ -102,6 +102,8 @@ export const productAPI = {
 
 export const orderAPI = {
   getAll: (params) => apiClient.get("/orders", { params }),
+  getMyOrders: (params) => apiClient.get("/orders/my-orders", { params }),
+  getByCode: (codeOrId) => apiClient.get(`/orders/track/${codeOrId}`),
   getById: (id) => apiClient.get(`/orders/${id}`),
   create: (data) => apiClient.post("/orders", data),
   updateStatus: (id, status, note = "") =>

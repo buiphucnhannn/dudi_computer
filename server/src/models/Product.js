@@ -82,13 +82,11 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    // Hình ảnh lưu trữ Cloudinary (url + public_id)
-    images: [
-      {
-        url: { type: String, required: true },
-        public_id: { type: String, default: "" },
-      },
-    ],
+    // Hình ảnh lưu trữ Cloudinary (hỗ trợ cả Object {url, public_id} và String URL)
+    images: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: [],
+    },
     thumbnail: {
       type: String,
       default: "",
@@ -188,19 +186,6 @@ productSchema.index({
   tags: "text",
 });
 
-// Middleware chuẩn hóa dữ liệu trước khi validate
-productSchema.pre("validate", function (next) {
-  if (Array.isArray(this.images)) {
-    this.images = this.images.map((img) => {
-      if (typeof img === "string") {
-        return { url: img, public_id: "" };
-      }
-      return img;
-    });
-  }
-  next();
-});
-
 // Middleware tính toán trước khi lưu
 productSchema.pre("save", function (next) {
   if (this.originalPrice && this.originalPrice > this.price) {
@@ -221,4 +206,5 @@ productSchema.pre("save", function (next) {
 });
 
 export const Product = mongoose.model("Product", productSchema);
+
 
