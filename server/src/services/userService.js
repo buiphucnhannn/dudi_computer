@@ -9,9 +9,14 @@ export const userService = {
     const limit = Math.max(1, Math.min(100, Number(params.limit) || 15));
     const skip = (page - 1) * limit;
 
-    const query = {
-      role: { $ne: "admin" },
-    };
+    const query = {};
+
+    if (params.role && params.role !== "all") {
+      query.role = params.role;
+    } else if (!params.includeAllRoles) {
+      // Mặc định không hiển thị Super Admin để bảo vệ tài khoản gốc
+      query.role = { $nin: ["admin", "admin_super"] };
+    }
 
     if (params.search) {
       query.$or = [
@@ -110,15 +115,45 @@ export const userService = {
       _id: customer._id,
       name: customer.name,
       email: customer.email,
+      role: customer.role,
       status: customer.status,
+    };
+  },
+
+  // Cập nhật quyền hạn vai trò tài khoản (Chỉ dành cho Super Admin)
+  updateUserRole: async (id, role) => {
+    const validRoles = ["user", "admin_sales", "admin_content", "admin_customer", "admin"];
+    if (!validRoles.includes(role)) {
+      throw new ApiError(400, "Vai trò phân quyền không hợp lệ");
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      throw new ApiError(404, "Không tìm thấy người dùng");
+    }
+
+    // Không cho phép thay đổi tài khoản Admin gốc
+    if (user.email === "admin@zcomputer.vn" || user.email === "admin@dudi.vn") {
+      throw new ApiError(403, "Không thể thay đổi quyền hạn của tài khoản Quản trị viên tối cao");
+    }
+
+    user.role = role;
+    await user.save();
+
+    return {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
     };
   },
 
   // Xóa tài khoản khách hàng
   deleteCustomer: async (id) => {
-    const customer = await User.findOne({ _id: id, role: "user" });
+    const customer = await User.findOne({ _id: id, role: { $nin: ["admin", "admin_super"] } });
     if (!customer) {
-      throw new ApiError(404, "Không tìm thấy khách hàng cần xóa");
+      throw new ApiError(404, "Không tìm thấy người dùng hoặc không thể xóa tài khoản Quản trị viên");
     }
 
     await User.findByIdAndDelete(id);

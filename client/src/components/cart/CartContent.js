@@ -13,6 +13,8 @@ import {
   MessageCircle,
   MessageSquare,
   X,
+  LayoutDashboard,
+  ShieldCheck,
 } from "lucide-react";
 import {
   selectCartItems,
@@ -23,7 +25,7 @@ import {
   clearCartAsync,
   loadCartFromStorage,
 } from "@/redux/slices/cartSlice";
-import { selectIsAuthenticated } from "@/redux/slices/authSlice";
+import { selectIsAuthenticated, selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { formatVND } from "@/lib/utils";
 import OrderCheckoutModal from "./OrderCheckoutModal";
@@ -39,6 +41,7 @@ export default function CartContent() {
   const totalPrice = useSelector(selectTotalPrice);
   const totalItems = useSelector(selectTotalItems);
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const isAdmin = useSelector(selectIsAdmin);
 
   useEffect(() => {
     setMounted(true);
@@ -103,6 +106,44 @@ export default function CartContent() {
     return (
       <div className="bg-[#f8f9fa] min-h-[65vh] flex items-center justify-center">
         <div className="w-8 h-8 border-3 border-[#dc2626] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // Nếu tài khoản là Admin: Không hiển thị giỏ hàng & mua hàng, chỉ hiển thị thông báo chuyển về Dashboard
+  if (isAdmin) {
+    return (
+      <div className="bg-[#f8f9fa] min-h-screen py-16 px-4">
+        <div className="max-w-md mx-auto bg-white rounded-2xl p-8 border border-slate-200 shadow-sm text-center">
+          <div className="w-16 h-16 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+          <span className="inline-block px-3 py-1 rounded-full bg-red-100 text-[#eb1c24] text-xs font-bold uppercase tracking-wider mb-2">
+            Tài khoản Quản trị viên
+          </span>
+          <h2 className="text-xl font-black text-slate-900 mb-2">
+            Giao diện Mua hàng không khả dụng
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mb-6">
+            Tài khoản Admin chỉ sử dụng các chức năng quản trị trong Dashboard và không thực hiện thao tác mua hàng / tạo đơn hàng.
+          </p>
+          <div className="flex flex-col gap-2.5">
+            <Link
+              href="/admin"
+              className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow-sm transition-all"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Vào Trang Quản Trị (Admin Dashboard)</span>
+            </Link>
+            <Link
+              href="/"
+              className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Về Trang Chủ</span>
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }

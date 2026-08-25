@@ -1,8 +1,18 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Plus, ShoppingCart, X, Trash2, Scale, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  Scale,
+  Plus,
+  X,
+  ShoppingCart,
+  Trash2,
+  Eye,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated, selectIsAdmin } from "@/redux/slices/authSlice";
 import { productAPI } from "@/lib/api";
 import { parseProductSpecs } from "@/lib/specParser";
 import { useCompare } from "@/components/common/CompareContext";
@@ -48,6 +58,7 @@ function CompareContent() {
   const productsParam = searchParams.get("products");
 
   const { compareItems, removeFromCompare, clearCompare, addToCompare } = useCompare();
+  const isAdmin = useSelector(selectIsAdmin);
 
   const [products, setProducts] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
@@ -192,12 +203,29 @@ function CompareContent() {
 
     const rowMap = new Map();
 
-    // Thông tin cơ bản ban đầu
-    rowMap.set("Danh mục", (p) => p.raw.categoryName || p.raw.category?.name || p.parsed.category || "-");
-    rowMap.set("Thương hiệu", (p) => p.raw.brand || p.parsed.brand || "Chính hãng");
+    // Check if comparing PCs / Laptops to prioritize standard PC labels
+    const hasPC = parsedList.some(
+      ({ parsed, raw }) =>
+        parsed.isPCorLaptop ||
+        parsed.cpu ||
+        parsed.vga ||
+        raw.specs?.cpu ||
+        raw.specs?.ram
+    );
+
+    if (hasPC) {
+      rowMap.set("CPU", (p) => p.raw.specs?.cpu || p.raw.specifications?.find((s) => s.name?.toUpperCase() === "CPU")?.value || p.parsed.cpu || "-");
+      rowMap.set("Mainboard", (p) => p.raw.specs?.mainboard || p.raw.specifications?.find((s) => s.name?.toLowerCase().includes("main"))?.value || p.parsed.mainboard || "-");
+      rowMap.set("Cooler", (p) => p.raw.specs?.cooler || p.raw.specifications?.find((s) => s.name?.toLowerCase().includes("cooler") || s.name?.toLowerCase().includes("tản"))?.value || p.parsed.cooler || "-");
+      rowMap.set("RAM", (p) => p.raw.specs?.ram || p.raw.specifications?.find((s) => s.name?.toUpperCase() === "RAM")?.value || p.parsed.ram || "-");
+      rowMap.set("Storage", (p) => p.raw.specs?.storage || p.raw.specifications?.find((s) => s.name?.toLowerCase().includes("storage") || s.name?.toLowerCase().includes("ssd") || s.name?.toLowerCase().includes("ổ cứng"))?.value || p.parsed.ssd || "-");
+      rowMap.set("VGA", (p) => p.raw.specs?.gpu || p.raw.specs?.vga || p.raw.specifications?.find((s) => s.name?.toUpperCase() === "VGA" || s.name?.toUpperCase() === "GPU")?.value || p.parsed.vga || "-");
+      rowMap.set("PSU", (p) => p.raw.specs?.psu || p.raw.specifications?.find((s) => s.name?.toUpperCase() === "PSU" || s.name?.toLowerCase().includes("nguồn"))?.value || p.parsed.psu || "-");
+      rowMap.set("Case", (p) => p.raw.specs?.caseBox || p.raw.specifications?.find((s) => s.name?.toLowerCase().includes("case") || s.name?.toLowerCase().includes("vỏ"))?.value || p.parsed.caseBox || "-");
+    }
 
     // Thu thập tất cả các trường cấu hình đặc thù từ mảng items của từng sản phẩm
-    parsedList.forEach(({ parsed }) => {
+    parsedList.forEach(({ parsed, raw }) => {
       if (parsed.items && Array.isArray(parsed.items)) {
         parsed.items.forEach((it) => {
           if (
@@ -207,8 +235,18 @@ function CompareContent() {
             it.name !== "Chế độ bảo hành" &&
             it.name !== "Tình trạng"
           ) {
-            if (!rowMap.has(it.name)) {
-              rowMap.set(it.name, (p) => {
+            let label = it.name;
+            if (label.includes("CPU")) label = "CPU";
+            else if (label.includes("Mainboard") || label.includes("Bo mạch")) label = "Mainboard";
+            else if (label.includes("Tản nhiệt") || label.includes("Cooling")) label = "Cooler";
+            else if (label.includes("RAM") || label.includes("Bộ nhớ")) label = "RAM";
+            else if (label.includes("Ổ cứng") || label.includes("lưu trữ")) label = "Storage";
+            else if (label.includes("Card đồ họa") || label.includes("VGA")) label = "VGA";
+            else if (label.includes("Nguồn") || label.includes("PSU")) label = "PSU";
+            else if (label.includes("Case") || label.includes("Khung vỏ")) label = "Case";
+
+            if (!rowMap.has(label)) {
+              rowMap.set(label, (p) => {
                 const match = p.parsed.items?.find((item) => item.name === it.name);
                 if (match && match.detail && match.detail !== "-") return match.detail;
                 return "-";
@@ -217,15 +255,17 @@ function CompareContent() {
           }
         });
       }
-    });
 
-    // Thông tin tình trạng và bảo hành ở cuối
-    rowMap.set("Tình trạng", (p) =>
-      p.raw.status === "out_of_stock" ? "Hết hàng" : "Còn hàng (Chính hãng / Like New)"
-    );
-    rowMap.set("Chế độ bảo hành", (p) => {
-      const w = p.raw.warranty || p.parsed.warranty;
-      return w ? String(w).replace(/^Bảo\s*hành\s*/i, "BH ") : "BH 3 - 12 Tháng";
+      if (raw.specifications && Array.isArray(raw.specifications)) {
+        raw.specifications.forEach((spec) => {
+          if (spec.name && !rowMap.has(spec.name)) {
+            rowMap.set(spec.name, (p) => {
+              const match = p.raw.specifications?.find((s) => s.name === spec.name);
+              return match?.value || "-";
+            });
+          }
+        });
+      }
     });
 
     // Chuyển sang danh sách và loại bỏ các dòng mà tất cả sản phẩm đều không có dữ liệu (-)
@@ -296,28 +336,34 @@ function CompareContent() {
 
   return (
     <main className="min-h-screen bg-slate-50 pt-24 pb-20">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
-        {/* HEADER */}
-        <div className="flex flex-col gap-4 border-b border-slate-200 pb-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <div className="flex items-center gap-2 text-red-600 font-bold uppercase text-xs tracking-wider mb-1">
-              <Scale size={16} />
-              <span>Công cụ đối chiếu cấu hình</span>
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 sm:px-6 lg:px-8">
+        {/* HEADER MATCHING REFERENCE */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition shadow-2xs cursor-pointer"
+              title="Quay lại"
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900">
+                SO SÁNH CẤU HÌNH
+              </h1>
+              <p className="mt-0.5 text-xs sm:text-sm text-slate-500 font-medium">
+                So sánh chi tiết các thông số kỹ thuật
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-slate-900">
-              So sánh thông số kỹ thuật ({products.length}/3)
-            </h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Đối chiếu chi tiết cấu hình CPU, RAM, VGA, Màn hình, Ổ cứng và giá bán
-            </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 self-end sm:self-auto">
             {products.length < 3 && (
               <button
                 type="button"
                 onClick={handleAddProduct}
-                className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-xs font-bold uppercase text-white shadow-sm transition hover:bg-red-700 cursor-pointer"
+                className="flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold uppercase text-white shadow-xs transition hover:bg-red-700 cursor-pointer"
               >
                 <Plus size={15} />
                 Thêm sản phẩm
@@ -326,22 +372,22 @@ function CompareContent() {
             <button
               type="button"
               onClick={handleClearAll}
-              className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 transition hover:text-red-600 hover:border-red-300 cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3.5 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition cursor-pointer"
             >
               <Trash2 size={15} />
-              Xóa tất cả
+              <span>Xóa tất cả</span>
             </button>
           </div>
         </div>
 
         {/* LOADING */}
         {loading && (
-          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 shadow-sm animate-pulse">
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 shadow-sm animate-pulse">
             Đang tải và xử lý dữ liệu so sánh cấu hình...
           </div>
         )}
 
-        {/* PRODUCT CARDS TOP ROW */}
+        {/* UNIFIED COMPARISON TABLE */}
         {!loading && (
           <div className="w-full overflow-x-auto pb-4 scrollbar-thin">
             {/* Mobile Scroll Hint */}
@@ -353,214 +399,143 @@ function CompareContent() {
             </div>
 
             <div
-              className="grid gap-3 sm:gap-4"
+              className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs"
               style={{
-                minWidth: `${160 + products.length * 220 + (products.length < 3 ? 190 : 0)}px`,
-                gridTemplateColumns: `minmax(160px, 200px) ${products.map(() => "minmax(210px, 1fr)").join(" ")} ${
-                  products.length < 3 ? "minmax(180px, 1fr)" : ""
-                }`,
+                minWidth: `${180 + products.length * 240 + (products.length < 3 ? 200 : 0)}px`,
               }}
             >
-              {/* LABEL COLUMN HEADER - Friendly & Informative Control Card (Sticky on left on mobile) */}
-              <div className="sticky left-0 z-20 flex min-h-[380px] sm:min-h-[420px] flex-col justify-between rounded-xl sm:rounded-2xl border border-slate-200/90 bg-gradient-to-b from-white via-slate-50/95 to-slate-100/95 p-4 sm:p-6 shadow-md overflow-hidden backdrop-blur-md">
-                {/* Ambient Background Accent */}
-                <div className="absolute -top-12 -right-12 w-32 h-32 bg-red-500/10 rounded-full blur-2xl pointer-events-none" />
+              {/* =================================================
+                  ROW 1: SẢN PHẨM (PRODUCT CARDS ROW)
+              ================================================= */}
+              <div
+                className="grid"
+                style={{
+                  gridTemplateColumns: `minmax(160px, 190px) ${products.map(() => "minmax(230px, 1fr)").join(" ")} ${
+                    products.length < 3 ? "minmax(200px, 1fr)" : ""
+                  }`,
+                }}
+              >
+                {/* 1. STICKY LABEL "SẢN PHẨM" */}
+                <div className="sticky left-0 z-20 flex items-center justify-start border-r border-slate-100 bg-white p-4 sm:p-6 shadow-[2px_0_6px_rgba(0,0,0,0.02)]">
+                  <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700">
+                    SẢN PHẨM
+                  </span>
+                </div>
 
-                {/* Top Section */}
-                <div>
-                  <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 rounded-full bg-red-50 text-[#eb1c24] border border-red-100 mb-2.5 sm:mb-3.5 shadow-2xs">
-                    <Scale className="w-3.5 h-3.5" />
-                    <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">
-                      Đối chiếu
-                    </span>
-                  </div>
+                {/* 2. PRODUCT CARDS */}
+                {products.map((product) => {
+                  const id = getProductId(product);
+                  const image = getProductImage(product);
 
-                  <h2 className="text-sm sm:text-lg font-black uppercase tracking-tight text-slate-900 leading-snug">
-                    Sản phẩm so sánh
-                  </h2>
+                  return (
+                    <div
+                      key={id}
+                      className="group relative flex min-h-[380px] sm:min-h-[420px] flex-col justify-between border-r last:border-r-0 border-slate-100 bg-white p-4 sm:p-5 transition hover:bg-slate-50/40"
+                    >
+                      {/* REMOVE BUTTON (TOP-RIGHT CIRCULAR X) */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveProduct(id)}
+                        className="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600 shadow-2xs cursor-pointer"
+                        title="Xóa khỏi so sánh"
+                      >
+                        <X size={12} strokeWidth={2.5} />
+                      </button>
 
-                  <p className="mt-1 text-[11px] sm:text-xs text-slate-500 leading-relaxed font-medium">
-                    Đối chiếu chi tiết tối đa <strong className="text-slate-800 font-bold">3 cấu hình</strong> cùng lúc.
-                  </p>
-
-                  {/* Slot Progress Card */}
-                  <div className="mt-3 sm:mt-4 rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3.5 shadow-2xs space-y-2">
-                    <div className="flex items-center justify-between text-[11px] sm:text-xs">
-                      <span className="text-slate-600 font-bold">Trạng thái:</span>
-                      <span className="font-extrabold text-[#eb1c24] bg-red-50 border border-red-200 px-1.5 sm:px-2 py-0.5 rounded-md text-[10px] sm:text-[11px]">
-                        {products.length} / 3 máy
-                      </span>
-                    </div>
-
-                    {/* 3 Progress Bars */}
-                    <div className="grid grid-cols-3 gap-1 pt-0.5">
-                      {[0, 1, 2].map((slotIdx) => (
-                        <div
-                          key={slotIdx}
-                          className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
-                            slotIdx < products.length
-                              ? "bg-[#eb1c24] shadow-[0_0_8px_rgba(235,28,36,0.4)]"
-                              : "bg-slate-200"
-                          }`}
+                      {/* PRODUCT IMAGE */}
+                      <div className="mb-3 flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-white p-2">
+                        <img
+                          src={image}
+                          alt={getProductName(product)}
+                          className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-300 max-h-[190px]"
                         />
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                      </div>
 
-                {/* Middle Features Checklist */}
-                <div className="my-2 sm:my-3 space-y-1.5 sm:space-y-2 text-[10.5px] sm:text-[11.5px] text-slate-600 font-medium">
-                  <div className="flex items-center gap-1.5">
-                    <span className="flex h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 text-[9px] sm:text-[10px] font-bold">
-                      ✓
-                    </span>
-                    <span className="truncate">CPU, RAM, VGA, Màn hình</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="flex h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 text-[9px] sm:text-[10px] font-bold">
-                      ✓
-                    </span>
-                    <span className="truncate">Giá bán & Bảo hành</span>
-                  </div>
-                </div>
+                      {/* PRODUCT NAME */}
+                      <h3
+                        className="mb-2 line-clamp-3 min-h-[50px] sm:min-h-[60px] text-xs sm:text-sm font-bold uppercase text-slate-900 group-hover:text-red-600 transition-colors leading-snug cursor-pointer"
+                        onClick={() => handleBuy(product)}
+                        title={getProductName(product)}
+                      >
+                        {getProductName(product)}
+                      </h3>
 
-                {/* Bottom Action */}
-                <div>
-                  {products.length < 3 ? (
-                    <button
-                      type="button"
-                      onClick={handleAddProduct}
-                      className="w-full flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[11px] sm:text-xs font-bold uppercase transition shadow-xs hover:shadow-md cursor-pointer active:scale-95"
-                    >
-                      <Plus size={14} />
-                      <span>Thêm (+{3 - products.length})</span>
-                    </button>
-                  ) : (
-                    <div className="py-2 px-2 bg-emerald-50 border border-emerald-200 rounded-xl text-center text-[11px] sm:text-xs font-bold text-emerald-700 flex items-center justify-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                      <span>Đủ 3 máy</span>
-                    </div>
-                  )}
-                </div>
-              </div>
+                      {/* PRICE BLOCK */}
+                      <div className="mb-4">
+                        {getOriginalPrice(product) ? (
+                          <div className="text-[11px] sm:text-xs text-slate-400 line-through">
+                            {getOriginalPrice(product)}
+                          </div>
+                        ) : (
+                          <div className="h-4 sm:h-4.5" />
+                        )}
+                        <div className="text-base sm:text-lg font-black text-red-600">
+                          {getPrice(product)}
+                        </div>
+                      </div>
 
-              {/* PRODUCTS COLUMNS */}
-              {products.map((product) => {
-                const id = getProductId(product);
-                const image = getProductImage(product);
-
-                return (
-                  <div
-                    key={id}
-                    className="group relative flex min-h-[380px] sm:min-h-[420px] flex-col rounded-xl sm:rounded-2xl border border-slate-200 bg-white p-3.5 sm:p-5 shadow-sm transition hover:border-red-500 hover:shadow-md"
-                  >
-                    {/* REMOVE BUTTON */}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveProduct(id)}
-                      className="absolute right-2.5 top-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-red-600 hover:text-white cursor-pointer"
-                      title="Xóa khỏi so sánh"
-                    >
-                      <X size={14} />
-                    </button>
-
-                    {/* PRODUCT IMAGE */}
-                    <div className="mb-3 sm:mb-4 flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-white p-2">
-                      <img
-                        src={image}
-                        alt={getProductName(product)}
-                        className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-
-                    {/* WARRANTY BADGE */}
-                    <div className="text-[10px] sm:text-[10.5px] text-green-600 mb-1 flex items-center gap-1 font-semibold truncate">
-                      <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-                      <span className="truncate">{product.warranty ? String(product.warranty).replace(/^Bảo\s*hành\s*/i, "BH ") : "BH chính hãng"}</span>
-                    </div>
-
-                    {/* PRODUCT NAME */}
-                    <h3
-                      className="mb-2 line-clamp-2 min-h-[36px] sm:min-h-[44px] text-xs sm:text-sm font-bold text-slate-900 group-hover:text-red-600 transition-colors leading-snug cursor-pointer"
-                      onClick={() => handleBuy(product)}
-                      title={getProductName(product)}
-                    >
-                      {getProductName(product)}
-                    </h3>
-
-                    {/* PRICE */}
-                    <div className="mb-3 sm:mb-4 flex flex-wrap items-baseline gap-1.5 sm:gap-2">
-                      <span className="text-base sm:text-lg font-black text-red-600">
-                        {getPrice(product)}
-                      </span>
-                      {getOriginalPrice(product) && (
-                        <span className="text-[11px] sm:text-xs text-slate-400 line-through">
-                          {getOriginalPrice(product)}
-                        </span>
+                      {/* BUY NOW (USER) OR VIEW DETAILS (ADMIN) */}
+                      {isAdmin ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const slugOrId = product.slug || product._id || product.id;
+                            router.push(`/product-detail?slug=${encodeURIComponent(slugOrId)}`);
+                          }}
+                          className="flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-900 text-xs sm:text-sm font-bold text-white transition hover:bg-slate-800 active:scale-[0.99] cursor-pointer"
+                        >
+                          <Eye size={15} />
+                          <span>Xem chi tiết</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleBuy(product)}
+                          className="flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-red-200 bg-red-50 text-xs sm:text-sm font-bold text-red-600 transition hover:bg-red-100/90 active:scale-[0.99] cursor-pointer"
+                        >
+                          <ShoppingCart size={15} />
+                          <span>Mua ngay</span>
+                        </button>
                       )}
                     </div>
+                  );
+                })}
 
-                    {/* ACTION BUY BUTTON */}
-                    <button
-                      type="button"
-                      onClick={() => handleBuy(product)}
-                      className="mt-auto flex h-9 sm:h-10 w-full items-center justify-center gap-1.5 sm:gap-2 rounded-xl bg-red-600 text-[11px] sm:text-xs font-bold uppercase text-white shadow-sm transition hover:bg-red-700 cursor-pointer"
-                    >
-                      <ShoppingCart size={14} />
-                      <span>Chi tiết & Mua</span>
-                    </button>
-                  </div>
-                );
-              })}
-
-              {/* EMPTY COLUMN PLACEHOLDER TO ADD */}
-              {products.length < 3 && (
-                <button
-                  type="button"
-                  onClick={handleAddProduct}
-                  className="group flex min-h-[380px] sm:min-h-[420px] flex-col items-center justify-center rounded-xl sm:rounded-2xl border-2 border-dashed border-slate-300 bg-white/80 p-4 sm:p-6 transition-all duration-300 hover:border-red-500 hover:bg-red-50/30 hover:shadow-md cursor-pointer"
-                >
-                  <span className="mb-3 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-red-50 text-red-600 border border-red-100 shadow-sm group-hover:scale-110 group-hover:bg-[#eb1c24] group-hover:text-white transition-all duration-300">
-                    <Plus size={26} strokeWidth={2.5} />
-                  </span>
-                  <span className="text-xs font-extrabold uppercase text-slate-800 group-hover:text-red-600 transition-colors">
-                    Thêm thiết bị
-                  </span>
-                  <span className="text-[10px] sm:text-[11px] text-slate-500 mt-1 text-center font-medium">
-                    Nhấn để chọn cấu hình tiếp theo ({3 - products.length} vị trí còn trống)
-                  </span>
-                </button>
-              )}
-            </div>
-
-            {/* =================================================
-                SPECIFICATION COMPARISON TABLE (DYNAMIC ADAPTIVE)
-            ================================================= */}
-            <div
-              className="mt-6 sm:mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
-              style={{
-                minWidth: `${160 + products.length * 220 + (products.length < 3 ? 190 : 0)}px`,
-              }}
-            >
-              <div className="bg-slate-900 text-white px-4 sm:px-5 py-3 font-bold uppercase text-[11px] sm:text-xs tracking-wider flex items-center gap-2 sticky left-0 z-20">
-                <Scale size={15} />
-                <span>Bảng đối chiếu thông số phần cứng chi tiết</span>
+                {/* 3. EMPTY COLUMN PLACEHOLDER TO ADD */}
+                {products.length < 3 && (
+                  <button
+                    type="button"
+                    onClick={handleAddProduct}
+                    className="group flex min-h-[380px] sm:min-h-[420px] flex-col items-center justify-center border-r last:border-r-0 border-slate-100 bg-slate-50/30 p-4 sm:p-6 transition-all duration-300 hover:bg-red-50/20 cursor-pointer"
+                  >
+                    <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-red-600 border border-slate-200 shadow-2xs group-hover:scale-110 group-hover:border-red-200 transition-all duration-300">
+                      <Plus size={24} strokeWidth={2.5} />
+                    </span>
+                    <span className="text-xs font-bold uppercase text-slate-700 group-hover:text-red-600 transition-colors">
+                      Thêm sản phẩm
+                    </span>
+                    <span className="text-[11px] text-slate-400 mt-1 text-center font-medium">
+                      ({3 - products.length} vị trí còn trống)
+                    </span>
+                  </button>
+                )}
               </div>
 
-              {dynamicSpecRows.map((row, index) => (
+              {/* =================================================
+                  ROWS 2..N: SPECIFICATION ROWS
+              ================================================= */}
+              {dynamicSpecRows.map((row) => (
                 <div
                   key={row.label}
-                  className={`grid transition hover:bg-slate-50/80 ${
-                    index !== dynamicSpecRows.length - 1 ? "border-b border-slate-150" : ""
-                  }`}
+                  className="grid border-t border-slate-150 transition hover:bg-slate-50/60"
                   style={{
-                    gridTemplateColumns: `minmax(160px, 200px) ${products.map(() => "minmax(210px, 1fr)").join(" ")} ${
-                      products.length < 3 ? "minmax(180px, 1fr)" : ""
+                    gridTemplateColumns: `minmax(160px, 190px) ${products.map(() => "minmax(230px, 1fr)").join(" ")} ${
+                      products.length < 3 ? "minmax(200px, 1fr)" : ""
                     }`,
                   }}
                 >
-                  {/* STICKY LABEL COLUMN */}
-                  <div className="sticky left-0 z-10 flex items-center bg-slate-100/95 backdrop-blur-sm p-3 sm:p-4 text-[11.5px] sm:text-xs font-bold text-slate-800 border-r border-slate-200 shadow-[2px_0_6px_rgba(0,0,0,0.03)]">
+                  {/* STICKY SPEC LABEL */}
+                  <div className="sticky left-0 z-10 flex items-center bg-white p-4 sm:p-5 text-xs sm:text-sm font-bold text-slate-800 border-r border-slate-100 shadow-[2px_0_6px_rgba(0,0,0,0.02)]">
                     {row.label}
                   </div>
 
@@ -572,14 +547,10 @@ function CompareContent() {
                     return (
                       <div
                         key={`${getProductId(product)}-${row.label}`}
-                        className="flex min-h-[48px] sm:min-h-[56px] items-center border-r last:border-r-0 border-slate-200 p-3 sm:p-4 text-[11.5px] sm:text-xs font-medium leading-relaxed text-slate-700 break-words"
+                        className="flex min-h-[52px] sm:min-h-[60px] items-center border-r last:border-r-0 border-slate-100 p-4 sm:p-5 text-xs sm:text-sm font-medium leading-relaxed text-slate-700 break-words"
                       >
                         {value === "-" ? (
                           <span className="text-slate-400 italic">Không áp dụng</span>
-                        ) : row.label === "Chế độ bảo hành" ? (
-                          <span className="font-bold text-[#eb1c24] bg-red-50 px-2 py-0.5 rounded border border-red-100">
-                            {value}
-                          </span>
                         ) : (
                           value
                         )}
@@ -589,8 +560,8 @@ function CompareContent() {
 
                   {/* EMPTY FILLER COLUMNS */}
                   {products.length < 3 && (
-                    <div className="flex min-h-[48px] sm:min-h-[56px] items-center justify-center border-r last:border-r-0 border-slate-200 bg-slate-50/30 p-3 sm:p-4">
-                      <span className="text-xs italic text-slate-400">---</span>
+                    <div className="flex min-h-[52px] sm:min-h-[60px] items-center justify-center border-r last:border-r-0 border-slate-100 bg-slate-50/20 p-4 sm:p-5">
+                      <span className="text-xs italic text-slate-300">---</span>
                     </div>
                   )}
                 </div>

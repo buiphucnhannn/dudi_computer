@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { formatVND } from "@/lib/utils";
 import { addToCart, addToCartAsync, removeFromCartAsync, selectCartItems } from "@/redux/slices/cartSlice";
+import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useCompare } from "@/components/common/CompareContext";
 import { useToast } from "@/components/common/ToastContext";
 import { getProductCardBadges } from "@/lib/specParser";
@@ -32,6 +33,7 @@ export default function ProductCard({ product }) {
   const { addToCompare, isComparing } = useCompare();
   const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
+  const isAdmin = useSelector(selectIsAdmin);
 
   if (!product) return null;
 
@@ -131,17 +133,20 @@ export default function ProductCard({ product }) {
         >
           <Scale className="w-3.5 h-3.5" />
         </button>
-        <button
-          onClick={handleToggleCart}
-          className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${
-            isCart
-              ? "bg-[#eb1c24] text-white shadow-sm"
-              : "bg-white/80 hover:bg-white text-gray-700 hover:text-[#eb1c24]"
-          }`}
-          title={isCart ? "Đã có trong giỏ hàng (Bấm để xóa)" : "Thêm vào giỏ hàng"}
-        >
-          <ShoppingCart className="w-3.5 h-3.5" />
-        </button>
+
+        {!isAdmin && (
+          <button
+            onClick={handleToggleCart}
+            className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${
+              isCart
+                ? "bg-[#eb1c24] text-white shadow-sm"
+                : "bg-white/80 hover:bg-white text-gray-700 hover:text-[#eb1c24]"
+            }`}
+            title={isCart ? "Đã có trong giỏ hàng (Bấm để xóa)" : "Thêm vào giỏ hàng"}
+          >
+            <ShoppingCart className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
 
       {/* Image container */}
@@ -247,19 +252,32 @@ export default function ProductCard({ product }) {
           )}
 
           <div className="flex items-center gap-1 sm:gap-1.5">
-            <button
-              onClick={handleAddToCart}
-              className="flex-1 flex items-center justify-center gap-1 bg-red-50 hover:bg-[#dc2626] text-[#dc2626] hover:text-white border border-red-200/80 py-1.5 px-1.5 sm:px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
-            >
-              <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="truncate">Thêm vào giỏ</span>
-            </button>
-            <span
-              className="p-1 sm:p-1.5 rounded-lg border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 transition-colors shrink-0"
-              title="Xem chi tiết"
-            >
-              <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            </span>
+            {isAdmin ? (
+              <button
+                type="button"
+                onClick={handleOpenDetail}
+                className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white py-1.5 px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Xem chi tiết</span>
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleAddToCart}
+                  className="flex-1 flex items-center justify-center gap-1 bg-red-50 hover:bg-[#dc2626] text-[#dc2626] hover:text-white border border-red-200/80 py-1.5 px-1.5 sm:px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
+                >
+                  <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <span className="truncate">Thêm vào giỏ</span>
+                </button>
+                <span
+                  className="p-1 sm:p-1.5 rounded-lg border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 transition-colors shrink-0"
+                  title="Xem chi tiết"
+                >
+                  <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>

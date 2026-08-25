@@ -20,7 +20,8 @@ const productSchema = new mongoose.Schema(
       trim: true,
       uppercase: true,
       sparse: true,
-      index: true,
+
+
     },
     // Slug URL thân thiện SEO
     slug: {

@@ -131,6 +131,11 @@ export default function OrderCheckoutModal({
     if (!validate()) return;
     if (activeItems.length === 0) return;
 
+    if (currentUser?.role === "admin") {
+      setErrors({ api: "Tài khoản Quản trị viên (Admin) không được phép thực hiện chức năng mua hàng / đặt hàng." });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const payload = {
@@ -190,7 +195,9 @@ export default function OrderCheckoutModal({
     {
       id: "banking",
       title: "Chuyển khoản QR (VietQR / Internet Banking)",
-      desc: "Xác nhận nhanh 24/7 qua mã QR ngân hàng",
+      desc: "Tính năng đang phát triển",
+      badge: "Tính năng đang phát triển",
+      disabled: true,
       icon: QrCode,
       color: "text-blue-600 bg-blue-50 border-blue-200",
     },
@@ -234,7 +241,40 @@ export default function OrderCheckoutModal({
 
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5 text-slate-800 text-xs sm:text-sm">
-          {!createdOrder ? (
+          {currentUser?.role === "admin" ? (
+            <div className="py-8 text-center space-y-4">
+              <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+                <ShieldCheck className="w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  Tài khoản Quản trị viên (Admin)
+                </h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
+                  Tài khoản Admin không được phép thực hiện chức năng mua hàng và tạo đơn hàng. Vui lòng sử dụng các tính năng trong Trang Quản Trị.
+                </p>
+              </div>
+              <div className="pt-2 flex justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    router.push("/admin");
+                  }}
+                  className="py-2.5 px-5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer"
+                >
+                  Vào Trang Quản Trị
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition cursor-pointer"
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          ) : !createdOrder ? (
             /* ================= STEP 1: CHECKOUT FORM ================= */
             <form onSubmit={handleCreateOrder} className="space-y-5">
               {errors.api && (
@@ -395,10 +435,12 @@ export default function OrderCheckoutModal({
                     return (
                       <label
                         key={opt.id}
-                        className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
-                          isSelected
-                            ? "border-slate-900 bg-slate-50/80 ring-2 ring-slate-900/10 shadow-xs"
-                            : "border-slate-200 hover:bg-slate-50/60"
+                        className={`flex items-start gap-3 p-3 rounded-xl border transition-all ${
+                          opt.disabled
+                            ? "border-slate-200 bg-slate-50/50 opacity-70 cursor-not-allowed select-none"
+                            : isSelected
+                            ? "border-slate-900 bg-slate-50/80 ring-2 ring-slate-900/10 shadow-xs cursor-pointer"
+                            : "border-slate-200 hover:bg-slate-50/60 cursor-pointer"
                         }`}
                       >
                         <input
@@ -406,15 +448,25 @@ export default function OrderCheckoutModal({
                           name="paymentMethod"
                           value={opt.id}
                           checked={isSelected}
-                          onChange={() => setFormData({ ...formData, paymentMethod: opt.id })}
-                          className="mt-1 text-slate-900 focus:ring-slate-900"
+                          disabled={opt.disabled}
+                          onChange={() => !opt.disabled && setFormData({ ...formData, paymentMethod: opt.id })}
+                          className="mt-1 text-slate-900 focus:ring-slate-900 disabled:opacity-40"
                         />
 
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-xs font-bold text-slate-900">{opt.title}</span>
+                            {opt.badge && (
+                              <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold tracking-tight">
+                                {opt.badge}
+                              </span>
+                            )}
                           </div>
-                          <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                          <p
+                            className={`text-[11px] font-medium mt-0.5 ${
+                              opt.disabled ? "text-amber-600 font-semibold" : "text-slate-500"
+                            }`}
+                          >
                             {opt.desc}
                           </p>
                         </div>

@@ -14,16 +14,13 @@ export default function ProductFilters({
 }) {
   const categories = Object.keys(categoryCounts).map((cat) => ({
     name: cat,
-    count: categoryCounts[cat],
   }));
 
-  const totalAll = Object.values(categoryCounts).reduce((a, b) => a + b, 0);
-
   const statusOptions = [
-    { key: "", label: "Tất cả tình trạng", count: totalAll },
-    { key: "active", label: "Đang kinh doanh", count: statusCounts.active || 0 },
-    { key: "low-stock", label: "Sắp hết hàng (≤ 3)", count: statusCounts.lowStock || 0 },
-    { key: "out-of-stock", label: "Hết hàng (0)", count: statusCounts.outOfStock || 0 },
+    { key: "", label: "Tất cả tình trạng" },
+    { key: "active", label: "Đang kinh doanh" },
+    { key: "low-stock", label: "Sắp hết hàng (≤ 3)" },
+    { key: "out-of-stock", label: "Hết hàng (0)" },
   ];
 
   const hasActiveFilter = Boolean(
@@ -63,10 +60,10 @@ export default function ProductFilters({
             onChange={(e) => setFilters((prev) => ({ ...prev, category: e.target.value }))}
             className="w-full bg-transparent text-xs font-bold text-slate-800 outline-none cursor-pointer truncate"
           >
-            <option value="">Tất cả danh mục ({totalAll})</option>
+            <option value="">Tất cả danh mục</option>
             {categories.map((c) => (
               <option key={c.name} value={c.name}>
-                {c.name} ({c.count})
+                {c.name}
               </option>
             ))}
           </select>
@@ -101,7 +98,7 @@ export default function ProductFilters({
           >
             {statusOptions.map((s) => (
               <option key={s.key} value={s.key}>
-                {s.label} ({s.count})
+                {s.label}
               </option>
             ))}
           </select>
@@ -132,7 +129,7 @@ export default function ProductFilters({
               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
           }`}
         >
-          Tất cả ({totalAll})
+          Tất cả
         </button>
 
         {categories.map((c) => {
@@ -153,13 +150,6 @@ export default function ProductFilters({
               }`}
             >
               <span>{c.name}</span>
-              <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                  isActive ? "bg-white/20 text-white" : "bg-slate-200 text-slate-700"
-                }`}
-              >
-                {c.count}
-              </span>
             </button>
           );
         })}

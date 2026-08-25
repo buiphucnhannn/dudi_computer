@@ -34,6 +34,7 @@ import {
   removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
+import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { useCompare } from "@/components/common/CompareContext";
 import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
@@ -51,6 +52,7 @@ export default function FlashSaleSection() {
   const { showToast } = useToast();
   const { addToCompare, isComparing } = useCompare();
   const cartItems = useSelector(selectCartItems) || [];
+  const isAdmin = useSelector(selectIsAdmin);
 
   // Fetch Flash Sale data từ API
   useEffect(() => {
@@ -489,17 +491,20 @@ export default function FlashSaleSection() {
                       >
                         <Scale className="w-[18px] h-[18px]" />
                       </button>
-                      <button
-                        onClick={(e) => handleToggleCart(e, item)}
-                        className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                          isFav
-                            ? "text-[#eb1c24] bg-red-50"
-                            : "hover:text-[#eb1c24] hover:bg-gray-100"
-                        }`}
-                        title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
-                      >
-                        <ShoppingCart className="w-[18px] h-[18px]" />
-                      </button>
+
+                      {!isAdmin && (
+                        <button
+                          onClick={(e) => handleToggleCart(e, item)}
+                          className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                            isFav
+                              ? "text-[#eb1c24] bg-red-50"
+                              : "hover:text-[#eb1c24] hover:bg-gray-100"
+                          }`}
+                          title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
+                        >
+                          <ShoppingCart className="w-[18px] h-[18px]" />
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -556,12 +561,21 @@ export default function FlashSaleSection() {
                       <Eye className="w-3.5 h-3.5" />
                       <span>{item.views || 49} lượt xem</span>
                     </span>
-                    <button
-                      onClick={(e) => handleBuyNow(e, item)}
-                      className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
-                    >
-                      + Mua ngay
-                    </button>
+                    {isAdmin ? (
+                      <Link
+                        href={detailHref}
+                        className="text-slate-800 font-bold hover:underline"
+                      >
+                        Chi tiết →
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={(e) => handleBuyNow(e, item)}
+                        className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                      >
+                        + Mua ngay
+                      </button>
+                    )}
                   </div>
                 </div>
               );

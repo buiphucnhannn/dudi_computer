@@ -35,6 +35,7 @@ import {
   removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
+import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useCompare } from "@/components/common/CompareContext";
 import { useToast } from "@/components/common/ToastContext";
 
@@ -45,6 +46,7 @@ export default function FeaturedProductsSection({ products = [] }) {
   const { addToCompare, isComparing } = useCompare();
   const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
+  const isAdmin = useSelector(selectIsAdmin);
 
   const tabs = [
     { id: "all", name: "Tất cả" },
@@ -328,17 +330,20 @@ export default function FeaturedProductsSection({ products = [] }) {
                       >
                         <Scale className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={(e) => handleToggleCart(e, item)}
-                        className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                          isFav
-                            ? "text-[#eb1c24] bg-red-50"
-                            : "hover:text-[#eb1c24] hover:bg-gray-100"
-                        }`}
-                        title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
-                      >
-                        <ShoppingCart className="w-4 h-4" />
-                      </button>
+
+                      {!isAdmin && (
+                        <button
+                          onClick={(e) => handleToggleCart(e, item)}
+                          className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                            isFav
+                              ? "text-[#eb1c24] bg-red-50"
+                              : "hover:text-[#eb1c24] hover:bg-gray-100"
+                          }`}
+                          title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
+                        >
+                          <ShoppingCart className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -398,9 +403,11 @@ export default function FeaturedProductsSection({ products = [] }) {
                   </span>
                   <Link
                     href={detailHref}
-                    className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                    className={`font-bold hover:underline cursor-pointer ${
+                      isAdmin ? "text-slate-800" : "text-[#eb1c24]"
+                    }`}
                   >
-                    + Mua ngay
+                    {isAdmin ? "Chi tiết →" : "+ Mua ngay"}
                   </Link>
                 </div>
               </div>

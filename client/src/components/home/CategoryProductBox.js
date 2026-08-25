@@ -34,6 +34,7 @@ import {
   removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
+import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useCompare } from "@/components/common/CompareContext";
 import { useToast } from "@/components/common/ToastContext";
 import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
@@ -50,6 +51,7 @@ export default function CategoryProductBox({
   const { showToast } = useToast();
   const { addToCompare, isComparing } = useCompare();
   const cartItems = useSelector(selectCartItems) || [];
+  const isAdmin = useSelector(selectIsAdmin);
 
   const handleToggleFavorite = (e, item) => {
     e.preventDefault();
@@ -340,15 +342,17 @@ export default function CategoryProductBox({
                     >
                       <Scale className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={(e) => handleToggleFavorite(e, item)}
-                      className={`cursor-pointer transition-colors ${
-                        isFav ? "text-red-500" : "hover:text-red-500"
-                      }`}
-                      title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
-                    >
-                      <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
-                    </button>
+                    {!isAdmin && (
+                      <button
+                        onClick={(e) => handleToggleFavorite(e, item)}
+                        className={`cursor-pointer transition-colors ${
+                          isFav ? "text-red-500" : "hover:text-red-500"
+                        }`}
+                        title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
+                      >
+                        <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -405,12 +409,21 @@ export default function CategoryProductBox({
                     <Eye className="w-3.5 h-3.5" />
                     <span>{item.views || 48} lượt xem</span>
                   </span>
-                  <button
-                    onClick={(e) => handleBuyNow(e, item)}
-                    className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
-                  >
-                    + Mua ngay
-                  </button>
+                  {isAdmin ? (
+                    <Link
+                      href={detailHref}
+                      className="text-slate-800 font-bold hover:underline"
+                    >
+                      Chi tiết →
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={(e) => handleBuyNow(e, item)}
+                      className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                    >
+                      + Mua ngay
+                    </button>
+                  )}
                 </div>
               </div>
             );

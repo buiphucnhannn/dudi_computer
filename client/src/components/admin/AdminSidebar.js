@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSelector } from "react-redux";
 import {
   LayoutDashboard,
   Package,
@@ -16,77 +17,93 @@ import {
   Briefcase,
   Flame,
   X,
+  ShieldCheck,
 } from "lucide-react";
+import { selectCurrentUser, selectRoleInfo, hasAdminModulePermission } from "@/redux/slices/authSlice";
 
-const menuGroups = [
+const rawMenuGroups = [
   {
     title: "TỔNG QUAN & BÁO CÁO",
+    moduleKey: "overview",
     items: [
       {
         label: "Tổng quan",
         href: "/admin",
         icon: LayoutDashboard,
         exact: true,
+        moduleKey: "overview",
       },
       {
         label: "Báo cáo thống kê",
         href: "/admin/statistics",
         icon: BarChart3,
+        moduleKey: "commerce", // Báo cáo thương mại chuyên sâu
       },
     ],
   },
   {
     title: "THƯƠNG MẠI & BÁN HÀNG",
+    moduleKey: "commerce",
     items: [
       {
         label: "Quản lý sản phẩm",
         href: "/admin/products",
         icon: Package,
+        moduleKey: "commerce",
       },
       {
         label: "Danh mục sản phẩm",
         href: "/admin/categories",
         icon: FolderTree,
+        moduleKey: "commerce",
       },
       {
         label: "Quản lý đơn hàng",
         href: "/admin/orders",
         icon: ShoppingCart,
+        moduleKey: "commerce",
       },
       {
         label: "Khuyến mãi sản phẩm",
         href: "/admin/promotions",
         icon: Flame,
+        moduleKey: "commerce",
       },
     ],
   },
   {
     title: "NỘI DUNG & TUYỂN DỤNG",
+    moduleKey: "content",
     items: [
       {
         label: "Tin tức & Bài viết",
         href: "/admin/news",
         icon: Newspaper,
+        moduleKey: "content",
       },
       {
         label: "Tuyển dụng việc làm",
         href: "/admin/careers",
         icon: Briefcase,
+        moduleKey: "content",
       },
     ],
   },
   {
     title: "HỆ THỐNG & KHÁCH HÀNG",
+    moduleKey: "customers",
     items: [
       {
         label: "Quản lý khách hàng",
         href: "/admin/users",
         icon: Users,
+        moduleKey: "customers",
       },
       {
         label: "Cài đặt hệ thống",
         href: "/admin/settings",
         icon: Settings,
+        moduleKey: "settings", // Chỉ Super Admin
       },
     ],
   },
@@ -94,6 +111,24 @@ const menuGroups = [
 
 export default function AdminSidebar({ isOpen, onClose }) {
   const pathname = usePathname();
+  const user = useSelector(selectCurrentUser);
+  const roleInfo = useSelector(selectRoleInfo);
+
+  // Lọc các menu item theo vai trò phân quyền
+  const filteredMenuGroups = useMemo(() => {
+    const role = user?.role || "user";
+    return rawMenuGroups
+      .map((group) => {
+        const allowedItems = group.items.filter((item) =>
+          hasAdminModulePermission(role, item.moduleKey)
+        );
+        return {
+          ...group,
+          items: allowedItems,
+        };
+      })
+      .filter((group) => group.items.length > 0);
+  }, [user]);
 
   // Đóng sidebar khi nhấn phím Escape trên mobile/tablet
   useEffect(() => {
@@ -133,25 +168,33 @@ export default function AdminSidebar({ isOpen, onClose }) {
 
       {/* Sidebar Panel Drawer */}
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-full w-[280px] flex-col border-r border-slate-200 bg-white shadow-2xl lg:shadow-xs transition-transform duration-300 ease-out ${
+        className={`fixed left-0 top-0 z-50 flex h-full w-[288px] flex-col border-r border-slate-200 bg-white shadow-2xl lg:shadow-xs transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
         aria-label="Admin Navigation Sidebar"
       >
         {/* Logo & Brand */}
-        <div className="flex items-center justify-between border-b border-slate-100 p-4">
-          <Link href="/admin" className="flex items-center gap-3 group">
+        <div className="flex items-center justify-between border-b border-slate-100 px-3.5 py-3.5">
+          <Link href="/admin" className="flex items-center gap-2.5 group min-w-0 flex-1">
             <img
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJg90SQjFIlEd2xvqMrzbiRyGKa2AZ87VXJ5Du7OBzu0Zd3o6iw8tIIDFvm6sPFBFbCvYSGagYCpaKEHG9vFSqL38i91uQRRrCo9UTXewIm28quM39SSupX2lsB688GiJUDHxtlFJvMgaV1u7mcyn5gZfEYAgBelIa62J_3HCI6UUUGx5aI93X7AlUsiq0AU_jwFNmLrAPqjsutR0aDRkc9L4jBs1HZvr4UNvJPSC6hnuMmQTn4a9QrPQg3pHMeLRb_A"
               alt="DUDI software"
-              className="h-9 w-9 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform"
+              className="h-8.5 w-8.5 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform shrink-0"
             />
-            <div className="border-l border-slate-200 pl-3">
-              <div className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
-                <span>Admin Portal</span>
-                <span className="px-1.5 py-0.2 rounded bg-red-100 text-[#eb1c24] text-[9px] font-extrabold">PRO</span>
+            <div className="border-l border-slate-200 pl-2.5 flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-1.5">
+                <span className="text-[12px] font-black uppercase tracking-tight text-slate-900 whitespace-nowrap">
+                  Admin Portal
+                </span>
+                <span
+                  className={`px-1.5 py-0.5 rounded border text-[8.5px] font-black uppercase tracking-tight whitespace-nowrap shrink-0 ${
+                    roleInfo?.badgeBg || "bg-red-100 text-[#eb1c24] border-red-200"
+                  }`}
+                >
+                  {roleInfo?.shortLabel?.replace("Admin ", "") || "PRO"}
+                </span>
               </div>
-              <div className="text-[10px] text-slate-400 font-medium">
+              <div className="text-[10px] text-slate-400 font-semibold tracking-wide leading-tight">
                 DUDI SOFTWARE
               </div>
             </div>
@@ -162,24 +205,35 @@ export default function AdminSidebar({ isOpen, onClose }) {
             <button
               type="button"
               onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-[#eb1c24] lg:hidden transition-colors cursor-pointer"
+              className="flex h-7.5 w-7.5 items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-[#eb1c24] lg:hidden transition-colors cursor-pointer shrink-0 ml-1.5"
               aria-label="Đóng sidebar"
               title="Đóng sidebar"
             >
-              <X className="h-4.5 w-4.5" />
+              <X className="h-4 w-4" />
             </button>
           )}
         </div>
 
+        {/* Role Banner nhỏ chỉ định quyền hạn */}
+        <div className="px-3.5 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px]">
+          <span className="text-slate-500 font-medium whitespace-nowrap shrink-0">Vai trò:</span>
+          <span className="font-bold text-slate-800 flex items-center gap-1 min-w-0 pl-2">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#eb1c24] shrink-0" />
+            <span className="truncate whitespace-nowrap" title={roleInfo?.label}>
+              {roleInfo?.label || "Quản trị viên"}
+            </span>
+          </span>
+        </div>
+
         {/* Navigation Groups with Smooth Scrollbar */}
         <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-4 text-left">
-          {menuGroups.map((group, gIdx) => (
+          {filteredMenuGroups.map((group, gIdx) => (
             <div key={gIdx} className="space-y-1">
               <div className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 {group.title}
               </div>
               <div className="space-y-0.5">
-                {menuGroups[gIdx].items.map((item) => {
+                {group.items.map((item) => {
                   const Icon = item.icon;
                   const isActive = item.exact
                     ? pathname === item.href

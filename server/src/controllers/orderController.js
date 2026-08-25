@@ -1,5 +1,6 @@
 import { orderService } from "../services/index.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import { ApiError } from "../utils/apiError.js";
 
 export const getAllOrders = async (req, res, next) => {
   try {
@@ -77,6 +78,16 @@ export const createOrder = async (req, res, next) => {
         new ApiError(401, "Vui lòng đăng nhập để tiến hành đặt hàng.")
       );
     }
+
+    if (req.user.role === "admin") {
+      return next(
+        new ApiError(
+          403,
+          "Tài khoản Quản trị viên (Admin) không được phép thực hiện chức năng mua hàng / đặt hàng."
+        )
+      );
+    }
+
     const orderPayload = {
       ...req.body,
       userId: req.user._id,

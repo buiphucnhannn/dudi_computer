@@ -9,8 +9,7 @@ import {
   removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
-import { selectIsAuthenticated } from "@/redux/slices/authSlice";
-
+import { selectCurrentUser, selectIsAuthenticated, selectIsAdmin } from "@/redux/slices/authSlice";
 import {
   Check,
   CheckCircle,
@@ -34,6 +33,7 @@ const ProductInfo = ({ product }) => {
   const { showToast } = useToast();
   const cartItems = useSelector(selectCartItems) || [];
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const isAdmin = useSelector(selectIsAdmin);
   const [allProducts, setAllProducts] = useState([]);
 
   // Tải danh sách sản phẩm từ API
@@ -442,83 +442,108 @@ const ProductInfo = ({ product }) => {
           </div>
         </div>
 
-        {/* COMPARE / FAVORITE */}
-        <div className="flex w-full gap-3">
+        {/* COMPARE / FAVORITE / CART / BUY */}
+        {isAdmin ? (
+          /* Giao diện dành riêng cho Admin: Chỉ có nút So sánh, ẩn hoàn toàn chức năng mua hàng */
+          <div className="flex w-full">
+            <button
+              type="button"
+              onClick={handleOpenComparison}
+              className="
+                flex h-11 w-full items-center
+                justify-center gap-2 rounded-lg
+                border-2 border-red-600
+                px-3 text-xs font-bold uppercase
+                text-red-600 transition
+                hover:bg-red-50
+                sm:text-sm cursor-pointer
+              "
+            >
+              <Scale size={17} />
+              {comparisonProducts.length > 0
+                ? `So sánh cấu hình (${comparisonProducts.length}/3)`
+                : "So sánh cấu hình"}
+            </button>
+          </div>
+        ) : (
+          /* Giao diện đầy đủ dành cho Khách hàng thông thường */
+          <>
+            <div className="flex w-full gap-3">
+              {/* SO SÁNH */}
+              <button
+                type="button"
+                onClick={handleOpenComparison}
+                className="
+                  flex h-11 flex-1 items-center
+                  justify-center gap-2 rounded-lg
+                  border-2 border-red-600
+                  px-3 text-xs font-bold uppercase
+                  text-red-600 transition
+                  hover:bg-red-50
+                  sm:text-sm cursor-pointer
+                "
+              >
+                <Scale size={17} />
+                {comparisonProducts.length > 0
+                  ? `So sánh (${comparisonProducts.length}/3)`
+                  : "So sánh"}
+              </button>
 
-          {/* SO SÁNH */}
-          <button
-            type="button"
-            onClick={handleOpenComparison}
-            className="
-              flex h-11 flex-1 items-center
-              justify-center gap-2 rounded-lg
-              border-2 border-red-600
-              px-3 text-xs font-bold uppercase
-              text-red-600 transition
-              hover:bg-red-50
-              sm:text-sm
-            "
-          >
-            <Scale size={17} />
+              {/* CART TOGGLE */}
+              <button
+                type="button"
+                onClick={handleToggleCart}
+                className={`
+                  flex h-11 flex-1 items-center
+                  justify-center gap-2 rounded-lg
+                  border-2 border-red-600
+                  px-3 text-xs font-bold uppercase transition
+                  cursor-pointer sm:text-sm
+                  ${isCart
+                    ? "bg-red-600 text-white shadow-sm hover:bg-red-700"
+                    : "bg-transparent text-red-600 hover:bg-red-50"
+                  }
+                `}
+              >
+                <ShoppingCart
+                  size={17}
+                  className={isCart ? "text-white" : "text-red-600"}
+                />
+                {isCart ? "Đã trong giỏ" : "Thêm vào giỏ"}
+              </button>
+            </div>
 
-            {comparisonProducts.length > 0
-              ? `So sánh (${comparisonProducts.length}/3)`
-              : "So sánh"}
-          </button>
-
-          {/* CART TOGGLE */}
-          <button
-            type="button"
-            onClick={handleToggleCart}
-            className={`
-              flex h-11 flex-1 items-center
-              justify-center gap-2 rounded-lg
-              border-2 border-red-600
-              px-3 text-xs font-bold uppercase transition
-              cursor-pointer sm:text-sm
-              ${isCart
-                ? "bg-red-600 text-white shadow-sm hover:bg-red-700"
-                : "bg-transparent text-red-600 hover:bg-red-50"
-              }
-            `}
-          >
-            <ShoppingCart
-              size={17}
-              className={isCart ? "text-white" : "text-red-600"}
-            />
-            {isCart ? "Đã trong giỏ" : "Thêm vào giỏ"}
-          </button>
-        </div>
-
-        {/* BUY */}
-        <button
-          type="button"
-          onClick={() => {
-            if (!isAuthenticated) {
-              showToast({
-                title: "Yêu cầu đăng nhập",
-                message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
-                type: "warning",
-              });
-              const currentUrl = typeof window !== "undefined" ? window.location.pathname : "/";
-              router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
-              return;
-            }
-            setIsBuyModalOpen(true);
-          }}
-          className="
-            flex h-12 w-full items-center
-            justify-center gap-2 rounded-lg
-            bg-red-600 px-4
-            text-base font-bold uppercase
-            text-white shadow-sm transition
-            hover:bg-red-700
-            active:scale-[0.99]
-          "
-        >
-          <ShoppingCart size={20} />
-          Mua ngay
-        </button>
+            {/* BUY */}
+            <button
+              type="button"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  showToast({
+                    title: "Yêu cầu đăng nhập",
+                    message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
+                    type: "warning",
+                  });
+                  const currentUrl = typeof window !== "undefined" ? window.location.pathname : "/";
+                  router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
+                  return;
+                }
+                setIsBuyModalOpen(true);
+              }}
+              className="
+                flex h-12 w-full items-center
+                justify-center gap-2 rounded-lg
+                bg-red-600 px-4
+                text-base font-bold uppercase
+                text-white shadow-sm transition
+                hover:bg-red-700
+                active:scale-[0.99] cursor-pointer
+              "
+            >
+              <ShoppingCart size={20} />
+              Mua ngay
+            </button>
+          </>
+        )}
       </div>
 
       {/* BUY CHECKOUT MODAL */}

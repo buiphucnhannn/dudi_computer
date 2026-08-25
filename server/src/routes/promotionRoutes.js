@@ -9,7 +9,7 @@ import {
   togglePromotion,
   deletePromotion,
 } from "../controllers/promotionController.js";
-import { verifyJWT, requireAdmin } from "../middlewares/authMiddleware.js";
+import { verifyJWT, requireSalesAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -18,11 +18,11 @@ router.get("/flash-sale", getFlashSalePromotion);
 router.get("/", getActivePromotions);
 
 // Admin
-router.get("/admin/all", verifyJWT, requireAdmin, getAdminPromotions);
-router.get("/:id", verifyJWT, requireAdmin, getPromotionById);
-router.post("/", verifyJWT, requireAdmin, createPromotion);
-router.put("/:id", verifyJWT, requireAdmin, updatePromotion);
-router.patch("/:id/toggle", verifyJWT, requireAdmin, togglePromotion);
-router.delete("/:id", verifyJWT, requireAdmin, deletePromotion);
+router.get("/admin/all", verifyJWT, requireSalesAdmin, getAdminPromotions);
+router.get("/:id", verifyJWT, requireSalesAdmin, getPromotionById);
+router.post("/", verifyJWT, requireSalesAdmin, createPromotion);
+router.put("/:id", verifyJWT, requireSalesAdmin, updatePromotion);
+router.patch("/:id/toggle", verifyJWT, requireSalesAdmin, togglePromotion);
+router.delete("/:id", verifyJWT, requireSalesAdmin, deletePromotion);
 
 export default router;

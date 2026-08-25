@@ -11,8 +11,41 @@ import {
   LogIn,
   AlertTriangle,
   UserCheck,
+  LayoutDashboard,
+  ShieldBan,
 } from "lucide-react";
-import { initAuthFromStorage, logoutUser } from "@/redux/slices/authSlice";
+import {
+  initAuthFromStorage,
+  logoutUser,
+  isAdminRole,
+  getAdminRoleInfo,
+  hasAdminModulePermission,
+} from "@/redux/slices/authSlice";
+
+const getRouteModuleKey = (pathname) => {
+  if (
+    pathname.startsWith("/admin/products") ||
+    pathname.startsWith("/admin/categories") ||
+    pathname.startsWith("/admin/orders") ||
+    pathname.startsWith("/admin/promotions") ||
+    pathname.startsWith("/admin/statistics")
+  ) {
+    return "commerce";
+  }
+  if (
+    pathname.startsWith("/admin/news") ||
+    pathname.startsWith("/admin/careers")
+  ) {
+    return "content";
+  }
+  if (pathname.startsWith("/admin/users")) {
+    return "customers";
+  }
+  if (pathname.startsWith("/admin/settings")) {
+    return "settings";
+  }
+  return "overview";
+};
 
 export default function AdminRouteGuard({ children }) {
   const router = useRouter();
@@ -94,7 +127,7 @@ export default function AdminRouteGuard({ children }) {
   }
 
   // 3. Đã đăng nhập nhưng KHÔNG PHẢI ADMIN (User thường): Chặn tuyệt đối với màn hình 403 Forbidden
-  if (user?.role !== "admin") {
+  if (!isAdminRole(user?.role)) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 selection:bg-red-500 selection:text-white">
         <div className="max-w-xl w-full bg-slate-900 border border-red-500/30 rounded-3xl p-8 sm:p-10 text-center shadow-2xl shadow-red-950/60 backdrop-blur-2xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -148,7 +181,7 @@ export default function AdminRouteGuard({ children }) {
             </div>
           </div>
 
-          {/* Security Alert with Justified Text and Aligned Icon */}
+          {/* Security Alert */}
           <div className="mt-4 p-4 rounded-2xl bg-red-950/40 border border-red-500/20 text-red-300 flex items-start gap-3 text-left">
             <ShieldAlert className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
             <p className="flex-1 text-justify text-justify-inter-word text-xs sm:text-[12.5px] text-red-200/90 leading-relaxed m-0">
@@ -181,6 +214,65 @@ export default function AdminRouteGuard({ children }) {
     );
   }
 
-  // 4. Đúng quyền Admin: Render toàn bộ hệ thống Admin an toàn
+  // 4. Kiểm tra phân quyền sub-route cụ thể cho Admin Role
+  const requiredModule = getRouteModuleKey(pathname);
+  const hasPermission = hasAdminModulePermission(user?.role, requiredModule);
+  const roleInfo = getAdminRoleInfo(user?.role);
+
+  if (!hasPermission) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-4">
+        <div className="max-w-lg w-full bg-white border border-slate-200 rounded-3xl p-8 text-center shadow-lg animate-in fade-in zoom-in-95 duration-200">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto mb-5 shadow-sm">
+            <ShieldBan className="w-8 h-8" />
+          </div>
+
+          <span className="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-wider mb-2">
+            Không đủ quyền hạn
+          </span>
+
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 mb-2">
+            Mục này không thuộc phạm vi phân quyền
+          </h2>
+
+          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-md mx-auto mb-6">
+            Tài khoản của bạn đang có vai trò{" "}
+            <strong className="text-slate-800 font-bold">{roleInfo?.label}</strong>, không được phân quyền truy cập chức năng này.
+          </p>
+
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-left text-xs mb-6 space-y-1.5">
+            <div className="flex justify-between">
+              <span className="text-slate-500">Tài khoản:</span>
+              <span className="font-bold text-slate-800">{user?.name} ({user?.email})</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Quyền hạn:</span>
+              <span className="font-bold text-amber-700">{roleInfo?.label}</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/admin"
+              className="py-2.5 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-sm"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>Về Trang Tổng Quan</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Quay lại trang trước</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 5. Đúng quyền Admin & đúng phân quyền chức năng: Render hệ thống an toàn
   return <>{children}</>;
 }

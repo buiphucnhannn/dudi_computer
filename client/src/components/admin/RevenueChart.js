@@ -138,9 +138,9 @@ export default function RevenueChart() {
           <defs>
             {/* Smooth Soft Gradient Fill */}
             <linearGradient id="smoothAreaGradientMuted" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#ef4444" stopOpacity="0.22" />
-              <stop offset="60%" stopColor="#f43f5e" stopOpacity="0.05" />
-              <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
+              <stop offset="0%" stopColor="#ef4444" stopOpacity="0.14" />
+              <stop offset="60%" stopColor="#ef4444" stopOpacity="0.03" />
+              <stop offset="100%" stopColor="#ef4444" stopOpacity="0.0" />
             </linearGradient>
 
             {/* Glowing Line Gradient */}
@@ -149,11 +149,6 @@ export default function RevenueChart() {
               <stop offset="60%" stopColor="#ef4444" />
               <stop offset="100%" stopColor="#f43f5e" />
             </linearGradient>
-
-            {/* Subtle Line Glow Filter */}
-            <filter id="thinGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="1.5" floodColor="#dc2626" floodOpacity="0.28" />
-            </filter>
           </defs>
 
           {/* Grid lines with ultra-thin dashed pattern */}
@@ -169,7 +164,7 @@ export default function RevenueChart() {
               y1="10"
               y2="90"
               stroke="#cbd5e1"
-              strokeWidth="0.6"
+              strokeWidth="0.4"
               strokeDasharray="2 2"
             />
           )}
@@ -183,7 +178,7 @@ export default function RevenueChart() {
             />
           )}
 
-          {/* Ultra-thin Crisp Bezier Spline Stroke */}
+          {/* Thin Crisp Bezier Spline Stroke */}
           {smoothCurvePath && (
             <path
               d={smoothCurvePath}
@@ -191,13 +186,12 @@ export default function RevenueChart() {
               stroke="url(#thinLineGradient)"
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeWidth="1.3"
-              filter="url(#thinGlow)"
+              strokeWidth="0.45"
               className="transition-all duration-700 ease-out"
             />
           )}
 
-          {/* Interactive Data Points with Fine Minimalist Circles */}
+          {/* Interactive Data Points with Small Minimalist Circles */}
           {points.map((p, idx) => {
             const isHovered = hoveredPoint?.day === p.day;
             return (
@@ -206,7 +200,7 @@ export default function RevenueChart() {
                 <circle
                   cx={p.cx}
                   cy={p.cy}
-                  r="7"
+                  r="6"
                   fill="transparent"
                   className="cursor-pointer"
                   onMouseEnter={() => setHoveredPoint(p)}
@@ -218,22 +212,22 @@ export default function RevenueChart() {
                   <circle
                     cx={p.cx}
                     cy={p.cy}
-                    r="4.5"
+                    r="1.4"
                     fill="#fee2e2"
                     opacity="0.8"
                     className="animate-ping"
                   />
                 )}
 
-                {/* Inner point marker - Thin and Elegant */}
+                {/* Inner point marker - Micro Minimalist Dot */}
                 <circle
                   cx={p.cx}
                   cy={p.cy}
                   fill={isHovered ? "#dc2626" : "#ffffff"}
                   stroke="#dc2626"
-                  strokeWidth={isHovered ? "1.6" : "1.1"}
-                  r={isHovered ? "3.2" : "1.8"}
-                  className="transition-all duration-200 pointer-events-none drop-shadow-2xs"
+                  strokeWidth={isHovered ? "0.3" : "0.18"}
+                  r={isHovered ? "0.9" : "0.45"}
+                  className="transition-all duration-200 pointer-events-none"
                 />
               </g>
             );

@@ -117,9 +117,9 @@ function AdminProductsContent() {
   // Compute status counts
   const statusCounts = useMemo(() => {
     return {
-      active: products.filter((p) => p.stock > 0).length,
-      lowStock: products.filter((p) => p.stock > 0 && p.stock <= 3).length,
-      outOfStock: products.filter((p) => p.stock === 0).length,
+      active: products.filter((p) => (typeof p.stock === "number" ? p.stock > 0 : p.status !== "out_of_stock")).length,
+      lowStock: products.filter((p) => typeof p.stock === "number" && p.stock > 0 && p.stock <= 3).length,
+      outOfStock: products.filter((p) => p.stock === 0 || p.status === "out_of_stock").length,
     };
   }, [products]);
 
@@ -148,11 +148,11 @@ function AdminProductsContent() {
     // Status filter
     if (filters.status) {
       if (filters.status === "active") {
-        result = result.filter((p) => p.stock > 0);
+        result = result.filter((p) => (typeof p.stock === "number" ? p.stock > 0 : p.status !== "out_of_stock"));
       } else if (filters.status === "low-stock") {
-        result = result.filter((p) => p.stock > 0 && p.stock <= 3);
+        result = result.filter((p) => typeof p.stock === "number" && p.stock > 0 && p.stock <= 3);
       } else if (filters.status === "out-of-stock") {
-        result = result.filter((p) => p.stock === 0);
+        result = result.filter((p) => p.stock === 0 || p.status === "out_of_stock");
       }
     }
 
