@@ -322,53 +322,53 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Filters & Search Form */}
-      <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-        <div className="sm:col-span-4 relative">
+      <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
+        <div className="sm:col-span-2 lg:col-span-3 relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Tìm theo tên, email hoặc SĐT..."
+            placeholder="Tìm theo tên, email, SĐT..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-red-500 transition shadow-2xs"
+            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-[13px] text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-medium"
           />
         </div>
 
-        <div className="sm:col-span-3">
+        <div className="sm:col-span-1 lg:col-span-3">
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-[13px] text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
           >
             <option value="all">Tất cả vai trò</option>
             <option value="user">Khách hàng (User)</option>
-            <option value="admin_sales">Admin Thương Mại & Bán Hàng</option>
-            <option value="admin_content">Admin Nội Dung & Tuyển Dụng</option>
-            <option value="admin_customer">Admin Quản Lý Khách Hàng</option>
+            <option value="admin_sales">Admin Bán Hàng</option>
+            <option value="admin_content">Admin Nội Dung</option>
+            <option value="admin_customer">Admin Khách Hàng</option>
           </select>
         </div>
 
-        <div className="sm:col-span-2.5">
+        <div className="sm:col-span-1 lg:col-span-3">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-[13px] text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
           >
             <option value="all">Tất cả trạng thái</option>
-            <option value="active">Hoạt động (Active)</option>
-            <option value="banned">Đang bị khóa (Banned)</option>
+            <option value="active">Đang hoạt động</option>
+            <option value="banned">Bị hạn chế / Khóa</option>
           </select>
         </div>
 
-        <div className="sm:col-span-2.5">
+        <div className="sm:col-span-2 lg:col-span-3">
           <select
             value={authTypeFilter}
             onChange={(e) => setAuthTypeFilter(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
+            className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-[13px] text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
           >
             <option value="all">Tất cả hình thức</option>
             <option value="google">Google OAuth</option>
-            <option value="local">Email / Pass</option>
+            <option value="local">Email & Mật khẩu</option>
           </select>
         </div>
       </form>

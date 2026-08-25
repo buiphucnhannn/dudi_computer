@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   ChevronRight,
@@ -41,6 +41,7 @@ import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
 
 export default function CategoryProductBox({
   title,
+  mainSlug,
   icon: Icon,
   banner,
   tabs = [],
