@@ -16,6 +16,7 @@ import {
   Briefcase,
   Flame,
   MessageSquare,
+  Image as ImageIcon,
   X,
 } from "lucide-react";
 
@@ -62,8 +63,13 @@ const menuGroups = [
     ],
   },
   {
-    title: "NỘI DUNG & TUYỂN DỤNG",
+    title: "NỘI DUNG & QUẢNG CÁO",
     items: [
+      {
+        label: "Quản lý Banner",
+        href: "/admin/banners",
+        icon: ImageIcon,
+      },
       {
         label: "Tin tức & Bài viết",
         href: "/admin/news",

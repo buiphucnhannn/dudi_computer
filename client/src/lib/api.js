@@ -197,3 +197,26 @@ export const promotionAPI = {
   toggle: (id) => apiClient.patch(`/promotions/${id}/toggle`),
   delete: (id) => apiClient.delete(`/promotions/${id}`),
 };
+
+export const bannerAPI = {
+  getAll: (params) => apiClient.get("/banners", { params }),
+  getByPosition: (position, params) =>
+    apiClient.get(`/banners/position/${position}`, { params }),
+  getById: (id) => apiClient.get(`/banners/${id}`),
+  create: (data) => apiClient.post("/banners", data),
+  update: (id, data) => apiClient.put(`/banners/${id}`, data),
+  toggleStatus: (id) => apiClient.patch(`/banners/${id}/status`),
+  delete: (id) => apiClient.delete(`/banners/${id}`),
+};
+
+export const uploadAPI = {
+  single: (file, folder = "banners") => {
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("folder", folder);
+    return apiClient.post("/upload/image", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+};
+

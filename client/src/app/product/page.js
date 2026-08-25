@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 import { PackageSearch } from "lucide-react";
 import ProductCard from "@/components/product/ProductCard";
@@ -10,7 +11,7 @@ import ProductToolbar from "@/components/product/ProductToolbar";
 import ProductSearch from "@/components/product/ProductSearch";
 import ProductPagination from "@/components/product/ProductPagination";
 import ActiveFilters from "@/components/product/ActiveFilters";
-import { productAPI } from "@/lib/api";
+import { productAPI, bannerAPI } from "@/lib/api";
 import { detectProductType, PRODUCT_TYPES } from "@/lib/specParser";
 
 // Module-level cache để load tức thì 0ms khi quay lại trang
@@ -43,8 +44,9 @@ function ProductsContent() {
   const brandParam = searchParams.get("brand") || "";
   const conditionParam = searchParams.get("condition") || "";
 
+  const [topBanner, setTopBanner] = useState(null);
   const [products, setProducts] = useState(() => globalProductCache || []);
-  const [loading, setLoading] = useState(() => !globalProductCache || globalProductCache.length === 0);
+  const [loading, setLoading] = useState(!globalProductCache);
   const [search, setSearch] = useState(searchParam);
   const [sort, setSort] = useState("newest");
   const [filters, setFilters] = useState({
@@ -108,6 +110,20 @@ function ProductsContent() {
     };
 
     fetchProducts();
+
+    // Fetch dynamic top banner
+    const fetchBanner = async () => {
+      try {
+        const res = await bannerAPI.getByPosition("product_top");
+        const list = res.data?.data;
+        if (Array.isArray(list) && list.length > 0 && isMounted) {
+          setTopBanner(list[0]);
+        }
+      } catch (err) {
+        console.error("Lỗi tải banner product_top:", err);
+      }
+    };
+    fetchBanner();
 
     return () => {
       isMounted = false;
@@ -429,13 +445,83 @@ function ProductsContent() {
     <main className="w-full bg-[#f8f9fa] min-h-screen">
       <div className="mx-auto max-w-[1600px] px-3 py-5 sm:px-4 lg:px-6">
         {/* BANNER PROMOTION */}
-        <div className="mb-6 overflow-hidden rounded-2xl shadow-xs border border-slate-200/80 bg-white">
-          <img
-            src="/banner.webp"
-            alt="DUDI SOFTWARE - Khuyến mãi Back To School"
-            className="block w-full h-auto aspect-[16/9] object-cover object-center"
-          />
-        </div>
+        {topBanner?.isDefaultFallback || !topBanner || topBanner.isActive === false ? (
+          <div className="mb-5 overflow-hidden rounded-2xl shadow-xs border border-slate-700/40 bg-gradient-to-r from-[#0a0c10] via-[#141824] to-[#0a0c10] relative select-none">
+            {/* Showroom background with dark gradient overlay */}
+            <img
+              src="/images/dudi/dudi_showroom_hero.jpg"
+              alt="DUDI SOFTWARE Showroom"
+              className="absolute inset-0 w-full h-full object-cover object-center opacity-25 pointer-events-none"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0c10] via-[#0a0c10]/80 to-transparent pointer-events-none" />
+            <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-80 h-32 bg-red-600/15 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 px-5 py-4 sm:px-8 sm:py-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5 sm:gap-4">
+                <img
+                  src="/images/dudi/dudisoftware4.png"
+                  alt="DUDI SOFTWARE Logo"
+                  className="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow-md rounded-2xl shrink-0"
+                />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base sm:text-xl font-black text-white tracking-tight">
+                      DUDI SOFTWARE
+                    </h2>
+                    <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[10px] font-extrabold border border-red-500/30 uppercase tracking-wider">
+                      CHÍNH HÃNG 100%
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-300 font-medium mt-0.5 line-clamp-1">
+                    Bộ sưu tập Laptop Gaming, PC Workstation, Linh kiện & Gaming Gear cao cấp
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 font-semibold mt-1.5">
+                    <span>⚡ Bảo hành 1 đổi 1 siêu tốc</span>
+                    <span>•</span>
+                    <span>🚚 Giao hàng hỏa tốc toàn quốc</span>
+                    <span>•</span>
+                    <span>💰 Hỗ trợ trả góp 0% lãi suất</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="hidden lg:flex items-center gap-2 shrink-0">
+                <div className="text-right">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase block tracking-wider">
+                    HOTLINE TƯ VẤN 24/7
+                  </span>
+                  <span className="text-sm font-black text-red-400 tracking-wide">
+                    (+84) 909 163 821
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : topBanner.link && topBanner.link.trim() ? (
+          <div className="mb-5 overflow-hidden rounded-2xl shadow-xs border border-slate-200/80 bg-slate-900">
+            <Link href={topBanner.link.trim()} className="block w-full h-full cursor-pointer">
+              <img
+                src={topBanner.imageUrl}
+                alt={topBanner.title || "DUDI SOFTWARE"}
+                className="block w-full h-[160px] sm:h-[220px] md:h-[260px] lg:h-[290px] object-cover object-center"
+                onError={(e) => {
+                  e.currentTarget.src = "/images/dudi/dudi_showroom_hero.jpg";
+                }}
+              />
+            </Link>
+          </div>
+        ) : (
+          <div className="mb-5 overflow-hidden rounded-2xl shadow-xs border border-slate-200/80 bg-slate-900 select-none">
+            <img
+              src={topBanner.imageUrl}
+              alt={topBanner.title || "DUDI SOFTWARE"}
+              className="block w-full h-[160px] sm:h-[220px] md:h-[260px] lg:h-[290px] object-cover object-center"
+              onError={(e) => {
+                e.currentTarget.src = "/images/dudi/dudi_showroom_hero.jpg";
+              }}
+            />
+          </div>
+        )}
         <div className="flex gap-6">
           {/* SIDEBAR (Desktop & Mobile Drawer) */}
           <ProductSidebar

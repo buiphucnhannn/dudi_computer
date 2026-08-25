@@ -13,3 +13,4 @@ export { Promotion } from "./Promotion.js";
 export { NewsCategory } from "./NewsCategory.js";
 export { Brand } from "./Brand.js";
 export { Notification } from "./Notification.js";
+export { Banner } from "./Banner.js";
