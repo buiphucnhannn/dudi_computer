@@ -303,6 +303,7 @@ class AuthService {
             "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
           authType: "google",
           googleId: payload.sub,
+          isPasswordSet: false,
           status: "active", // Tài khoản Google luôn active
         });
       } else {
@@ -406,8 +407,8 @@ class AuthService {
         throw new ApiError(400, "Mật khẩu mới phải có ít nhất 6 ký tự.");
       }
 
-      // Chỉ bắt buộc nhập mật khẩu cũ nếu là tài khoản đăng ký bằng email/mật khẩu truyền thống
-      if (user.authType === "local") {
+      // Chỉ bắt buộc nhập mật khẩu cũ nếu là tài khoản đăng ký bằng email/mật khẩu truyền thống HOẶC tài khoản google đã từng thiết lập mật khẩu
+      if (user.authType === "local" || user.isPasswordSet) {
         if (!currentPassword) {
           throw new ApiError(400, "Vui lòng nhập mật khẩu hiện tại để xác nhận đổi mật khẩu.");
         }
@@ -418,6 +419,7 @@ class AuthService {
       }
 
       user.password = newPassword;
+      user.isPasswordSet = true;
     }
 
     if (name !== undefined && name.trim()) user.name = name.trim();

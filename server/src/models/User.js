@@ -62,6 +62,10 @@ const userSchema = new mongoose.Schema(
       enum: ["active", "pending", "banned"],
       default: "pending",
     },
+    isPasswordSet: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

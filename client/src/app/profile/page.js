@@ -53,6 +53,10 @@ export default function ProfilePage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
 
+  // Check if this Google account has not set a password yet
+  const isGoogleWithoutPassword =
+    user?.authType === "google" && !user?.isPasswordSet && !user?.hasPassword;
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -153,7 +157,7 @@ export default function ProfilePage() {
       return;
     }
 
-    if (user?.authType !== "google" && !passwordForm.currentPassword) {
+    if (!isGoogleWithoutPassword && !passwordForm.currentPassword) {
       showToast({
         title: "Thiếu mật khẩu hiện tại",
         message: "Vui lòng nhập mật khẩu hiện tại để xác nhận đổi mật khẩu!",
@@ -181,15 +185,17 @@ export default function ProfilePage() {
       });
 
       showToast({
-        title: "Đổi mật khẩu thành công!",
-        message: "Mật khẩu tài khoản của bạn đã được cập nhật thành công.",
+        title: isGoogleWithoutPassword ? "Thiết lập mật khẩu thành công!" : "Đổi mật khẩu thành công!",
+        message: isGoogleWithoutPassword
+          ? "Đã liên kết mật khẩu vào tài khoản Google. Bây giờ bạn có thể đăng nhập bằng cả 2 cách!"
+          : "Mật khẩu tài khoản của bạn đã được cập nhật thành công.",
         type: "success",
       });
     } catch (error) {
       const msg =
-        error.response?.data?.message || "Không thể đổi mật khẩu. Vui lòng kiểm tra lại!";
+        error.response?.data?.message || "Không thể cập nhật mật khẩu. Vui lòng kiểm tra lại!";
       showToast({
-        title: "Đổi mật khẩu thất bại",
+        title: "Thao tác thất bại",
         message: msg,
         type: "error",
       });
@@ -359,7 +365,7 @@ export default function ProfilePage() {
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
                   <KeyRound className="w-5 h-5 text-[#eb1c24]" />
                   <span>
-                    {user?.authType === "google"
+                    {isGoogleWithoutPassword
                       ? "Thiết lập mật khẩu đăng nhập"
                       : "Đổi mật khẩu tài khoản"}
                   </span>
@@ -369,7 +375,7 @@ export default function ProfilePage() {
                 </span>
               </div>
 
-              {user?.authType === "google" && (
+              {isGoogleWithoutPassword && (
                 <div className="p-3.5 rounded-xl bg-red-50/80 border border-red-100 text-xs text-red-900 flex items-start gap-2.5">
                   <ShieldCheck className="w-4 h-4 text-[#eb1c24] shrink-0 mt-0.5" />
                   <div className="space-y-1">
@@ -384,8 +390,8 @@ export default function ProfilePage() {
               )}
 
               <form onSubmit={handlePasswordChange} className="space-y-4">
-                {/* Mật khẩu hiện tại (nếu là local auth) */}
-                {user?.authType !== "google" && (
+                {/* Mật khẩu hiện tại (Chỉ hiển thị khi tài khoản đã có mật khẩu) */}
+                {!isGoogleWithoutPassword && (
                   <div>
                     <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                       <Lock className="w-3.5 h-3.5 text-gray-400" />
@@ -483,7 +489,7 @@ export default function ProfilePage() {
                       <>
                         <Save className="h-4 w-4" />
                         <span>
-                          {user?.authType === "google"
+                          {isGoogleWithoutPassword
                             ? "Thiết lập & Lưu mật khẩu"
                             : "Lưu mật khẩu mới"}
                         </span>
