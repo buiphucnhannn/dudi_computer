@@ -45,35 +45,42 @@ export default function SimilarProductCard({ product }) {
     product.slug || productId
   )}`;
 
+  const isOutOfStock = typeof product.stock === "number" ? product.stock <= 0 : Boolean(product.outOfStock);
+
   const handleToggleCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (isCart) {
-      dispatch(removeFromCartAsync(productId));
+    if (isOutOfStock) {
       showToast({
-        title: "Đã xóa",
-        message: `Đã bỏ "${product.name}" khỏi giỏ hàng`,
-        type: "info",
+        title: "Sản phẩm đã hết hàng",
+        message: `Sản phẩm "${product.name}" hiện đã hết hàng trong kho.`,
+        type: "warning",
       });
-    } else {
-      dispatch(
-        addToCartAsync({
+      return;
+    }
+
+    dispatch(
+      addToCartAsync({
+        product: {
+          _id: productId,
           id: productId,
           name: product.name,
           price: product.price,
           originalPrice: product.oldPrice || product.originalPrice,
           image: product.image || product.thumbnail,
+          thumbnail: product.image || product.thumbnail,
           slug: product.slug,
-          quantity: 1,
-        })
-      );
-      showToast({
-        title: "Thành công",
-        message: `Đã thêm "${product.name}" vào giỏ hàng`,
-        type: "success",
-      });
-    }
+          stock: product.stock,
+        },
+        quantity: 1,
+      })
+    );
+    showToast({
+      title: "Đã thêm vào giỏ hàng",
+      message: `Đã thêm "${product.name}" vào giỏ hàng (+1)!`,
+      type: "success",
+    });
   };
 
   const discount = product.discount || 0;
@@ -114,8 +121,8 @@ export default function SimilarProductCard({ product }) {
           </span>
         )}
 
-        {/* Cart Toggle Button (Ẩn đối với Admin) */}
-        {mounted && !isAdmin && (
+        {/* Cart Toggle Button (Ẩn đối với Admin hoặc khi hết hàng) */}
+        {mounted && !isAdmin && !isOutOfStock && (
           <button
             type="button"
             aria-label="Thêm vào giỏ hàng"
@@ -146,7 +153,7 @@ export default function SimilarProductCard({ product }) {
         </div>
 
         {/* Out of stock Overlay */}
-        {product.outOfStock && (
+        {isOutOfStock && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-900/30 backdrop-blur-[2px]">
             <div className="rounded-lg border border-red-200 bg-white/95 px-3 py-1.5 text-xs font-black uppercase tracking-wider text-red-600 shadow-md">
               Tạm Hết Hàng

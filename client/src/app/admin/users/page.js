@@ -221,8 +221,8 @@ export default function AdminUsersPage() {
       {toast && (
         <div
           className={`fixed top-6 right-6 z-70 flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-bold shadow-2xl animate-in slide-in-from-top-4 duration-200 ${toast.type === "error"
-              ? "bg-red-600 text-white"
-              : "bg-slate-900 text-white border border-slate-700"
+            ? "bg-red-600 text-white"
+            : "bg-slate-900 text-white border border-slate-700"
             }`}
         >
           {toast.type === "error" ? (
@@ -238,7 +238,7 @@ export default function AdminUsersPage() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-slate-900">
-            Quản lý khách hàng
+            Quản lý tài khoản
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium max-w-2xl">
             Theo dõi danh sách người dùng, kiểm soát trạng thái hoạt động và lịch sử mua sắm của khách hàng.
@@ -444,12 +444,12 @@ export default function AdminUsersPage() {
                             value={c.role || "user"}
                             onChange={(e) => handleRoleChange(c._id, e.target.value, c.name)}
                             className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition shadow-2xs cursor-pointer focus:outline-none focus:ring-1 focus:ring-slate-900 ${c.role === "admin_sales"
-                                ? "bg-blue-50 text-blue-700 border-blue-200"
-                                : c.role === "admin_content"
-                                  ? "bg-purple-50 text-purple-700 border-purple-200"
-                                  : c.role === "admin_customer"
-                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                    : "bg-slate-50 text-slate-700 border-slate-200"
+                              ? "bg-blue-50 text-blue-700 border-blue-200"
+                              : c.role === "admin_content"
+                                ? "bg-purple-50 text-purple-700 border-purple-200"
+                                : c.role === "admin_customer"
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                  : "bg-slate-50 text-slate-700 border-slate-200"
                               }`}
                           >
                             <option value="user">Khách hàng (User)</option>
@@ -503,8 +503,8 @@ export default function AdminUsersPage() {
                           <button
                             onClick={() => handleToggleStatus(c._id, c.status, c.name)}
                             className={`p-1.5 rounded-lg border transition cursor-pointer ${c.status === "banned"
-                                ? "border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                                : "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100"
+                              ? "border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                              : "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100"
                               }`}
                             title={c.status === "banned" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
                           >
@@ -562,8 +562,8 @@ export default function AdminUsersPage() {
                   key={page}
                   onClick={() => setCurrentPage(page)}
                   className={`w-8 h-8 rounded-xl text-xs font-bold transition cursor-pointer ${page === currentPage
-                      ? "bg-[#eb1c24] text-white shadow-xs"
-                      : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs"
+                    ? "bg-[#eb1c24] text-white shadow-xs"
+                    : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs"
                     }`}
                 >
                   {page}

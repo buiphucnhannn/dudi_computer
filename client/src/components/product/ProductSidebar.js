@@ -5,29 +5,47 @@ import { X, Filter, RotateCcw, Check } from "lucide-react";
 import FilterGroup from "./FilterGroup";
 import { detectProductType, PRODUCT_TYPES } from "@/lib/specParser";
 
-const BASE_CATEGORIES = [
-  { label: "Laptop", value: "laptop" },
-  { label: "PC", value: "pc" },
-  { label: "Màn hình máy tính", value: "man-hinh" },
-  { label: "Mainboard - Bo mạch chủ", value: "mainboard-bo-mach-chu" },
-  { label: "PSU - Nguồn máy tính", value: "psu-nguon-may-tinh" },
-  { label: "CPU - Bộ vi xử lý", value: "cpu-bo-vi-xu-ly" },
-  { label: "VGA - Card màn hình", value: "vga-card-man-hinh" },
-  { label: "RAM - Bộ nhớ trong", value: "ram-bo-nho-trong" },
-  { label: "Ổ cứng HDD - SSD", value: "o-cung-hdd-ssd" },
-  { label: "CASE - Vỏ máy tính", value: "case-vo-may-tinh" },
-  { label: "Chuột", value: "chuot" },
-  { label: "Bàn phím", value: "ban-phim" },
-  { label: "Tản nhiệt Cooling", value: "tan-nhiet-cooling" },
+// Danh mục chuẩn theo hệ thống cơ sở dữ liệu hiện có
+const FALLBACK_CATEGORIES = [
+  // 1. Nhóm Laptop & Macbook
+  { label: "Laptop & Macbook", value: "laptop", slug: "laptop", isParent: true },
+  { label: "Laptop Cũ", value: "laptop-cu", slug: "laptop-cu", parent: "laptop", isChild: true },
+  { label: "Laptop Gaming", value: "laptop-gaming", slug: "laptop-gaming", parent: "laptop", isChild: true },
+  { label: "Laptop Văn phòng", value: "laptop-van-phong", slug: "laptop-van-phong", parent: "laptop", isChild: true },
+  { label: "Macbook", value: "macbook", slug: "macbook", parent: "laptop", isChild: true },
+
+  // 2. Nhóm Máy Tính Để Bàn (PC)
+  { label: "Máy Tính Để Bàn (PC)", value: "pc", slug: "pc", isParent: true },
+  { label: "PC Gaming", value: "pc-gaming", slug: "pc-gaming", parent: "pc", isChild: true },
+  { label: "PC Đồ Họa", value: "pc-do-hoa", slug: "pc-do-hoa", parent: "pc", isChild: true },
+  { label: "PC Văn Phòng", value: "pc-van-phong", slug: "pc-van-phong", parent: "pc", isChild: true },
+
+  // 3. Nhóm Linh Kiện Máy Tính
+  { label: "Linh Kiện Máy Tính", value: "linh-kien-pc", slug: "linh-kien-pc", isParent: true },
+  { label: "CPU - Bộ vi xử lý", value: "cpu-bo-vi-xu-ly", slug: "cpu-bo-vi-xu-ly", parent: "linh-kien-pc", isChild: true, pcPartType: "cpu" },
+  { label: "Mainboard - Bo mạch chủ", value: "mainboard-bo-mach-chu", slug: "mainboard-bo-mach-chu", parent: "linh-kien-pc", isChild: true, pcPartType: "mainboard" },
+  { label: "RAM - Bộ nhớ trong", value: "ram-bo-nho-trong", slug: "ram-bo-nho-trong", parent: "linh-kien-pc", isChild: true, pcPartType: "ram" },
+  { label: "VGA - Card màn hình", value: "vga-card-man-hinh", slug: "vga-card-man-hinh", parent: "linh-kien-pc", isChild: true, pcPartType: "vga" },
+  { label: "Ổ cứng HDD - SSD", value: "o-cung-hdd-ssd", slug: "o-cung-hdd-ssd", parent: "linh-kien-pc", isChild: true, pcPartType: "ssd" },
+  { label: "PSU - Nguồn máy tính", value: "psu-nguon-may-tinh", slug: "psu-nguon-may-tinh", parent: "linh-kien-pc", isChild: true, pcPartType: "psu" },
+  { label: "CASE - Vỏ máy tính", value: "case-vo-may-tinh", slug: "case-vo-may-tinh", parent: "linh-kien-pc", isChild: true, pcPartType: "case" },
+  { label: "Tản nhiệt Cooling", value: "tan-nhiet-cooling", slug: "tan-nhiet-cooling", parent: "linh-kien-pc", isChild: true, pcPartType: "cooler" },
+
+  // 4. Nhóm Màn Hình & Phụ Kiện Gear
+  { label: "Màn Hình & Phụ Kiện Gear", value: "man-hinh-gear", slug: "man-hinh-gear", isParent: true },
+  { label: "Màn hình máy tính", value: "man-hinh", slug: "man-hinh", parent: "man-hinh-gear", isChild: true, pcPartType: "monitor" },
+  { label: "Bàn phím", value: "ban-phim", slug: "ban-phim", parent: "man-hinh-gear", isChild: true, pcPartType: "gear" },
+  { label: "Chuột", value: "chuot", slug: "chuot", parent: "man-hinh-gear", isChild: true, pcPartType: "gear" },
 ];
 
 export default function ProductSidebar({
   filters,
   products = [],
+  categories = [],
   onFilterChange,
   isMobileOpen = false,
-  onCloseMobile = () => {},
-  onClearFilters = () => {},
+  onCloseMobile = () => { },
+  onClearFilters = () => { },
 }) {
   // Lock body scroll when mobile drawer is open
   useEffect(() => {
@@ -41,42 +59,167 @@ export default function ProductSidebar({
     };
   }, [isMobileOpen]);
 
-  // 1. Calculate Real Category Counts
+  // 1. Calculate Real Category Counts using dynamic categories or fallback
   const computedCategories = useMemo(() => {
-    const counts = {};
-    products.forEach((p) => {
-      const type = detectProductType(p);
-      const catSlug = (p.categorySlug || "").toLowerCase();
-      const catName = (p.categoryName || "").toLowerCase();
+    // Chuẩn hóa danh sách danh mục (nếu có từ API thì xử lý theo cây cha/con, nếu không dùng fallback)
+    let categoryList = [];
 
-      const inc = (key) => {
-        counts[key] = (counts[key] || 0) + 1;
-      };
+    if (Array.isArray(categories) && categories.length > 0) {
+      // Nhóm cha - con từ API
+      const activeCats = categories.filter((c) => c.isActive !== false);
+      const parentCats = activeCats.filter((c) => !c.parent);
+      const childCats = activeCats.filter((c) => !!c.parent);
 
-      if (type === PRODUCT_TYPES.LAPTOP || catSlug.includes("laptop") || catName.includes("laptop")) inc("laptop");
-      else if (type === PRODUCT_TYPES.PC || catSlug === "pc" || catName === "pc" || catSlug.includes("pc-") || catName.includes("bộ máy tính")) inc("pc");
-      else if (type === PRODUCT_TYPES.MONITOR || catSlug.includes("man-hinh") || catName.includes("màn hình")) inc("man-hinh");
-      else if (type === PRODUCT_TYPES.MAINBOARD || catSlug.includes("mainboard") || catName.includes("bo mạch")) inc("mainboard-bo-mach-chu");
-      else if (type === PRODUCT_TYPES.PSU || catSlug.includes("psu") || catName.includes("nguồn")) inc("psu-nguon-may-tinh");
-      else if (type === PRODUCT_TYPES.CPU || catSlug.includes("cpu") || catName.includes("vi xử lý")) inc("cpu-bo-vi-xu-ly");
-      else if (type === PRODUCT_TYPES.VGA || catSlug.includes("vga") || catName.includes("card màn hình")) inc("vga-card-man-hinh");
-      else if (type === PRODUCT_TYPES.RAM || catSlug.includes("ram") || catName.includes("bộ nhớ")) inc("ram-bo-nho-trong");
-      else if (type === PRODUCT_TYPES.SSD || catSlug.includes("o-cung") || catName.includes("ổ cứng") || catSlug.includes("ssd")) inc("o-cung-hdd-ssd");
-      else if (type === PRODUCT_TYPES.CASE || catSlug.includes("case") || catName.includes("vỏ máy")) inc("case-vo-may-tinh");
-      else if (type === PRODUCT_TYPES.MOUSE || catSlug.includes("chuot") || catName.includes("chuột")) inc("chuot");
-      else if (type === PRODUCT_TYPES.KEYBOARD || catSlug.includes("ban-phim") || catName.includes("bàn phím")) inc("ban-phim");
-      else if (type === PRODUCT_TYPES.COOLER || catSlug.includes("tan-nhiet") || catName.includes("tản nhiệt")) inc("tan-nhiet-cooling");
-      else {
-        const matched = BASE_CATEGORIES.find((c) => catSlug.includes(c.value) || catName.includes(c.label.toLowerCase()));
-        if (matched) inc(matched.value);
+      if (parentCats.length > 0) {
+        parentCats.sort((a, b) => (a.order || 0) - (b.order || 0));
+        parentCats.forEach((parent) => {
+          categoryList.push({
+            label: parent.name,
+            value: parent.slug,
+            slug: parent.slug,
+            id: parent._id,
+            isParent: true,
+            pcPartType: parent.pcPartType,
+          });
+
+          const children = childCats
+            .filter((c) => {
+              const pId = typeof c.parent === "object" ? c.parent?._id : c.parent;
+              return String(pId) === String(parent._id) || c.parentSlug === parent.slug;
+            })
+            .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+          children.forEach((child) => {
+            categoryList.push({
+              label: child.name,
+              value: child.slug,
+              slug: child.slug,
+              id: child._id,
+              parent: parent.slug,
+              isChild: true,
+              pcPartType: child.pcPartType,
+            });
+          });
+        });
+      } else {
+        categoryList = activeCats.map((c) => ({
+          label: c.name,
+          value: c.slug,
+          slug: c.slug,
+          id: c._id,
+          pcPartType: c.pcPartType,
+        }));
       }
-    });
+    }
 
-    return BASE_CATEGORIES.map((c) => ({
-      ...c,
-      count: counts[c.value] || 0,
-    }));
-  }, [products]);
+    if (categoryList.length === 0) {
+      categoryList = FALLBACK_CATEGORIES;
+    }
+
+    // Đếm số lượng sản phẩm chính xác cho từng danh mục
+    return categoryList.map((cat) => {
+      const slug = (cat.slug || cat.value || "").toLowerCase();
+      const count = products.filter((p) => {
+        const type = detectProductType(p);
+        const name = (p.name || "").toLowerCase();
+        const catSlug = (p.categorySlug || "").toLowerCase();
+        const catName = (p.categoryName || "").toLowerCase();
+        const pCatId = typeof p.category === "object" ? p.category?._id : p.category;
+
+        // Nếu khớp ID chính xác
+        if (cat.id && pCatId && String(pCatId) === String(cat.id)) return true;
+
+        // 1. Nhóm Laptop
+        if (slug === "laptop" || slug === "laptop-cu") {
+          return type === PRODUCT_TYPES.LAPTOP || catSlug.includes("laptop") || catSlug === "macbook";
+        }
+        if (slug === "laptop-gaming") {
+          return catSlug === "laptop-gaming" || (type === PRODUCT_TYPES.LAPTOP && (name.includes("gaming") || catName.includes("gaming")));
+        }
+        if (slug === "laptop-van-phong") {
+          return catSlug === "laptop-van-phong" || (type === PRODUCT_TYPES.LAPTOP && (name.includes("văn phòng") || name.includes("thinkpad") || name.includes("zenbook") || name.includes("latitude") || name.includes("swift")) && !name.includes("gaming") && !name.includes("tuf") && !name.includes("legion") && !name.includes("nitro"));
+        }
+        if (slug === "macbook") {
+          return catSlug === "macbook" || name.includes("macbook") || name.includes("apple");
+        }
+
+        // 2. Nhóm PC
+        if (slug === "pc" || slug === "pc-cu") {
+          return type === PRODUCT_TYPES.PC || catSlug === "pc" || catSlug.startsWith("pc-");
+        }
+        if (slug === "pc-gaming") {
+          return catSlug === "pc-gaming" || (type === PRODUCT_TYPES.PC && (name.includes("gaming") || catName.includes("gaming")));
+        }
+        if (slug === "pc-do-hoa") {
+          return catSlug === "pc-do-hoa" || (type === PRODUCT_TYPES.PC && (name.includes("đồ họa") || name.includes("workstation") || name.includes("render")));
+        }
+        if (slug === "pc-van-phong") {
+          return catSlug === "pc-van-phong" || (type === PRODUCT_TYPES.PC && (name.includes("văn phòng") || name.includes("office")));
+        }
+
+        // 3. Nhóm Linh Kiện PC gốc
+        if (slug === "linh-kien-pc") {
+          return [
+            PRODUCT_TYPES.CPU,
+            PRODUCT_TYPES.MAINBOARD,
+            PRODUCT_TYPES.RAM,
+            PRODUCT_TYPES.VGA,
+            PRODUCT_TYPES.STORAGE,
+            PRODUCT_TYPES.SSD,
+            PRODUCT_TYPES.PSU,
+            PRODUCT_TYPES.CASE,
+            PRODUCT_TYPES.COOLER,
+          ].includes(type) || catSlug.includes("linh-kien");
+        }
+        if (slug === "cpu-bo-vi-xu-ly" || cat.pcPartType === "cpu") {
+          return type === PRODUCT_TYPES.CPU || catSlug.includes("cpu") || catName.includes("vi xử lý");
+        }
+        if (slug === "mainboard-bo-mach-chu" || cat.pcPartType === "mainboard") {
+          return type === PRODUCT_TYPES.MAINBOARD || catSlug.includes("mainboard") || catName.includes("bo mạch");
+        }
+        if (slug === "ram-bo-nho-trong" || cat.pcPartType === "ram") {
+          return type === PRODUCT_TYPES.RAM || catSlug.includes("ram") || catName.includes("bộ nhớ");
+        }
+        if (slug === "vga-card-man-hinh" || cat.pcPartType === "vga") {
+          return type === PRODUCT_TYPES.VGA || catSlug.includes("vga") || catName.includes("card màn hình");
+        }
+        if (slug === "o-cung-hdd-ssd" || cat.pcPartType === "ssd" || cat.pcPartType === "hdd") {
+          return type === PRODUCT_TYPES.STORAGE || type === PRODUCT_TYPES.SSD || catSlug.includes("o-cung") || catSlug.includes("ssd") || catSlug.includes("hdd");
+        }
+        if (slug === "psu-nguon-may-tinh" || cat.pcPartType === "psu") {
+          return type === PRODUCT_TYPES.PSU || catSlug.includes("psu") || catName.includes("nguồn");
+        }
+        if (slug === "case-vo-may-tinh" || cat.pcPartType === "case") {
+          return type === PRODUCT_TYPES.CASE || catSlug.includes("case") || catName.includes("vỏ máy");
+        }
+        if (slug === "tan-nhiet-cooling" || cat.pcPartType === "cooler") {
+          return type === PRODUCT_TYPES.COOLER || catSlug.includes("tan-nhiet") || catName.includes("tản nhiệt");
+        }
+
+        // 4. Nhóm Màn hình & Gear
+        if (slug === "man-hinh-gear") {
+          return [PRODUCT_TYPES.MONITOR, PRODUCT_TYPES.KEYBOARD, PRODUCT_TYPES.MOUSE].includes(type) || catSlug.includes("gear");
+        }
+        if (slug === "man-hinh" || cat.pcPartType === "monitor") {
+          return type === PRODUCT_TYPES.MONITOR || catSlug.includes("man-hinh") || catName.includes("màn hình");
+        }
+        if (slug === "ban-phim") {
+          return type === PRODUCT_TYPES.KEYBOARD || catSlug.includes("ban-phim") || catName.includes("bàn phím");
+        }
+        if (slug === "chuot") {
+          return type === PRODUCT_TYPES.MOUSE || catSlug.includes("chuot") || catName.includes("chuột");
+        }
+
+        // Fallback khớp chung
+        return catSlug === slug || catSlug.includes(slug) || catName.toLowerCase().includes(slug);
+      }).length;
+
+      return {
+        ...cat,
+        count,
+      };
+    });
+  }, [products, categories]);
 
   // 2. Calculate Real Condition Counts
   const computedConditions = useMemo(() => {

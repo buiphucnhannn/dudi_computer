@@ -23,42 +23,45 @@ const categories = [
 
 export default function CategoriesSection() {
   return (
-    <section className="w-full border-y border-gray-200 bg-white py-20 md:py-24">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
+    <section className="w-full border-y border-slate-200/80 bg-white py-10 sm:py-12 md:py-14">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Heading */}
-        <div className="mb-16 flex flex-col items-center text-center">
-          <h2 className="mb-4 text-3xl font-black uppercase text-gray-900 md:text-4xl">
+        <div className="mb-8 sm:mb-10 flex flex-col items-center text-center">
+          <span className="text-xs font-black uppercase tracking-wider text-red-600 mb-1">
+            ĐA DẠNG DÒNG MÁY
+          </span>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase text-slate-900 tracking-tight">
             Thu Mua Đa Dạng
           </h2>
 
-          <div className="h-1 w-24 bg-red-600" />
+          <div className="mt-2 h-1 w-16 rounded-full bg-red-600 shadow-2xs" />
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-2 md:grid-cols-4 md:gap-5">
           {categories.map((category) => (
             <article
               key={category.title}
-              className="group relative h-64 overflow-hidden rounded border border-gray-200 bg-gray-100"
+              className="group relative h-44 sm:h-48 md:h-52 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-xs"
             >
               {/* Image */}
               <div
-                className="absolute inset-0 bg-cover bg-center opacity-50 transition-all duration-500 group-hover:scale-105 group-hover:opacity-70"
+                className="absolute inset-0 bg-cover bg-center opacity-65 transition-all duration-500 group-hover:scale-108 group-hover:opacity-85"
                 style={{
                   backgroundImage: `url("${category.image}")`,
                 }}
               />
 
               {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
 
               {/* Content */}
-              <div className="absolute bottom-0 left-0 w-full p-6">
-                <h4 className="text-lg font-bold text-white transition-colors group-hover:text-red-400">
+              <div className="absolute bottom-0 left-0 w-full p-4">
+                <h4 className="text-xs sm:text-sm font-bold text-white transition-colors group-hover:text-red-400">
                   {category.title}
                 </h4>
 
-                <div className="mt-2 h-0.5 w-0 bg-red-600 transition-all duration-300 group-hover:w-12" />
+                <div className="mt-1.5 h-0.5 w-0 bg-red-600 transition-all duration-300 group-hover:w-10" />
               </div>
             </article>
           ))}

@@ -50,9 +50,31 @@ export default function LoginForm() {
   const otpInputRefs = useRef([]);
   const gsiInitializedRef = useRef(false);
 
-  // Nếu đã đăng nhập: Chuyển hướng theo redirect hoặc vai trò
+  // Kiểm tra thông báo tài khoản bị khóa hoặc lỗi từ URL/session
   useEffect(() => {
-    if (isAuthenticated && user) {
+    const errorParam = searchParams?.get("error");
+    const bannedNotice =
+      typeof window !== "undefined"
+        ? sessionStorage.getItem("banned_notice")
+        : null;
+
+    const msg = errorParam || bannedNotice;
+    if (msg) {
+      setLoginError(msg);
+      showToast({
+        title: "Tài khoản đã bị khóa",
+        message: msg,
+        type: "error",
+      });
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("banned_notice");
+      }
+    }
+  }, [searchParams, showToast]);
+
+  // Nếu đã đăng nhập và hợp lệ: Chuyển hướng theo redirect hoặc vai trò
+  useEffect(() => {
+    if (isAuthenticated && user && user.status !== "banned") {
       const redirectUrl = searchParams?.get("redirect") || searchParams?.get("callbackUrl");
       if (redirectUrl && user.role !== "admin") {
         router.push(redirectUrl);

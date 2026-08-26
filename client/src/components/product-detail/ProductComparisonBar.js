@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Scale, Plus, X, ChevronDown, ChevronUp } from "lucide-react";
+import { getProductImage } from "@/lib/productHelpers";
 
 const ProductComparisonBar = ({
   products = [],
@@ -19,13 +20,6 @@ const ProductComparisonBar = ({
   const formatPrice = (price) => {
     const value = Number(price || 0);
     return value > 0 ? `${value.toLocaleString("vi-VN")}₫` : "Liên hệ";
-  };
-
-  const getImage = (product) => {
-    if (Array.isArray(product?.images) && product.images.length > 0) {
-      return product.images[0]?.url || product.images[0];
-    }
-    return product?.thumbnail || product?.image || "";
   };
 
   const getProductId = (product) => {
@@ -86,40 +80,42 @@ const ProductComparisonBar = ({
 
         {/* PRODUCTS & ACTIONS GRID */}
         <div className="grid grid-cols-2 sm:grid-cols-2 md:flex md:flex-row gap-2 sm:gap-3 items-stretch">
-          {products.map((product) => {
-            const productId = getProductId(product);
-            const image = getImage(product);
+          {products.map((product, pIdx) => {
+            const productId = getProductId(product) || `comp-prod-${pIdx}`;
+            const image = getProductImage(product);
 
             return (
               <div
                 key={productId}
                 className="relative flex min-w-0 flex-1 items-center rounded-xl border border-slate-200 bg-slate-50/70 p-2 sm:p-3"
               >
-                {/* REMOVE */}
+                {/* REMOVE BUTTON */}
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    e.preventDefault();
                     onRemove?.(product);
                   }}
                   aria-label="Xóa sản phẩm"
-                  className="absolute -right-1.5 -top-1.5 z-20 flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-red-600 text-white shadow-sm transition hover:bg-red-700 cursor-pointer"
+                  className="absolute -right-1.5 -top-1.5 z-30 flex h-6 w-6 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-red-600 hover:bg-red-700 text-white shadow-md transition hover:scale-110 cursor-pointer active:scale-95 border-2 border-white"
                 >
-                  <X className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <X className="w-3.5 h-3.5 stroke-[3]" />
                 </button>
 
                 <div className="flex w-full items-center gap-2 sm:gap-3">
                   {/* IMAGE */}
                   <div className="flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white p-1">
-                    {image ? (
-                      <img
-                        src={image}
-                        alt={product?.name || "Sản phẩm"}
-                        className="h-full w-full object-contain"
-                      />
-                    ) : (
-                      <span className="text-[9px] text-slate-400">No img</span>
-                    )}
+                    <img
+                      src={image}
+                      alt={product?.name || "Sản phẩm"}
+                      className="h-full w-full object-contain mix-blend-multiply"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
+                      }}
+                    />
                   </div>
 
                   {/* INFO */}

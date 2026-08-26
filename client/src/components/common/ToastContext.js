@@ -66,23 +66,21 @@ export function ToastProvider({ children }) {
           return (
             <div
               key={toast.id}
-              className={`pointer-events-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border p-4 sm:p-4.5 flex items-start gap-3.5 animate-in slide-in-from-top-4 fade-in duration-300 transition-all ${
-                isSuccess
+              className={`pointer-events-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border p-4 sm:p-4.5 flex items-start gap-3.5 animate-in slide-in-from-top-4 fade-in duration-300 transition-all ${isSuccess
                   ? "border-emerald-200/80 shadow-emerald-500/10"
                   : isError
-                  ? "border-red-200/80 shadow-red-500/10"
-                  : "border-purple-200/80 shadow-purple-500/10"
-              }`}
+                    ? "border-red-200/80 shadow-red-500/10"
+                    : "border-purple-200/80 shadow-purple-500/10"
+                }`}
             >
               {/* Icon Badge */}
               <div
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 shadow-inner ${
-                  isSuccess
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 shadow-inner ${isSuccess
                     ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
                     : isError
-                    ? "bg-red-50 text-red-600 border border-red-100"
-                    : "bg-purple-50 text-[#8b5cf6] border border-purple-100"
-                }`}
+                      ? "bg-red-50 text-red-600 border border-red-100"
+                      : "bg-purple-50 text-[#8b5cf6] border border-purple-100"
+                  }`}
               >
                 {isSuccess && <CheckCircle2 className="w-5 h-5" />}
                 {isError && <AlertCircle className="w-5 h-5" />}

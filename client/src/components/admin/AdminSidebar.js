@@ -102,7 +102,7 @@ const rawMenuGroups = [
     moduleKey: "customers",
     items: [
       {
-        label: "Quản lý khách hàng",
+        label: "Quản lý tài khoản",
         href: "/admin/users",
         icon: Users,
         moduleKey: "customers",

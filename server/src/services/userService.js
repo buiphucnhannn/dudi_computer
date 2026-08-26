@@ -103,13 +103,17 @@ export const userService = {
       throw new ApiError(400, "Trạng thái tài khoản không hợp lệ");
     }
 
-    const customer = await User.findOne({ _id: id, role: "user" });
+    const customer = await User.findOne({ _id: id, role: { $nin: ["admin", "admin_super"] } });
     if (!customer) {
-      throw new ApiError(404, "Không tìm thấy khách hàng hoặc không có quyền thao tác");
+      throw new ApiError(404, "Không tìm thấy người dùng hoặc không thể thay đổi trạng thái của Quản trị viên tối cao");
     }
 
     customer.status = status;
-    await customer.save();
+    if (status === "banned") {
+      // Hủy bỏ refresh token để vô hiệu hóa phiên đăng nhập ngay lập tức
+      customer.refreshToken = undefined;
+    }
+    await customer.save({ validateBeforeSave: false });
 
     return {
       _id: customer._id,

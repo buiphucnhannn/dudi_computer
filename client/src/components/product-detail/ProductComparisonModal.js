@@ -14,6 +14,7 @@ import {
   useState,
 } from "react";
 import { detectProductType, getProductTypeLabel } from "@/lib/specParser";
+import { getProductImage } from "@/lib/productHelpers";
 
 const ProductComparisonModal = ({
   isOpen,
@@ -160,18 +161,7 @@ const ProductComparisonModal = ({
   // =====================================================
 
   const getImage = (product) => {
-    if (
-      Array.isArray(product?.images) &&
-      product.images.length > 0
-    ) {
-      return product.images[0];
-    }
-
-    return (
-      product?.thumbnail ||
-      product?.image ||
-      ""
-    );
+    return getProductImage(product);
   };
 
   // =====================================================
@@ -441,40 +431,37 @@ const ProductComparisonModal = ({
                           w-24
                           shrink-0
                           overflow-hidden
-                          rounded-md
+                          rounded-xl
                           border
                           border-slate-100
-                          bg-slate-50
+                          bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30
+                          p-2
+                          flex
+                          items-center
+                          justify-center
                         "
                       >
-                        {image ? (
-                          <img
-                            src={image}
-                            alt={
-                              item?.name ||
-                              "Sản phẩm"
-                            }
-                            className="
-                              h-full
-                              w-full
-                              object-contain
-                            "
-                          />
-                        ) : (
-                          <div
-                            className="
-                              flex
-                              h-full
-                              w-full
-                              items-center
-                              justify-center
-                              text-xs
-                              text-slate-400
-                            "
-                          >
-                            No image
-                          </div>
-                        )}
+                        <img
+                          src={image}
+                          alt={
+                            item?.name ||
+                            "Sản phẩm"
+                          }
+                          className="
+                            h-full
+                            w-full
+                            object-contain
+                            mix-blend-multiply
+                            group-hover:scale-105
+                            transition-transform
+                            duration-300
+                          "
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
+                          }}
+                        />
                       </div>
 
                       {/* CONTENT */}

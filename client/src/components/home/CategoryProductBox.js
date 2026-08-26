@@ -63,28 +63,33 @@ export default function CategoryProductBox({
   const handleToggleFavorite = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
-    const isFav = cartItems.some((i) => (i._id || i.id || i.slug) === (item._id || item.id || item.slug));
-    const prodId = item._id || item.id || item.slug;
-    if (isFav) {
-      dispatch(removeFromCartAsync(prodId));
+    if (typeof item.stock === "number" && item.stock <= 0) {
       showToast({
-        title: "Đã xóa khỏi giỏ",
-        message: `Đã bỏ "${item.name}" khỏi giỏ hàng`,
-        type: "info",
+        title: "Sản phẩm đã hết hàng",
+        message: `Sản phẩm "${item.name}" hiện đã hết hàng trong kho.`,
+        type: "warning",
       });
-    } else {
-      dispatch(addToCartAsync({ product: item, quantity: 1 }));
-      showToast({
-        title: "Đã thêm vào giỏ hàng",
-        message: `Đã thêm "${item.name}" vào giỏ hàng thành công!`,
-        type: "success",
-      });
+      return;
     }
+    dispatch(addToCartAsync({ product: item, quantity: 1 }));
+    showToast({
+      title: "Đã thêm vào giỏ hàng",
+      message: `Đã thêm "${item.name}" vào giỏ hàng (+1)!`,
+      type: "success",
+    });
   };
 
   const handleBuyNow = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
+    if (typeof item.stock === "number" && item.stock <= 0) {
+      showToast({
+        title: "Sản phẩm đã hết hàng",
+        message: `Sản phẩm "${item.name}" hiện đã hết hàng trong kho.`,
+        type: "warning",
+      });
+      return;
+    }
     setBuyModalItem(item);
   };
 
@@ -268,6 +273,7 @@ export default function CategoryProductBox({
               showHotSaleBadge,
             } = getProductDiscountInfo(item);
 
+            const isOutOfStock = typeof item.stock === "number" && item.stock <= 0;
             const imgSrc = getProductImage(item);
             const isFav = cartItems.some(
               (i) => (i._id || i.id || i.slug) === (item._id || item.id || item.slug)
@@ -287,11 +293,17 @@ export default function CategoryProductBox({
                   href={detailHref}
                   className="block relative aspect-square w-full rounded-xl overflow-hidden border border-slate-100 bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 mb-3 group/img p-3.5 flex items-center justify-center"
                 >
-                  {/* Tag Giảm giá góc trên bên trái (Chỉ hiện khi có giảm giá thật) */}
-                  {hasDiscount && (
-                    <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-[#eb1c24] to-[#ff4757] text-white text-[11px] font-black px-2 py-0.5 rounded-lg shadow-sm">
-                      Giảm {discountPercent}%
+                  {/* Tag Hết hàng hoặc Giảm giá */}
+                  {isOutOfStock ? (
+                    <div className="absolute top-2 left-2 z-20 bg-slate-900/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-sm border border-slate-700">
+                      Hết hàng
                     </div>
+                  ) : (
+                    hasDiscount && (
+                      <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-[#eb1c24] to-[#ff4757] text-white text-[11px] font-black px-2 py-0.5 rounded-lg shadow-sm">
+                        Giảm {discountPercent}%
+                      </div>
+                    )
                   )}
 
                   {/* Hot Sale / Flash Sale Tag góc trên bên phải */}
@@ -347,7 +359,7 @@ export default function CategoryProductBox({
                     >
                       <Scale className="w-4 h-4" />
                     </button>
-                    {mounted && !isAdmin && (
+                    {mounted && !isAdmin && !isOutOfStock && (
                       <button
                         onClick={(e) => handleToggleFavorite(e, item)}
                         className={`cursor-pointer transition-colors ${isFav ? "text-red-500" : "hover:text-red-500"
@@ -420,6 +432,8 @@ export default function CategoryProductBox({
                     >
                       Chi tiết →
                     </Link>
+                  ) : isOutOfStock ? (
+                    <span className="text-slate-400 font-semibold">Tạm hết hàng</span>
                   ) : (
                     <button
                       onClick={(e) => handleBuyNow(e, item)}

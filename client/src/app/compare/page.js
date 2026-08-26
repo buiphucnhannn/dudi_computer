@@ -17,6 +17,7 @@ import { productAPI } from "@/lib/api";
 import { parseProductSpecs } from "@/lib/specParser";
 import { useCompare } from "@/components/common/CompareContext";
 import ProductComparisonModal from "@/components/product-detail/ProductComparisonModal";
+import { getProductImage } from "@/lib/productHelpers";
 
 // =====================================================
 // HELPER FUNCTIONS
@@ -28,14 +29,6 @@ const getProductId = (product) => {
 
 const getProductName = (product) => {
   return product?.name || product?.title || "Sản phẩm";
-};
-
-const getProductImage = (product) => {
-  if (!product) return "/images/dudi/dudisoftware1.png";
-  if (Array.isArray(product.images) && product.images.length > 0) {
-    return product.images[0]?.url || product.images[0] || product.thumbnail;
-  }
-  return product.thumbnail || product.image || "/images/dudi/dudisoftware1.png";
 };
 
 const getPrice = (product) => {
@@ -86,20 +79,33 @@ function CompareContent() {
       });
   }, []);
 
-  // Parse ID danh sách so sánh từ URL
-  const productIds = useMemo(() => {
+  // Đảm bảo URL chỉ chứa tối đa 3 sản phẩm và không bị trùng lặp
+  useEffect(() => {
     if (productsParam) {
-      return productsParam
+      const parsed = productsParam
         .split(",")
         .map((id) => decodeURIComponent(id.trim()))
-        .filter(Boolean)
-        .slice(0, 3);
+        .filter(Boolean);
+      const unique = Array.from(new Set(parsed));
+      if (unique.length !== parsed.length || unique.length > 3) {
+        const limited = unique.slice(0, 3);
+        router.replace(`/compare?products=${limited.map(encodeURIComponent).join(",")}`);
+      }
     }
-    // Nếu URL chưa có params thì lấy từ Context
-    if (compareItems.length > 0) {
-      return compareItems.map(getProductId).filter(Boolean).slice(0, 3);
+  }, [productsParam, router]);
+
+  // Parse ID danh sách so sánh từ URL (loại bỏ trùng lặp và tối đa 3 sản phẩm)
+  const productIds = useMemo(() => {
+    let ids = [];
+    if (productsParam) {
+      ids = productsParam
+        .split(",")
+        .map((id) => decodeURIComponent(id.trim()))
+        .filter(Boolean);
+    } else if (compareItems.length > 0) {
+      ids = compareItems.map(getProductId).filter(Boolean);
     }
-    return [];
+    return Array.from(new Set(ids)).slice(0, 3);
   }, [productsParam, compareItems]);
 
   // Load chi tiết các sản phẩm cần so sánh
@@ -136,7 +142,16 @@ function CompareContent() {
         );
 
         if (!cancelled) {
-          setProducts(loadedProducts.filter(Boolean));
+          const seen = new Set();
+          const uniqueProducts = [];
+          for (const item of loadedProducts.filter(Boolean)) {
+            const pid = getProductId(item);
+            if (pid && !seen.has(pid)) {
+              seen.add(pid);
+              uniqueProducts.push(item);
+            }
+          }
+          setProducts(uniqueProducts);
         }
       } finally {
         if (!cancelled) {
@@ -153,9 +168,28 @@ function CompareContent() {
   }, [productIds]);
 
   // Xóa 1 sản phẩm
-  const handleRemoveProduct = (productId) => {
-    removeFromCompare(productId);
-    const nextProducts = products.filter((p) => getProductId(p) !== productId);
+  const handleRemoveProduct = (productIdOrProduct) => {
+    removeFromCompare(productIdOrProduct);
+    const targetIds =
+      typeof productIdOrProduct === "object"
+        ? [
+            productIdOrProduct.slug,
+            productIdOrProduct._id ? String(productIdOrProduct._id) : null,
+            productIdOrProduct.id ? String(productIdOrProduct.id) : null,
+            getProductId(productIdOrProduct),
+          ].filter(Boolean)
+        : [String(productIdOrProduct)];
+
+    const nextProducts = products.filter((p) => {
+      const pId = getProductId(p);
+      const p_id = p._id ? String(p._id) : null;
+      const pSlug = p.slug ? String(p.slug) : null;
+      return (
+        !targetIds.includes(pId) &&
+        !targetIds.includes(p_id) &&
+        !targetIds.includes(pSlug)
+      );
+    });
     setProducts(nextProducts);
 
     if (nextProducts.length === 0) {
@@ -392,6 +426,34 @@ function CompareContent() {
           </div>
         )}
 
+        {/* Single product guidance alert */}
+        {!loading && products.length === 1 && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-amber-900 text-xs sm:text-sm shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <span className="text-base shrink-0">💡</span>
+              <p className="font-medium">
+                Bạn đang chọn <strong>1 sản phẩm</strong>. Vui lòng bấm <strong>"Thêm sản phẩm"</strong> để đối chiếu thông số giữa 2 hoặc 3 sản phẩm cùng lúc.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleAddProduct}
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2 text-xs transition shrink-0 cursor-pointer shadow-xs active:scale-95"
+            >
+              <Plus size={14} />
+              <span>Thêm sản phẩm so sánh</span>
+            </button>
+          </div>
+        )}
+
+        {/* Not found products notice */}
+        {!loading && productIds.length > products.length && (
+          <div className="flex items-center gap-2.5 rounded-2xl bg-blue-50 border border-blue-200 p-3.5 text-blue-900 text-xs font-medium shadow-2xs">
+            <span className="shrink-0">ℹ️</span>
+            <span>Một số sản phẩm trong liên kết không tồn tại hoặc đã ngừng kinh doanh và đã được hệ thống tự động bỏ qua.</span>
+          </div>
+        )}
+
         {/* UNIFIED COMPARISON TABLE */}
         {!loading && (
           <div className="w-full overflow-x-auto pb-4 scrollbar-thin">
@@ -428,23 +490,27 @@ function CompareContent() {
                 </div>
 
                 {/* 2. PRODUCT CARDS */}
-                {products.map((product) => {
+                {products.map((product, index) => {
                   const id = getProductId(product);
                   const image = getProductImage(product);
 
                   return (
                     <div
-                      key={id}
+                      key={`${id || "prod"}-${index}`}
                       className="group relative flex min-h-[380px] sm:min-h-[420px] flex-col justify-between border-r last:border-r-0 border-slate-100 bg-white p-4 sm:p-5 transition hover:bg-slate-50/40"
                     >
                       {/* REMOVE BUTTON (TOP-RIGHT CIRCULAR X) */}
                       <button
                         type="button"
-                        onClick={() => handleRemoveProduct(id)}
-                        className="absolute right-3 top-3 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600 shadow-2xs cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          handleRemoveProduct(product || id);
+                        }}
+                        className="absolute right-3 top-3 z-20 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600 shadow-2xs cursor-pointer active:scale-95"
                         title="Xóa khỏi so sánh"
                       >
-                        <X size={12} strokeWidth={2.5} />
+                        <X size={14} strokeWidth={2.5} />
                       </button>
 
                       {/* PRODUCT IMAGE */}
@@ -453,6 +519,11 @@ function CompareContent() {
                           src={image}
                           alt={getProductName(product)}
                           className="h-full w-full object-contain mix-blend-multiply group-hover:scale-108 transition-transform duration-500 ease-out max-h-[190px]"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
+                          }}
                         />
                       </div>
 
@@ -545,13 +616,13 @@ function CompareContent() {
                   </div>
 
                   {/* PRODUCT VALUE COLUMNS */}
-                  {products.map((product) => {
+                  {products.map((product, index) => {
                     const parsed = parseProductSpecs(product);
                     const value = row.getValue({ raw: product, parsed });
 
                     return (
                       <div
-                        key={`${getProductId(product)}-${row.label}`}
+                        key={`${getProductId(product) || "prod"}-${index}-${row.label}`}
                         className="flex min-h-[52px] sm:min-h-[60px] items-center border-r last:border-r-0 border-slate-100 p-4 sm:p-5 text-xs sm:text-sm font-medium leading-relaxed text-slate-700 break-words"
                       >
                         {value === "-" ? (

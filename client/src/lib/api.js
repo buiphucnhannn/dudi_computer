@@ -33,10 +33,51 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+// Xử lý khi tài khoản bị khóa (Banned)
+const handleAccountBanned = (message) => {
+  if (typeof window === "undefined") return;
+
+  const msg =
+    message || "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ ban quản trị.";
+
+  // Xóa sạch thông tin người dùng trong storage
+  localStorage.removeItem("dudi_user");
+  localStorage.removeItem("zcomputer_user");
+
+  try {
+    sessionStorage.setItem("banned_notice", msg);
+  } catch (_) {}
+
+  // Bắn sự kiện ra toàn bộ ứng dụng
+  window.dispatchEvent(
+    new CustomEvent("account-banned", {
+      detail: { message: msg },
+    })
+  );
+
+  // Chuyển hướng ra trang login nếu không phải đang ở trang đăng nhập/đăng ký
+  const pathname = window.location.pathname;
+  if (!pathname.includes("/login") && !pathname.includes("/register")) {
+    window.location.replace(`/login?error=${encodeURIComponent(msg)}`);
+  }
+};
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const errorMsg = error.response?.data?.message || "";
+    const isBanned =
+      error.response?.data?.isBanned ||
+      ((error.response?.status === 403 || error.response?.status === 401) &&
+        (errorMsg.toLowerCase().includes("khóa") ||
+          errorMsg.toLowerCase().includes("banned")));
+
+    // Khi phát hiện tài khoản bị khóa -> Thông báo & văng ra màn hình đăng nhập ngay lập tức
+    if (isBanned) {
+      handleAccountBanned(errorMsg);
+      return Promise.reject(error);
+    }
 
     // Nếu lỗi 401 và không phải đang gọi chính API refresh/login/logout
     if (
@@ -64,8 +105,14 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        // Xóa thông tin profile client nếu refresh token hết hạn
-        if (typeof window !== "undefined") {
+        const refreshMsg = refreshError.response?.data?.message || "";
+        if (
+          refreshError.response?.status === 403 ||
+          refreshMsg.toLowerCase().includes("khóa") ||
+          refreshMsg.toLowerCase().includes("banned")
+        ) {
+          handleAccountBanned(refreshMsg);
+        } else if (typeof window !== "undefined") {
           localStorage.removeItem("dudi_user");
           localStorage.removeItem("zcomputer_user");
         }

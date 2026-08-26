@@ -1,12 +1,20 @@
 import { X } from "lucide-react";
 
 const CATEGORY_NAMES = {
-  "laptop": "Laptop",
-  "laptop-cu": "Laptop",
-  "pc": "PC",
-  "pc-cu": "PC",
+  "laptop": "Laptop & Macbook",
+  "laptop-cu": "Laptop & Macbook",
+  "laptop-gaming": "Laptop Gaming",
+  "laptop-van-phong": "Laptop Văn phòng",
+  "macbook": "Macbook",
+  "pc": "Máy Tính Để Bàn (PC)",
+  "pc-cu": "Máy Tính Để Bàn (PC)",
+  "pc-gaming": "PC Gaming",
+  "pc-do-hoa": "PC Đồ Họa",
+  "pc-van-phong": "PC Văn Phòng",
+  "linh-kien-pc": "Linh Kiện Máy Tính",
   "chuot": "Chuột",
   "ban-phim": "Bàn phím",
+  "man-hinh-gear": "Màn Hình & Phụ Kiện Gear",
   "man-hinh": "Màn hình máy tính",
   "case-vo-may-tinh": "CASE - Vỏ máy tính",
   "cpu-bo-vi-xu-ly": "CPU - Bộ vi xử lý",
@@ -20,6 +28,7 @@ const CATEGORY_NAMES = {
 
 export default function ActiveFilters({
   filters,
+  categories = [],
   search = "",
   onFilterChange,
   onClearSearch,
@@ -57,8 +66,18 @@ export default function ActiveFilters({
     });
   };
 
+  const matchedCat = categories.find(
+    (c) =>
+      c.slug === filters.category ||
+      c._id === filters.category ||
+      c.value === filters.category
+  );
+
   const categoryLabel =
-    CATEGORY_NAMES[filters.category] || filters.category;
+    matchedCat?.name ||
+    matchedCat?.label ||
+    CATEGORY_NAMES[filters.category] ||
+    filters.category;
 
   return (
     <div className="mb-5 flex flex-wrap items-center gap-2">

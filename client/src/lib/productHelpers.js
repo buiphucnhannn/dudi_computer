@@ -108,23 +108,34 @@ export function sortProductsByPriority(products) {
  * @returns {string}
  */
 export function getProductImage(item) {
-  if (!item) return "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
+  const fallback = "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
+  if (!item) return fallback;
   
   // 1. Kiểm tra thumbnail
   const thumb = typeof item.thumbnail === "object" ? item.thumbnail?.url : item.thumbnail;
-  if (thumb && typeof thumb === "string" && thumb.startsWith("http")) return thumb;
-  if (thumb && typeof thumb === "string") return `https://zcomputer.vn${thumb}`;
+  if (thumb && typeof thumb === "string" && thumb.trim()) {
+    const cleanThumb = thumb.trim();
+    if (cleanThumb.startsWith("http") || cleanThumb.startsWith("/") || cleanThumb.startsWith("data:")) return cleanThumb;
+    return `/${cleanThumb}`;
+  }
 
   // 2. Kiểm tra mảng images
   if (Array.isArray(item.images) && item.images.length > 0) {
     const firstImg = typeof item.images[0] === "object" ? item.images[0]?.url : item.images[0];
-    if (firstImg && typeof firstImg === "string" && firstImg.startsWith("http")) return firstImg;
-    if (firstImg && typeof firstImg === "string") return `https://zcomputer.vn${firstImg}`;
+    if (firstImg && typeof firstImg === "string" && firstImg.trim()) {
+      const cleanImg = firstImg.trim();
+      if (cleanImg.startsWith("http") || cleanImg.startsWith("/") || cleanImg.startsWith("data:")) return cleanImg;
+      return `/${cleanImg}`;
+    }
   }
 
   // 3. Kiểm tra image đơn
   const singleImg = typeof item.image === "object" ? item.image?.url : item.image;
-  if (singleImg && typeof singleImg === "string" && singleImg.startsWith("http")) return singleImg;
+  if (singleImg && typeof singleImg === "string" && singleImg.trim()) {
+    const cleanSingle = singleImg.trim();
+    if (cleanSingle.startsWith("http") || cleanSingle.startsWith("/") || cleanSingle.startsWith("data:")) return cleanSingle;
+    return `/${cleanSingle}`;
+  }
 
-  return "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
+  return fallback;
 }

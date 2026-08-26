@@ -11,11 +11,12 @@ import ProductToolbar from "@/components/product/ProductToolbar";
 import ProductSearch from "@/components/product/ProductSearch";
 import ProductPagination from "@/components/product/ProductPagination";
 import ActiveFilters from "@/components/product/ActiveFilters";
-import { productAPI } from "@/lib/api";
+import { productAPI, categoryAPI } from "@/lib/api";
 import { detectProductType, PRODUCT_TYPES } from "@/lib/specParser";
 
 // Module-level cache để load tức thì 0ms khi quay lại trang
 let globalProductCache = null;
+let globalCategoryCache = null;
 
 // Skeleton Card Placeholder khi đang tải dữ liệu
 function ProductCardSkeleton() {
@@ -48,6 +49,7 @@ function ProductsContent() {
   // STATE
   // =========================
   const [products, setProducts] = useState(() => globalProductCache || []);
+  const [categories, setCategories] = useState(() => globalCategoryCache || []);
   const [loading, setLoading] = useState(!globalProductCache);
   const [search, setSearch] = useState(searchParam);
   const [sort, setSort] = useState("newest");
@@ -83,27 +85,43 @@ function ProductsContent() {
   }, [categoryParam, searchParam, isFlashSaleParam, brandParam, conditionParam]);
 
   // =========================
-  // LOAD PRODUCTS TỪ API
+  // LOAD PRODUCTS & CATEGORIES TỪ API
   // =========================
   useEffect(() => {
     let isMounted = true;
 
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const response = await productAPI.getAll({
-          limit: 500,
-        });
+        const [productsRes, categoriesRes] = await Promise.allSettled([
+          productAPI.getAll({ limit: 500 }),
+          categoryAPI.getAll(),
+        ]);
 
-        const data =
-          response?.data?.data?.products ||
-          (Array.isArray(response?.data?.data) ? response.data.data : []);
+        if (productsRes.status === "fulfilled") {
+          const response = productsRes.value;
+          const data =
+            response?.data?.data?.products ||
+            (Array.isArray(response?.data?.data) ? response.data.data : []);
 
-        if (isMounted && data?.length > 0) {
-          globalProductCache = data;
-          setProducts(data);
+          if (isMounted && data?.length > 0) {
+            globalProductCache = data;
+            setProducts(data);
+          }
+        }
+
+        if (categoriesRes.status === "fulfilled") {
+          const catResponse = categoriesRes.value;
+          const catData =
+            catResponse?.data?.data ||
+            (Array.isArray(catResponse?.data) ? catResponse.data : []);
+
+          if (isMounted && Array.isArray(catData) && catData.length > 0) {
+            globalCategoryCache = catData;
+            setCategories(catData);
+          }
         }
       } catch (error) {
-        console.error("Lỗi khi tải sản phẩm từ API:", error.message);
+        console.error("Lỗi khi tải dữ liệu từ API:", error.message);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -111,7 +129,7 @@ function ProductsContent() {
       }
     };
 
-    fetchProducts();
+    fetchData();
 
     return () => {
       isMounted = false;
@@ -144,7 +162,7 @@ function ProductsContent() {
       });
     }
 
-    // CATEGORY (Chuẩn hóa chính xác theo Loại sản phẩm & Danh mục, không nhầm linh kiện trong PC)
+    // CATEGORY (Chuẩn hóa chính xác theo Hệ thống danh mục & Loại sản phẩm)
     if (filters.category) {
       const selectedCat = filters.category.toLowerCase().trim();
 
@@ -153,101 +171,134 @@ function ProductsContent() {
         const name = (product.name || "").toLowerCase();
         const catSlug = (product.categorySlug || "").toLowerCase();
         const catName = (product.categoryName || "").toLowerCase();
+        const pCatId = typeof product.category === "object" ? product.category?._id : product.category;
 
-        // 1. Nhóm Laptop
+        // Nếu khớp ID chính xác
+        if (pCatId && String(pCatId) === selectedCat) return true;
+
+        // 1. Nhóm Laptop & Macbook
         if (
           selectedCat === "laptop-cu" ||
           selectedCat === "laptop cũ" ||
-          selectedCat === "laptop"
+          selectedCat === "laptop" ||
+          selectedCat === "laptop & macbook"
         ) {
-          return prodType === PRODUCT_TYPES.LAPTOP;
+          return prodType === PRODUCT_TYPES.LAPTOP || catSlug.includes("laptop") || catSlug === "macbook";
+        }
+        if (selectedCat === "laptop-gaming") {
+          return catSlug === "laptop-gaming" || (prodType === PRODUCT_TYPES.LAPTOP && (name.includes("gaming") || catName.includes("gaming")));
+        }
+        if (selectedCat === "laptop-van-phong") {
+          return catSlug === "laptop-van-phong" || (prodType === PRODUCT_TYPES.LAPTOP && (name.includes("văn phòng") || name.includes("thinkpad") || name.includes("zenbook") || name.includes("latitude") || name.includes("swift")) && !name.includes("gaming") && !name.includes("tuf") && !name.includes("legion") && !name.includes("nitro"));
+        }
+        if (selectedCat === "macbook") {
+          return catSlug === "macbook" || name.includes("macbook") || name.includes("apple");
         }
 
-        // 2. Nhóm PC
+        // 2. Nhóm Máy Tính Để Bàn (PC)
         if (
           selectedCat === "pc-cu" ||
           selectedCat === "pc cũ" ||
-          selectedCat === "pc"
+          selectedCat === "pc" ||
+          selectedCat === "máy tính để bàn (pc)"
         ) {
-          return prodType === PRODUCT_TYPES.PC;
+          return prodType === PRODUCT_TYPES.PC || catSlug === "pc" || catSlug.startsWith("pc-");
+        }
+        if (selectedCat === "pc-gaming") {
+          return catSlug === "pc-gaming" || (prodType === PRODUCT_TYPES.PC && (name.includes("gaming") || catName.includes("gaming")));
+        }
+        if (selectedCat === "pc-do-hoa") {
+          return catSlug === "pc-do-hoa" || (prodType === PRODUCT_TYPES.PC && (name.includes("đồ họa") || name.includes("workstation") || name.includes("render")));
+        }
+        if (selectedCat === "pc-van-phong") {
+          return catSlug === "pc-van-phong" || (prodType === PRODUCT_TYPES.PC && (name.includes("văn phòng") || name.includes("office")));
         }
 
-        // 3. Nhóm Màn hình máy tính
-        if (
-          selectedCat === "man-hinh" ||
-          selectedCat === "màn hình" ||
-          selectedCat === "màn hình máy tính"
-        ) {
-          return prodType === PRODUCT_TYPES.MONITOR;
+        // 3. Nhóm Linh Kiện Máy Tính
+        if (selectedCat === "linh-kien-pc" || selectedCat === "linh kiện máy tính") {
+          return [
+            PRODUCT_TYPES.CPU,
+            PRODUCT_TYPES.MAINBOARD,
+            PRODUCT_TYPES.RAM,
+            PRODUCT_TYPES.VGA,
+            PRODUCT_TYPES.STORAGE,
+            PRODUCT_TYPES.SSD,
+            PRODUCT_TYPES.PSU,
+            PRODUCT_TYPES.CASE,
+            PRODUCT_TYPES.COOLER,
+          ].includes(prodType) || catSlug.includes("linh-kien");
         }
-
-        // 4. Nhóm Mainboard
-        if (
-          selectedCat === "mainboard-bo-mach-chu" ||
-          selectedCat === "mainboard" ||
-          selectedCat === "bo mạch chủ"
-        ) {
-          return prodType === PRODUCT_TYPES.MAINBOARD;
-        }
-
-        // 5. Nhóm Nguồn (PSU)
-        if (
-          selectedCat === "psu-nguon-may-tinh" ||
-          selectedCat === "psu" ||
-          selectedCat === "nguồn máy tính" ||
-          selectedCat === "nguồn"
-        ) {
-          return prodType === PRODUCT_TYPES.PSU;
-        }
-
-        // 6. Nhóm CPU
         if (
           selectedCat === "cpu-bo-vi-xu-ly" ||
           selectedCat === "cpu" ||
           selectedCat === "bộ vi xử lý"
         ) {
-          return prodType === PRODUCT_TYPES.CPU;
+          return prodType === PRODUCT_TYPES.CPU || catSlug.includes("cpu") || catName.includes("vi xử lý");
         }
-
-        // 7. Nhóm Card màn hình (VGA)
         if (
-          selectedCat === "vga-card-man-hinh" ||
-          selectedCat === "vga" ||
-          selectedCat === "card màn hình"
+          selectedCat === "mainboard-bo-mach-chu" ||
+          selectedCat === "mainboard" ||
+          selectedCat === "bo mạch chủ"
         ) {
-          return prodType === PRODUCT_TYPES.VGA;
+          return prodType === PRODUCT_TYPES.MAINBOARD || catSlug.includes("mainboard") || catName.includes("bo mạch");
         }
-
-        // 8. Nhóm RAM
         if (
           selectedCat === "ram-bo-nho-trong" ||
           selectedCat === "ram" ||
           selectedCat === "bộ nhớ trong"
         ) {
-          return prodType === PRODUCT_TYPES.RAM;
+          return prodType === PRODUCT_TYPES.RAM || catSlug.includes("ram") || catName.includes("bộ nhớ");
         }
-
-        // 9. Nhóm Ổ cứng (SSD / HDD)
+        if (
+          selectedCat === "vga-card-man-hinh" ||
+          selectedCat === "vga" ||
+          selectedCat === "card màn hình"
+        ) {
+          return prodType === PRODUCT_TYPES.VGA || catSlug.includes("vga") || catName.includes("card màn hình");
+        }
         if (
           selectedCat === "o-cung-hdd-ssd" ||
           selectedCat === "ssd" ||
           selectedCat === "hdd" ||
           selectedCat === "ổ cứng"
         ) {
-          return prodType === PRODUCT_TYPES.STORAGE;
+          return prodType === PRODUCT_TYPES.STORAGE || prodType === PRODUCT_TYPES.SSD || catSlug.includes("o-cung") || catSlug.includes("ssd") || catSlug.includes("hdd");
         }
-
-        // 10. Nhóm Vỏ Case
+        if (
+          selectedCat === "psu-nguon-may-tinh" ||
+          selectedCat === "psu" ||
+          selectedCat === "nguồn máy tính" ||
+          selectedCat === "nguồn"
+        ) {
+          return prodType === PRODUCT_TYPES.PSU || catSlug.includes("psu") || catName.includes("nguồn");
+        }
         if (
           selectedCat === "case-vo-may-tinh" ||
           selectedCat === "case" ||
           selectedCat === "vỏ case" ||
           selectedCat === "vỏ máy tính"
         ) {
-          return prodType === PRODUCT_TYPES.CASE;
+          return prodType === PRODUCT_TYPES.CASE || catSlug.includes("case") || catName.includes("vỏ máy");
+        }
+        if (
+          selectedCat === "tan-nhiet-cooling" ||
+          selectedCat === "tản nhiệt" ||
+          selectedCat === "cooling"
+        ) {
+          return prodType === PRODUCT_TYPES.COOLER || catSlug.includes("tan-nhiet") || catName.includes("tản nhiệt");
         }
 
-        // 11. Nhóm Chuột
+        // 4. Nhóm Màn Hình & Phụ Kiện Gear
+        if (selectedCat === "man-hinh-gear" || selectedCat === "màn hình & phụ kiện gear") {
+          return [PRODUCT_TYPES.MONITOR, PRODUCT_TYPES.KEYBOARD, PRODUCT_TYPES.MOUSE].includes(prodType) || catSlug.includes("gear");
+        }
+        if (
+          selectedCat === "man-hinh" ||
+          selectedCat === "màn hình" ||
+          selectedCat === "màn hình máy tính"
+        ) {
+          return prodType === PRODUCT_TYPES.MONITOR || catSlug.includes("man-hinh") || catName.includes("màn hình");
+        }
         if (selectedCat === "chuot" || selectedCat === "chuột") {
           return (
             prodType === PRODUCT_TYPES.MOUSE ||
@@ -256,8 +307,6 @@ function ProductsContent() {
             name.includes("chuột")
           );
         }
-
-        // 12. Nhóm Bàn phím
         if (selectedCat === "ban-phim" || selectedCat === "bàn phím") {
           return (
             prodType === PRODUCT_TYPES.KEYBOARD ||
@@ -267,17 +316,9 @@ function ProductsContent() {
           );
         }
 
-        // 13. Nhóm Tản nhiệt
-        if (
-          selectedCat === "tan-nhiet-cooling" ||
-          selectedCat === "tản nhiệt" ||
-          selectedCat === "cooling"
-        ) {
-          return prodType === PRODUCT_TYPES.COOLER;
-        }
-
         // Khớp fallback chung theo categorySlug hoặc categoryName
         return (
+          catSlug === selectedCat ||
           catSlug.includes(selectedCat) ||
           catName.includes(selectedCat) ||
           selectedCat.includes(catSlug) ||
@@ -405,10 +446,6 @@ function ProductsContent() {
   };
 
   const handleFilterChange = (newFilters) => {
-    // Khi chọn danh mục mới trên Sidebar hoặc chuyển đổi danh mục, tự động làm mới thanh tìm kiếm
-    if (newFilters.category !== filters.category) {
-      setSearch("");
-    }
     setFilters(newFilters);
     setCurrentPage(1);
   };
@@ -492,6 +529,7 @@ function ProductsContent() {
           <ProductSidebar
             filters={filters}
             products={products}
+            categories={categories}
             onFilterChange={handleFilterChange}
             isMobileOpen={isMobileFilterOpen}
             onCloseMobile={() => setIsMobileFilterOpen(false)}
@@ -512,6 +550,7 @@ function ProductsContent() {
 
             <ActiveFilters
               filters={filters}
+              categories={categories}
               search={search}
               onFilterChange={handleFilterChange}
               onClearSearch={() => handleSearch("")}

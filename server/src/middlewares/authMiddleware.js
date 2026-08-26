@@ -28,7 +28,7 @@ export const verifyJWT = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    next(new ApiError(401, error?.message || "Xác thực token thất bại"));
+    next(new ApiError(error?.statusCode || 401, error?.message || "Xác thực token thất bại"));
   }
 };
 
