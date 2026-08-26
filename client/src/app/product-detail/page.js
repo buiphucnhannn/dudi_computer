@@ -12,7 +12,6 @@ import ProductSpecifications from "../../components/product-detail/ProductSpecif
 import StoreInfo from "../../components/product-detail/StoreInfo";
 import WhyChooseUs from "../../components/product-detail/WhyChooseUs";
 import NewsSection from "../../components/product-detail/NewsSection";
-import RelatedProducts from "../../components/product-detail/RelatedProducts";
 import SimilarProducts from "@/components/product-detail/SimilarProducts";
 import { productAPI } from "@/lib/api";
 
@@ -217,16 +216,11 @@ function ProductDetailContent() {
       </section>
 
       {/* =====================================================
-          RELATED PRODUCTS
+          SIMILAR PRODUCTS SLIDER
           Full width
       ===================================================== */}
-
-      <section className="w-full bg-white">
-
-        <RelatedProducts
-          products={related}
-        />
-
+      <section className="w-full bg-white border-t border-slate-200/80">
+        <SimilarProducts products={related} />
       </section>
 
     </main>
@@ -245,7 +239,6 @@ const Page = () => {
       }
     >
       <ProductDetailContent />
-      <SimilarProducts />
     </Suspense>
   );
 };
