@@ -42,13 +42,13 @@ export default function PromotionPopup() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="relative w-full max-w-[760px] sm:max-w-[800px]"
+        className="relative w-fit max-w-[92vw] max-h-[90vh] mx-auto flex items-center justify-center"
         onClick={(event) => event.stopPropagation()}
       >
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="absolute -right-2.5 -top-2.5 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl font-bold text-[#dc2626] shadow-xl border border-red-100 transition hover:bg-[#dc2626] hover:text-white cursor-pointer"
+          className="absolute -right-3 -top-3 z-30 flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl font-bold text-[#dc2626] shadow-2xl border border-red-100 transition-all hover:bg-[#dc2626] hover:text-white hover:scale-110 cursor-pointer"
           aria-label="Đóng popup"
         >
           ×
@@ -59,23 +59,23 @@ export default function PromotionPopup() {
           <Link
             href={popupData.link.trim()}
             onClick={() => setOpen(false)}
-            className="block overflow-hidden rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-[1.01] cursor-pointer bg-slate-900 border border-white/10"
+            className="block overflow-hidden rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-[1.01] cursor-pointer"
           >
             <img
               src={popupData.imageUrl}
               alt={popupData.title || "Khuyến mãi DUDI SOFTWARE"}
-              className="block h-auto max-h-[85vh] w-full object-contain mx-auto"
+              className="block w-auto h-auto max-w-[92vw] sm:max-w-[800px] max-h-[85vh] object-contain rounded-2xl"
               onError={(e) => {
                 e.currentTarget.src = "/back-to-school-popup.webp";
               }}
             />
           </Link>
         ) : (
-          <div className="block overflow-hidden rounded-2xl shadow-2xl bg-slate-900 border border-white/10 select-none">
+          <div className="block overflow-hidden rounded-2xl shadow-2xl select-none">
             <img
               src={popupData.imageUrl}
               alt={popupData.title || "Khuyến mãi DUDI SOFTWARE"}
-              className="block h-auto max-h-[85vh] w-full object-contain mx-auto"
+              className="block w-auto h-auto max-w-[92vw] sm:max-w-[800px] max-h-[85vh] object-contain rounded-2xl"
               onError={(e) => {
                 e.currentTarget.src = "/back-to-school-popup.webp";
               }}
