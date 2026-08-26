@@ -63,10 +63,11 @@ export default function FlashSaleSection({ categories = [] }) {
     if (!Array.isArray(categories) || categories.length === 0) {
       return [
         { label: "Tất cả", slug: "all" },
-        { label: "Laptop & Macbook", slug: "laptop" },
+        { label: "Laptop", slug: "laptop" },
         { label: "Máy Tính Để Bàn (PC)", slug: "pc" },
         { label: "Linh Kiện Máy Tính", slug: "linh-kien-pc" },
-        { label: "Màn Hình & Phụ Kiện Gear", slug: "man-hinh-gear" },
+        { label: "Màn hình máy tính", slug: "man-hinh" },
+        { label: "Phụ Kiện Gear", slug: "phu-kien-gear" },
       ];
     }
     const rootCategories = categories.filter((c) => !c.parent);

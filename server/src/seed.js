@@ -48,11 +48,11 @@ export const BRANDS_DATA = [
 ];
 
 export const CATEGORIES_DATA = [
-  // 1. NHÓM GỐC: LAPTOP & MACBOOK
-  { name: "Laptop & Macbook", slug: "laptop", pcPartType: "none", isFeatured: true, order: 1, description: "Laptop chính hãng cao cấp, like new 99% và mới 100% nguyên seal" },
+  // 1. NHÓM GỐC: LAPTOP (Laptop là danh mục bự, Macbook là danh mục con của Laptop)
+  { name: "Laptop", slug: "laptop", pcPartType: "none", isFeatured: true, order: 1, description: "Laptop chính hãng cao cấp, Like New 99% và Mới 100% nguyên seal" },
   { name: "Laptop Gaming", slug: "laptop-gaming", parentSlug: "laptop", pcPartType: "none", isFeatured: true, order: 2, description: "Laptop Gaming cấu hình khủng, màn hình 144Hz - 240Hz chiến game mượt mà" },
   { name: "Laptop Văn phòng", slug: "laptop-van-phong", parentSlug: "laptop", pcPartType: "none", order: 3, description: "Laptop văn phòng mỏng nhẹ, pin trâu, thiết kế sang trọng" },
-  { name: "Macbook", slug: "macbook", parentSlug: "laptop", pcPartType: "none", isFeatured: true, order: 4, description: "Apple MacBook Pro, MacBook Air chip M1, M2, M3 retina đẳng cấp" },
+  { name: "Macbook", slug: "macbook", parentSlug: "laptop", pcPartType: "none", isFeatured: true, order: 4, description: "Apple MacBook Pro, MacBook Air chip M1, M2, M3, M4 retina đẳng cấp" },
 
   // 2. NHÓM GỐC: MÁY TÍNH ĐỂ BÀN (PC)
   { name: "Máy Tính Để Bàn (PC)", slug: "pc", pcPartType: "none", isFeatured: true, order: 5, description: "Dàn máy tính PC văn phòng, đồ họa, gaming đồng bộ và lắp ráp chất lượng cao" },
@@ -71,11 +71,15 @@ export const CATEGORIES_DATA = [
   { name: "CASE - Vỏ máy tính", slug: "case-vo-may-tinh", parentSlug: "linh-kien-pc", pcPartType: "case", isFeatured: true, order: 16, description: "Vỏ case máy tính bể cá vô cực, case kính cường lực kèm quạt ARGB rực rỡ" },
   { name: "Tản nhiệt Cooling", slug: "tan-nhiet-cooling", parentSlug: "linh-kien-pc", pcPartType: "cooler", isFeatured: true, order: 17, description: "Tản nhiệt nước AIO 240/360 màn hình LCD, tản nhiệt khí tháp đôi siêu mát" },
 
-  // 4. NHÓM GỐC: MÀN HÌNH & GAMING GEAR
-  { name: "Màn Hình & Phụ Kiện Gear", slug: "man-hinh-gear", pcPartType: "none", isFeatured: true, order: 18, description: "Màn hình hiển thị sắc nét và phụ kiện bàn phím chuột gaming cao cấp" },
-  { name: "Màn hình máy tính", slug: "man-hinh", parentSlug: "man-hinh-gear", pcPartType: "monitor", isFeatured: true, order: 19, description: "Màn hình máy tính Gaming, Đồ họa 24 - 32 inch, 2K, 4K, 165Hz - 240Hz, IPS, OLED" },
-  { name: "Bàn phím", slug: "ban-phim", parentSlug: "man-hinh-gear", pcPartType: "gear", order: 20, description: "Bàn phím cơ Gaming, bàn phím không dây Akko, Keychron, Corsair, DareU" },
-  { name: "Chuột", slug: "chuot", parentSlug: "man-hinh-gear", pcPartType: "gear", order: 21, description: "Chuột gaming không dây, chuột công thái học Logitech, Razer siêu nhẹ" },
+  // 4. NHÓM GỐC: MÀN HÌNH MÁY TÍNH
+  { name: "Màn hình máy tính", slug: "man-hinh", pcPartType: "monitor", isFeatured: true, order: 18, description: "Màn hình máy tính Gaming, Đồ họa 24 - 32 inch, 2K, 4K, 165Hz - 240Hz, IPS, OLED" },
+  { name: "Màn hình Gaming", slug: "man-hinh-gaming", parentSlug: "man-hinh", pcPartType: "monitor", isFeatured: true, order: 19, description: "Màn hình gaming tần số quét cao 144Hz, 165Hz, 240Hz, phản hồi 1ms siêu mượt" },
+  { name: "Màn hình Văn phòng / Đồ họa", slug: "man-hinh-van-phong", parentSlug: "man-hinh", pcPartType: "monitor", order: 20, description: "Màn hình IPS chuẩn màu sRGB 100%, 2K, 4K sắc nét cho đồ họa và công việc" },
+
+  // 5. NHÓM GỐC: PHỤ KIỆN GEAR
+  { name: "Phụ Kiện Gear", slug: "phu-kien-gear", pcPartType: "gear", isFeatured: true, order: 21, description: "Phụ kiện Gear chính hãng bàn phím cơ, chuột, tai nghe và phụ kiện máy tính" },
+  { name: "Bàn phím", slug: "ban-phim", parentSlug: "phu-kien-gear", pcPartType: "gear", isFeatured: true, order: 22, description: "Bàn phím cơ Gaming, bàn phím không dây Akko, Keychron, Corsair, DareU" },
+  { name: "Chuột", slug: "chuot", parentSlug: "phu-kien-gear", pcPartType: "gear", isFeatured: true, order: 23, description: "Chuột gaming không dây, chuột công thái học Logitech, Razer siêu nhẹ" },
 ];
 
 export const NEWS_DATA = [

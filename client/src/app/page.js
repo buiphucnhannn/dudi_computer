@@ -112,7 +112,33 @@ export default function Home() {
     ];
   }, [dbCategories]);
 
-  // Tabs danh mục con cho Gaming Gear load động từ DB
+  // Tabs danh mục con cho Màn Hình Máy Tính load động từ DB
+  const monitorTabs = useMemo(() => {
+    if (!Array.isArray(dbCategories) || dbCategories.length === 0) {
+      return [
+        { name: "Tất cả", slug: "all" },
+        { name: "Màn hình Gaming", slug: "man-hinh-gaming" },
+        { name: "Màn hình Văn phòng / Đồ họa", slug: "man-hinh-van-phong" },
+      ];
+    }
+    const monitorParent = dbCategories.find(
+      (c) => (c.slug || "").toLowerCase() === "man-hinh" || (c.name || "").toLowerCase().includes("màn hình")
+    );
+    let children = [];
+    if (monitorParent) {
+      children = dbCategories.filter(
+        (c) =>
+          (c.parent?._id || c.parent)?.toString() === monitorParent._id.toString() ||
+          c.parentSlug === monitorParent.slug
+      );
+    }
+    return [
+      { name: "Tất cả", slug: "all" },
+      ...children.map((c) => ({ name: c.name, slug: c.slug })),
+    ];
+  }, [dbCategories]);
+
+  // Tabs danh mục con cho Phụ Kiện Gear load động từ DB
   const gearTabs = useMemo(() => {
     if (!Array.isArray(dbCategories) || dbCategories.length === 0) {
       return [
@@ -123,9 +149,10 @@ export default function Home() {
     }
     const gearParent = dbCategories.find(
       (c) =>
-        (c.slug || "").toLowerCase() === "man-hinh-gear" ||
-        (c.name || "").toLowerCase().includes("gear") ||
-        (c.slug || "").toLowerCase() === "phu-kien-gaming-gear"
+        (c.slug || "").toLowerCase() === "phu-kien-gear" ||
+        (c.slug || "").toLowerCase() === "gear" ||
+        (c.name || "").toLowerCase().includes("phụ kiện gear") ||
+        (c.name || "").toLowerCase() === "gear"
     );
     let children = [];
     if (gearParent) {
@@ -164,9 +191,9 @@ export default function Home() {
   const gearProducts = useMemo(() => {
     return products.filter(
       (p) =>
+        isProductMatchingCategory(p, "phu-kien-gear", dbCategories) ||
         isProductMatchingCategory(p, "ban-phim", dbCategories) ||
         isProductMatchingCategory(p, "chuot", dbCategories) ||
-        isProductMatchingCategory(p, "man-hinh-gear", dbCategories) ||
         (p.name && /bàn phím|chuột|keyboard|mouse/i.test(p.name))
     );
   }, [products, dbCategories]);
@@ -223,7 +250,7 @@ export default function Home() {
       {/* 8. 💻 LAPTOP Box (Tabs lọc chính xác theo dòng máy, Max 8 sản phẩm) */}
       <CategoryProductBox
         title="LAPTOP"
-        mainSlug="laptop-cu"
+        mainSlug="laptop"
         tabs={laptopTabs}
         products={laptopProducts}
         categories={dbCategories}
@@ -232,7 +259,7 @@ export default function Home() {
       {/* 9. 🖥️ PC Box (Max 8 sản phẩm) */}
       <CategoryProductBox
         title="PC"
-        mainSlug="pc-cu"
+        mainSlug="pc"
         tabs={pcTabs}
         products={pcProducts}
         categories={dbCategories}
@@ -242,15 +269,15 @@ export default function Home() {
       <CategoryProductBox
         title="MÀN HÌNH MÁY TÍNH"
         mainSlug="man-hinh"
-        tabs={[]}
+        tabs={monitorTabs}
         products={monitorProducts}
         categories={dbCategories}
       />
 
-      {/* 11. ⌨️ PHỤ KIỆN GAMING GEAR (Bàn phím & Chuột riêng biệt chuyên nghiệp, Max 8 sản phẩm) */}
+      {/* 11. ⌨️ PHỤ KIỆN GEAR (Bàn phím & Chuột riêng biệt, Max 8 sản phẩm) */}
       <CategoryProductBox
-        title="PHỤ KIỆN GAMING GEAR"
-        mainSlug="ban-phim"
+        title="PHỤ KIỆN GEAR"
+        mainSlug="phu-kien-gear"
         tabs={gearTabs}
         products={gearProducts}
         categories={dbCategories}

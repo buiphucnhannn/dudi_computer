@@ -6,7 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Scale,
-  Heart,
+  ShoppingCart,
   Eye,
   Cpu,
   HardDrive,
@@ -97,7 +97,7 @@ export default function CategoryProductBox({
     sliderRef.current.scrollBy({ left: step, behavior: "smooth" });
   };
 
-  const handleToggleFavorite = (e, item) => {
+  const handleToggleCart = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
     if (typeof item.stock === "number" && item.stock <= 0) {
@@ -320,12 +320,12 @@ export default function CategoryProductBox({
                     </button>
                     {mounted && !isAdmin && !isOutOfStock && (
                       <button
-                        onClick={(e) => handleToggleFavorite(e, item)}
-                        className={`cursor-pointer transition-colors ${isFav ? "text-red-500" : "hover:text-red-500"
+                        onClick={(e) => handleToggleCart(e, item)}
+                        className={`cursor-pointer transition-colors ${isFav ? "text-[#eb1c24]" : "hover:text-[#eb1c24]"
                           }`}
                         title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
                       >
-                        <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
+                        <ShoppingCart className="w-4 h-4" />
                       </button>
                     )}
                   </div>

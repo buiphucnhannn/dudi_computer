@@ -60,10 +60,11 @@ export default function FeaturedProductsSection({ products = [], categories = []
     if (!Array.isArray(categories) || categories.length === 0) {
       return [
         { id: "all", name: "Tất cả" },
-        { id: "laptop", name: "Laptop & Macbook" },
+        { id: "laptop", name: "Laptop" },
         { id: "pc", name: "Máy Tính Để Bàn (PC)" },
         { id: "linh-kien-pc", name: "Linh Kiện Máy Tính" },
-        { id: "man-hinh-gear", name: "Màn Hình & Phụ Kiện Gear" },
+        { id: "man-hinh", name: "Màn hình máy tính" },
+        { id: "phu-kien-gear", name: "Phụ Kiện Gear" },
       ];
     }
     const rootCategories = categories.filter((c) => !c.parent);

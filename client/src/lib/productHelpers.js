@@ -249,9 +249,9 @@ export function isProductMatchingCategory(product, targetCatSlug, categories = [
     );
   }
 
-  if (s === "man-hinh-gear" || s === "gear") {
-    if (isPCBuild || isLaptopOrMacbook) return false;
-    return isMonitor || isKeyboard || isMouse;
+  if (s === "phu-kien-gear" || s === "gear" || s === "man-hinh-gear") {
+    if (isPCBuild || isLaptopOrMacbook || isMonitor) return false;
+    return isKeyboard || isMouse || name.includes("tai nghe") || name.includes("headset") || name.includes("lót chuột") || name.includes("pad");
   }
 
   // --- MÀN HÌNH ---
@@ -259,8 +259,16 @@ export function isProductMatchingCategory(product, targetCatSlug, categories = [
     if (isKeyboard || isMouse || isPCBuild || isLaptopOrMacbook) return false;
     return isMonitor;
   }
+  if (s === "man-hinh-gaming") {
+    if (isKeyboard || isMouse || isPCBuild || isLaptopOrMacbook) return false;
+    return isMonitor && (name.includes("gaming") || name.includes("144hz") || name.includes("165hz") || name.includes("180hz") || name.includes("240hz") || name.includes("ultragear") || name.includes("odyssey"));
+  }
+  if (s === "man-hinh-van-phong" || s === "man-hinh-do-hoa") {
+    if (isKeyboard || isMouse || isPCBuild || isLaptopOrMacbook) return false;
+    return isMonitor && !name.includes("144hz") && !name.includes("165hz") && !name.includes("240hz") && !name.includes("ultragear");
+  }
 
-  // --- GEAR (BÀN PHÍM & CHUỘT) ---
+  // --- PHỤ KIỆN GEAR (BÀN PHÍM & CHUỘT) ---
   if (s === "ban-phim") return isKeyboard;
   if (s === "chuot") return isMouse;
 
