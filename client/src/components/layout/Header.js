@@ -704,24 +704,22 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Cart (Chỉ hiển thị cho Khách hàng / Khách vãng lai, ẩn hoàn toàn đối với Admin) */}
-          {user?.role !== "admin" && (
-            <div className="flex items-center gap-1 sm:gap-2">
-              <Link
-                href="/cart"
-                className={`relative p-2 transition-colors flex items-center gap-1 ${isCartActive ? "text-[#eb1c24]" : "text-gray-700 hover:text-[#eb1c24]"
-                  }`}
-                title="Giỏ hàng"
-              >
-                <ShoppingCart className="w-6 h-6" />
-                {mounted && totalItems > 0 && (
-                  <span className="absolute top-0 right-0 bg-[#eb1c24] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                    {totalItems}
-                  </span>
-                )}
-              </Link>
-            </div>
-          )}
+          {/* Cart */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Link
+              href="/cart"
+              className={`relative p-2 transition-colors flex items-center gap-1 ${isCartActive ? "text-[#eb1c24]" : "text-gray-700 hover:text-[#eb1c24]"
+                }`}
+              title="Giỏ hàng"
+            >
+              <ShoppingCart className="w-6 h-6" />
+              {mounted && totalItems > 0 && (
+                <span className="absolute top-0 right-0 bg-[#eb1c24] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
+          </div>
 
           {/* User Auth Links (Đăng nhập | Đăng ký | Dropdown Profile) */}
           <div className="hidden sm:flex items-center gap-2 pl-2 relative">

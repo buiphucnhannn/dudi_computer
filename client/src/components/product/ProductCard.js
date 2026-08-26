@@ -131,8 +131,8 @@ export default function ProductCard({ product }) {
         <button
           onClick={handleToggleCompare}
           className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full backdrop-blur-md transition-all shadow-xs cursor-pointer ${isComp
-              ? "bg-[#eb1c24] text-white shadow-sm scale-105"
-              : "bg-white/90 hover:bg-white text-slate-600 hover:text-[#eb1c24] hover:scale-105 border border-slate-100"
+            ? "bg-[#eb1c24] text-white shadow-sm scale-105"
+            : "bg-white/90 hover:bg-white text-slate-600 hover:text-[#eb1c24] hover:scale-105 border border-slate-100"
             }`}
           title="So sánh sản phẩm"
         >
@@ -142,9 +142,9 @@ export default function ProductCard({ product }) {
         {mounted && !isAdmin && (
           <button
             onClick={handleToggleCart}
-            className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full backdrop-blur-md transition-all shadow-xs cursor-pointer ${isCart
-                ? "bg-[#eb1c24] text-white shadow-sm scale-105"
-                : "bg-white/90 hover:bg-white text-slate-600 hover:text-[#eb1c24] hover:scale-105 border border-slate-100"
+            className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${isCart
+                ? "bg-[#eb1c24] text-white shadow-sm"
+                : "bg-white/80 hover:bg-white text-gray-700 hover:text-[#eb1c24]"
               }`}
             title={isCart ? "Đã có trong giỏ hàng (Bấm để xóa)" : "Thêm vào giỏ hàng"}
           >
@@ -255,12 +255,12 @@ export default function ProductCard({ product }) {
             </div>
           )}
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1 sm:gap-1.5">
             {isAdmin ? (
               <button
                 type="button"
                 onClick={handleOpenDetail}
-                className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white py-1.5 px-2 rounded-xl text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
+                className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white py-1.5 px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>Xem chi tiết</span>
@@ -269,16 +269,16 @@ export default function ProductCard({ product }) {
               <>
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-red-50 hover:bg-[#eb1c24] text-[#eb1c24] hover:text-white border border-red-200/80 hover:border-[#eb1c24] py-1.5 px-2 rounded-xl text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs active:scale-98"
+                  className="flex-1 flex items-center justify-center gap-1 bg-red-50 hover:bg-[#dc2626] text-[#dc2626] hover:text-white border border-red-200/80 py-1.5 px-1.5 sm:px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
                 >
                   <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   <span className="truncate">Thêm vào giỏ</span>
                 </button>
                 <span
-                  className="p-1.5 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-900 bg-slate-50/50 hover:bg-slate-100 transition-colors shrink-0 flex items-center justify-center"
+                  className="p-1 sm:p-1.5 rounded-lg border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 transition-colors shrink-0"
                   title="Xem chi tiết"
                 >
-                  <Eye className="w-3.5 h-3.5" />
+                  <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </span>
               </>
             )}

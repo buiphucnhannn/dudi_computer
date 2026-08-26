@@ -134,10 +134,21 @@ export default function FeaturedProductsSection({ products = [] }) {
     }
   };
 
+  const getScrollAmount = () => {
+    if (!sliderRef.current) return 300;
+    const firstCard = sliderRef.current.querySelector(":scope > div");
+    if (!firstCard) return sliderRef.current.offsetWidth;
+    const cardWidth = firstCard.getBoundingClientRect().width;
+    const gap = 16; // gap-4 = 16px
+    const visibleWidth = sliderRef.current.clientWidth;
+    const visibleCount = Math.max(1, Math.floor((visibleWidth + gap) / (cardWidth + gap)));
+    return (cardWidth + gap) * visibleCount;
+  };
+
   const scrollLeft = () => {
     if (sliderRef.current) {
       sliderRef.current.scrollBy({
-        left: -sliderRef.current.offsetWidth,
+        left: -getScrollAmount(),
         behavior: "smooth",
       });
     }
@@ -146,7 +157,7 @@ export default function FeaturedProductsSection({ products = [] }) {
   const scrollRight = () => {
     if (sliderRef.current) {
       sliderRef.current.scrollBy({
-        left: sliderRef.current.offsetWidth,
+        left: getScrollAmount(),
         behavior: "smooth",
       });
     }
@@ -220,8 +231,8 @@ export default function FeaturedProductsSection({ products = [] }) {
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
               className={`px-6 py-2 rounded-full font-bold text-sm transition-all duration-300 cursor-pointer ${isActive
-                  ? "bg-orange-500 text-white shadow-lg shadow-orange-500/40 scale-105"
-                  : "bg-white/90 text-orange-950 hover:bg-white border border-orange-200/80 shadow-2xs"
+                ? "bg-orange-500 text-white shadow-lg shadow-orange-500/40 scale-105"
+                : "bg-white/90 text-orange-950 hover:bg-white border border-orange-200/80 shadow-2xs"
                 }`}
             >
               {tab.name}
@@ -241,7 +252,7 @@ export default function FeaturedProductsSection({ products = [] }) {
 
         <div
           ref={sliderRef}
-          className="flex overflow-x-auto gap-4 py-2 px-1 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          className="flex overflow-x-auto gap-4 py-2 px-1 scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
           {filteredProducts.map((item) => {
             const {
@@ -265,7 +276,7 @@ export default function FeaturedProductsSection({ products = [] }) {
             return (
               <div
                 key={`featured-${item._id || item.id}`}
-                className="w-[260px] sm:w-[280px] lg:w-[calc(25%-12px)] shrink-0 bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-red-400/80 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group/card relative"
+                className="w-[260px] sm:w-[280px] lg:w-[calc(25%-12px)] shrink-0 bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group/card relative"
               >
                 <div>
                   <Link
@@ -322,8 +333,8 @@ export default function FeaturedProductsSection({ products = [] }) {
                           addToCompare(item);
                         }}
                         className={`p-1.5 rounded-full transition-all cursor-pointer ${isComp
-                            ? "text-[#eb1c24] bg-red-50"
-                            : "hover:text-[#eb1c24] hover:bg-gray-100"
+                          ? "text-[#eb1c24] bg-red-50"
+                          : "hover:text-[#eb1c24] hover:bg-gray-100"
                           }`}
                         title="So sánh sản phẩm"
                       >
@@ -395,22 +406,13 @@ export default function FeaturedProductsSection({ products = [] }) {
                     <Eye className="w-3.5 h-3.5" />
                     <span>{item.views || 68} lượt xem</span>
                   </span>
-                  {isAdmin ? (
-                    <Link
-                      href={detailHref}
-                      className="font-bold hover:underline cursor-pointer text-slate-800"
-                    >
-                      Chi tiết →
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={(e) => handleBuyNow(e, item)}
-                      className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
-                    >
-                      + Mua ngay
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => handleBuyNow(e, item)}
+                    className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                  >
+                    + Mua ngay
+                  </button>
                 </div>
               </div>
             );

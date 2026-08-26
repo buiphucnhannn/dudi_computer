@@ -119,7 +119,7 @@ export default function ActiveFilters({
           onClick={() => removePromotion(promotion)}
           className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-[#dc2626] cursor-pointer hover:bg-red-100 transition-colors"
         >
-          {promotion === "discount" ? "Đang giảm giá" : "Hot Sale"}
+          {promotion === "discount" ? "Đang giảm giá" : "Chiến dịch Flash Sale"}
           <X className="h-3 w-3" />
         </button>
       ))}

@@ -97,17 +97,6 @@ const DEFAULT_BANNERS = [
     isActive: true,
     description: "Popup thông báo khuyến mãi mở khi vào trang",
   },
-
-  // 4. Banner Trang Tất Cả Sản Phẩm
-  {
-    title: "Banner Đầu Trang Tất Cả Sản Phẩm",
-    imageUrl: "/banner.webp",
-    link: "/product",
-    position: "product_top",
-    order: 1,
-    isActive: true,
-    description: "Banner ngang phía trên bộ lọc sản phẩm",
-  },
 ];
 
 export const bannerService = {

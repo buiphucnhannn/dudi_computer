@@ -69,27 +69,89 @@ export const detectProductType = (product) => {
   const name = String(product.name || product.title || "").toLowerCase();
   const cat = String(product.categoryName || product.category || product.categorySlug || "").toLowerCase();
 
-  // 1. Monitor / Màn hình
+  // 1. PC / Bộ máy tính (Kiểm tra đầu tiên để không bị bắt nhầm vào linh kiện lẻ trong tên cấu hình)
   if (
-    cat.includes("màn hình") ||
-    cat.includes("man-hinh") ||
+    cat === "pc" ||
+    cat === "pc-cu" ||
+    cat === "pc-gaming" ||
+    cat === "pc-do-hoa" ||
+    cat === "pc-van-phong" ||
+    cat.startsWith("pc-") ||
+    cat.includes("bộ máy tính") ||
+    cat.includes("bo-may-tinh") ||
+    name.startsWith("bộ máy") ||
+    name.startsWith("pc ") ||
+    name.startsWith("máy tính để bàn") ||
+    name.includes("bộ máy tính") ||
+    name.includes("pc gaming") ||
+    name.includes("pc đồ họa") ||
+    name.includes("pc văn phòng")
+  ) {
+    // Đảm bảo không phải là linh kiện rời
+    if (
+      !name.startsWith("mainboard") &&
+      !name.startsWith("nguồn") &&
+      !name.startsWith("card màn hình") &&
+      !name.startsWith("vga") &&
+      !name.startsWith("ram") &&
+      !name.startsWith("ssd") &&
+      !name.startsWith("cpu") &&
+      !name.startsWith("màn hình") &&
+      !name.startsWith("vỏ case") &&
+      !name.startsWith("case ") &&
+      !name.startsWith("tản nhiệt")
+    ) {
+      return PRODUCT_TYPES.PC;
+    }
+  }
+
+  // 2. Laptop / Macbook
+  if (
+    cat.includes("laptop") ||
+    cat.includes("macbook") ||
+    name.startsWith("laptop") ||
+    name.startsWith("macbook") ||
+    name.includes("zenbook") ||
+    name.includes("vivobook") ||
+    name.includes("thinkpad") ||
+    name.includes("legion") ||
+    name.includes("alienware") ||
+    name.includes("predator")
+  ) {
+    return PRODUCT_TYPES.LAPTOP;
+  }
+
+  // 3. VGA / Card màn hình (Ưu tiên kiểm tra trước Monitor để tránh dính chữ 'màn hình')
+  if (
+    cat.includes("vga") ||
+    cat.includes("card-man-hinh") ||
+    cat.includes("card màn hình") ||
+    name.startsWith("vga ") ||
+    name.startsWith("card màn hình") ||
+    name.includes("card màn hình") ||
+    name.includes("geforce rtx") ||
+    name.includes("geforce gtx") ||
+    name.includes("radeon rx")
+  ) {
+    return PRODUCT_TYPES.VGA;
+  }
+
+  // 4. Monitor / Màn hình máy tính (Không bao gồm Card màn hình)
+  if (
+    ((cat.includes("man-hinh") || cat.includes("màn hình")) && !cat.includes("card")) ||
     cat.includes("monitor") ||
     name.startsWith("màn hình") ||
+    name.startsWith("lcd ") ||
     name.includes("ultragear") ||
     name.includes("odyssey g") ||
     name.includes("vg279") ||
     name.includes("xg32") ||
-    name.includes("24 inch") ||
-    name.includes("27 inch") ||
-    name.includes("32 inch")
+    (name.includes("màn hình") && !name.includes("card màn hình"))
   ) {
-    // Make sure it's not a laptop having LCD in title
-    if (!name.includes("laptop") && !cat.includes("laptop")) {
-      return PRODUCT_TYPES.MONITOR;
-    }
+    return PRODUCT_TYPES.MONITOR;
   }
 
-  // 2. Mainboard / Bo mạch chủ
+  // 5. Mainboard / Bo mạch chủ
   if (
     cat.includes("mainboard") ||
     cat.includes("bo mạch") ||
@@ -101,38 +163,18 @@ export const detectProductType = (product) => {
     return PRODUCT_TYPES.MAINBOARD;
   }
 
-  // 3. Power Supply (PSU / Nguồn)
+  // 6. Power Supply (PSU / Nguồn)
   if (
     cat.includes("psu") ||
     cat.includes("nguồn") ||
     cat.includes("nguon") ||
     name.startsWith("nguồn") ||
-    name.startsWith("psu") ||
-    name.includes("80 plus") ||
-    name.includes("a850g") ||
-    name.includes("rm750") ||
-    name.includes("rm850") ||
-    name.includes("swat 700w")
+    name.startsWith("psu")
   ) {
-    if (!name.includes("laptop") && !name.includes("bộ máy tính") && !cat.includes("pc")) {
-      return PRODUCT_TYPES.PSU;
-    }
+    return PRODUCT_TYPES.PSU;
   }
 
-  // 4. VGA / Card màn hình
-  if (
-    cat.includes("vga") ||
-    cat.includes("card-man-hinh") ||
-    cat.includes("card màn hình") ||
-    name.startsWith("vga ") ||
-    name.startsWith("card màn hình")
-  ) {
-    if (!name.includes("laptop") && !name.includes("bộ máy tính") && !cat.includes("pc")) {
-      return PRODUCT_TYPES.VGA;
-    }
-  }
-
-  // 5. RAM
+  // 7. RAM
   if (
     cat.includes("ram") ||
     cat.includes("bộ nhớ") ||
@@ -140,12 +182,10 @@ export const detectProductType = (product) => {
     name.startsWith("ram ") ||
     name.startsWith("kit ram")
   ) {
-    if (!name.includes("laptop") && !name.includes("bộ máy tính") && !cat.includes("pc")) {
-      return PRODUCT_TYPES.RAM;
-    }
+    return PRODUCT_TYPES.RAM;
   }
 
-  // 6. SSD / Ổ cứng
+  // 8. SSD / Ổ cứng
   if (
     cat.includes("ổ cứng") ||
     cat.includes("o-cung") ||
@@ -155,12 +195,10 @@ export const detectProductType = (product) => {
     name.startsWith("ổ cứng") ||
     name.startsWith("hdd ")
   ) {
-    if (!name.includes("laptop") && !name.includes("bộ máy tính") && !cat.includes("pc")) {
-      return PRODUCT_TYPES.SSD;
-    }
+    return PRODUCT_TYPES.SSD;
   }
 
-  // 7. CPU / Bộ vi xử lý
+  // 9. CPU / Bộ vi xử lý
   if (
     cat.includes("cpu") ||
     cat.includes("vi xử lý") ||
@@ -169,12 +207,10 @@ export const detectProductType = (product) => {
     name.startsWith("bộ vi xử lý") ||
     name.startsWith("vi xử lý")
   ) {
-    if (!name.includes("laptop") && !name.includes("bộ máy tính") && !cat.includes("pc")) {
-      return PRODUCT_TYPES.CPU;
-    }
+    return PRODUCT_TYPES.CPU;
   }
 
-  // 8. Tản nhiệt / Cooling
+  // 10. Tản nhiệt / Cooling
   if (
     cat.includes("tản nhiệt") ||
     cat.includes("tan-nhiet") ||
@@ -184,12 +220,10 @@ export const detectProductType = (product) => {
     name.startsWith("tản khí") ||
     name.startsWith("aio ")
   ) {
-    if (!name.includes("bộ máy tính") && !name.includes("laptop")) {
-      return PRODUCT_TYPES.COOLER;
-    }
+    return PRODUCT_TYPES.COOLER;
   }
 
-  // 9. Case / Vỏ máy tính
+  // 11. Case / Vỏ máy tính
   if (
     cat.includes("case") ||
     cat.includes("vỏ") ||
@@ -197,12 +231,10 @@ export const detectProductType = (product) => {
     name.startsWith("vỏ case") ||
     name.startsWith("case ")
   ) {
-    if (!name.includes("bộ máy tính") && !name.includes("laptop")) {
-      return PRODUCT_TYPES.CASE;
-    }
+    return PRODUCT_TYPES.CASE;
   }
 
-  // 10. Bàn phím
+  // 12. Bàn phím
   if (
     cat.includes("bàn phím") ||
     cat.includes("ban-phim") ||
@@ -214,7 +246,7 @@ export const detectProductType = (product) => {
     return PRODUCT_TYPES.KEYBOARD;
   }
 
-  // 11. Chuột
+  // 13. Chuột
   if (
     cat.includes("chuột") ||
     cat.includes("chuot") ||
@@ -225,42 +257,16 @@ export const detectProductType = (product) => {
     return PRODUCT_TYPES.MOUSE;
   }
 
-  // 12. Tai nghe / Phụ kiện khác
+  // 14. Tai nghe / Phụ kiện khác / Gear
   if (
     cat.includes("gear") ||
     cat.includes("phụ kiện") ||
+    cat.includes("tai-nghe") ||
     name.startsWith("tai nghe") ||
     name.includes("tai nghe") ||
     name.includes("lót chuột")
   ) {
     return PRODUCT_TYPES.GEAR;
-  }
-
-  // 11. Laptop / Macbook
-  if (
-    cat.includes("laptop") ||
-    cat.includes("macbook") ||
-    name.includes("laptop") ||
-    name.includes("macbook") ||
-    name.includes("zenbook") ||
-    name.includes("vivobook") ||
-    name.includes("thinkpad") ||
-    name.includes("legion") ||
-    name.includes("alienware") ||
-    name.includes("predator")
-  ) {
-    return PRODUCT_TYPES.LAPTOP;
-  }
-
-  // 12. PC / Bộ máy tính
-  if (
-    cat.includes("pc") ||
-    cat.includes("máy tính") ||
-    name.includes("bộ máy tính") ||
-    name.includes("pc ") ||
-    name.includes("gaming")
-  ) {
-    return PRODUCT_TYPES.PC;
   }
 
   return PRODUCT_TYPES.GENERAL;

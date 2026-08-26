@@ -49,28 +49,27 @@ export const promotionService = {
       ids.forEach((id) => allProductIdsSet.add(id));
     }
 
-    let products = [];
-    if (allProductIdsSet.size > 0) {
-      products = await Product.find({ _id: { $in: Array.from(allProductIdsSet) } })
-        .select("-description")
-        .populate("category", "name slug pcPartType")
-        .lean();
-    }
+    // Lấy toàn bộ sản phẩm thuộc các chiến dịch Flash Sale HOẶC có gắn cờ isFlashSale
+    const productQuery =
+      allProductIdsSet.size > 0
+        ? {
+            $or: [
+              { _id: { $in: Array.from(allProductIdsSet) } },
+              { isFlashSale: true },
+            ],
+          }
+        : {
+            $or: [
+              { isFlashSale: true },
+              { discountPercent: { $gt: 0 } },
+              { originalPrice: { $gt: 0 } },
+            ],
+          };
 
-    // Nếu không có sản phẩm chỉ định cụ thể, tìm các sản phẩm có cờ isFlashSale hoặc có giảm giá
-    if (products.length === 0) {
-      products = await Product.find({
-        $or: [
-          { isFlashSale: true },
-          { discountPercent: { $gt: 0 } },
-          { originalPrice: { $gt: 0 } },
-        ],
-      })
-        .select("-description")
-        .populate("category", "name slug pcPartType")
-        .limit(30)
-        .lean();
-    }
+    let products = await Product.find(productQuery)
+      .select("-description")
+      .populate("category", "name slug pcPartType")
+      .lean();
 
     // 3. SẮP XẾP: Ưu tiên giảm giá nhiều nhất lên đầu (% giảm cao nhất rồi đến số tiền giảm)
     products.sort((a, b) => {

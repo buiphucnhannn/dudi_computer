@@ -22,7 +22,7 @@ import { bannerAPI, uploadAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
 import BannerCropperModal from "@/components/admin/banners/BannerCropperModal";
 
-// Định nghĩa thông tin 4 vùng hiển thị cố định chuẩn trên website
+// Định nghĩa thông tin 3 vùng hiển thị cố định chuẩn trên website
 const BANNER_ZONES = [
   {
     id: "hero_slider",
@@ -63,18 +63,6 @@ const BANNER_ZONES = [
     aspectRatio: "4/3",
     tip: "Dùng để thông báo chương trình siêu khuyến mãi, mini-game hoặc thông điệp quan trọng nhất của cửa hàng.",
     slotLabel: () => "Popup Chính",
-  },
-  {
-    id: "product_top",
-    name: "Banner Trang Tất Cả Sản Phẩm",
-    shortName: "Banner Trang Sản Phẩm",
-    icon: ShoppingBag,
-    badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    desc: "Tấm banner dải ngang nằm trên cùng của trang Tất cả sản phẩm (/tat-ca-san-pham).",
-    recommendedSize: "1600 x 300 px (hoặc 1920 x 360 px)",
-    aspectRatio: "16/3 hoặc 5/1",
-    tip: "Nên dùng banner dạng dải ngang dài, phong cách công nghệ sang trọng, làm nổi bật bộ sưu tập sản phẩm.",
-    slotLabel: () => "Banner Ngang",
   },
 ];
 
@@ -147,14 +135,6 @@ export default function BannersPage() {
         } else if (targetZone === "popup") {
           if (width < 400) {
             warning = `Ảnh hơi nhỏ (${width}x${height}px). Khuyến nghị từ 600px trở lên.`;
-            isGood = false;
-          }
-        } else if (targetZone === "product_top") {
-          if (width < 800) {
-            warning = `Ảnh hơi nhỏ (${width}x${height}px). Khuyến nghị từ 1600px trở lên.`;
-            isGood = false;
-          } else if (ratio < 2.0) {
-            warning = `Banner trang sản phẩm là dải ngang dài. Ảnh hiện tại (${width}x${height}px, tỉ lệ ${ratio.toFixed(2)}:1) có thể bị cắt bớt phần trên/dưới.`;
             isGood = false;
           }
         }
@@ -426,8 +406,8 @@ export default function BannersPage() {
         </button>
       </div>
 
-      {/* 2. Zone Selection Tabs (4 Vùng hiển thị cố định) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* 2. Zone Selection Tabs (3 Vùng hiển thị cố định chuẩn) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
         {BANNER_ZONES.map((zone) => {
           const Icon = zone.icon;
           const isActive = activeZone === zone.id;
@@ -865,8 +845,6 @@ export default function BannersPage() {
                               ? "aspect-[3/2]"
                               : currentZoneInfo.id === "popup"
                               ? "aspect-[4/3]"
-                              : currentZoneInfo.id === "product_top"
-                              ? "aspect-[16/4]"
                               : "aspect-[21/9]"
                           }`}
                         >
