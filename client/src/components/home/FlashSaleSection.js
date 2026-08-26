@@ -23,11 +23,12 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { formatVND } from "@/lib/utils";
+import { formatVND, smoothScrollBy } from "@/lib/utils";
 import {
   getProductDiscountInfo,
   sortProductsByPriority,
   getProductImage,
+  isProductMatchingCategory,
 } from "@/lib/productHelpers";
 import { getProductCardBadges, detectProductType, PRODUCT_TYPES } from "@/lib/specParser";
 import { useDispatch, useSelector } from "react-redux";
@@ -42,7 +43,7 @@ import { useCompare } from "@/components/common/CompareContext";
 import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
 import { promotionAPI, productAPI } from "@/lib/api";
 
-export default function FlashSaleSection() {
+export default function FlashSaleSection({ categories = [] }) {
   const [activeTab, setActiveTab] = useState("all");
   const [buyModalItem, setBuyModalItem] = useState(null);
   const [flashSaleData, setFlashSaleData] = useState(null);
@@ -58,6 +59,26 @@ export default function FlashSaleSection() {
   const cartItems = useSelector(selectCartItems) || [];
   const isAdmin = useSelector(selectIsAdmin);
 
+  const ROOT_CATEGORY_TABS = useMemo(() => {
+    if (!Array.isArray(categories) || categories.length === 0) {
+      return [
+        { label: "Tất cả", slug: "all" },
+        { label: "Laptop & Macbook", slug: "laptop" },
+        { label: "Máy Tính Để Bàn (PC)", slug: "pc" },
+        { label: "Linh Kiện Máy Tính", slug: "linh-kien-pc" },
+        { label: "Màn Hình & Phụ Kiện Gear", slug: "man-hinh-gear" },
+      ];
+    }
+    const rootCategories = categories.filter((c) => !c.parent);
+    return [
+      { label: "Tất cả", slug: "all" },
+      ...rootCategories.map((c) => ({
+        label: c.name,
+        slug: c.slug,
+      })),
+    ];
+  }, [categories]);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -69,33 +90,29 @@ export default function FlashSaleSection() {
     }
   };
 
-  const getScrollAmount = () => {
+  const getSingleCardStep = () => {
     if (!sliderRef.current) return 260;
     const firstCard = sliderRef.current.querySelector(":scope > div");
-    if (!firstCard) return sliderRef.current.offsetWidth;
+    if (!firstCard) return 260;
     const cardWidth = firstCard.getBoundingClientRect().width;
     const gap = 12; // gap-3 = 12px
-    const visibleWidth = sliderRef.current.clientWidth;
-    const visibleCount = Math.max(1, Math.floor((visibleWidth + gap) / (cardWidth + gap)));
-    return (cardWidth + gap) * visibleCount;
+    return cardWidth + gap;
   };
 
   const scrollLeft = () => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({
-        left: -getScrollAmount(),
-        behavior: "smooth",
-      });
-    }
+    if (!sliderRef.current) return;
+    const firstCard = sliderRef.current.querySelector(":scope > div");
+    if (!firstCard) return;
+    const step = firstCard.getBoundingClientRect().width + 12;
+    sliderRef.current.scrollBy({ left: -step, behavior: "smooth" });
   };
 
   const scrollRight = () => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({
-        left: getScrollAmount(),
-        behavior: "smooth",
-      });
-    }
+    if (!sliderRef.current) return;
+    const firstCard = sliderRef.current.querySelector(":scope > div");
+    if (!firstCard) return;
+    const step = firstCard.getBoundingClientRect().width + 12;
+    sliderRef.current.scrollBy({ left: step, behavior: "smooth" });
   };
 
   // Fetch Flash Sale data từ API
@@ -198,55 +215,14 @@ export default function FlashSaleSection() {
     setBuyModalItem(item);
   };
 
-  // Lọc sản phẩm Flash Sale theo Tab và sắp xếp ưu tiên giảm giá nhiều nhất
+  // Lọc sản phẩm Flash Sale theo Tab Danh mục lớn và sắp xếp ưu tiên giảm giá nhiều nhất
   const flashSaleItems = useMemo(() => {
     const rawProducts = flashSaleData?.products || fallbackProducts;
     if (!rawProducts || rawProducts.length === 0) return [];
 
     const list = rawProducts.filter((p) => {
-      const prodType = detectProductType(p);
-
-      // Tab PC
-      if (activeTab === "pc") {
-        return prodType === PRODUCT_TYPES.PC;
-      }
-
-      // Tab Laptop
-      if (activeTab === "laptop") {
-        return prodType === PRODUCT_TYPES.LAPTOP;
-      }
-
-      // Tab Màn hình (đã tách riêng, không lẫn Card màn hình)
-      if (activeTab === "monitor") {
-        return prodType === PRODUCT_TYPES.MONITOR;
-      }
-
-      // Tab Linh kiện (Bao gồm VGA/Card màn hình, CPU, RAM, SSD, Mainboard, PSU, Case, Tản nhiệt - KHÔNG chứa PC bộ)
-      if (activeTab === "components") {
-        return (
-          [
-            PRODUCT_TYPES.CPU,
-            PRODUCT_TYPES.VGA,
-            PRODUCT_TYPES.RAM,
-            PRODUCT_TYPES.SSD,
-            PRODUCT_TYPES.MAINBOARD,
-            PRODUCT_TYPES.PSU,
-            PRODUCT_TYPES.CASE,
-            PRODUCT_TYPES.COOLER,
-          ].includes(prodType) && prodType !== PRODUCT_TYPES.PC
-        );
-      }
-
-      // Tab Gear (Chuột, Bàn phím, Tai nghe, Phụ kiện)
-      if (activeTab === "gear") {
-        return [
-          PRODUCT_TYPES.KEYBOARD,
-          PRODUCT_TYPES.MOUSE,
-          PRODUCT_TYPES.GEAR,
-        ].includes(prodType);
-      }
-
-      return true;
+      if (!activeTab || activeTab === "all") return true;
+      return isProductMatchingCategory(p, activeTab, categories);
     });
 
     // Sắp xếp: Ưu tiên giảm nhiều nhất trước và giảm dần (% giảm cao nhất, rồi số tiền giảm lớn nhất)
@@ -322,21 +298,21 @@ export default function FlashSaleSection() {
   return (
     <section className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-2.5 sm:gap-3 items-stretch my-2">
       {/* Left Flash Sale Banner Card */}
-      <div className="bg-[#eb1c24] text-white p-5 rounded-2xl flex flex-col justify-center items-center text-center shadow-md w-full gap-5">
-        <div>
-          <div className="flex items-center justify-center gap-2 mb-1.5">
+      <div className="bg-[#eb1c24] text-white p-5 sm:p-6 rounded-2xl flex flex-col justify-center items-center text-center shadow-md w-full lg:w-[260px] min-h-[460px] h-full shrink-0 gap-6">
+        <div className="w-full">
+          <div className="flex items-center justify-center gap-2 mb-2">
             <Zap className="w-6 h-6 text-yellow-300 fill-yellow-300 animate-bounce" />
             <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white drop-shadow-xs">
               {promotion?.name || "FLASH SALE"}
             </h2>
           </div>
-          <p className="text-xs font-semibold text-red-100 uppercase tracking-widest">
+          <p className="text-xs font-semibold text-red-100 uppercase tracking-widest line-clamp-2">
             {promotion?.description || "GIÁ CỰC SỐC MỖI NGÀY"}
           </p>
         </div>
 
         {/* Countdown Box */}
-        <div className="w-full bg-white/10 backdrop-blur-xs p-3 rounded-xl border border-white/20">
+        <div className="w-full bg-white/10 backdrop-blur-xs p-3.5 rounded-xl border border-white/20">
           <div className="text-[11px] font-bold text-red-100 mb-2 uppercase tracking-wider flex items-center justify-center gap-1">
             <Clock className="w-3.5 h-3.5" />
             <span>Kết thúc sau</span>
@@ -399,42 +375,29 @@ export default function FlashSaleSection() {
       </div>
 
       {/* Right Product Grid */}
-      <div className="space-y-3 min-w-0">
-        {/* Category Tabs Filter */}
+      <div className="space-y-3 min-w-0 flex-1 flex flex-col justify-between">
+        {/* Category Tabs Filter - Danh mục lớn */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          <button
-            onClick={() => setActiveTab("all")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${activeTab === "all"
-                ? "bg-[#eb1c24] text-white shadow-xs"
-                : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+          {ROOT_CATEGORY_TABS.map((tab) => (
+            <button
+              key={tab.slug}
+              onClick={() => handleTabChange(tab.slug)}
+              className={`px-3.5 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 ${
+                activeTab === tab.slug
+                  ? "bg-[#eb1c24] text-white shadow-xs"
+                  : "bg-white text-gray-700 hover:bg-gray-100 hover:text-gray-900 border border-gray-200"
               }`}
-          >
-            Tất cả
-          </button>
-          <button
-            onClick={() => setActiveTab("pc")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${activeTab === "pc"
-                ? "bg-[#eb1c24] text-white shadow-xs"
-                : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-              }`}
-          >
-            PC
-          </button>
-          <button
-            onClick={() => setActiveTab("laptop")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${activeTab === "laptop"
-                ? "bg-[#eb1c24] text-white shadow-xs"
-                : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-              }`}
-          >
-            Laptop
-          </button>
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Product Cards Row Carousel */}
         {flashSaleItems.length === 0 ? (
-          <div className="flex items-center justify-center bg-gray-50 rounded-2xl p-12 text-gray-400 text-sm">
-            Không có sản phẩm {activeTab !== "all" && activeTab.toUpperCase()} trong Flash Sale
+          <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-100 rounded-2xl p-12 min-h-[440px] text-gray-400 text-sm">
+            <AlertCircle className="w-8 h-8 text-gray-300 mb-2" />
+            <span>Không có sản phẩm nào trong mục này đang Flash Sale</span>
           </div>
         ) : (
           <div className="relative group/slider">
@@ -472,7 +435,7 @@ export default function FlashSaleSection() {
                 return (
                   <div
                     key={item._id || item.id}
-                    className="w-[82%] sm:w-[calc((100%-12px)/2)] lg:w-[calc((100%-24px)/3)] shrink-0 snap-start bg-white rounded-2xl border border-gray-200/90 shadow-xs hover:border-red-400/80 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-3 sm:p-3.5"
+                    className="w-[82%] min-w-[82%] max-w-[82%] sm:w-[calc((100%-12px)/2)] sm:min-w-[calc((100%-12px)/2)] sm:max-w-[calc((100%-12px)/2)] lg:w-[calc((100%-24px)/3)] lg:min-w-[calc((100%-24px)/3)] lg:max-w-[calc((100%-24px)/3)] shrink-0 snap-start bg-white rounded-2xl border border-gray-200/90 shadow-xs hover:border-red-400/80 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-3 sm:p-3.5 min-h-[440px]"
                   >
                     <div>
                       <Link
@@ -587,19 +550,31 @@ export default function FlashSaleSection() {
                     {/* Specs Badges from SpecParser */}
                     {(() => {
                       const badges = getProductCardBadges(item);
-                      if (!badges || badges.length === 0) return null;
+                      if (badges && badges.length > 0) {
+                        return (
+                          <div className="bg-gray-50/90 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[9.5px] text-gray-600 mb-2 border border-gray-100/90 min-h-[44px]">
+                            {badges.slice(0, 4).map((badge, bIdx) => (
+                              <div
+                                key={bIdx}
+                                className="flex items-center gap-1.5 truncate"
+                                title={badge.title || badge.label}
+                              >
+                                <span className="text-gray-400 shrink-0">{renderSpecIcon(badge.icon)}</span>
+                                <span className="truncate font-medium">{badge.label}</span>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }
                       return (
-                        <div className="bg-gray-50/90 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[9.5px] text-gray-600 mb-2 border border-gray-100/90 min-h-[44px]">
-                          {badges.slice(0, 4).map((badge, bIdx) => (
-                            <div
-                              key={bIdx}
-                              className="flex items-center gap-1.5 truncate"
-                              title={badge.title || badge.label}
-                            >
-                              <span className="text-gray-400 shrink-0">{renderSpecIcon(badge.icon)}</span>
-                              <span className="truncate font-medium">{badge.label}</span>
-                            </div>
-                          ))}
+                        <div className="bg-gray-50/90 rounded-xl p-2 flex items-center justify-between text-[9.5px] text-gray-500 mb-2 border border-gray-100/90 min-h-[44px]">
+                          <span className="flex items-center gap-1 text-slate-600 font-medium">
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span className="truncate">{item.warranty || "Bảo hành chính hãng"}</span>
+                          </span>
+                          <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold shrink-0">
+                            {item.condition || "Mới 100%"}
+                          </span>
                         </div>
                       );
                     })()}

@@ -183,6 +183,286 @@ export const NEWS_DATA = [
 
 export const PRODUCTS_DATA = [
   {
+    "name": "Bàn phím cơ không dây Keychron Q1 Pro QMK/VIA Wireless Custom (Gateron Jupiter Red Switch, Khung nhôm CNC, RGB)",
+    "slug": "ban-phim-co-keychron-q1-pro-qmk-via-wireless-custom",
+    "brand": "Keychron",
+    "categoryName": "Bàn phím",
+    "categorySlug": "ban-phim",
+    "price": 4590000,
+    "originalPrice": 4990000,
+    "discountPercent": 8,
+    "thumbnail": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 24 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": true,
+    "isFlashSale": false,
+    "views": 480,
+    "ratings": { "average": 5, "count": 32 }
+  },
+  {
+    "name": "Bàn phím cơ không dây Akko 3098B Plus Prunus Lannesiana (Akko CS Jelly Pink Switch, RGB, Hotswap 5 pin)",
+    "slug": "ban-phim-co-akko-3098b-plus-prunus-lannesiana",
+    "brand": "Akko",
+    "categoryName": "Bàn phím",
+    "categorySlug": "ban-phim",
+    "price": 2190000,
+    "originalPrice": 2490000,
+    "discountPercent": 12,
+    "thumbnail": "https://images.unsplash.com/photo-1595225476474-87563907a212?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1595225476474-87563907a212?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 12 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": true,
+    "isFlashSale": false,
+    "views": 610,
+    "ratings": { "average": 5, "count": 45 }
+  },
+  {
+    "name": "Bàn phím cơ gaming Logitech G Pro X TKL Lightspeed Wireless (GX Brown Tactile Switch, RGB Lightsync, PBT)",
+    "slug": "ban-phim-co-logitech-g-pro-x-tkl-lightspeed",
+    "brand": "Logitech",
+    "categoryName": "Bàn phím",
+    "categorySlug": "ban-phim",
+    "price": 4290000,
+    "originalPrice": 4790000,
+    "discountPercent": 10,
+    "thumbnail": "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 24 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": true,
+    "isFlashSale": false,
+    "views": 750,
+    "ratings": { "average": 5, "count": 58 }
+  },
+  {
+    "name": "Bàn phím cơ gaming Razer BlackWidow V4 Pro (Razer Green Switch, RGB Chroma, Command Dial, 8000Hz)",
+    "slug": "ban-phim-co-razer-blackwidow-v4-pro",
+    "brand": "Razer",
+    "categoryName": "Bàn phím",
+    "categorySlug": "ban-phim",
+    "price": 5490000,
+    "originalPrice": 5990000,
+    "discountPercent": 8,
+    "thumbnail": "https://images.unsplash.com/photo-1541140532154-b024d705b909?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1541140532154-b024d705b909?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 24 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": false,
+    "isFlashSale": false,
+    "views": 390,
+    "ratings": { "average": 5, "count": 21 }
+  },
+  {
+    "name": "Bàn phím cơ không dây DareU EK87 Wireless (D-Switch Red/Brown, Pin 2000mAh, LED Ice Blue)",
+    "slug": "ban-phim-co-dareu-ek87-wireless",
+    "brand": "DareU",
+    "categoryName": "Bàn phím",
+    "categorySlug": "ban-phim",
+    "price": 890000,
+    "originalPrice": 1050000,
+    "discountPercent": 15,
+    "thumbnail": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 12 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": true,
+    "isFlashSale": false,
+    "views": 920,
+    "ratings": { "average": 5, "count": 64 }
+  },
+  {
+    "name": "Bàn phím cơ gaming Corsair K70 RGB PRO (Cherry MX Red Switch, Công nghệ AXON 8000Hz, Nhôm phay xước)",
+    "slug": "ban-phim-co-corsair-k70-rgb-pro",
+    "brand": "Corsair",
+    "categoryName": "Bàn phím",
+    "categorySlug": "ban-phim",
+    "price": 3790000,
+    "originalPrice": 4290000,
+    "discountPercent": 11,
+    "thumbnail": "https://images.unsplash.com/photo-1595225476474-87563907a212?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1595225476474-87563907a212?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 24 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": false,
+    "isFlashSale": false,
+    "views": 430,
+    "ratings": { "average": 5, "count": 28 }
+  },
+  {
+    "name": "Bàn phím cơ ASUS ROG Azoth Wireless 75% Custom (ROG NX Red Switch, Màn hình OLED, Gasket Mount)",
+    "slug": "ban-phim-co-asus-rog-azoth-wireless-75",
+    "brand": "ASUS",
+    "categoryName": "Bàn phím",
+    "categorySlug": "ban-phim",
+    "price": 6490000,
+    "originalPrice": 7290000,
+    "discountPercent": 10,
+    "thumbnail": "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 24 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": true,
+    "isFlashSale": false,
+    "views": 840,
+    "ratings": { "average": 5, "count": 52 }
+  },
+  {
+    "name": "Bàn phím cơ Akko 5075B Plus Dragon Ball Super Goku (Akko V3 Cream Yellow Pro, Gasket Mount, RGB)",
+    "slug": "ban-phim-co-akko-5075b-plus-dragon-ball-super",
+    "brand": "Akko",
+    "categoryName": "Bàn phím",
+    "categorySlug": "ban-phim",
+    "price": 2490000,
+    "originalPrice": 2790000,
+    "discountPercent": 10,
+    "thumbnail": "https://images.unsplash.com/photo-1541140532154-b024d705b909?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1541140532154-b024d705b909?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 12 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": true,
+    "isFlashSale": false,
+    "views": 670,
+    "ratings": { "average": 5, "count": 39 }
+  },
+  {
+    "name": "Chuột gaming không dây siêu nhẹ Logitech G Pro X Superlight 2 (Cảm biến HERO 2 32K DPI, Switch LIGHTFORCE, 60g)",
+    "slug": "chuot-gaming-logitech-g-pro-x-superlight-2",
+    "brand": "Logitech",
+    "categoryName": "Chuột",
+    "categorySlug": "chuot",
+    "price": 3690000,
+    "originalPrice": 3990000,
+    "discountPercent": 7,
+    "thumbnail": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 24 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": true,
+    "isFlashSale": false,
+    "views": 1250,
+    "ratings": { "average": 5, "count": 89 }
+  },
+  {
+    "name": "Chuột gaming không dây Razer DeathAdder V3 Pro (Cảm biến Focus Pro 30K DPI, Switch quang Gen-3, Siêu nhẹ 63g)",
+    "slug": "chuot-gaming-razer-deathadder-v3-pro",
+    "brand": "Razer",
+    "categoryName": "Chuột",
+    "categorySlug": "chuot",
+    "price": 3490000,
+    "originalPrice": 3890000,
+    "discountPercent": 10,
+    "thumbnail": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 24 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": true,
+    "isFlashSale": false,
+    "views": 780,
+    "ratings": { "average": 5, "count": 47 }
+  },
+  {
+    "name": "Chuột không dây công thái học Logitech MX Master 3S (Cảm biến Darkfield 8000 DPI, Click êm Silent, MagSpeed)",
+    "slug": "chuot-khong-day-logitech-mx-master-3s",
+    "brand": "Logitech",
+    "categoryName": "Chuột",
+    "categorySlug": "chuot",
+    "price": 2490000,
+    "originalPrice": 2790000,
+    "discountPercent": 10,
+    "thumbnail": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 24 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": true,
+    "isFlashSale": false,
+    "views": 1100,
+    "ratings": { "average": 5, "count": 76 }
+  },
+  {
+    "name": "Chuột gaming không dây DareU EM901X RGB kèm Dock sạc không dây (Cảm biến ATG4090 6000 DPI, Pin 930mAh)",
+    "slug": "chuot-gaming-dareu-em901x-rgb-kem-dock-sac",
+    "brand": "DareU",
+    "categoryName": "Chuột",
+    "categorySlug": "chuot",
+    "price": 690000,
+    "originalPrice": 850000,
+    "discountPercent": 18,
+    "thumbnail": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 12 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": true,
+    "isFlashSale": false,
+    "views": 950,
+    "ratings": { "average": 5, "count": 63 }
+  },
+  {
+    "name": "Chuột gaming ASUS ROG Harpe Ace Aim Lab Edition (Cảm biến AimPoint 36000 DPI, Siêu nhẹ 54g, SpeedNova Wireless)",
+    "slug": "chuot-gaming-asus-rog-harpe-ace-aim-lab",
+    "brand": "ASUS",
+    "categoryName": "Chuột",
+    "categorySlug": "chuot",
+    "price": 3290000,
+    "originalPrice": 3690000,
+    "discountPercent": 10,
+    "thumbnail": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 24 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": false,
+    "isFlashSale": false,
+    "views": 410,
+    "ratings": { "average": 5, "count": 25 }
+  },
+  {
+    "name": "Chuột gaming Logitech G502 X PLUS Wireless RGB (Cảm biến HERO 25K, Switch lai quang LIGHTFORCE, POWERPLAY)",
+    "slug": "chuot-gaming-logitech-g502-x-plus-wireless",
+    "brand": "Logitech",
+    "categoryName": "Chuột",
+    "categorySlug": "chuot",
+    "price": 3590000,
+    "originalPrice": 3990000,
+    "discountPercent": 10,
+    "thumbnail": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&auto=format&fit=crop&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&auto=format&fit=crop&q=80"
+    ],
+    "warranty": "Bảo hành 24 Tháng chính hãng",
+    "status": "in_stock",
+    "isHot": true,
+    "isFlashSale": false,
+    "views": 890,
+    "ratings": { "average": 5, "count": 54 }
+  },
+  {
     "name": "Màn hình Gaming ASUS ROG Swift OLED PG27AQDM | 27 inch 2K QHD, 240Hz, 0.03ms, 99% DCI-P3, HDR10",
     "slug": "man-hinh-gaming-asus-rog-swift-oled-pg27aqdm-27-inch-240hz",
     "brand": "ASUS",
@@ -9697,6 +9977,7 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
         ),
         isHot: typeof p.isHot === "boolean" ? p.isHot : index < 20,
         isFlashSale: typeof p.isFlashSale === "boolean" ? p.isFlashSale : index % 3 === 0,
+        soldCount: typeof p.soldCount === "number" ? p.soldCount : (index < 30 ? Math.floor(Math.random() * 250) + 120 : Math.floor(Math.random() * 90) + 10),
         views: typeof p.views === "number" ? p.views : Math.floor(Math.random() * 200) + 50,
         ratings: {
           average: p.ratings?.average || 5,
@@ -9730,6 +10011,7 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
         startDate: new Date("2025-01-01"),
         endDate: new Date("2026-12-31"),
         isActive: true,
+        isFlashSale: true,
         priority: 1,
       },
       {
@@ -9744,6 +10026,7 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
         startDate: new Date("2025-01-01"),
         endDate: new Date("2026-12-31"),
         isActive: true,
+        isFlashSale: false,
         priority: 2,
       },
     ];

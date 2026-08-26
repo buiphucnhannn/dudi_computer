@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import {
+  ChevronLeft,
   ChevronRight,
   Scale,
   Heart,
@@ -21,10 +22,10 @@ import {
   Wifi,
   Clock,
 } from "lucide-react";
-import { formatVND } from "@/lib/utils";
+import { formatVND, smoothScrollBy } from "@/lib/utils";
 import {
   getProductDiscountInfo,
-  sortProductsByPriority,
+  sortProductsByBestSeller,
   getProductImage,
   isProductMatchingCategory,
 } from "@/lib/productHelpers";
@@ -47,10 +48,13 @@ export default function CategoryProductBox({
   banner,
   tabs = [],
   products = [],
+  categories = [],
 }) {
   const [activeTab, setActiveTab] = useState(tabs[0]?.slug || "all");
   const [buyModalItem, setBuyModalItem] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const sliderRef = useRef(null);
+
   const dispatch = useDispatch();
   const { showToast } = useToast();
   const { addToCompare, isComparing } = useCompare();
@@ -60,6 +64,38 @@ export default function CategoryProductBox({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleTabChange = (slug) => {
+    setActiveTab(slug);
+    if (sliderRef.current) {
+      sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
+    }
+  };
+
+  const getSingleCardStep = () => {
+    if (!sliderRef.current) return 300;
+    const firstCard = sliderRef.current.querySelector(":scope > div");
+    if (!firstCard) return 300;
+    const cardWidth = firstCard.getBoundingClientRect().width;
+    const gap = 16;
+    return cardWidth + gap;
+  };
+
+  const scrollLeft = () => {
+    if (!sliderRef.current) return;
+    const firstCard = sliderRef.current.querySelector(":scope > div");
+    if (!firstCard) return;
+    const step = firstCard.getBoundingClientRect().width + 14;
+    sliderRef.current.scrollBy({ left: -step, behavior: "smooth" });
+  };
+
+  const scrollRight = () => {
+    if (!sliderRef.current) return;
+    const firstCard = sliderRef.current.querySelector(":scope > div");
+    if (!firstCard) return;
+    const step = firstCard.getBoundingClientRect().width + 14;
+    sliderRef.current.scrollBy({ left: step, behavior: "smooth" });
+  };
 
   const handleToggleFavorite = (e, item) => {
     e.preventDefault();
@@ -92,12 +128,12 @@ export default function CategoryProductBox({
   const filteredProducts = useMemo(() => {
     let list = products;
     if (activeTab !== "all" && tabs.length > 1) {
-      list = products.filter((p) => isProductMatchingCategory(p, activeTab));
+      list = products.filter((p) => isProductMatchingCategory(p, activeTab, categories));
     }
 
-    // Sắp xếp ưu tiên: Flash Sale / Hot Sale / Giảm giá nhiều nhất -> Mới nhất -> Nhiều lượt xem
-    return sortProductsByPriority(list).slice(0, 4);
-  }, [activeTab, tabs, products]);
+    // Sắp xếp ưu tiên theo Bán Chạy Nhất (Most Sold / Best Seller) -> Lấy tối đa 8 sản phẩm
+    return sortProductsByBestSeller(list).slice(0, 8);
+  }, [activeTab, tabs, products, categories]);
 
   const renderSpecIcon = (iconName) => {
     const props = { className: "w-3.5 h-3.5 text-[#eb1c24] shrink-0" };
@@ -136,7 +172,7 @@ export default function CategoryProductBox({
               return (
                 <button
                   key={tab.slug}
-                  onClick={() => setActiveTab(tab.slug)}
+                  onClick={() => handleTabChange(tab.slug)}
                   className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${isActive
                       ? "bg-[#eb1c24] text-white shadow-xs"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -158,13 +194,29 @@ export default function CategoryProductBox({
         </Link>
       </div>
 
-      {/* 4 Products Grid or Empty Fallback */}
+      {/* 4 Cards Visible Viewport with Smooth 1-by-1 Carousel Scrolling */}
       {filteredProducts.length === 0 ? (
         <div className="py-12 text-center text-gray-500 text-sm font-medium">
           Đang cập nhật thêm sản phẩm thuộc mục này...
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4.5">
+        <div className="relative group/slider">
+          {/* Scroll Left Button */}
+          {filteredProducts.length > 4 && (
+            <button
+              onClick={scrollLeft}
+              className="absolute -left-3.5 sm:-left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-[#eb1c24] hover:border-[#eb1c24] hover:scale-110 z-30 opacity-0 group-hover/slider:opacity-100 transition-all duration-300 focus:outline-none cursor-pointer"
+              aria-label="Cuộn sang trái"
+            >
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          )}
+
+          {/* Product Slider Container (4 visible cards on desktop) */}
+          <div
+            ref={sliderRef}
+            className="flex overflow-x-auto gap-3.5 py-2 px-1 scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
           {filteredProducts.map((item, index) => {
             const {
               price,
@@ -187,7 +239,7 @@ export default function CategoryProductBox({
             return (
               <div
                 key={item._id || item.id || index}
-                className="bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-red-400/80 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group/card relative"
+                className="w-[82%] min-w-[82%] max-w-[82%] sm:w-[calc((100%-14px)/2)] sm:min-w-[calc((100%-14px)/2)] sm:max-w-[calc((100%-14px)/2)] lg:w-[calc((100%-42px)/4)] lg:min-w-[calc((100%-42px)/4)] lg:max-w-[calc((100%-42px)/4)] shrink-0 snap-start bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-red-400/80 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group/card relative"
               >
                 {/* Product Image Box */}
                 <Link
@@ -298,24 +350,37 @@ export default function CategoryProductBox({
                 {/* Specs 2x2 Grid trích xuất thật từ tiêu đề & thông số Database */}
                 {(() => {
                   const badges = getProductCardBadges(item);
+                  if (badges && badges.length > 0) {
+                    return (
+                      <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[9.5px] sm:text-[10px] text-gray-600 mb-3 border border-gray-100 min-h-[46px]">
+                        {badges.map((b, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-1 truncate"
+                            title={b.title || b.label}
+                          >
+                            {renderSpecIcon(b.icon)}
+                            <span className="truncate font-medium">{b.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  }
                   return (
-                    <div className="bg-gray-50 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[9.5px] sm:text-[10px] text-gray-600 mb-3 border border-gray-100 min-h-[50px]">
-                      {badges.map((b, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-1 truncate"
-                          title={b.title || b.label}
-                        >
-                          {renderSpecIcon(b.icon)}
-                          <span className="truncate font-medium">{b.label}</span>
-                        </div>
-                      ))}
+                    <div className="bg-gray-50 rounded-xl p-2 flex items-center justify-between text-[9.5px] text-gray-500 mb-3 border border-gray-100 min-h-[46px]">
+                      <span className="flex items-center gap-1 text-slate-600 font-medium truncate">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span className="truncate">{item.warranty || "Bảo hành chính hãng"}</span>
+                      </span>
+                      <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold shrink-0">
+                        {item.condition || "Mới 100%"}
+                      </span>
                     </div>
                   );
                 })()}
 
                 {/* Views & Add button */}
-                <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100">
+                <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100 mt-auto">
                   <span className="flex items-center gap-1">
                     <Eye className="w-3.5 h-3.5" />
                     <span>{item.views || 48} lượt xem</span>
@@ -339,6 +404,18 @@ export default function CategoryProductBox({
               </div>
             );
           })}
+          </div>
+
+          {/* Scroll Right Button */}
+          {filteredProducts.length > 4 && (
+            <button
+              onClick={scrollRight}
+              className="absolute -right-3.5 sm:-right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-[#eb1c24] hover:border-[#eb1c24] hover:scale-110 z-30 opacity-0 group-hover/slider:opacity-100 transition-all duration-300 focus:outline-none cursor-pointer"
+              aria-label="Cuộn sang phải"
+            >
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          )}
         </div>
       )}
 

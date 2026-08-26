@@ -22,11 +22,12 @@ import {
   Wifi,
   Clock,
 } from "lucide-react";
-import { formatVND } from "@/lib/utils";
+import { formatVND, smoothScrollBy } from "@/lib/utils";
 import {
   getProductDiscountInfo,
-  sortProductsByPriority,
+  sortProductsByBestSeller,
   getProductImage,
+  isProductMatchingCategory,
 } from "@/lib/productHelpers";
 import { getProductCardBadges } from "@/lib/specParser";
 import { useDispatch, useSelector } from "react-redux";
@@ -40,7 +41,7 @@ import { useCompare } from "@/components/common/CompareContext";
 import { useToast } from "@/components/common/ToastContext";
 import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
 
-export default function FeaturedProductsSection({ products = [] }) {
+export default function FeaturedProductsSection({ products = [], categories = [] }) {
   const [activeTab, setActiveTab] = useState("all");
   const [buyModalItem, setBuyModalItem] = useState(null);
   const [mounted, setMounted] = useState(false);
@@ -55,77 +56,35 @@ export default function FeaturedProductsSection({ products = [] }) {
     setMounted(true);
   }, []);
 
-  const tabs = [
-    { id: "all", name: "Tất cả" },
-    { id: "pc", name: "PC" },
-    { id: "laptop", name: "Laptop" },
-  ];
+  const tabs = useMemo(() => {
+    if (!Array.isArray(categories) || categories.length === 0) {
+      return [
+        { id: "all", name: "Tất cả" },
+        { id: "laptop", name: "Laptop & Macbook" },
+        { id: "pc", name: "Máy Tính Để Bàn (PC)" },
+        { id: "linh-kien-pc", name: "Linh Kiện Máy Tính" },
+        { id: "man-hinh-gear", name: "Màn Hình & Phụ Kiện Gear" },
+      ];
+    }
+    const rootCategories = categories.filter((c) => !c.parent);
+    return [
+      { id: "all", name: "Tất cả" },
+      ...rootCategories.map((c) => ({
+        id: c.slug,
+        name: c.name,
+      })),
+    ];
+  }, [categories]);
 
   const filteredProducts = useMemo(() => {
     const list = products.filter((p) => {
       if (activeTab === "all") return true;
-      const catSlug = (p.categorySlug || "").toLowerCase();
-      const cat = (p.categoryName || "").toLowerCase();
-      const name = (p.name || "").toLowerCase();
-
-      if (activeTab === "pc") {
-        if (
-          name.startsWith("mainboard") ||
-          name.startsWith("nguồn") ||
-          name.startsWith("card màn hình") ||
-          name.startsWith("ram") ||
-          name.startsWith("ssd") ||
-          name.startsWith("màn hình") ||
-          name.startsWith("laptop") ||
-          catSlug === "mainboard-bo-mach-chu" ||
-          catSlug === "psu-nguon-may-tinh" ||
-          catSlug === "vga-card-man-hinh" ||
-          catSlug === "cpu-bo-vi-xu-ly" ||
-          catSlug === "man-hinh" ||
-          catSlug.includes("laptop") ||
-          catSlug === "macbook"
-        ) {
-          return false;
-        }
-        return (
-          catSlug === "pc-cu" ||
-          catSlug === "pc-gaming" ||
-          catSlug === "pc-do-hoa" ||
-          catSlug === "pc-van-phong" ||
-          name.startsWith("bộ máy") ||
-          name.startsWith("pc ") ||
-          name.startsWith("máy tính để bàn") ||
-          name.startsWith("máy tính aio")
-        );
-      }
-
-      if (activeTab === "laptop") {
-        if (
-          name.startsWith("bộ máy") ||
-          name.startsWith("pc ") ||
-          name.startsWith("mainboard") ||
-          name.startsWith("nguồn") ||
-          catSlug.includes("pc-") ||
-          catSlug === "mainboard-bo-mach-chu"
-        ) {
-          return false;
-        }
-        return (
-          catSlug.includes("laptop") ||
-          catSlug === "macbook" ||
-          cat.includes("laptop") ||
-          name.startsWith("laptop") ||
-          name.startsWith("macbook") ||
-          name.includes("thinkpad") ||
-          name.includes("legion")
-        );
-      }
-      return true;
+      return isProductMatchingCategory(p, activeTab, categories);
     });
 
-    // Sắp xếp theo độ ưu tiên: FlashSale / Hot / Giảm giá nhiều nhất -> Mới nhất -> Nhiều lượt xem
-    return sortProductsByPriority(list);
-  }, [activeTab, products]);
+    // Sắp xếp theo Bán chạy nhất (Most sold) -> Max 8 sản phẩm
+    return sortProductsByBestSeller(list).slice(0, 8);
+  }, [activeTab, products, categories]);
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
@@ -134,33 +93,29 @@ export default function FeaturedProductsSection({ products = [] }) {
     }
   };
 
-  const getScrollAmount = () => {
+  const getSingleCardStep = () => {
     if (!sliderRef.current) return 300;
     const firstCard = sliderRef.current.querySelector(":scope > div");
-    if (!firstCard) return sliderRef.current.offsetWidth;
+    if (!firstCard) return 300;
     const cardWidth = firstCard.getBoundingClientRect().width;
-    const gap = 16; // gap-4 = 16px
-    const visibleWidth = sliderRef.current.clientWidth;
-    const visibleCount = Math.max(1, Math.floor((visibleWidth + gap) / (cardWidth + gap)));
-    return (cardWidth + gap) * visibleCount;
+    const gap = 16;
+    return cardWidth + gap;
   };
 
   const scrollLeft = () => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({
-        left: -getScrollAmount(),
-        behavior: "smooth",
-      });
-    }
+    if (!sliderRef.current) return;
+    const firstCard = sliderRef.current.querySelector(":scope > div");
+    if (!firstCard) return;
+    const step = firstCard.getBoundingClientRect().width + 16;
+    sliderRef.current.scrollBy({ left: -step, behavior: "smooth" });
   };
 
   const scrollRight = () => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({
-        left: getScrollAmount(),
-        behavior: "smooth",
-      });
-    }
+    if (!sliderRef.current) return;
+    const firstCard = sliderRef.current.querySelector(":scope > div");
+    if (!firstCard) return;
+    const step = firstCard.getBoundingClientRect().width + 16;
+    sliderRef.current.scrollBy({ left: step, behavior: "smooth" });
   };
 
   const handleToggleCart = (e, item) => {
@@ -276,7 +231,7 @@ export default function FeaturedProductsSection({ products = [] }) {
             return (
               <div
                 key={`featured-${item._id || item.id}`}
-                className="w-[260px] sm:w-[280px] lg:w-[calc(25%-12px)] shrink-0 bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group/card relative"
+                className="w-[82%] min-w-[82%] max-w-[82%] sm:w-[calc((100%-16px)/2)] sm:min-w-[calc((100%-16px)/2)] sm:max-w-[calc((100%-16px)/2)] lg:w-[calc((100%-48px)/4)] lg:min-w-[calc((100%-48px)/4)] lg:max-w-[calc((100%-48px)/4)] shrink-0 snap-start bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group/card relative"
               >
                 <div>
                   <Link

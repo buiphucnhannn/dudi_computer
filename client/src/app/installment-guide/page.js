@@ -14,23 +14,32 @@ export const metadata = {
 
 export default function InstallmentGuidePage() {
   return (
-    <main className="flex-1 w-full overflow-x-hidden">
-      <div className="bg-gray-50 min-h-screen py-10">
-        <div className="mx-auto px-4 w-full max-w-[880px]">
-          {/* Header Banner */}
-          <div className="bg-gray-800 text-white rounded-2xl p-6 sm:p-7 mb-7 flex items-center gap-5 sm:gap-6 shadow-sm">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-              <CreditCard className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black uppercase text-white tracking-tight">
-                Hướng dẫn trả góp
-              </h1>
-            </div>
-          </div>
+    <main className="flex-1 w-full overflow-x-hidden bg-[#f8f9fa] min-h-screen pb-28 sm:pb-20">
+      {/* 1. Hero Dark Banner */}
+      <div className="bg-[#111111] py-10 sm:py-16 relative overflow-hidden">
+        {/* Glow Effects: Hào quang đỏ rực rỡ góc phải */}
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
+        <div className="absolute -top-12 -right-12 w-[420px] h-[420px] bg-[#eb1c24] rounded-full blur-[110px] opacity-90 pointer-events-none"></div>
+        <div className="absolute top-1/4 right-0 w-80 h-80 bg-[#ff3b30]/70 rounded-full blur-[80px] pointer-events-none"></div>
 
-          {/* White Content Container */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 md:p-10 space-y-10">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="w-14 h-14 sm:w-20 sm:h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-inner border border-white/10">
+              <CreditCard className="w-7 h-7 sm:w-10 sm:h-10 text-white" />
+            </div>
+            <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-2 sm:mb-4">
+              HƯỚNG DẪN TRẢ GÓP TẠI <span className="text-[#eb1c24]">DUDI SOFTWARE</span>
+            </h1>
+            <p className="text-gray-400 text-xs sm:text-base md:text-lg max-w-2xl mx-auto font-medium">
+              Thủ tục đơn giản, xét duyệt siêu tốc, hỗ trợ trả góp 0% lãi suất qua thẻ tín dụng và công ty tài chính.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Main Content Card */}
+      <div className="container mx-auto px-3 sm:px-4 -mt-6 sm:-mt-8 relative z-20">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 max-w-5xl mx-auto p-6 sm:p-8 md:p-12 space-y-10">
             
             {/* ========================================================= */}
             {/* SECTION I: CÁC ĐỐI TÁC TÀI CHÍNH UY TÍN */}
@@ -333,7 +342,6 @@ export default function InstallmentGuidePage() {
             </section>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
   );
 }

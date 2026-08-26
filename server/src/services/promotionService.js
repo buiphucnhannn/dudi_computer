@@ -4,12 +4,12 @@ import { Product } from "../models/Product.js";
 import { ApiError } from "../utils/apiError.js";
 
 export const promotionService = {
-  // Lấy danh sách toàn bộ Flash Sale promotions đang chạy (cho trang chủ)
+  // Lấy chiến dịch Flash Sale duy nhất đang chạy (cho trang chủ)
   getFlashSalePromotion: async () => {
     const now = new Date();
     
-    // 1. Tìm tất cả các chiến dịch Flash Sale đang diễn ra (hỗ trợ nhiều chiến dịch cùng lúc)
-    let activeFlashSales = await Promotion.find({
+    // 1. Tìm chiến dịch Flash Sale duy nhất đang diễn ra (isFlashSale: true & isActive: true)
+    const activeFlashSale = await Promotion.findOne({
       isActive: true,
       isFlashSale: true,
       startDate: { $lte: now },
@@ -18,60 +18,28 @@ export const promotionService = {
       .sort({ priority: -1, updatedAt: -1 })
       .lean();
 
-    // Fallback: Nếu không có chiến dịch nào tick isFlashSale, lấy các khuyến mãi active thường
-    if (!activeFlashSales || activeFlashSales.length === 0) {
-      activeFlashSales = await Promotion.find({
-        isActive: true,
-        startDate: { $lte: now },
-        endDate: { $gte: now },
-      })
-        .sort({ priority: -1, updatedAt: -1 })
-        .lean();
-    }
-
-    if (!activeFlashSales || activeFlashSales.length === 0) {
+    if (!activeFlashSale) {
       return null;
     }
 
-    // Lấy chiến dịch ưu tiên cao nhất làm đại diện
-    const mainPromotion = activeFlashSales[0];
+    // 2. Lấy danh sách sản phẩm thuộc chiến dịch Flash Sale duy nhất này
+    const affectedIds = await promotionService._getAffectedProductIds(activeFlashSale);
     
-    // Tìm thời điểm kết thúc gần nhất trong số các chiến dịch đang chạy để đếm ngược chính xác
-    const nearestEndDate = activeFlashSales.reduce((min, p) => {
-      const end = new Date(p.endDate);
-      return end < min ? end : min;
-    }, new Date(mainPromotion.endDate));
-
-    // 2. Thu thập và hợp nhất danh sách sản phẩm từ TẤT CẢ các chiến dịch Flash Sale đang chạy
-    const allProductIdsSet = new Set();
-    for (const promo of activeFlashSales) {
-      const ids = await promotionService._getAffectedProductIds(promo);
-      ids.forEach((id) => allProductIdsSet.add(id));
-    }
-
-    // Lấy toàn bộ sản phẩm thuộc các chiến dịch Flash Sale HOẶC có gắn cờ isFlashSale
-    const productQuery =
-      allProductIdsSet.size > 0
-        ? {
-            $or: [
-              { _id: { $in: Array.from(allProductIdsSet) } },
-              { isFlashSale: true },
-            ],
-          }
-        : {
-            $or: [
-              { isFlashSale: true },
-              { discountPercent: { $gt: 0 } },
-              { originalPrice: { $gt: 0 } },
-            ],
-          };
+    const productQuery = affectedIds.length > 0
+      ? {
+          $or: [
+            { _id: { $in: affectedIds } },
+            { isFlashSale: true },
+          ],
+        }
+      : { isFlashSale: true };
 
     let products = await Product.find(productQuery)
       .select("-description")
-      .populate("category", "name slug pcPartType")
+      .populate("category", "name slug pcPartType parent")
       .lean();
 
-    // 3. SẮP XẾP: Ưu tiên giảm giá nhiều nhất lên đầu (% giảm cao nhất rồi đến số tiền giảm)
+    // 3. Sắp xếp: Ưu tiên giảm giá nhiều nhất (% giảm cao nhất rồi đến số tiền giảm)
     products.sort((a, b) => {
       const getPercent = (p) => {
         if (p.discountPercent && Number(p.discountPercent) > 0) return Number(p.discountPercent);
@@ -94,11 +62,7 @@ export const promotionService = {
     });
 
     return {
-      promotion: {
-        ...mainPromotion,
-        endDate: nearestEndDate,
-      },
-      promotions: activeFlashSales,
+      promotion: activeFlashSale,
       products: products,
     };
   },
@@ -188,6 +152,22 @@ export const promotionService = {
       throw new ApiError(400, "Mức giảm phần trăm không được vượt quá 100%");
     }
 
+    // RÀNG BUỘC: Duy nhất 1 chiến dịch Flash Sale được hoạt động tại một thời điểm
+    if (data.isFlashSale && data.isActive !== false) {
+      const now = new Date();
+      const existingFlashSale = await Promotion.findOne({
+        isFlashSale: true,
+        isActive: true,
+        endDate: { $gte: now },
+      });
+      if (existingFlashSale) {
+        throw new ApiError(
+          400,
+          `Hiện tại đang có chiến dịch Flash Sale "${existingFlashSale.name}" đang hoạt động. Hệ thống chỉ cho phép duy nhất một chiến dịch Flash Sale chạy tại một thời điểm. Vui lòng tắt chiến dịch hiện tại trước khi kích hoạt chiến dịch mới.`
+        );
+      }
+    }
+
     const promo = await promotionRepository.create(data);
 
     // Tự động áp dụng giảm giá lên sản phẩm nếu chiến dịch đang active
@@ -236,6 +216,25 @@ export const promotionService = {
       throw new ApiError(400, "Mức giảm phần trăm không được vượt quá 100%");
     }
 
+    // RÀNG BUỘC: Duy nhất 1 chiến dịch Flash Sale được hoạt động tại một thời điểm
+    const willBeFlashSale = data.isFlashSale !== undefined ? data.isFlashSale : promo.isFlashSale;
+    const willBeActive = data.isActive !== undefined ? data.isActive : promo.isActive;
+    if (willBeFlashSale && willBeActive) {
+      const now = new Date();
+      const existingFlashSale = await Promotion.findOne({
+        _id: { $ne: id },
+        isFlashSale: true,
+        isActive: true,
+        endDate: { $gte: now },
+      });
+      if (existingFlashSale) {
+        throw new ApiError(
+          400,
+          `Hiện tại đang có chiến dịch Flash Sale "${existingFlashSale.name}" đang hoạt động. Hệ thống chỉ cho phép duy nhất một chiến dịch Flash Sale chạy tại một thời điểm. Vui lòng tắt chiến dịch hiện tại trước khi kích hoạt chiến dịch này.`
+        );
+      }
+    }
+
     // Khôi phục giá gốc cho sản phẩm cũ trước khi cập nhật
     await promotionService._removeDiscountFromProducts(promo);
 
@@ -279,6 +278,23 @@ export const promotionService = {
           400,
           "Chương trình khuyến mãi này đã hết hạn. Vui lòng chỉnh sửa gia hạn ngày kết thúc trước khi kích hoạt lại!"
         );
+      }
+
+      // RÀNG BUỘC: Nếu bật lại chiến dịch đang là Flash Sale, kiểm tra xem đã có Flash Sale khác đang chạy chưa
+      if (promo.isFlashSale) {
+        const now = new Date();
+        const existingFlashSale = await Promotion.findOne({
+          _id: { $ne: id },
+          isFlashSale: true,
+          isActive: true,
+          endDate: { $gte: now },
+        });
+        if (existingFlashSale) {
+          throw new ApiError(
+            400,
+            `Hiện tại đang có chiến dịch Flash Sale "${existingFlashSale.name}" đang hoạt động. Hệ thống chỉ cho phép duy nhất một chiến dịch Flash Sale chạy tại một thời điểm. Vui lòng tắt chiến dịch hiện tại trước khi bật chiến dịch này.`
+          );
+        }
       }
     }
 

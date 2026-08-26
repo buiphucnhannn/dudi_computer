@@ -57,49 +57,58 @@ export function getProductDiscountInfo(product) {
 }
 
 /**
- * Sắp xếp danh sách sản phẩm theo thứ tự ưu tiên thông minh:
- * 1. Sản phẩm đang Flash Sale / Khuyến mãi / Hot Sale với mức giảm giá (% cao nhất) lên đầu
- * 2. Sản phẩm được đánh dấu Hot / FlashSale
- * 3. Sản phẩm MỚI NHẤT (createdAt giảm dần)
- * 4. Sản phẩm nhiều lượt xem / bán chạy
+ * Sắp xếp sản phẩm theo Bán Chạy Nhất (Most Sold / Best Seller):
+ * 1. Số lượng đã bán (soldCount) cao nhất
+ * 2. Lượt xem (views) & đánh giá
+ * 3. Sản phẩm Hot / Khuyến mãi
+ * 4. Ngày tạo mới nhất
  * @param {Array} products
  * @returns {Array} Mảng sản phẩm đã sắp xếp
  */
-export function sortProductsByPriority(products) {
+export function sortProductsByBestSeller(products) {
   if (!Array.isArray(products) || products.length === 0) return [];
 
   return [...products].sort((a, b) => {
-    const infoA = getProductDiscountInfo(a);
-    const infoB = getProductDiscountInfo(b);
-
-    // 1. Ưu tiên sản phẩm có % giảm giá cao hơn
-    if (infoA.discountPercent !== infoB.discountPercent) {
-      return infoB.discountPercent - infoA.discountPercent;
+    // 1. Ưu tiên số lượng đã bán (soldCount) cao nhất
+    const soldA = Number(a.soldCount || a.sold || 0);
+    const soldB = Number(b.soldCount || b.sold || 0);
+    if (soldA !== soldB) {
+      return soldB - soldA;
     }
 
-    // 2. Ưu tiên Flash Sale / Hot Sale
-    const priorityA = (infoA.isFlashSale ? 2 : 0) + (infoA.isHot ? 1 : 0);
-    const priorityB = (infoB.isFlashSale ? 2 : 0) + (infoB.isHot ? 1 : 0);
-    if (priorityA !== priorityB) {
-      return priorityB - priorityA;
-    }
-
-    // 3. Ưu tiên sản phẩm MỚI NHẤT (createdAt)
-    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-    if (timeA !== timeB) {
-      return timeB - timeA;
-    }
-
-    // 4. Ưu tiên lượt xem (views) / số lượng bán
-    const viewsA = Number(a.views) || 0;
-    const viewsB = Number(b.views) || 0;
+    // 2. Ưu tiên lượt xem (views)
+    const viewsA = Number(a.views || 0);
+    const viewsB = Number(b.views || 0);
     if (viewsA !== viewsB) {
       return viewsB - viewsA;
     }
 
+    // 3. Ưu tiên sản phẩm Hot
+    if (Boolean(a.isHot) !== Boolean(b.isHot)) {
+      return a.isHot ? -1 : 1;
+    }
+
+    // 4. Ưu tiên % giảm giá
+    const discA = Number(a.discountPercent || 0);
+    const discB = Number(b.discountPercent || 0);
+    if (discA !== discB) {
+      return discB - discA;
+    }
+
     return 0;
   });
+}
+
+/**
+ * Sắp xếp danh sách sản phẩm theo thứ tự ưu tiên thông minh:
+ * 1. Số lượng đã bán (soldCount) cao nhất
+ * 2. Sản phẩm Flash Sale / Hot Sale với mức giảm giá (% cao nhất)
+ * 3. Lượt xem (views) & Mới nhất
+ * @param {Array} products
+ * @returns {Array} Mảng sản phẩm đã sắp xếp
+ */
+export function sortProductsByPriority(products) {
+  return sortProductsByBestSeller(products);
 }
 
 /**
@@ -160,8 +169,8 @@ export function isProductMatchingCategory(product, targetCatSlug, categories = [
   const isPCBuild = name.startsWith("bộ máy") || name.startsWith("pc ") || name.startsWith("máy tính để bàn") || name.startsWith("máy tính aio");
   const isLaptopOrMacbook = (name.startsWith("laptop") || name.startsWith("macbook") || name.includes("thinkpad") || name.includes("surface") || name.includes("latitude") || name.includes("zenbook") || name.includes("vivobook")) && !isPCBuild;
   const isMonitor = (name.startsWith("màn hình") || name.startsWith("lcd ") || name.includes("ultragear") || name.includes("odyssey g")) && !name.includes("card màn hình");
-  const isKeyboard = name.includes("bàn phím") || name.startsWith("bàn phím");
-  const isMouse = name.includes("chuột") || name.startsWith("chuột");
+  const isKeyboard = name.includes("bàn phím") || name.startsWith("bàn phím") || catSlug === "ban-phim" || catSlug.includes("ban-phim");
+  const isMouse = (name.includes("chuột") || name.startsWith("chuột") || catSlug === "chuot" || catSlug.includes("chuot")) && !isKeyboard;
 
   // --- LAPTOP SUBCATEGORIES ---
   if (s === "laptop-gaming") {
@@ -214,6 +223,26 @@ export function isProductMatchingCategory(product, targetCatSlug, categories = [
     return isPCBuild;
   }
 
+  // --- ROOT GROUPS: LINH KIỆN & GEAR/MÀN HÌNH ---
+  if (s === "linh-kien-pc" || s === "linh-kien") {
+    if (isPCBuild || isLaptopOrMacbook || isMonitor || isKeyboard || isMouse) return false;
+    return (
+      name.startsWith("main") || name.startsWith("bo mạch") || catSlug.includes("mainboard") ||
+      name.startsWith("nguồn") || name.startsWith("psu") || catSlug.includes("psu") ||
+      name.startsWith("cpu") || name.startsWith("vi xử lý") || catSlug.includes("cpu") ||
+      name.startsWith("vga") || name.startsWith("card màn hình") || catSlug.includes("vga") ||
+      name.startsWith("ram") || catSlug.includes("ram") ||
+      name.startsWith("ssd") || name.startsWith("hdd") || name.startsWith("ổ cứng") || catSlug.includes("o-cung") ||
+      name.startsWith("case") || name.startsWith("vỏ") || catSlug.includes("case") ||
+      name.startsWith("tản nhiệt") || name.startsWith("tản") || catSlug.includes("tan-nhiet")
+    );
+  }
+
+  if (s === "man-hinh-gear" || s === "gear") {
+    if (isPCBuild || isLaptopOrMacbook) return false;
+    return isMonitor || isKeyboard || isMouse;
+  }
+
   // --- MÀN HÌNH ---
   if (s === "man-hinh" || s === "man-hinh-may-tinh" || s.includes("màn hình")) {
     if (isKeyboard || isMouse || isPCBuild || isLaptopOrMacbook) return false;
@@ -224,7 +253,7 @@ export function isProductMatchingCategory(product, targetCatSlug, categories = [
   if (s === "ban-phim") return isKeyboard;
   if (s === "chuot") return isMouse;
 
-  // --- LINH KIỆN ---
+  // --- LINH KIỆN CON ---
   if (s.includes("mainboard") || s.includes("bo-mach")) return name.startsWith("main") || name.startsWith("bo mạch") || catSlug.includes("mainboard");
   if (s.includes("psu") || s.includes("nguon")) return name.startsWith("nguồn") || name.startsWith("psu") || catSlug.includes("psu");
   if (s.includes("cpu")) return (name.startsWith("cpu") || name.startsWith("vi xử lý") || catSlug.includes("cpu")) && !isPCBuild;

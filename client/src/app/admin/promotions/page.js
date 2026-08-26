@@ -303,6 +303,23 @@ export default function AdminPromotionsPage() {
       return;
     }
 
+    // Kiểm tra ràng buộc: Chỉ duy nhất 1 chiến dịch Flash Sale hoạt động tại một thời điểm
+    if (formData.isFlashSale && formData.isActive) {
+      const otherActiveFlash = promotions.find(
+        (p) =>
+          p.isFlashSale &&
+          p.isActive &&
+          (modalMode === "create" || (currentPromo && p._id !== currentPromo._id))
+      );
+      if (otherActiveFlash) {
+        showToast(
+          `Hệ thống chỉ cho phép duy nhất một chiến dịch Flash Sale hoạt động tại một thời điểm. Chiến dịch "${otherActiveFlash.name}" hiện đang là Flash Sale. Vui lòng tắt chiến dịch đó trước khi kích hoạt Flash Sale cho chiến dịch này!`,
+          "error"
+        );
+        return;
+      }
+    }
+
     setSaving(true);
     try {
       const payload = {
@@ -991,9 +1008,24 @@ export default function AdminPromotionsPage() {
                   type="checkbox"
                   id="isFlashSalePromo"
                   checked={formData.isFlashSale}
-                  onChange={(e) =>
-                    setFormData({ ...formData, isFlashSale: e.target.checked })
-                  }
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    if (checked) {
+                      const otherActive = promotions.find(
+                        (p) =>
+                          p.isFlashSale &&
+                          p.isActive &&
+                          (modalMode === "create" || (currentPromo && p._id !== currentPromo._id))
+                      );
+                      if (otherActive) {
+                        showToast(
+                          `Lưu ý: Chiến dịch "${otherActive.name}" hiện đang là Flash Sale duy nhất hoạt động. Bạn cần tắt chiến dịch đó trước khi kích hoạt chiến dịch này!`,
+                          "warning"
+                        );
+                      }
+                    }
+                    setFormData({ ...formData, isFlashSale: checked });
+                  }}
                   className="w-4 h-4 accent-amber-600 rounded cursor-pointer"
                 />
                 <label

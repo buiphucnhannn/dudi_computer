@@ -73,10 +73,12 @@ class ProductRepository extends BaseRepository {
     if (isFlashSale === "true" || isFlashSale === true) query.isFlashSale = true;
 
     // Sắp xếp
-    let sortOptions = { createdAt: -1 };
+    let sortOptions = { soldCount: -1, views: -1, createdAt: -1 };
     if (sort === "price_asc") sortOptions = { price: 1 };
     if (sort === "price_desc") sortOptions = { price: -1 };
-    if (sort === "popular") sortOptions = { views: -1 };
+    if (sort === "popular") sortOptions = { views: -1, soldCount: -1 };
+    if (sort === "best_seller" || sort === "sold_desc" || sort === "selling") sortOptions = { soldCount: -1, views: -1 };
+    if (sort === "newest") sortOptions = { createdAt: -1 };
 
     const skip = (Number(page) - 1) * Number(limit);
     const total = await this.model.countDocuments(query).exec();

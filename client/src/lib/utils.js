@@ -49,3 +49,33 @@ export function formatDateTime(dateInput) {
   const year = d.getFullYear();
   return `${hours}:${minutes} ${day}/${month}/${year}`;
 }
+
+/**
+ * Cuộn mượt mà phần tử với thời gian và gia tốc mượt mà tùy chỉnh (Ease In-Out)
+ * @param {HTMLElement} element 
+ * @param {number} distance Khoảng cách cần cuộn (px)
+ * @param {number} duration Thời gian lướt (ms), mặc định 500ms
+ */
+export function smoothScrollBy(element, distance, duration = 500) {
+  if (!element) return;
+  const start = element.scrollLeft;
+  const startTime = performance.now();
+
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function step(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easedProgress = easeInOutCubic(progress);
+
+    element.scrollLeft = start + distance * easedProgress;
+
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  }
+
+  requestAnimationFrame(step);
+}

@@ -7,25 +7,32 @@ export const metadata = {
 
 export default function ShippingPolicyPage() {
   return (
-    <div className="bg-[#f8f9fa] min-h-screen py-6 sm:py-14 pb-28 sm:pb-20">
-      <div className="w-full max-w-4xl mx-auto px-3 sm:px-4">
-        {/* Header Card */}
-        <div className="bg-gray-800 text-white rounded-2xl p-6 sm:p-8 mb-6 sm:mb-8 flex items-center gap-5 sm:gap-6 shadow-md">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/10 rounded-full flex items-center justify-center shrink-0 border border-white/10">
-            <Truck className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
-              CHÍNH SÁCH VẬN CHUYỂN
+    <div className="bg-[#f8f9fa] min-h-screen pb-28 sm:pb-20">
+      {/* 1. Hero Dark Banner */}
+      <div className="bg-[#111111] py-10 sm:py-16 relative overflow-hidden">
+        {/* Glow Effects: Hào quang đỏ rực rỡ góc phải */}
+        <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
+        <div className="absolute -top-12 -right-12 w-[420px] h-[420px] bg-[#eb1c24] rounded-full blur-[110px] opacity-90 pointer-events-none"></div>
+        <div className="absolute top-1/4 right-0 w-80 h-80 bg-[#ff3b30]/70 rounded-full blur-[80px] pointer-events-none"></div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="w-14 h-14 sm:w-20 sm:h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-inner border border-white/10">
+              <Truck className="w-7 h-7 sm:w-10 sm:h-10 text-white" />
+            </div>
+            <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-2 sm:mb-4">
+              CHÍNH SÁCH VẬN CHUYỂN TẠI <span className="text-[#eb1c24]">DUDI SOFTWARE</span>
             </h1>
-            <p className="text-gray-300 text-xs sm:text-sm mt-1 font-medium">
-              Áp dụng cho tất cả đơn hàng tại DUDI SOFTWARE
+            <p className="text-gray-400 text-xs sm:text-base md:text-lg max-w-2xl mx-auto font-medium">
+              Giao hàng nhanh chóng, cẩn thận và đảm bảo an toàn tuyệt đối trên toàn quốc.
             </p>
           </div>
         </div>
+      </div>
 
-        {/* Content Card with 4 Sections */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden text-gray-700 text-xs sm:text-[14.5px] leading-relaxed">
+      {/* 2. Main Content Card */}
+      <div className="container mx-auto px-3 sm:px-4 -mt-6 sm:-mt-8 relative z-20">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 max-w-5xl mx-auto overflow-hidden text-gray-700 text-xs sm:text-[14.5px] leading-relaxed">
           
           {/* Section 1 */}
           <div className="p-4 sm:p-8 border-b border-gray-100">
