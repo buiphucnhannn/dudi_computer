@@ -358,31 +358,28 @@ export default function FlashSaleSection() {
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-              activeTab === "all"
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${activeTab === "all"
                 ? "bg-[#eb1c24] text-white shadow-xs"
                 : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-            }`}
+              }`}
           >
             Tất cả
           </button>
           <button
             onClick={() => setActiveTab("pc")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-              activeTab === "pc"
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${activeTab === "pc"
                 ? "bg-[#eb1c24] text-white shadow-xs"
                 : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-            }`}
+              }`}
           >
             PC
           </button>
           <button
             onClick={() => setActiveTab("laptop")}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-              activeTab === "laptop"
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${activeTab === "laptop"
                 ? "bg-[#eb1c24] text-white shadow-xs"
                 : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-            }`}
+              }`}
           >
             Laptop
           </button>
@@ -476,11 +473,10 @@ export default function FlashSaleSection() {
                           e.stopPropagation();
                           addToCompare(item);
                         }}
-                        className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                          isComp
+                        className={`p-1.5 rounded-full transition-all cursor-pointer ${isComp
                             ? "text-[#eb1c24] bg-red-50"
                             : "hover:text-[#eb1c24] hover:bg-gray-100"
-                        }`}
+                          }`}
                         title="So sánh sản phẩm"
                       >
                         <Scale className="w-[18px] h-[18px]" />
@@ -489,11 +485,10 @@ export default function FlashSaleSection() {
                       {mounted && !isAdmin && (
                         <button
                           onClick={(e) => handleToggleCart(e, item)}
-                          className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                            isFav
+                          className={`p-1.5 rounded-full transition-all cursor-pointer ${isFav
                               ? "text-[#eb1c24] bg-red-50"
                               : "hover:text-[#eb1c24] hover:bg-gray-100"
-                          }`}
+                            }`}
                           title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
                         >
                           <ShoppingCart className="w-[18px] h-[18px]" />

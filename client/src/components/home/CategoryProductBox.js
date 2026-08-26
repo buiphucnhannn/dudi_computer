@@ -230,11 +230,10 @@ export default function CategoryProductBox({
                 <button
                   key={tab.slug}
                   onClick={() => setActiveTab(tab.slug)}
-                  className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                    isActive
+                  className={`px-5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${isActive
                       ? "bg-[#eb1c24] text-white shadow-xs"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                    }`}
                 >
                   {tab.name}
                 </button>
@@ -342,9 +341,8 @@ export default function CategoryProductBox({
                         e.stopPropagation();
                         addToCompare(item);
                       }}
-                      className={`cursor-pointer transition-colors ${
-                        isComp ? "text-[#eb1c24]" : "hover:text-gray-700"
-                      }`}
+                      className={`cursor-pointer transition-colors ${isComp ? "text-[#eb1c24]" : "hover:text-gray-700"
+                        }`}
                       title="So sánh"
                     >
                       <Scale className="w-4 h-4" />
@@ -352,9 +350,8 @@ export default function CategoryProductBox({
                     {mounted && !isAdmin && (
                       <button
                         onClick={(e) => handleToggleFavorite(e, item)}
-                        className={`cursor-pointer transition-colors ${
-                          isFav ? "text-red-500" : "hover:text-red-500"
-                        }`}
+                        className={`cursor-pointer transition-colors ${isFav ? "text-red-500" : "hover:text-red-500"
+                          }`}
                         title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
                       >
                         <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />

@@ -84,10 +84,9 @@ export default function SimilarProductCard({ product }) {
         group relative flex flex-col overflow-hidden rounded-2xl
         border bg-white transition-all duration-300
         hover:-translate-y-1.5 hover:shadow-xl
-        ${
-          product.isHot
-            ? "border-red-300 shadow-red-500/5 hover:border-red-500"
-            : "border-slate-200/90 shadow-xs hover:border-red-400/80"
+        ${product.isHot
+          ? "border-red-300 shadow-red-500/5 hover:border-red-500"
+          : "border-slate-200/90 shadow-xs hover:border-red-400/80"
         }
       `}
     >
@@ -100,10 +99,9 @@ export default function SimilarProductCard({ product }) {
             className={`
               h-full w-full object-contain mix-blend-multiply
               transition-transform duration-500 ease-out
-              ${
-                product.outOfStock
-                  ? "grayscale opacity-60"
-                  : "group-hover:scale-108"
+              ${product.outOfStock
+                ? "grayscale opacity-60"
+                : "group-hover:scale-108"
               }
             `}
           />
@@ -126,18 +124,16 @@ export default function SimilarProductCard({ product }) {
               absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center
               rounded-full bg-white/90 backdrop-blur-md shadow-xs border border-slate-100
               transition-all duration-200 hover:scale-110 cursor-pointer
-              ${
-                isCart
-                  ? "bg-red-600 text-white shadow-sm border-red-600"
-                  : "text-slate-600 hover:text-red-600 hover:bg-red-50"
+              ${isCart
+                ? "bg-red-600 text-white shadow-sm border-red-600"
+                : "text-slate-600 hover:text-red-600 hover:bg-red-50"
               }
             `}
             title={isCart ? "Đã có trong giỏ hàng (Bấm để bỏ)" : "Thêm vào giỏ hàng"}
           >
             <ShoppingCart
-              className={`w-4 h-4 transition-colors ${
-                isCart ? "text-white" : ""
-              }`}
+              className={`w-4 h-4 transition-colors ${isCart ? "text-white" : ""
+                }`}
             />
           </button>
         )}

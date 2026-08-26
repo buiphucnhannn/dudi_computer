@@ -219,11 +219,10 @@ export default function FeaturedProductsSection({ products = [] }) {
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`px-6 py-2 rounded-full font-bold text-sm transition-all duration-300 cursor-pointer ${
-                isActive
+              className={`px-6 py-2 rounded-full font-bold text-sm transition-all duration-300 cursor-pointer ${isActive
                   ? "bg-orange-500 text-white shadow-lg shadow-orange-500/40 scale-105"
                   : "bg-white/90 text-orange-950 hover:bg-white border border-orange-200/80 shadow-2xs"
-              }`}
+                }`}
             >
               {tab.name}
             </button>
@@ -322,11 +321,10 @@ export default function FeaturedProductsSection({ products = [] }) {
                           e.stopPropagation();
                           addToCompare(item);
                         }}
-                        className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                          isComp
+                        className={`p-1.5 rounded-full transition-all cursor-pointer ${isComp
                             ? "text-[#eb1c24] bg-red-50"
                             : "hover:text-[#eb1c24] hover:bg-gray-100"
-                        }`}
+                          }`}
                         title="So sánh sản phẩm"
                       >
                         <Scale className="w-4 h-4" />
@@ -335,11 +333,10 @@ export default function FeaturedProductsSection({ products = [] }) {
                       {mounted && !isAdmin && (
                         <button
                           onClick={(e) => handleToggleCart(e, item)}
-                          className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                            isFav
+                          className={`p-1.5 rounded-full transition-all cursor-pointer ${isFav
                               ? "text-[#eb1c24] bg-red-50"
                               : "hover:text-[#eb1c24] hover:bg-gray-100"
-                          }`}
+                            }`}
                           title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
                         >
                           <ShoppingCart className="w-4 h-4" />

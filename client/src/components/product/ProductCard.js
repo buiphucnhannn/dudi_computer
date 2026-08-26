@@ -130,11 +130,10 @@ export default function ProductCard({ product }) {
       <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5">
         <button
           onClick={handleToggleCompare}
-          className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full backdrop-blur-md transition-all shadow-xs cursor-pointer ${
-            isComp
+          className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full backdrop-blur-md transition-all shadow-xs cursor-pointer ${isComp
               ? "bg-[#eb1c24] text-white shadow-sm scale-105"
               : "bg-white/90 hover:bg-white text-slate-600 hover:text-[#eb1c24] hover:scale-105 border border-slate-100"
-          }`}
+            }`}
           title="So sánh sản phẩm"
         >
           <Scale className="w-3.5 h-3.5" />
@@ -143,11 +142,10 @@ export default function ProductCard({ product }) {
         {mounted && !isAdmin && (
           <button
             onClick={handleToggleCart}
-            className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full backdrop-blur-md transition-all shadow-xs cursor-pointer ${
-              isCart
+            className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full backdrop-blur-md transition-all shadow-xs cursor-pointer ${isCart
                 ? "bg-[#eb1c24] text-white shadow-sm scale-105"
                 : "bg-white/90 hover:bg-white text-slate-600 hover:text-[#eb1c24] hover:scale-105 border border-slate-100"
-            }`}
+              }`}
             title={isCart ? "Đã có trong giỏ hàng (Bấm để xóa)" : "Thêm vào giỏ hàng"}
           >
             <ShoppingCart className="w-3.5 h-3.5" />
