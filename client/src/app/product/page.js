@@ -20,17 +20,17 @@ let globalProductCache = null;
 // Skeleton Card Placeholder khi đang tải dữ liệu
 function ProductCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl border border-gray-150/80 p-3 sm:p-3.5 flex flex-col justify-between animate-pulse shadow-2xs">
+    <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-3.5 flex flex-col justify-between animate-pulse shadow-xs">
       <div>
-        <div className="aspect-square w-full bg-gray-200/80 rounded-lg mb-3" />
-        <div className="h-3 bg-gray-200/70 rounded w-1/3 mb-2" />
-        <div className="h-3.5 bg-gray-200/70 rounded w-full mb-1.5" />
-        <div className="h-3.5 bg-gray-200/70 rounded w-3/4 mb-3" />
-        <div className="h-11 bg-gray-100 rounded-xl mb-2" />
+        <div className="aspect-square w-full bg-slate-100 rounded-xl mb-3" />
+        <div className="h-3 bg-slate-100 rounded w-1/3 mb-2" />
+        <div className="h-3.5 bg-slate-100 rounded w-full mb-1.5" />
+        <div className="h-3.5 bg-slate-100 rounded w-3/4 mb-3" />
+        <div className="h-12 bg-slate-50 rounded-xl mb-2 border border-slate-100" />
       </div>
-      <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+      <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
         <div className="h-5 bg-red-100/80 rounded w-1/2" />
-        <div className="h-7 bg-gray-200/70 rounded-lg w-1/3" />
+        <div className="h-7 bg-slate-100 rounded-xl w-1/3" />
       </div>
     </div>
   );

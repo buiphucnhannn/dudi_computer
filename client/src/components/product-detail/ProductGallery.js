@@ -75,16 +75,22 @@ const ProductGallery = ({ product }) => {
   return (
     <div className="w-full min-w-0 flex flex-col">
       {/* ================= MAIN IMAGE ================= */}
-      <div className="w-full aspect-square bg-white rounded-xl overflow-hidden border border-slate-200 relative group">
+      <div className="w-full aspect-square bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs relative group p-5 sm:p-8 flex items-center justify-center">
         <img
           src={images[activeIndex]}
           alt={product?.name || "Sản phẩm"}
-          className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 ease-out group-hover:scale-105"
         />
+        {/* Subtle Watermark Tag */}
+        <div className="absolute bottom-2.5 left-3 pointer-events-none opacity-80 z-20">
+          <span className="inline-block bg-white/80 backdrop-blur-xs px-2 py-0.5 rounded-md text-[9px] font-black text-[#eb1c24] tracking-wider uppercase border border-red-100/60 shadow-2xs">
+            DUDI SOFTWARE
+          </span>
+        </div>
       </div>
 
       {/* ================= THUMBNAILS ================= */}
-      <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 mt-3">
+      <div className="grid grid-cols-4 sm:grid-cols-5 gap-2.5 mt-3.5">
         {images.slice(0, 8).map((image, index) => (
           <button
             key={`${image}-${index}`}
@@ -93,20 +99,21 @@ const ProductGallery = ({ product }) => {
             className={`
               aspect-square
               bg-white
-              rounded-lg
+              rounded-xl
               overflow-hidden
-              transition-all
+              p-1.5
+              transition-all duration-200 cursor-pointer
               ${
                 activeIndex === index
-                  ? "border-2 border-red-600"
-                  : "border border-slate-200 hover:border-red-400"
+                  ? "border-2 border-red-600 shadow-xs scale-102"
+                  : "border border-slate-200/90 hover:border-red-400 hover:scale-102"
               }
             `}
           >
             <img
               src={image}
               alt={`${product?.name || "Thumbnail"} ${index + 1}`}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain mix-blend-multiply"
             />
           </button>
         ))}

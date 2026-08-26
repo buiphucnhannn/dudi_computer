@@ -83,27 +83,27 @@ export default function SimilarProductCard({ product }) {
       className={`
         group relative flex flex-col overflow-hidden rounded-2xl
         border bg-white transition-all duration-300
-        hover:-translate-y-1 hover:shadow-xl
+        hover:-translate-y-1.5 hover:shadow-xl
         ${
           product.isHot
-            ? "border-red-200/80 shadow-red-500/5 hover:border-red-400"
-            : "border-slate-200/80 shadow-slate-900/5 hover:border-slate-300"
+            ? "border-red-300 shadow-red-500/5 hover:border-red-500"
+            : "border-slate-200/90 shadow-xs hover:border-red-400/80"
         }
       `}
     >
       {/* ── TOP BADGES & ACTIONS ── */}
-      <div className="relative aspect-4/3 w-full overflow-hidden bg-gradient-to-b from-slate-50 to-white p-4">
-        <Link href={href} className="block w-full h-full">
+      <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 p-4 border-b border-slate-100 flex items-center justify-center">
+        <Link href={href} className="block w-full h-full flex items-center justify-center">
           <img
             src={product.image || product.thumbnail}
             alt={product.name}
             className={`
               h-full w-full object-contain mix-blend-multiply
-              transition-transform duration-500
+              transition-transform duration-500 ease-out
               ${
                 product.outOfStock
                   ? "grayscale opacity-60"
-                  : "group-hover:scale-105"
+                  : "group-hover:scale-108"
               }
             `}
           />
@@ -111,7 +111,7 @@ export default function SimilarProductCard({ product }) {
 
         {/* Discount Badge */}
         {discount > 0 && (
-          <span className="absolute left-3 top-3 z-20 rounded-full bg-red-600 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-white shadow-sm">
+          <span className="absolute left-3 top-3 z-20 rounded-lg bg-gradient-to-r from-red-600 to-rose-500 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-white shadow-sm">
             -{discount}%
           </span>
         )}
@@ -124,12 +124,12 @@ export default function SimilarProductCard({ product }) {
             onClick={handleToggleCart}
             className={`
               absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center
-              rounded-full bg-white/90 backdrop-blur-xs shadow-xs
+              rounded-full bg-white/90 backdrop-blur-md shadow-xs border border-slate-100
               transition-all duration-200 hover:scale-110 cursor-pointer
               ${
                 isCart
-                  ? "bg-red-600 text-white shadow-sm"
-                  : "text-slate-500 hover:text-red-600"
+                  ? "bg-red-600 text-white shadow-sm border-red-600"
+                  : "text-slate-600 hover:text-red-600 hover:bg-red-50"
               }
             `}
             title={isCart ? "Đã có trong giỏ hàng (Bấm để bỏ)" : "Thêm vào giỏ hàng"}
@@ -141,6 +141,13 @@ export default function SimilarProductCard({ product }) {
             />
           </button>
         )}
+
+        {/* Watermark */}
+        <div className="absolute bottom-1.5 left-2 pointer-events-none opacity-85 z-20">
+          <span className="inline-block bg-white/80 backdrop-blur-xs px-1.5 py-0.5 rounded text-[8.5px] font-black text-[#eb1c24] tracking-wider uppercase border border-red-100/60 shadow-2xs">
+            DUDI SOFTWARE
+          </span>
+        </div>
 
         {/* Out of stock Overlay */}
         {product.outOfStock && (

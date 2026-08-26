@@ -45,11 +45,11 @@ export default function ProductCard({
       </div>
 
       {/* Image */}
-      <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-slate-50 p-4 border-b border-slate-100">
+      <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 p-4 border-b border-slate-100">
         <img
           src={product.image || product.thumbnail}
           alt={product.name}
-          className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-contain mix-blend-multiply transition-transform duration-500 ease-out group-hover:scale-108"
         />
 
         {/* Quick View Button */}

@@ -25,23 +25,30 @@ const RelatedProducts = ({ products = [] }) => {
             return (
               <div
                 key={product._id || product.slug}
-                className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-red-600/50 transition-all duration-300 group"
+                className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden hover:shadow-xl hover:border-red-400/80 hover:-translate-y-1.5 transition-all duration-300 group flex flex-col justify-between"
               >
                 <Link
                   href={href}
-                  className="aspect-square overflow-hidden bg-slate-100 relative block"
+                  className="aspect-square overflow-hidden bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 border-b border-slate-100 p-5 relative flex items-center justify-center"
                 >
                   <img
                     src={thumbnail}
                     alt={product.name}
-                    className="w-full h-full object-contain bg-white group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-contain mix-blend-multiply group-hover:scale-108 transition-transform duration-500 ease-out"
                   />
 
                   {product.discountPercent > 0 && (
-                    <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-1 rounded text-xs font-mono font-bold">
+                    <div className="absolute top-3 left-3 bg-gradient-to-r from-red-600 to-rose-500 text-white px-2.5 py-0.5 rounded-lg text-xs font-black shadow-sm">
                       -{product.discountPercent}%
                     </div>
                   )}
+
+                  {/* Watermark */}
+                  <div className="absolute bottom-1.5 left-2 pointer-events-none opacity-85 z-20">
+                    <span className="inline-block bg-white/80 backdrop-blur-xs px-1.5 py-0.5 rounded text-[8.5px] font-black text-[#eb1c24] tracking-wider uppercase border border-red-100/60 shadow-2xs">
+                      DUDI SOFTWARE
+                    </span>
+                  </div>
                 </Link>
 
                 <div className="p-5 flex flex-col gap-4">

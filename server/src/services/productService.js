@@ -114,22 +114,16 @@ class ProductService {
       );
     }
 
-    // 2. Upload các file ảnh mới lên Cloudinary qua buffer (Multer memoryStorage)
+    // 2. Upload các file ảnh mới lên Cloudinary qua buffer (Song song bằng Promise.all)
     const uploadedImages = [];
     if (files && Array.isArray(files) && files.length > 0) {
-      for (const file of files) {
-        if (file.buffer) {
-          const res = await uploadToCloudinary(
-            file.buffer,
-            "dudi_software/products",
-            "image"
-          );
-          uploadedImages.push({
-            url: res.url,
-            public_id: res.public_id,
-          });
-        }
-      }
+      const validFiles = files.filter((f) => f && f.buffer);
+      const uploadResults = await Promise.all(
+        validFiles.map((file) =>
+          uploadToCloudinary(file.buffer, "dudi_software/products", "image")
+        )
+      );
+      uploadedImages.push(...uploadResults);
     }
 
     const allImages = [...initialImages, ...uploadedImages];
@@ -215,38 +209,33 @@ class ProductService {
         : [];
     }
 
-    // 2. Upload các file mới lên Cloudinary
+    // 2. Upload các file mới lên Cloudinary song song
     const uploadedImages = [];
     if (files && Array.isArray(files) && files.length > 0) {
-      for (const file of files) {
-        if (file.buffer) {
-          const res = await uploadToCloudinary(
-            file.buffer,
-            "dudi_software/products",
-            "image"
-          );
-          uploadedImages.push({
-            url: res.url,
-            public_id: res.public_id,
-          });
-        }
-      }
+      const validFiles = files.filter((f) => f && f.buffer);
+      const uploadResults = await Promise.all(
+        validFiles.map((file) =>
+          uploadToCloudinary(file.buffer, "dudi_software/products", "image")
+        )
+      );
+      uploadedImages.push(...uploadResults);
     }
 
     const updatedImagesList = [...remainingImages, ...uploadedImages];
 
-    // 3. Xóa các ảnh đã bị loại bỏ khỏi Cloudinary
+    // 3. Xóa các ảnh đã bị loại bỏ khỏi Cloudinary song song
     if (Array.isArray(product.images)) {
       const remainingPublicIds = new Set(
         updatedImagesList.map((img) => img.public_id).filter(Boolean)
       );
 
-      for (const oldImg of product.images) {
-        const oldPublicId = typeof oldImg === "object" ? oldImg.public_id : null;
-        if (oldPublicId && !remainingPublicIds.has(oldPublicId)) {
-          // Ảnh này đã bị xóa khỏi sản phẩm -> Xóa vĩnh viễn trên Cloudinary
-          await deleteFromCloudinary(oldPublicId);
-        }
+      const deletePromises = product.images
+        .map((oldImg) => (typeof oldImg === "object" ? oldImg.public_id : null))
+        .filter((oldPublicId) => oldPublicId && !remainingPublicIds.has(oldPublicId))
+        .map((oldPublicId) => deleteFromCloudinary(oldPublicId));
+
+      if (deletePromises.length > 0) {
+        await Promise.allSettled(deletePromises);
       }
     }
 

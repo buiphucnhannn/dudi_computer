@@ -266,21 +266,21 @@ export default function FeaturedProductsSection({ products = [] }) {
             return (
               <div
                 key={`featured-${item._id || item.id}`}
-                className="w-[260px] sm:w-[280px] lg:w-[calc(25%-12px)] shrink-0 bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group/card relative"
+                className="w-[260px] sm:w-[280px] lg:w-[calc(25%-12px)] shrink-0 bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-red-400/80 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group/card relative"
               >
                 <div>
                   <Link
                     href={detailHref}
-                    className="block relative aspect-square w-full rounded-xl overflow-hidden border-2 border-red-500 mb-3 bg-white group/img p-2"
+                    className="block relative aspect-square w-full rounded-xl overflow-hidden border border-slate-100 bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 mb-3 group/img p-3.5 flex items-center justify-center"
                   >
                     {hasDiscount && (
-                      <div className="absolute top-2 left-2 z-20 bg-[#eb1c24] text-white text-[11px] font-black px-2 py-0.5 rounded shadow-sm">
+                      <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-[#eb1c24] to-[#ff4757] text-white text-[11px] font-black px-2 py-0.5 rounded-lg shadow-sm">
                         Giảm {discountPercent}%
                       </div>
                     )}
 
                     {showHotSaleBadge && (
-                      <div className="absolute top-2 right-2 z-20 bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded shadow-sm flex items-center gap-1">
+                      <div className="absolute top-2 right-2 z-20 bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
                         <Flame className="w-3 h-3 fill-white" />
                         <span>{isFlashSale ? "FLASH SALE" : "HOT SALE"}</span>
                       </div>
@@ -289,7 +289,7 @@ export default function FeaturedProductsSection({ products = [] }) {
                     <img
                       src={imgSrc}
                       alt={item.name}
-                      className="w-full h-full object-contain p-1 group-hover/img:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-108 transition-transform duration-500 ease-out"
                       loading="lazy"
                       onError={(e) => {
                         e.currentTarget.src =
@@ -297,8 +297,8 @@ export default function FeaturedProductsSection({ products = [] }) {
                       }}
                     />
 
-                    <div className="absolute bottom-1 left-2 pointer-events-none opacity-85 z-20">
-                      <span className="text-[9px] font-black text-[#eb1c24] tracking-tight uppercase">
+                    <div className="absolute bottom-1.5 left-2 pointer-events-none opacity-85 z-20">
+                      <span className="inline-block bg-white/80 backdrop-blur-xs px-1.5 py-0.5 rounded text-[8.5px] font-black text-[#eb1c24] tracking-wider uppercase border border-red-100/60 shadow-2xs">
                         DUDI SOFTWARE
                       </span>
                     </div>

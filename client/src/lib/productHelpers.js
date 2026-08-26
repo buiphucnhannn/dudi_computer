@@ -109,12 +109,22 @@ export function sortProductsByPriority(products) {
  */
 export function getProductImage(item) {
   if (!item) return "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
-  if (item.thumbnail && item.thumbnail.startsWith("http")) return item.thumbnail;
-  if (item.thumbnail) return `https://zcomputer.vn${item.thumbnail}`;
+  
+  // 1. Kiểm tra thumbnail
+  const thumb = typeof item.thumbnail === "object" ? item.thumbnail?.url : item.thumbnail;
+  if (thumb && typeof thumb === "string" && thumb.startsWith("http")) return thumb;
+  if (thumb && typeof thumb === "string") return `https://zcomputer.vn${thumb}`;
+
+  // 2. Kiểm tra mảng images
   if (Array.isArray(item.images) && item.images.length > 0) {
-    if (item.images[0].startsWith("http")) return item.images[0];
-    return `https://zcomputer.vn${item.images[0]}`;
+    const firstImg = typeof item.images[0] === "object" ? item.images[0]?.url : item.images[0];
+    if (firstImg && typeof firstImg === "string" && firstImg.startsWith("http")) return firstImg;
+    if (firstImg && typeof firstImg === "string") return `https://zcomputer.vn${firstImg}`;
   }
-  if (item.image && item.image.startsWith("http")) return item.image;
+
+  // 3. Kiểm tra image đơn
+  const singleImg = typeof item.image === "object" ? item.image?.url : item.image;
+  if (singleImg && typeof singleImg === "string" && singleImg.startsWith("http")) return singleImg;
+
   return "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
 }

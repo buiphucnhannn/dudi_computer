@@ -448,11 +448,11 @@ function CompareContent() {
                       </button>
 
                       {/* PRODUCT IMAGE */}
-                      <div className="mb-3 flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-white p-2">
+                      <div className="mb-3 flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 border border-slate-100 p-3 sm:p-4">
                         <img
                           src={image}
                           alt={getProductName(product)}
-                          className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-300 max-h-[190px]"
+                          className="h-full w-full object-contain mix-blend-multiply group-hover:scale-108 transition-transform duration-500 ease-out max-h-[190px]"
                         />
                       </div>
 
