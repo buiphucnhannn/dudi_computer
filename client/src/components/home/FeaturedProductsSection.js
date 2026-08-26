@@ -134,10 +134,21 @@ export default function FeaturedProductsSection({ products = [] }) {
     }
   };
 
+  const getScrollAmount = () => {
+    if (!sliderRef.current) return 300;
+    const firstCard = sliderRef.current.querySelector(":scope > div");
+    if (!firstCard) return sliderRef.current.offsetWidth;
+    const cardWidth = firstCard.getBoundingClientRect().width;
+    const gap = 16; // gap-4 = 16px
+    const visibleWidth = sliderRef.current.clientWidth;
+    const visibleCount = Math.max(1, Math.floor((visibleWidth + gap) / (cardWidth + gap)));
+    return (cardWidth + gap) * visibleCount;
+  };
+
   const scrollLeft = () => {
     if (sliderRef.current) {
       sliderRef.current.scrollBy({
-        left: -sliderRef.current.offsetWidth,
+        left: -getScrollAmount(),
         behavior: "smooth",
       });
     }
@@ -146,7 +157,7 @@ export default function FeaturedProductsSection({ products = [] }) {
   const scrollRight = () => {
     if (sliderRef.current) {
       sliderRef.current.scrollBy({
-        left: sliderRef.current.offsetWidth,
+        left: getScrollAmount(),
         behavior: "smooth",
       });
     }
@@ -242,7 +253,7 @@ export default function FeaturedProductsSection({ products = [] }) {
 
         <div
           ref={sliderRef}
-          className="flex overflow-x-auto gap-4 py-2 px-1 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          className="flex overflow-x-auto gap-4 py-2 px-1 scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
           {filteredProducts.map((item) => {
             const {
@@ -266,7 +277,7 @@ export default function FeaturedProductsSection({ products = [] }) {
             return (
               <div
                 key={`featured-${item._id || item.id}`}
-                className="w-[260px] sm:w-[280px] lg:w-[calc(25%-12px)] shrink-0 bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group/card relative"
+                className="w-[78%] sm:w-[calc((100%-32px)/3)] lg:w-[calc((100%-48px)/4)] shrink-0 snap-start bg-white rounded-2xl p-3 sm:p-3.5 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden group/card relative"
               >
                 <div>
                   <Link
@@ -332,19 +343,17 @@ export default function FeaturedProductsSection({ products = [] }) {
                         <Scale className="w-4 h-4" />
                       </button>
 
-                      {mounted && !isAdmin && (
-                        <button
-                          onClick={(e) => handleToggleCart(e, item)}
-                          className={`p-1.5 rounded-full transition-all cursor-pointer ${
-                            isFav
-                              ? "text-[#eb1c24] bg-red-50"
-                              : "hover:text-[#eb1c24] hover:bg-gray-100"
-                          }`}
-                          title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
-                        >
-                          <ShoppingCart className="w-4 h-4" />
-                        </button>
-                      )}
+                      <button
+                        onClick={(e) => handleToggleCart(e, item)}
+                        className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                          isFav
+                            ? "text-[#eb1c24] bg-red-50"
+                            : "hover:text-[#eb1c24] hover:bg-gray-100"
+                        }`}
+                        title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
+                      >
+                        <ShoppingCart className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
 
@@ -398,22 +407,13 @@ export default function FeaturedProductsSection({ products = [] }) {
                     <Eye className="w-3.5 h-3.5" />
                     <span>{item.views || 68} lượt xem</span>
                   </span>
-                  {isAdmin ? (
-                    <Link
-                      href={detailHref}
-                      className="font-bold hover:underline cursor-pointer text-slate-800"
-                    >
-                      Chi tiết →
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={(e) => handleBuyNow(e, item)}
-                      className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
-                    >
-                      + Mua ngay
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => handleBuyNow(e, item)}
+                    className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                  >
+                    + Mua ngay
+                  </button>
                 </div>
               </div>
             );

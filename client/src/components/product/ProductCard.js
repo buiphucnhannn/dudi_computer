@@ -258,32 +258,21 @@ export default function ProductCard({ product }) {
           )}
 
           <div className="flex items-center gap-1 sm:gap-1.5">
-            {isAdmin ? (
-              <button
-                type="button"
-                onClick={handleOpenDetail}
-                className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white py-1.5 px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
-              >
-                <Eye className="w-3.5 h-3.5" />
-                <span>Xem chi tiết</span>
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={handleAddToCart}
-                  className="flex-1 flex items-center justify-center gap-1 bg-red-50 hover:bg-[#dc2626] text-[#dc2626] hover:text-white border border-red-200/80 py-1.5 px-1.5 sm:px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
-                >
-                  <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                  <span className="truncate">Thêm vào giỏ</span>
-                </button>
-                <span
-                  className="p-1 sm:p-1.5 rounded-lg border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 transition-colors shrink-0"
-                  title="Xem chi tiết"
-                >
-                  <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                </span>
-              </>
-            )}
+            <button
+              onClick={handleAddToCart}
+              className="flex-1 flex items-center justify-center gap-1 bg-red-50 hover:bg-[#dc2626] text-[#dc2626] hover:text-white border border-red-200/80 py-1.5 px-1.5 sm:px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
+            >
+              <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="truncate">Thêm vào giỏ</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleOpenDetail}
+              className="p-1.5 sm:p-2 rounded-lg border border-gray-200 hover:border-[#dc2626] text-gray-600 hover:text-[#dc2626] hover:bg-red-50 transition-colors shrink-0 cursor-pointer"
+              title="Xem chi tiết"
+            >
+              <Eye className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>
