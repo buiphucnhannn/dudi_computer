@@ -1,8 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { MoreHorizontal, ArrowLeft } from "lucide-react";
+import { categoryAPI } from "@/lib/api";
+
+const BG_COLORS = [
+  "bg-pink-100/90",
+  "bg-blue-100/90",
+  "bg-green-100/90",
+  "bg-purple-100/90",
+  "bg-orange-100/90",
+  "bg-teal-100/90",
+  "bg-cyan-100/90",
+  "bg-red-100/90",
+  "bg-indigo-100/90",
+  "bg-amber-100/90",
+];
+
+const DEFAULT_CATEGORY_ICONS = {
+  laptop: "https://zcomputer.vn/categories/icon1.png",
+  pc: "https://zcomputer.vn/categories/icon2.png",
+  chuot: "https://zcomputer.vn/categories/icon3.png",
+  "ban-phim": "https://zcomputer.vn/categories/icon4.png",
+  "man-hinh": "https://zcomputer.vn/categories/icon5.png",
+  "case-vo-may-tinh": "https://zcomputer.vn/categories/icon6.png",
+  "cpu-bo-vi-xu-ly": "https://zcomputer.vn/categories/icon7.png",
+  "psu-nguon-may-tinh": "https://zcomputer.vn/categories/icon8.png",
+  "mainboard-bo-mach-chu": "https://zcomputer.vn/categories/icon9.png",
+  "o-cung-hdd-ssd": "https://zcomputer.vn/categories/icon10.png",
+  "ram-bo-nho-trong": "https://zcomputer.vn/categories/icon11.png",
+  "tan-nhiet-cooling": "https://cdn-icons-png.flaticon.com/512/912/912316.png",
+  "vga-card-man-hinh": "https://cdn-icons-png.flaticon.com/512/912/912300.png",
+};
 
 // Khi chưa mở rộng: 7 danh mục đầu tiên
 const UNEXPANDED_ITEMS = [
@@ -38,13 +68,56 @@ const EXPANDED_ROW_2 = [
 
 export default function CategoryPills({ activeCategory, onSelectCategory }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [dbCategories, setDbCategories] = useState([]);
+
+  useEffect(() => {
+    categoryAPI
+      .getAll()
+      .then((res) => {
+        const list = res.data?.data;
+        if (Array.isArray(list) && list.length > 0) {
+          setDbCategories(list);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const { unexpandedList, expandedRow1, expandedRow2 } = useMemo(() => {
+    if (!Array.isArray(dbCategories) || dbCategories.length === 0) {
+      return {
+        unexpandedList: UNEXPANDED_ITEMS,
+        expandedRow1: EXPANDED_ROW_1,
+        expandedRow2: EXPANDED_ROW_2,
+      };
+    }
+
+    const activeList = dbCategories
+      .filter((c) => c.isActive !== false)
+      .map((c, idx) => ({
+        name: c.name,
+        slug: c.slug,
+        icon:
+          c.image ||
+          c.icon ||
+          DEFAULT_CATEGORY_ICONS[c.slug] ||
+          DEFAULT_CATEGORY_ICONS[c.pcPartType] ||
+          "https://zcomputer.vn/categories/icon1.png",
+        bgColor: BG_COLORS[idx % BG_COLORS.length],
+      }));
+
+    return {
+      unexpandedList: activeList.slice(0, 7),
+      expandedRow1: activeList.slice(0, 10),
+      expandedRow2: activeList.slice(10, 13),
+    };
+  }, [dbCategories]);
 
   return (
     <div className="w-full py-1 select-none transition-all duration-300">
       {/* ================= 1. TRẠNG THÁI CHƯA MỞ RỘNG (7 Danh Mục + Nút Xem Thêm) ================= */}
       {!isExpanded && (
         <div className="grid grid-cols-4 md:grid-cols-8 gap-x-2 sm:gap-x-3 md:gap-x-4 gap-y-4 items-start justify-items-center animate-fadeIn">
-          {UNEXPANDED_ITEMS.map((c) => {
+          {unexpandedList.map((c) => {
             const isActive = activeCategory === c.slug;
             return (
               <Link
@@ -92,7 +165,7 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
         <div className="space-y-5 sm:space-y-6 animate-fadeIn">
           {/* HÀNG 1: ĐỦ 10 DANH MỤC TRÊN 1 DÒNG DUY NHẤT */}
           <div className="grid grid-cols-5 md:grid-cols-10 gap-x-1 sm:gap-x-2 md:gap-x-3 gap-y-4 items-start justify-items-center">
-            {EXPANDED_ROW_1.map((c) => {
+            {expandedRow1.map((c) => {
               const isActive = activeCategory === c.slug;
               return (
                 <Link
@@ -129,7 +202,7 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
             <div className="hidden md:block w-full max-w-[88px]"></div>
 
             {/* Cột 4: RAM | Cột 5: Tản nhiệt | Cột 6: VGA */}
-            {EXPANDED_ROW_2.map((c) => {
+            {expandedRow2.map((c) => {
               const isActive = activeCategory === c.slug;
               return (
                 <Link

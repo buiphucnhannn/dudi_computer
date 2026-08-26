@@ -116,6 +116,12 @@ export const categoryAPI = {
   getAll: () => apiClient.get("/categories"),
 };
 
+export const brandAPI = {
+  getAll: () => apiClient.get("/brands"),
+  getAdminAll: () => apiClient.get("/brands/admin/all"),
+  getById: (id) => apiClient.get(`/brands/${id}`),
+};
+
 export const authAPI = {
   register: (data) => apiClient.post("/auth/register", data),
   verifyRegistrationOtp: (data) => apiClient.post("/auth/verify-registration-otp", data),

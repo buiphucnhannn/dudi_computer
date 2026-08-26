@@ -22,6 +22,7 @@ const BASE_CATEGORIES = [
 ];
 
 export default function ProductSidebar({
+  categories = [],
   filters,
   products = [],
   onFilterChange,
@@ -41,8 +42,112 @@ export default function ProductSidebar({
     };
   }, [isMobileOpen]);
 
-  // 1. Calculate Real Category Counts
+  // 1. Calculate Real Dynamic Category Counts from Database Categories
   const computedCategories = useMemo(() => {
+    if (Array.isArray(categories) && categories.length > 0) {
+      const activeCats = categories.filter((c) => c.isActive !== false);
+
+      // Phân nhóm danh mục gốc và danh mục con
+      const rootCats = activeCats.filter((c) => !c.parent || c.parent === null);
+      const childCats = activeCats.filter((c) => !!c.parent);
+
+      const resultList = [];
+
+      // Hàm đếm số sản phẩm khớp với 1 category cụ thể
+      const countForCategory = (targetCat, isParentWithChildren = false) => {
+        const matchIds = new Set([targetCat._id.toString()]);
+        const matchSlugs = new Set([targetCat.slug.toLowerCase()]);
+        const matchNames = new Set([targetCat.name.toLowerCase()]);
+        const partType = targetCat.pcPartType && targetCat.pcPartType !== "none" ? targetCat.pcPartType : null;
+
+        if (isParentWithChildren) {
+          childCats.forEach((ch) => {
+            const pId = (ch.parent?._id || ch.parent || "").toString();
+            if (pId === targetCat._id.toString()) {
+              matchIds.add(ch._id.toString());
+              if (ch.slug) matchSlugs.add(ch.slug.toLowerCase());
+              if (ch.name) matchNames.add(ch.name.toLowerCase());
+            }
+          });
+        }
+
+        return products.filter((p) => {
+          const prodType = detectProductType(p);
+          const pCatId = (p.category?._id || p.category || "").toString();
+          const pCatSlug = (p.categorySlug || "").toLowerCase();
+          const pCatName = (p.categoryName || "").toLowerCase();
+          const pName = (p.name || "").toLowerCase();
+
+          if (pCatId && matchIds.has(pCatId)) return true;
+          if (pCatSlug && matchSlugs.has(pCatSlug)) return true;
+          if (pCatName && matchNames.has(pCatName)) return true;
+          if (partType && prodType === partType) return true;
+
+          // Fallback theo slug / type
+          const s = targetCat.slug.toLowerCase();
+          if (s.includes("laptop") || s.includes("macbook")) {
+            return prodType === PRODUCT_TYPES.LAPTOP || pCatSlug.includes("laptop") || pCatName.includes("laptop");
+          }
+          if (s === "pc" || s.includes("pc-") || s.includes("bộ máy tính")) {
+            return prodType === PRODUCT_TYPES.PC || pCatSlug === "pc" || pCatName.includes("bộ máy tính");
+          }
+          if (s.includes("man-hinh") || s.includes("màn hình")) return prodType === PRODUCT_TYPES.MONITOR;
+          if (s.includes("mainboard") || s.includes("bo mạch")) return prodType === PRODUCT_TYPES.MAINBOARD;
+          if (s.includes("psu") || s.includes("nguồn")) return prodType === PRODUCT_TYPES.PSU;
+          if (s.includes("cpu") || s.includes("vi xử lý")) return prodType === PRODUCT_TYPES.CPU;
+          if (s.includes("vga") || s.includes("card")) return prodType === PRODUCT_TYPES.VGA;
+          if (s.includes("ram") || s.includes("bộ nhớ")) return prodType === PRODUCT_TYPES.RAM;
+          if (s.includes("ssd") || s.includes("hdd") || s.includes("o-cung") || s.includes("ổ cứng")) return prodType === PRODUCT_TYPES.STORAGE;
+          if (s.includes("case") || s.includes("vỏ")) return prodType === PRODUCT_TYPES.CASE;
+          if (s.includes("chuot") || s.includes("chuột")) return prodType === PRODUCT_TYPES.MOUSE || pCatSlug.includes("chuot") || pName.includes("chuột");
+          if (s.includes("ban-phim") || s.includes("bàn phím")) return prodType === PRODUCT_TYPES.KEYBOARD || pCatSlug.includes("ban-phim") || pName.includes("bàn phím");
+          if (s.includes("tan-nhiet") || s.includes("cooling") || s.includes("tản nhiệt")) return prodType === PRODUCT_TYPES.COOLER;
+
+          return false;
+        }).length;
+      };
+
+      rootCats.forEach((root) => {
+        const children = childCats.filter(
+          (c) => (c.parent?._id || c.parent || "").toString() === root._id.toString()
+        );
+        const rootCount = countForCategory(root, children.length > 0);
+
+        resultList.push({
+          label: root.name,
+          value: root.slug,
+          count: rootCount,
+          isParent: children.length > 0,
+        });
+
+        children.forEach((child) => {
+          const childCount = countForCategory(child, false);
+          resultList.push({
+            label: `↳ ${child.name}`,
+            value: child.slug,
+            count: childCount,
+            isChild: true,
+          });
+        });
+      });
+
+      // Nếu có danh mục con không tìm thấy cha trong roots, thêm vào cuối
+      childCats.forEach((ch) => {
+        const pId = (ch.parent?._id || ch.parent || "").toString();
+        const parentFound = rootCats.some((r) => r._id.toString() === pId);
+        if (!parentFound) {
+          resultList.push({
+            label: ch.name,
+            value: ch.slug,
+            count: countForCategory(ch, false),
+          });
+        }
+      });
+
+      return resultList;
+    }
+
+    // Fallback nếu chưa tải được DB categories
     const counts = {};
     products.forEach((p) => {
       const type = detectProductType(p);
@@ -66,17 +171,13 @@ export default function ProductSidebar({
       else if (type === PRODUCT_TYPES.MOUSE || catSlug.includes("chuot") || catName.includes("chuột")) inc("chuot");
       else if (type === PRODUCT_TYPES.KEYBOARD || catSlug.includes("ban-phim") || catName.includes("bàn phím")) inc("ban-phim");
       else if (type === PRODUCT_TYPES.COOLER || catSlug.includes("tan-nhiet") || catName.includes("tản nhiệt")) inc("tan-nhiet-cooling");
-      else {
-        const matched = BASE_CATEGORIES.find((c) => catSlug.includes(c.value) || catName.includes(c.label.toLowerCase()));
-        if (matched) inc(matched.value);
-      }
     });
 
     return BASE_CATEGORIES.map((c) => ({
       ...c,
       count: counts[c.value] || 0,
     }));
-  }, [products]);
+  }, [categories, products]);
 
   // 2. Calculate Real Condition Counts
   const computedConditions = useMemo(() => {
