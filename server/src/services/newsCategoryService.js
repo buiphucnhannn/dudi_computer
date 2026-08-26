@@ -34,16 +34,28 @@ export const newsCategoryService = {
     const oldName = category.name;
     const updated = await newsCategoryRepository.update(id, data);
 
+    const categoryName = (data.name || oldName).trim();
+
     // Nếu đổi tên danh mục -> Cập nhật tên trong tất cả bài viết liên quan
-    if (data.name && data.name !== oldName) {
-      await News.updateMany({ category: oldName }, { $set: { category: data.name } });
+    if (data.name && data.name.trim() !== oldName.trim()) {
+      await News.updateMany(
+        { category: { $regex: new RegExp(`^${oldName.trim()}$`, "i") } },
+        { $set: { category: data.name.trim() } }
+      );
     }
 
     // Nếu ẩn chuyên mục -> Tự động chuyển toàn bộ bài viết trong chuyên mục về bản nháp (isPublished: false)
-    if (data.isActive === false) {
-      const categoryName = data.name || oldName;
+    const isNowHidden = data.isActive === false || data.isActive === "false";
+    const isNowActive = data.isActive === true || data.isActive === "true";
+
+    if (isNowHidden) {
       await News.updateMany(
-        { category: categoryName },
+        {
+          $or: [
+            { category: { $regex: new RegExp(`^${categoryName}$`, "i") } },
+            { category: { $regex: new RegExp(`^${oldName.trim()}$`, "i") } },
+          ],
+        },
         { $set: { isPublished: false } }
       );
 
@@ -54,7 +66,7 @@ export const newsCategoryService = {
         name: categoryName,
         message: `Chuyên mục tin tức "${categoryName}" và toàn bộ bài viết bên trong đã được chuyển sang bản nháp.`,
       });
-    } else if (data.isActive === true) {
+    } else if (isNowActive) {
       sessionManager.broadcastResourceUpdate({
         action: "publish",
         resourceType: "news_category",

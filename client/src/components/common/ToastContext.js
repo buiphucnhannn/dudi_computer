@@ -236,7 +236,7 @@ export function ToastProvider({ children }) {
                 {toast.title}
               </h4>
               {toast.message && (
-                <p className="text-xs sm:text-[13px] text-gray-600 mt-1 leading-relaxed break-words">
+                <p className="text-xs sm:text-[13px] text-gray-600 mt-1 leading-relaxed text-justify [text-justify:inter-word] break-words">
                   {toast.message}
                 </p>
               )}

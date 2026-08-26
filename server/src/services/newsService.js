@@ -113,6 +113,19 @@ export const newsService = {
   },
 
   createNews: async (data) => {
+    const isPublishing = data.isPublished === true || data.isPublished === "true";
+    if (isPublishing && data.category) {
+      const parentCat = await NewsCategory.findOne({
+        name: { $regex: new RegExp(`^${data.category.trim()}$`, "i") },
+      }).lean();
+      if (parentCat && parentCat.isActive === false) {
+        throw new ApiError(
+          400,
+          `Không thể xuất bản bài viết vì chuyên mục "${parentCat.name}" đang bị tạm ẩn. Vui lòng kích hoạt chuyên mục trước hoặc lưu bài viết dưới dạng bản nháp.`
+        );
+      }
+    }
+
     if (!data.slug && data.title) {
       data.slug = data.title
         .toLowerCase()
@@ -128,6 +141,24 @@ export const newsService = {
     const article = await newsRepository.findById(id);
     if (!article) {
       throw new ApiError(404, "Không tìm thấy bài viết cần cập nhật");
+    }
+
+    const targetCategory = (data.category || article.category || "").trim();
+    const isPublishing =
+      data.isPublished === true ||
+      data.isPublished === "true" ||
+      (data.isPublished === undefined && article.isPublished);
+
+    if (isPublishing && targetCategory) {
+      const parentCat = await NewsCategory.findOne({
+        name: { $regex: new RegExp(`^${targetCategory}$`, "i") },
+      }).lean();
+      if (parentCat && parentCat.isActive === false) {
+        throw new ApiError(
+          400,
+          `Không thể xuất bản bài viết vì chuyên mục "${parentCat.name}" đang bị tạm ẩn. Vui lòng kích hoạt chuyên mục trước hoặc chuyển bài viết về bản nháp.`
+        );
+      }
     }
 
     const updated = await newsRepository.update(id, data);
@@ -171,6 +202,20 @@ export const newsService = {
     if (!article) {
       throw new ApiError(404, "Không tìm thấy bài viết");
     }
+
+    // Nếu đang muốn xuất bản từ bản nháp -> công khai
+    if (!article.isPublished) {
+      const parentCat = await NewsCategory.findOne({
+        name: { $regex: new RegExp(`^${(article.category || "").trim()}$`, "i") },
+      }).lean();
+      if (parentCat && parentCat.isActive === false) {
+        throw new ApiError(
+          400,
+          `Không thể xuất bản bài viết vì chuyên mục "${parentCat.name}" đang bị tạm ẩn. Vui lòng kích hoạt chuyên mục trước.`
+        );
+      }
+    }
+
     article.isPublished = !article.isPublished;
     await article.save();
 

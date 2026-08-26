@@ -700,7 +700,7 @@ export default function AdminNewsPage() {
       );
       setIsCategoryModalOpen(false);
       fetchCategories();
-      fetchArticles();
+      fetchNews();
     } catch (error) {
       showToast(error.response?.data?.message || error.message || "Lỗi lưu chuyên mục", "error");
     } finally {
