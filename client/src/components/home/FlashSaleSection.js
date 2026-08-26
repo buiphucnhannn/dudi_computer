@@ -472,173 +472,174 @@ export default function FlashSaleSection() {
                 return (
                   <div
                     key={item._id || item.id}
-                    className="bg-white rounded-xl sm:rounded-2xl border border-gray-200/90 shadow-2xs hover:border-[#eb1c24] hover:shadow-[0_12px_28px_rgba(235,28,36,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-2.5 sm:p-3"
+                    className="w-[82%] sm:w-[calc((100%-12px)/2)] lg:w-[calc((100%-24px)/3)] shrink-0 snap-start bg-white rounded-xl sm:rounded-2xl border border-gray-200/90 shadow-2xs hover:border-[#eb1c24] hover:shadow-[0_12px_28px_rgba(235,28,36,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-2.5 sm:p-3"
                   >
-                    <Link
-                      href={detailHref}
-                      className="block relative aspect-[4/3] w-full rounded-xl overflow-hidden border border-red-500/80 mb-3 bg-white group/img p-2"
-                    >
-                      {/* Tag Giảm giá góc trên bên trái */}
-                      {hasDiscount && (
-                        <div className="absolute top-0 left-0 z-20 pointer-events-none">
-                          <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tl-[10px] rounded-br-[8px] shadow-xs">
-                            Giảm {discountPercent}%
+                    <div>
+                      <Link
+                        href={detailHref}
+                        className="block relative aspect-[4/3] w-full rounded-xl overflow-hidden border border-red-500/80 mb-3 bg-white group/img p-2"
+                      >
+                        {/* Tag Giảm giá góc trên bên trái */}
+                        {hasDiscount && (
+                          <div className="absolute top-0 left-0 z-20 pointer-events-none">
+                            <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tl-[10px] rounded-br-[8px] shadow-xs">
+                              Giảm {discountPercent}%
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Tag HOT SALE góc trên bên phải */}
+                        <div className="absolute top-0 right-0 z-20 pointer-events-none">
+                          <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tr-[10px] rounded-bl-[8px] flex items-center gap-1 shadow-xs">
+                            🔥 FLASH SALE
                           </span>
                         </div>
-                      )}
 
-                      {/* Tag HOT SALE góc trên bên phải */}
-                      <div className="absolute top-0 right-0 z-20 pointer-events-none">
-                        <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tr-[10px] rounded-bl-[8px] flex items-center gap-1 shadow-xs">
-                          🔥 FLASH SALE
-                        </span>
-                      </div>
-
-                      <img
-                        src={imgSrc}
-                        alt={item.name}
-                        className="w-full h-full object-contain p-1 group-hover/img:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                        onError={(e) => {
-                          e.currentTarget.src =
-                            "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
-                        }}
-                      />
-
-                      {/* Center Hover Pill */}
-                      <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
-                        <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover:scale-100 group-hover/img:scale-100 transition-all duration-300 whitespace-nowrap">
-                          <span>Xem chi tiết</span>
-                          <ArrowRight className="w-3.5 h-3.5 text-[#eb1c24]" />
-                        </span>
-                      </div>
-
-                      {/* Watermark */}
-                      <div className="absolute bottom-1 left-1.5 opacity-80 pointer-events-none z-20">
-                        <span className="text-[9px] font-black text-[#eb1c24] tracking-tight uppercase">
-                          DUDI SOFTWARE
-                        </span>
-                      </div>
-                    </Link>
-
-                    {/* Brand & Actions */}
-                    <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                      <span className="font-black text-gray-900 uppercase tracking-wider text-[11px]">
-                        {item.brand || "ZCOMPUTER"}
-                      </span>
-                      <div className="flex items-center gap-1.5 text-gray-400">
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            addToCompare(item);
+                        <img
+                          src={imgSrc}
+                          alt={item.name}
+                          className="w-full h-full object-contain p-1 group-hover/img:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
                           }}
-                          className={`p-1.5 rounded-full transition-all cursor-pointer ${isComp
-                              ? "text-[#eb1c24] bg-red-50"
-                              : "hover:text-[#eb1c24] hover:bg-gray-100"
-                            }`}
-                          title="So sánh sản phẩm"
-                        >
-                          <Scale className="w-[18px] h-[18px]" />
-                        </button>
+                        />
 
-                        {mounted && !isAdmin && (
+                        {/* Center Hover Pill */}
+                        <div className="absolute inset-0 bg-black/25 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover/img:opacity-100 transition-all duration-300 z-30 pointer-events-none">
+                          <span className="bg-white/95 text-[#eb1c24] text-xs font-bold px-4 py-1.5 rounded-full shadow-lg border border-red-100 flex items-center gap-1.5 transform scale-90 group-hover:scale-100 group-hover/img:scale-100 transition-all duration-300 whitespace-nowrap">
+                            <span>Xem chi tiết</span>
+                            <ArrowRight className="w-3.5 h-3.5 text-[#eb1c24]" />
+                          </span>
+                        </div>
+
+                        {/* Watermark */}
+                        <div className="absolute bottom-1 left-1.5 opacity-80 pointer-events-none z-20">
+                          <span className="text-[9px] font-black text-[#eb1c24] tracking-tight uppercase">
+                            DUDI SOFTWARE
+                          </span>
+                        </div>
+                      </Link>
+
+                      {/* Brand & Actions */}
+                      <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                        <span className="font-black text-gray-900 uppercase tracking-wider text-[11px]">
+                          {item.brand || "ZCOMPUTER"}
+                        </span>
+                        <div className="flex items-center gap-1.5 text-gray-400">
                           <button
-                            onClick={(e) => handleToggleCart(e, item)}
-                            className={`p-1.5 rounded-full transition-all cursor-pointer ${isFav
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              addToCompare(item);
+                            }}
+                            className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                              isComp
                                 ? "text-[#eb1c24] bg-red-50"
                                 : "hover:text-[#eb1c24] hover:bg-gray-100"
-                              }`}
-                            title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
+                            }`}
+                            title="So sánh sản phẩm"
                           >
-                            <ShoppingCart className="w-[18px] h-[18px]" />
+                            <Scale className="w-[18px] h-[18px]" />
                           </button>
-                        )}
+
+                          {mounted && !isAdmin && (
+                            <button
+                              onClick={(e) => handleToggleCart(e, item)}
+                              className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                                isFav
+                                  ? "text-[#eb1c24] bg-red-50"
+                                  : "hover:text-[#eb1c24] hover:bg-gray-100"
+                              }`}
+                              title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
+                            >
+                              <ShoppingCart className="w-[18px] h-[18px]" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <Link href={detailHref} className="block group-hover:text-[#eb1c24] transition-colors">
+                        <h3
+                          className="text-xs font-bold text-gray-800 line-clamp-2 leading-snug min-h-[34px]"
+                          title={item.name}
+                        >
+                          {item.name}
+                        </h3>
+                      </Link>
+
+                      {/* Price Section */}
+                      <div className="pt-1.5">
+                        <div className="flex items-baseline gap-1.5 flex-wrap">
+                          <span className="text-sm sm:text-base font-black text-[#eb1c24]">
+                            {formatVND(price)}
+                          </span>
+                          {hasDiscount && (
+                            <span className="text-[11px] text-gray-400 line-through">
+                              {formatVND(originalPrice)}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    <Link href={detailHref} className="block group-hover:text-[#eb1c24] transition-colors">
-                      <h3
-                        className="text-xs font-bold text-gray-800 line-clamp-2 leading-snug min-h-[34px]"
-                        title={item.name}
-                      >
-                        {item.name}
-                      </h3>
-                    </Link>
-                  </div>
+                    {/* Specs Badges from SpecParser */}
+                    {(() => {
+                      const badges = getProductCardBadges(item);
+                      if (!badges || badges.length === 0) return null;
+                      return (
+                        <div className="bg-gray-50 rounded-lg p-1.5 grid grid-cols-2 gap-1 text-[9.5px] text-gray-600 my-2 border border-gray-100 min-h-[44px]">
+                          {badges.slice(0, 4).map((badge, bIdx) => (
+                            <div
+                              key={bIdx}
+                              className="flex items-center gap-1 truncate"
+                              title={badge.title || badge.label}
+                            >
+                              {renderSpecIcon(badge.icon)}
+                              <span className="truncate font-medium">{badge.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
 
-                      {/* Price Section */ }
-                <div className="pt-1.5">
-                  <div className="flex items-baseline gap-1.5 flex-wrap">
-                    <span className="text-sm sm:text-base font-black text-[#eb1c24]">
-                      {formatVND(price)}
-                    </span>
-                    {hasDiscount && (
-                      <span className="text-[11px] text-gray-400 line-through">
-                        {formatVND(originalPrice)}
+                    {/* Views & Add button */}
+                    <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100 mt-2">
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>{item.views || 49} lượt xem</span>
                       </span>
-                    )}
+                      <button
+                        onClick={(e) => handleBuyNow(e, item)}
+                        className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                      >
+                        + Mua ngay
+                      </button>
+                    </div>
                   </div>
-                </div>
-                    </div>
-
-            {/* Specs Badges from SpecParser */}
-            {(() => {
-              const badges = getProductCardBadges(item);
-              if (!badges || badges.length === 0) return null;
-              return (
-                <div className="bg-gray-50 rounded-lg p-1.5 grid grid-cols-2 gap-1 text-[9.5px] text-gray-600 my-2 border border-gray-100 min-h-[44px]">
-                  {badges.slice(0, 4).map((badge, bIdx) => (
-                    <div
-                      key={bIdx}
-                      className="flex items-center gap-1 truncate"
-                      title={badge.title || badge.label}
-                    >
-                      {renderSpecIcon(badge.icon)}
-                      <span className="truncate font-medium">{badge.label}</span>
-                    </div>
-                  ))}
-                </div>
-              );
-            })()}
-
-            {/* Views & Add button */}
-            <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100 mt-2">
-              <span className="flex items-center gap-1">
-                <Eye className="w-3.5 h-3.5" />
-                <span>{item.views || 49} lượt xem</span>
-              </span>
-              <button
-                onClick={(e) => handleBuyNow(e, item)}
-                className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
-              >
-                + Mua ngay
-              </button>
-            </div>
-          </div>
-        );
+                );
               })}
+            </div>
+
+            {/* Scroll Right Button */}
+            <button
+              onClick={scrollRight}
+              className="absolute -right-3.5 sm:-right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-[#eb1c24] hover:border-[#eb1c24] hover:scale-110 z-30 opacity-0 group-hover/slider:opacity-100 transition-all duration-300 focus:outline-none cursor-pointer"
+              aria-label="Cuộn sang phải"
+            >
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Scroll Right Button */}
-      <button
-        onClick={scrollRight}
-        className="absolute -right-3.5 sm:-right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 bg-white border border-gray-200 rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-white hover:bg-[#eb1c24] hover:border-[#eb1c24] hover:scale-110 z-30 opacity-0 group-hover/slider:opacity-100 transition-all duration-300 focus:outline-none cursor-pointer"
-        aria-label="Cuộn sang phải"
-      >
-        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-      </button>
-    </div>
-  )
-}
-      </div >
-
-  {/* Direct Buy Checkout Modal */ }
-  < OrderCheckoutModal
-isOpen = {!!buyModalItem}
-onClose = {() => setBuyModalItem(null)}
-prefilledProduct = { buyModalItem }
-  />
-    </section >
+      {/* Direct Buy Checkout Modal */}
+      <OrderCheckoutModal
+        isOpen={!!buyModalItem}
+        onClose={() => setBuyModalItem(null)}
+        prefilledProduct={buyModalItem}
+      />
+    </section>
   );
 }
