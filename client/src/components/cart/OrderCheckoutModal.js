@@ -22,6 +22,7 @@ import {
 import { useRouter } from "next/navigation";
 import { orderAPI } from "@/lib/api";
 import { formatVND } from "@/lib/utils";
+import { isValidVietnamesePhone, normalizeVietnamesePhone } from "@/lib/validation";
 import { selectCurrentUser, selectIsAuthenticated } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 
@@ -114,9 +115,10 @@ export default function OrderCheckoutModal({
     const errs = {};
     if (!formData.fullName.trim()) errs.fullName = "Vui lòng nhập họ và tên";
     if (!formData.phone.trim()) {
-      errs.phone = "Vui lòng nhập số điện thoại";
-    } else if (!/^[0-9+ ]{9,15}$/.test(formData.phone.trim())) {
-      errs.phone = "Số điện thoại không hợp lệ";
+      errs.phone = "Vui lòng nhập số điện thoại người nhận";
+    } else if (!isValidVietnamesePhone(formData.phone)) {
+      errs.phone =
+        "Số điện thoại không hợp lệ (Vui lòng nhập đúng 10 số di động VN đầu 03, 05, 07, 08, 09)";
     }
     if (!formData.address.trim()) errs.address = "Vui lòng nhập địa chỉ nhận hàng";
     setErrors(errs);
@@ -125,6 +127,7 @@ export default function OrderCheckoutModal({
 
   const handleCreateOrder = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     if (!isAuthenticated || !currentUser) {
       showToast({
         title: "Yêu cầu đăng nhập",
@@ -146,10 +149,11 @@ export default function OrderCheckoutModal({
 
     setSubmitting(true);
     try {
+      const normalizedPhone = normalizeVietnamesePhone(formData.phone);
       const payload = {
         fullName: formData.fullName.trim(),
         customerName: formData.fullName.trim(),
-        phone: formData.phone.trim(),
+        phone: normalizedPhone,
         email: formData.email.trim(),
         address: formData.address.trim(),
         note: formData.note.trim(),

@@ -1,5 +1,6 @@
 import { feedbackRepository } from "../repositories/index.js";
 import { ApiError } from "../utils/apiError.js";
+import { isValidVietnamesePhone, normalizeVietnamesePhone } from "../utils/validators.js";
 
 export class FeedbackService {
   async createFeedback(data, ipAddress = "") {
@@ -17,10 +18,21 @@ export class FeedbackService {
       throw new ApiError(400, "Vui lòng nhập nội dung góp ý & phản hồi");
     }
 
+    let cleanPhone = "";
+    if (phone && phone.trim()) {
+      cleanPhone = normalizeVietnamesePhone(phone);
+      if (!isValidVietnamesePhone(cleanPhone)) {
+        throw new ApiError(
+          400,
+          "Số điện thoại không hợp lệ (cần đúng 10 số di động đầu 03, 05, 07, 08, 09)"
+        );
+      }
+    }
+
     const feedback = await feedbackRepository.create({
       fullName: fullName.trim(),
       email: email.trim().toLowerCase(),
-      phone: phone ? phone.trim() : "",
+      phone: cleanPhone,
       content: content.trim(),
       ipAddress: ipAddress || "",
     });

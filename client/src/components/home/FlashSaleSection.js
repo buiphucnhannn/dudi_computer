@@ -27,7 +27,7 @@ import {
   sortProductsByPriority,
   getProductImage,
 } from "@/lib/productHelpers";
-import { getProductCardBadges } from "@/lib/specParser";
+import { getProductCardBadges, detectProductType, PRODUCT_TYPES } from "@/lib/specParser";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addToCartAsync,
@@ -159,88 +159,77 @@ export default function FlashSaleSection() {
     setBuyModalItem(item);
   };
 
-  // Lọc sản phẩm Flash Sale theo Tab và sắp xếp ưu tiên
+  // Lọc sản phẩm Flash Sale theo Tab và sắp xếp ưu tiên giảm giá nhiều nhất
   const flashSaleItems = useMemo(() => {
     const rawProducts = flashSaleData?.products || fallbackProducts;
     if (!rawProducts || rawProducts.length === 0) return [];
 
     const list = rawProducts.filter((p) => {
+      const prodType = detectProductType(p);
       const name = (p.name || "").toLowerCase();
       const catSlug = (p.categorySlug || "").toLowerCase();
-      const cat = (p.categoryName || "").toLowerCase();
+      const catName = (p.categoryName || "").toLowerCase();
 
-      // Tab PC
+      // Tab PC (Chỉ lấy các dàn máy tính PC, không lấy linh kiện rời)
       if (activeTab === "pc") {
-        if (
-          name.startsWith("mainboard") ||
-          name.startsWith("bo mạch") ||
-          name.startsWith("nguồn") ||
-          name.startsWith("card màn hình") ||
-          name.startsWith("ram") ||
-          name.startsWith("ssd") ||
-          name.startsWith("màn hình") ||
-          name.startsWith("laptop") ||
-          name.startsWith("macbook") ||
-          catSlug === "mainboard-bo-mach-chu" ||
-          catSlug === "psu-nguon-may-tinh" ||
-          catSlug === "vga-card-man-hinh" ||
-          catSlug === "cpu-bo-vi-xu-ly" ||
-          catSlug === "ram-bo-nho-trong" ||
-          catSlug === "o-cung-hdd-ssd" ||
-          catSlug === "man-hinh" ||
-          catSlug.includes("laptop") ||
-          catSlug === "macbook"
-        ) {
-          return false;
-        }
-
         return (
+          prodType === PRODUCT_TYPES.PC ||
+          catSlug === "pc" ||
           catSlug === "pc-cu" ||
           catSlug === "pc-gaming" ||
           catSlug === "pc-do-hoa" ||
           catSlug === "pc-van-phong" ||
-          name.startsWith("bộ máy") ||
-          name.startsWith("pc ") ||
-          name.startsWith("máy tính để bàn") ||
-          name.startsWith("máy tính aio")
+          catName.includes("bộ máy tính") ||
+          name.includes("pc gaming") ||
+          name.includes("pc đồ họa") ||
+          name.includes("pc văn phòng") ||
+          name.includes("máy tính để bàn") ||
+          name.includes("bộ máy")
         );
       }
 
       // Tab Laptop
       if (activeTab === "laptop") {
-        if (
-          name.startsWith("bộ máy") ||
-          name.startsWith("pc ") ||
-          name.startsWith("mainboard") ||
-          name.startsWith("nguồn") ||
-          name.startsWith("màn hình") ||
-          catSlug.includes("pc-") ||
-          catSlug === "mainboard-bo-mach-chu" ||
-          catSlug === "psu-nguon-may-tinh" ||
-          catSlug === "man-hinh"
-        ) {
-          return false;
-        }
-
         return (
+          prodType === PRODUCT_TYPES.LAPTOP ||
           catSlug.includes("laptop") ||
           catSlug === "macbook" ||
-          cat.includes("laptop") ||
-          name.startsWith("laptop") ||
-          name.startsWith("macbook") ||
-          name.includes("thinkpad") ||
-          name.includes("legion") ||
-          name.includes("zenbook") ||
-          name.includes("surface") ||
-          name.includes("latitude") ||
-          name.includes("xps")
+          catName.includes("laptop") ||
+          name.includes("laptop") ||
+          name.includes("macbook")
         );
       }
 
       return true;
     });
 
-    return sortProductsByPriority(list).slice(0, 6);
+    // Sắp xếp: Ưu tiên giảm nhiều nhất trước và giảm dần (% giảm cao nhất, rồi số tiền giảm lớn nhất)
+    list.sort((a, b) => {
+      const getPercent = (item) => {
+        if (item.discountPercent && Number(item.discountPercent) > 0) {
+          return Number(item.discountPercent);
+        }
+        const orig = Number(item.originalPrice || 0);
+        const cur = Number(item.price || 0);
+        if (orig > cur && orig > 0) {
+          return Math.round(((orig - cur) / orig) * 100);
+        }
+        return 0;
+      };
+
+      const getDiscountAmount = (item) => {
+        const orig = Number(item.originalPrice || item.price || 0);
+        const cur = Number(item.price || 0);
+        return orig > cur ? orig - cur : 0;
+      };
+
+      const percentDiff = getPercent(b) - getPercent(a);
+      if (percentDiff !== 0) return percentDiff;
+
+      return getDiscountAmount(b) - getDiscountAmount(a);
+    });
+
+    return list.slice(0, 12);
   }, [activeTab, flashSaleData, fallbackProducts]);
 
   const renderSpecIcon = (iconName) => {
@@ -587,13 +576,6 @@ export default function FlashSaleSection() {
         isOpen={!!buyModalItem}
         onClose={() => setBuyModalItem(null)}
         prefilledProduct={buyModalItem}
-        onOrderSuccess={(order) => {
-          showToast({
-            title: "Đặt hàng thành công",
-            message: `Mã đơn hàng #${order?.orderCode} đang được xử lý`,
-            type: "success",
-          });
-        }}
       />
     </section>
   );

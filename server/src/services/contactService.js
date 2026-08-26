@@ -1,11 +1,11 @@
 import { contactRepository } from "../repositories/contactRepository.js";
 import { ApiError } from "../utils/apiError.js";
+import { isValidVietnamesePhone, normalizeVietnamesePhone } from "../utils/validators.js";
 
 export const contactService = {
   createContact: async (data) => {
     const fullName = (data.fullName || "").trim();
-    const rawPhone = (data.phone || "").trim();
-    const phone = rawPhone.replace(/[\s.-]/g, "").replace(/^\+84/, "0");
+    const phone = normalizeVietnamesePhone(data.phone);
     const email = (data.email || "").trim().toLowerCase();
     const message = (data.message || data.content || "").trim();
     const type = data.type === "feedback" ? "feedback" : "contact";
@@ -26,8 +26,7 @@ export const contactService = {
     if (!phone) {
       throw new ApiError(400, "Vui lòng nhập số điện thoại liên hệ");
     }
-    const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
-    if (!phoneRegex.test(phone)) {
+    if (!isValidVietnamesePhone(phone)) {
       throw new ApiError(
         400,
         "Số điện thoại không hợp lệ (cần đúng 10 số di động đầu 03, 05, 07, 08, 09)"
