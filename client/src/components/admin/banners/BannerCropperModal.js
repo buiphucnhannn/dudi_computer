@@ -41,8 +41,6 @@ export default function BannerCropperModal({
         return 3 / 2; // 1.5:1
       case "popup":
         return 4 / 3; // 1.33:1
-      case "product_top":
-        return 5 / 1; // 5:1
       case "hero_slider":
       default:
         return 2 / 1; // 2:1 Khớp 100% với HeroSlider aspect-[2/1]
@@ -177,9 +175,6 @@ export default function BannerCropperModal({
     } else if (zoneInfo?.id === "popup") {
       exportWidth = 1600;
       exportHeight = 1200; // 4:3 Ultra Sharp
-    } else if (zoneInfo?.id === "product_top") {
-      exportWidth = 2400;
-      exportHeight = 480; // 5:1 Dải ngang Ultra Sharp
     } else if (zoneInfo?.id === "hero_slider") {
       exportWidth = 2560;
       exportHeight = 1280; // 2:1 Khớp hoàn hảo với website

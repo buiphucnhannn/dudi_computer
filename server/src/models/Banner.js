@@ -26,7 +26,7 @@ const bannerSchema = new mongoose.Schema(
     position: {
       type: String,
       required: true,
-      enum: ["hero_slider", "promo_grid", "popup", "product_top"],
+      enum: ["hero_slider", "promo_grid", "popup"],
       default: "hero_slider",
       index: true,
     },

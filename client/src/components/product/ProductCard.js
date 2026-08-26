@@ -140,19 +140,17 @@ export default function ProductCard({ product }) {
           <Scale className="w-3.5 h-3.5" />
         </button>
 
-        {mounted && !isAdmin && (
-          <button
-            onClick={handleToggleCart}
-            className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${
-              isCart
-                ? "bg-[#eb1c24] text-white shadow-sm"
-                : "bg-white/80 hover:bg-white text-gray-700 hover:text-[#eb1c24]"
-            }`}
-            title={isCart ? "Đã có trong giỏ hàng (Bấm để xóa)" : "Thêm vào giỏ hàng"}
-          >
-            <ShoppingCart className="w-3.5 h-3.5" />
-          </button>
-        )}
+        <button
+          onClick={handleToggleCart}
+          className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${
+            isCart
+              ? "bg-[#eb1c24] text-white shadow-sm"
+              : "bg-white/80 hover:bg-white text-gray-700 hover:text-[#eb1c24]"
+          }`}
+          title={isCart ? "Đã có trong giỏ hàng (Bấm để xóa)" : "Thêm vào giỏ hàng"}
+        >
+          <ShoppingCart className="w-3.5 h-3.5" />
+        </button>
       </div>
 
       {/* Image container */}
