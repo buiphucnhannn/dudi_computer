@@ -167,22 +167,22 @@ export default function BannerCropperModal({
 
     const img = imageRef.current;
 
-    // Kích thước chuẩn xuất ra (High Resolution)
-    let exportWidth = 1920;
+    // Kích thước chuẩn xuất ra độ phân giải cao (2K Ultra HD để đảm bảo siêu nét, không vỡ)
+    let exportWidth = 2560;
     let exportHeight = Math.round(exportWidth / targetAspect);
 
     if (zoneInfo?.id === "promo_grid") {
-      exportWidth = 1200;
-      exportHeight = 800; // 3:2
+      exportWidth = 1800;
+      exportHeight = 1200; // 3:2 Ultra Sharp
     } else if (zoneInfo?.id === "popup") {
-      exportWidth = 1200;
-      exportHeight = 900; // 4:3
-    } else if (zoneInfo?.id === "product_top") {
       exportWidth = 1600;
-      exportHeight = 320; // 5:1
+      exportHeight = 1200; // 4:3 Ultra Sharp
+    } else if (zoneInfo?.id === "product_top") {
+      exportWidth = 2400;
+      exportHeight = 480; // 5:1 Dải ngang Ultra Sharp
     } else if (zoneInfo?.id === "hero_slider") {
-      exportWidth = 1920;
-      exportHeight = 960; // 2:1 Khớp hoàn hảo với website
+      exportWidth = 2560;
+      exportHeight = 1280; // 2:1 Khớp hoàn hảo với website
     }
 
     const canvas = document.createElement("canvas");
@@ -192,6 +192,7 @@ export default function BannerCropperModal({
 
     if (!ctx) return;
 
+    // Kích hoạt thuật toán khử răng cưa và làm mịn hình ảnh chất lượng cao nhất
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
@@ -223,7 +224,7 @@ export default function BannerCropperModal({
     );
     ctx.restore();
 
-    // Convert sang file WebP chất lượng cao
+    // Convert sang file WebP chất lượng tối đa (0.96) - nhẹ và nét vượt trội
     canvas.toBlob(
       (blob) => {
         if (!blob) return;
@@ -235,7 +236,7 @@ export default function BannerCropperModal({
         onClose();
       },
       "image/webp",
-      0.95
+      0.96
     );
   };
 

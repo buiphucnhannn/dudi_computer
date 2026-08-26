@@ -50,7 +50,10 @@ export const uploadToCloudinary = async (
       {
         folder,
         resource_type: resourceType,
-        transformation: [{ quality: "auto", fetch_format: "auto" }],
+        format: "webp",
+        transformation: [
+          { quality: "auto:best", fetch_format: "webp" },
+        ],
       },
       (error, result) => {
         if (error) {
