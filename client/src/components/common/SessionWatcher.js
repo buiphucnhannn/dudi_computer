@@ -43,7 +43,7 @@ export default function SessionWatcher() {
       // Gửi request dọn sạch cookie session
       apiClient.post("/auth/logout").catch(() => {});
 
-      // Điều hướng ngay lập tức về trang đăng nhập kèm cờ banned (Trang login sẽ hiện alert đỏ trang trọng)
+      // Điều hướng ngay lập tức về trang đăng nhập kèm cờ banned
       if (typeof window !== "undefined") {
         if (!window.location.pathname.includes("/login")) {
           window.location.href = "/login?banned=true";
@@ -51,42 +51,95 @@ export default function SessionWatcher() {
       }
     };
 
-    // 2. Nếu người dùng đang đăng nhập, kết nối SSE Session Stream để nhận lệnh Kick Realtime
-    if (isAuthenticated && user?._id) {
-      try {
-        const streamUrl =
-          typeof window !== "undefined"
-            ? `${process.env.NEXT_PUBLIC_API_URL || "/api/v1"}/auth/session-stream`
-            : "/api/v1/auth/session-stream";
+    // 2. Kết nối Server-Sent Events (SSE) Stream
+    // Nếu có đăng nhập: kết nối stream xác thực
+    // Nếu là khách vãng lai: kết nối stream thông báo hệ thống realtime
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+      const streamUrl =
+        isAuthenticated && user?._id
+          ? `${baseUrl}/auth/session-stream`
+          : `${baseUrl}/system/events`;
 
-        const es = new EventSource(streamUrl, { withCredentials: true });
-        eventSourceRef.current = es;
+      const es = new EventSource(streamUrl, { withCredentials: true });
+      eventSourceRef.current = es;
 
-        // Lắng nghe sự kiện KICK do Server bắn xuống khi Admin bấm Khóa
-        es.addEventListener("KICK", (e) => {
-          let reason = "Tài khoản của bạn đã bị khóa bởi Quản trị viên.";
-          try {
-            const data = JSON.parse(e.data);
-            if (data?.reason) reason = data.reason;
-          } catch {}
+      // A. Lắng nghe sự kiện KICK (Khi Admin khóa tài khoản)
+      es.addEventListener("KICK", (e) => {
+        let reason = "Tài khoản của bạn đã bị khóa bởi Quản trị viên.";
+        try {
+          const data = JSON.parse(e.data);
+          if (data?.reason) reason = data.reason;
+        } catch {}
 
-          // Phát tín hiệu cho các tab khác cùng văng ra
-          try {
-            if (authChannel) {
-              authChannel.postMessage({ type: "ACCOUNT_BANNED", reason });
+        try {
+          if (authChannel) {
+            authChannel.postMessage({ type: "ACCOUNT_BANNED", reason });
+          }
+        } catch {}
+
+        handleImmediateKick(reason);
+      });
+
+      // B. Lắng nghe sự kiện RESOURCE_UPDATE (Khi Admin Ẩn / Xóa / Kích hoạt sản phẩm, bài viết, danh mục)
+      es.addEventListener("RESOURCE_UPDATE", (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (!data) return;
+
+          // Bắn Custom Event cho toàn bộ trang
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("app:resource-update", { detail: data }));
+            
+            const currentPath = window.location.pathname;
+            const currentSearch = window.location.search;
+
+            // 1. Nếu đang xem bài viết tin tức bị ẩn hoặc xóa
+            if (data.resourceType === "news" || data.resourceType === "news_category") {
+              if (data.action === "hide" || data.action === "delete") {
+                const isMatchingNews =
+                  currentPath.includes("/news/") || currentPath.includes("/tin-tuc/");
+                const hasSlug = data.slug && (currentPath.includes(data.slug) || currentSearch.includes(data.slug));
+                const hasId = data.id && (currentPath.includes(data.id) || currentSearch.includes(data.id));
+
+                if (isMatchingNews && (hasSlug || hasId || data.resourceType === "news_category")) {
+                  showToast(
+                    "Bài viết này vừa được Quản trị viên tạm ngừng xuất bản hoặc chuyển sang bản nháp.",
+                    "warning"
+                  );
+                  window.dispatchEvent(new CustomEvent("app:news-hidden", { detail: data }));
+                }
+              }
             }
-          } catch {}
 
-          handleImmediateKick(reason);
-        });
+            // 2. Nếu đang xem sản phẩm bị ẩn hoặc xóa
+            if (data.resourceType === "product" || data.resourceType === "category") {
+              if (data.action === "hide" || data.action === "delete") {
+                const isMatchingProduct =
+                  currentPath.includes("/product-detail") || currentPath.includes("/product/");
+                const hasSlug = data.slug && (currentPath.includes(data.slug) || currentSearch.includes(data.slug));
+                const hasId = data.id && (currentPath.includes(data.id) || currentSearch.includes(data.id));
 
-        es.onerror = () => {
-          // Khi connection bị server ngắt (do user bị kick hoặc mất mạng)
-          // EventSource sẽ tự reconnect, không cần throw error
-        };
-      } catch (err) {
-        console.error("[SessionWatcher] Lỗi thiết lập kết nối realtime:", err);
-      }
+                if (isMatchingProduct && (hasSlug || hasId || data.resourceType === "category")) {
+                  showToast(
+                    "Sản phẩm này vừa được Quản trị viên tạm ngừng kinh doanh hoặc gỡ khỏi hệ thống.",
+                    "warning"
+                  );
+                  window.dispatchEvent(new CustomEvent("app:product-hidden", { detail: data }));
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.error("[SessionWatcher] Lỗi xử lý RESOURCE_UPDATE:", err);
+        }
+      });
+
+      es.onerror = () => {
+        // EventSource tự động reconnect khi mất kết nối
+      };
+    } catch (err) {
+      console.error("[SessionWatcher] Lỗi thiết lập kết nối realtime:", err);
     }
 
     return () => {

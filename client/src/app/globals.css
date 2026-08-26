@@ -10,11 +10,12 @@
   --foreground: #111827;
 }
 
+html,
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Tối ưu chiều rộng container chuẩn tỷ lệ hiển thị zcomputer.vn */

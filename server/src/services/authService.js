@@ -252,6 +252,13 @@ class AuthService {
       throw pendingError;
     }
 
+    if (user.status === "inactive") {
+      throw new ApiError(
+        403,
+        "Tài khoản này đã bị xóa hoặc vô hiệu hóa. Vui lòng đăng ký lại tài khoản mới."
+      );
+    }
+
     if (user.status === "banned") {
       throw new ApiError(
         403,
@@ -310,7 +317,7 @@ class AuthService {
       } else {
         // Nếu user đã tồn tại, đảm bảo status là active nếu đăng nhập Google
         let shouldSave = false;
-        if (user.status === "pending") {
+        if (user.status === "pending" || user.status === "inactive") {
           user.status = "active";
           shouldSave = true;
         }

@@ -33,6 +33,45 @@ import { useDebounce } from "@/lib/useDebounce";
 import { selectCurrentUser, getAdminRoleInfo } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 
+const getAuthTypeInfo = (customer) => {
+  if (!customer) {
+    return {
+      key: "local",
+      label: "Email / Pass",
+      badgeBg: "bg-slate-100 text-slate-700 border-slate-200",
+    };
+  }
+
+  const isHybrid =
+    customer.authType === "hybrid" ||
+    (customer.googleId && (customer.isPasswordSet || customer.authType === "local"));
+
+  if (isHybrid) {
+    return {
+      key: "hybrid",
+      label: "Kết hợp",
+      badgeBg: "bg-purple-50 text-purple-700 border-purple-200",
+      tooltip: "Đăng nhập được bằng cả Google OAuth và Email & Mật khẩu",
+    };
+  }
+
+  if (customer.authType === "google" || (customer.googleId && !customer.isPasswordSet)) {
+    return {
+      key: "google",
+      label: "Google OAuth",
+      badgeBg: "bg-amber-50 text-amber-700 border-amber-200",
+      tooltip: "Đăng nhập bằng tài khoản Google OAuth",
+    };
+  }
+
+  return {
+    key: "local",
+    label: "Email / Pass",
+    badgeBg: "bg-slate-100 text-slate-700 border-slate-200",
+    tooltip: "Đăng nhập bằng Email & Mật khẩu",
+  };
+};
+
 export default function AdminUsersPage() {
   const currentUser = useSelector(selectCurrentUser);
   const isSuperAdmin = currentUser?.role === "admin" || currentUser?.role === "admin_super";
@@ -345,6 +384,7 @@ export default function AdminUsersPage() {
             className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-[13px] text-slate-700 focus:outline-hidden focus:border-red-500 transition shadow-2xs font-semibold cursor-pointer"
           >
             <option value="all">Tất cả hình thức</option>
+            <option value="hybrid">Kết hợp</option>
             <option value="google">Google OAuth</option>
             <option value="local">Email & Mật khẩu</option>
           </select>
@@ -446,15 +486,17 @@ export default function AdminUsersPage() {
                       </td>
 
                       <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                        {c.authType === "google" ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[10.5px]">
-                            Google OAuth
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 font-bold text-[10.5px]">
-                            Email / Pass
-                          </span>
-                        )}
+                        {(() => {
+                          const authInfo = getAuthTypeInfo(c);
+                          return (
+                            <span
+                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg border font-bold text-[10.5px] ${authInfo.badgeBg}`}
+                              title={authInfo.tooltip}
+                            >
+                              {authInfo.label}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         {c.status === "banned" ? (
@@ -607,8 +649,8 @@ export default function AdminUsersPage() {
                   <span className="font-bold text-slate-800">{getAdminRoleInfo(selectedCustomer.role).label}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 font-medium block">Hình thức đăng ký:</span>
-                  <span className="font-bold text-slate-800 uppercase">{selectedCustomer.authType}</span>
+                  <span className="text-slate-400 font-medium block">Hình thức đăng nhập:</span>
+                  <span className="font-bold text-slate-800">{getAuthTypeInfo(selectedCustomer).label}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 font-medium block">Ngày tham gia:</span>

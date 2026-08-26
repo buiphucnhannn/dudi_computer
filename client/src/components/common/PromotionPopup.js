@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { bannerAPI } from "@/lib/api";
 
 export default function PromotionPopup() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [popupData, setPopupData] = useState(null);
 
   useEffect(() => {
+    // CHỈ hiển thị popup quảng cáo khi ở Trang chủ (pathname === "/")
+    if (pathname !== "/") return;
+
     let isMounted = true;
     const checkPopup = async () => {
       try {
@@ -18,7 +23,7 @@ export default function PromotionPopup() {
           const first = activeBanners[0];
           if (first && first.isActive !== false && isMounted) {
             setPopupData(first);
-            setTimeout(() => setOpen(true), 300);
+            setTimeout(() => setOpen(true), 400);
           }
         }
       } catch (err) {
@@ -30,9 +35,9 @@ export default function PromotionPopup() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [pathname]);
 
-  if (!open || !popupData || !popupData.imageUrl) {
+  if (pathname !== "/" || !open || !popupData || !popupData.imageUrl) {
     return null;
   }
 

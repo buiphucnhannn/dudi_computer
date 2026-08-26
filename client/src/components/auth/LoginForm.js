@@ -57,24 +57,24 @@ export default function LoginForm() {
   // Kiểm tra thông báo tài khoản bị khóa hoặc lỗi từ URL/session
   useEffect(() => {
     const errorParam = searchParams?.get("error");
+    const isBannedParam = searchParams?.get("banned") === "true";
     const bannedNotice =
       typeof window !== "undefined"
         ? sessionStorage.getItem("banned_notice")
         : null;
 
-    const msg = errorParam || bannedNotice;
-    if (msg) {
-      setLoginError(msg);
-      showToast({
-        title: "Tài khoản đã bị khóa",
-        message: msg,
-        type: "error",
-      });
+    const rawMsg =
+      errorParam ||
+      bannedNotice ||
+      (isBannedParam ? "Tài khoản của bạn đã bị khóa bởi Quản trị viên." : null);
+
+    if (rawMsg) {
+      setLoginError(rawMsg);
       if (typeof window !== "undefined") {
         sessionStorage.removeItem("banned_notice");
       }
     }
-  }, [searchParams, showToast]);
+  }, [searchParams]);
 
   // Nếu đã đăng nhập và hợp lệ: Chuyển hướng theo redirect hoặc vai trò
   useEffect(() => {
@@ -508,9 +508,38 @@ export default function LoginForm() {
 
             {/* Thông báo lỗi đăng nhập ở TRÊN CÙNG của form */}
             {loginError && (
-              <div className="mb-4 p-3.5 bg-red-50 border border-red-200 text-[#dc2626] rounded-xl text-xs sm:text-[13px] font-semibold flex items-center gap-2.5 animate-fadeIn shadow-2xs">
-                <AlertCircle className="w-4 h-4 shrink-0 text-[#dc2626]" />
-                <span className="leading-snug">{loginError}</span>
+              <div
+                className={`mb-5 p-4 rounded-2xl border text-xs sm:text-[13px] animate-fadeIn shadow-xs ${
+                  loginError.toLowerCase().includes("khóa") ||
+                  loginError.toLowerCase().includes("banned")
+                    ? "bg-rose-50/90 border-rose-200 text-rose-800"
+                    : "bg-red-50 border-red-200 text-[#dc2626]"
+                }`}
+              >
+                {loginError.toLowerCase().includes("khóa") ||
+                loginError.toLowerCase().includes("banned") ? (
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                      <AlertCircle className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-rose-900 text-sm mb-1">
+                        Tài khoản tạm thời bị khóa
+                      </h4>
+                      <p className="text-rose-700/90 leading-relaxed text-xs sm:text-[13px]">
+                        Tài khoản của bạn đã bị tạm khóa bởi Quản trị viên. Vui lòng liên hệ với ban Quản trị qua mục{" "}
+                        <strong className="text-rose-950 font-bold">Chăm sóc khách hàng</strong>{" "}
+                        <span className="text-slate-600 font-normal">(nút màu tím đầu tiên ở hàng icon bên phải)</span>{" "}
+                        hoặc gọi Hotline để được hỗ trợ mở khóa.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2.5 font-semibold">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-[#dc2626]" />
+                    <span className="leading-snug">{loginError}</span>
+                  </div>
+                )}
               </div>
             )}
 

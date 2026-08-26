@@ -2,6 +2,7 @@ import { promotionRepository } from "../repositories/promotionRepository.js";
 import { Promotion } from "../models/Promotion.js";
 import { Product } from "../models/Product.js";
 import { ApiError } from "../utils/apiError.js";
+import { sessionManager } from "../utils/sessionManager.js";
 
 export const promotionService = {
   // Lấy chiến dịch Flash Sale duy nhất đang chạy (cho trang chủ)
@@ -257,7 +258,17 @@ export const promotionService = {
     // Khôi phục giá gốc cho sản phẩm trước khi xóa
     await promotionService._removeDiscountFromProducts(promo);
 
-    return await promotionRepository.delete(id);
+    const deleted = await promotionRepository.delete(id);
+
+    sessionManager.broadcastResourceUpdate({
+      action: "delete",
+      resourceType: "promotion",
+      id: promo._id,
+      name: promo.name,
+      message: `Chương trình khuyến mãi "${promo.name}" đã kết thúc và được xóa khỏi hệ thống.`,
+    });
+
+    return deleted;
   },
 
   togglePromotion: async (id) => {
@@ -305,6 +316,16 @@ export const promotionService = {
       // Bật → Áp dụng giảm giá
       await promotionService._applyDiscountToProducts(promo);
     }
+
+    sessionManager.broadcastResourceUpdate({
+      action: promo.isActive ? "publish" : "hide",
+      resourceType: "promotion",
+      id: promo._id,
+      name: promo.name,
+      message: promo.isActive
+        ? `Chương trình khuyến mãi "${promo.name}" đã được kích hoạt áp dụng.`
+        : `Chương trình khuyến mãi "${promo.name}" đã tạm ngưng.`,
+    });
 
     return await promotionRepository.findById(promo._id);
   },

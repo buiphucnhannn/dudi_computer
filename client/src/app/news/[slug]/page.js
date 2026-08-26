@@ -32,7 +32,27 @@ export default function NewsDetailPage() {
     if (slug) {
       fetchArticleDetail(slug);
     }
-  }, [slug]);
+
+    const handleNewsHidden = (e) => {
+      const data = e.detail;
+      if (!data) return;
+      if (
+        (data.slug && data.slug === slug) ||
+        (data.resourceType === "news_category" && article?.category && data.name === article.category) ||
+        (data.resourceType === "news" && (data.action === "hide" || data.action === "delete"))
+      ) {
+        setArticle(null); // Chuyển sang màn hình thông báo bài viết không tồn tại / đã tạm ẩn
+      }
+    };
+
+    window.addEventListener("app:news-hidden", handleNewsHidden);
+    window.addEventListener("app:resource-update", handleNewsHidden);
+
+    return () => {
+      window.removeEventListener("app:news-hidden", handleNewsHidden);
+      window.removeEventListener("app:resource-update", handleNewsHidden);
+    };
+  }, [slug, article?.category]);
 
   const fetchArticleDetail = async (articleSlug) => {
     try {
@@ -43,7 +63,7 @@ export default function NewsDetailPage() {
         setRelatedArticles(res.data.data.related || []);
       }
     } catch (error) {
-      console.error("Lỗi khi tải chi tiết bài viết:", error);
+      console.warn("Bài viết không tồn tại hoặc đã đổi đường dẫn:", error?.response?.status || error.message);
     } finally {
       setLoading(false);
     }
@@ -126,7 +146,7 @@ export default function NewsDetailPage() {
           </div>
 
           {/* Tiêu đề bài viết */}
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight mb-4 md:mb-5 max-w-4xl drop-shadow-md">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-[38px] font-black text-white leading-snug sm:leading-tight mb-4 md:mb-5 max-w-5xl drop-shadow-md [text-wrap:balance]">
             {article.title}
           </h1>
 
@@ -203,8 +223,8 @@ export default function NewsDetailPage() {
             </div>
           </main>
 
-          {/* CỘT PHẢI: SIDEBAR (4/12 hoặc 3/12) */}
-          <aside className="lg:w-4/12 xl:w-3/12 w-full space-y-6">
+          {/* CỘT PHẢI: SIDEBAR (4/12 hoặc 3/12) - STICKY KHI CUỘN TRANG */}
+          <aside className="lg:w-4/12 xl:w-3/12 w-full space-y-6 lg:sticky lg:top-[140px] self-start transition-all">
             {/* 1. ƯU ĐÃI ĐỘC QUYỀN (NỀN TRẮNG CHUẨN ZCOMPUTER) */}
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
               <div className="inline-flex items-center gap-1.5 bg-red-50 text-[#eb1c24] text-[10px] font-black px-2.5 py-0.5 rounded-full mb-3 uppercase tracking-wider border border-red-100">
@@ -217,10 +237,14 @@ export default function NewsDetailPage() {
               <p className="text-xs text-gray-500 mb-4 leading-relaxed">
                 DUDI SOFTWARE cam kết máy zin 100%, bảo hành 1 đổi 1 chu đáo, hỗ trợ trả góp 0% duyệt nhanh.
               </p>
-              <div className="flex items-center justify-center gap-2 w-full bg-[#eb1c24] text-white font-bold text-xs py-3 rounded-xl shadow-xs select-none pointer-events-none cursor-default">
-                <PhoneCall className="w-4 h-4" />
+              <a
+                href="tel:0909163821"
+                className="flex items-center justify-center gap-2 w-full bg-[#eb1c24] hover:bg-[#c9121a] text-white font-bold text-xs sm:text-sm py-3 rounded-xl shadow-md hover:shadow-lg transition-all active:scale-98 cursor-pointer group"
+                title="Gọi Hotline tư vấn ngay: (+84) 909 163 821"
+              >
+                <PhoneCall className="w-4 h-4 group-hover:animate-bounce" />
                 <span>HOTLINE: (+84) 909 163 821</span>
-              </div>
+              </a>
             </div>
 
             {/* 2. CÁC TIN TỨC KHÁC */}

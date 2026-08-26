@@ -59,7 +59,27 @@ function ProductDetailContent() {
     };
 
     fetchProduct();
-  }, [slug]);
+
+    const handleProductHidden = (e) => {
+      const data = e.detail;
+      if (!data) return;
+      if (
+        (data.slug && data.slug === slug) ||
+        (data.id && product?._id && data.id === product._id) ||
+        (data.resourceType === "product" && (data.action === "hide" || data.action === "delete"))
+      ) {
+        setProduct(null); // Chuyển sang màn hình thông báo sản phẩm không tồn tại / đã tạm ngừng kinh doanh
+      }
+    };
+
+    window.addEventListener("app:product-hidden", handleProductHidden);
+    window.addEventListener("app:resource-update", handleProductHidden);
+
+    return () => {
+      window.removeEventListener("app:product-hidden", handleProductHidden);
+      window.removeEventListener("app:resource-update", handleProductHidden);
+    };
+  }, [slug, product?._id]);
 
   const related = useMemo(() => {
     return relatedProducts;

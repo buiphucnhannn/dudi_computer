@@ -581,28 +581,35 @@ export default function AdminCategoriesAndBrandsPage() {
         <div className="space-y-4 animate-in fade-in duration-150">
           {/* Thanh tìm kiếm & Lọc Nhóm */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
-            <div className="sm:col-span-7 relative">
+            <div className="sm:col-span-8 md:col-span-9 relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Tìm nhanh danh mục theo tên..."
                 value={categorySearchTerm}
-                onChange={(e) => setCategorySearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setCategorySearchTerm(e.target.value);
+                  setCategoryPage(1);
+                }}
                 className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-red-500 transition shadow-2xs"
               />
             </div>
 
-            <div className="sm:col-span-5">
+            <div className="sm:col-span-4 md:col-span-3">
               <select
                 value={selectedGroupFilter}
-                onChange={(e) => setSelectedGroupFilter(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 font-semibold focus:outline-hidden focus:border-red-500 transition shadow-2xs"
+                onChange={(e) => {
+                  setSelectedGroupFilter(e.target.value);
+                  setCategoryPage(1);
+                }}
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-700 font-semibold focus:outline-hidden focus:border-red-500 transition shadow-2xs cursor-pointer truncate"
               >
-                <option value="all">Tất cả 4 Nhóm Gốc</option>
-                <option value="laptop">💻 Nhóm Laptop & Macbook</option>
-                <option value="pc">🖥️ Nhóm Máy Tính Để Bàn (PC)</option>
-                <option value="linh-kien-pc">⚙️ Nhóm Linh Kiện Máy Tính</option>
-                <option value="man-hinh-gear">🖱️ Nhóm Màn Hình & Gear</option>
+                <option value="all">Tất cả nhóm danh mục</option>
+                {rootCategories.map((root) => (
+                  <option key={root._id} value={root.slug}>
+                    {root.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

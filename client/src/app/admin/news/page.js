@@ -41,6 +41,7 @@ import ConfirmModal from "@/components/admin/ConfirmModal";
 import { formatDate } from "@/lib/utils";
 import { useDebounce } from "@/lib/useDebounce";
 import { useToast } from "@/components/common/ToastContext";
+import { apiClient } from "@/lib/api";
 
 // Hàm tạo slug chuẩn SEO không dấu
 const generateSlug = (text) => {
@@ -699,6 +700,7 @@ export default function AdminNewsPage() {
       );
       setIsCategoryModalOpen(false);
       fetchCategories();
+      fetchArticles();
     } catch (error) {
       showToast(error.response?.data?.message || error.message || "Lỗi lưu chuyên mục", "error");
     } finally {
@@ -843,26 +845,6 @@ export default function AdminNewsPage() {
           box-shadow: 0 0 0 3px rgba(235, 28, 36, 0.2) !important;
         }
       `}</style>
-
-      {/* Toast Alert Đồng Bộ Góc Trên Bên Phải (Top-Right) */}
-      {toast && (
-        <div
-          className={`fixed top-6 right-6 z-70 flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-bold shadow-2xl animate-in slide-in-from-top-4 duration-200 ${
-            toast.type === "error"
-              ? "bg-red-600 text-white"
-              : toast.type === "warning"
-              ? "bg-amber-600 text-white"
-              : "bg-slate-900 text-white border border-slate-700"
-          }`}
-        >
-          {toast.type === "error" || toast.type === "warning" ? (
-            <AlertTriangle className="w-5 h-5 text-amber-200" />
-          ) : (
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-          )}
-          <span>{toast.message}</span>
-        </div>
-      )}
 
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">

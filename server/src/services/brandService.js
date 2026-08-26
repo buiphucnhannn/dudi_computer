@@ -1,6 +1,7 @@
 import { brandRepository } from "../repositories/brandRepository.js";
 import { Product } from "../models/Product.js";
 import { ApiError } from "../utils/apiError.js";
+import { sessionManager } from "../utils/sessionManager.js";
 
 class BrandService {
   async getAllBrands(params = {}) {
@@ -27,7 +28,11 @@ class BrandService {
     const brandsWithCount = await Promise.all(
       brands.map(async (b) => {
         const productCount = await Product.countDocuments({
-          brand: { $regex: new RegExp(`^${b.name}$`, "i") },
+          isDeleted: { $ne: true },
+          $or: [
+            { brand: { $regex: new RegExp(`^${b.name}$`, "i") } },
+            { brand: b.name },
+          ],
         });
         return {
           ...b,
@@ -84,7 +89,22 @@ class BrandService {
       }
     }
 
-    return await brandRepository.update(id, data);
+    const updated = await brandRepository.update(id, data);
+
+    if (data.isActive !== undefined) {
+      sessionManager.broadcastResourceUpdate({
+        action: data.isActive ? "publish" : "hide",
+        resourceType: "brand",
+        id: brand._id,
+        slug: brand.slug,
+        name: brand.name,
+        message: data.isActive
+          ? `Thương hiệu "${brand.name}" đã được bật hiển thị.`
+          : `Thương hiệu "${brand.name}" đã được tạm ẩn.`,
+      });
+    }
+
+    return updated;
   }
 
   async deleteBrand(id, options = {}) {
@@ -93,18 +113,17 @@ class BrandService {
       throw new ApiError(404, "Không tìm thấy thương hiệu cần xóa");
     }
 
-    const { force = false } = options;
-
     // 1. Đếm và CHẶN xóa nếu vẫn còn sản phẩm liên kết với thương hiệu này
     const brandName = (brand.name || "").trim();
     const productCount = await Product.countDocuments({
+      isDeleted: { $ne: true },
       $or: [
         { brand: { $regex: new RegExp(`^${brandName}$`, "i") } },
         { brand: brand.name },
       ],
     });
 
-    if (productCount > 0 && !force) {
+    if (productCount > 0) {
       throw new ApiError(
         400,
         `Không thể xóa thương hiệu "${brand.name}" vì đang có ${productCount} sản phẩm trong hệ thống. Vui lòng chuyển hoặc xóa các sản phẩm thuộc thương hiệu này trước!`
@@ -113,6 +132,16 @@ class BrandService {
 
     // 2. Nếu không còn sản phẩm: Xóa vĩnh viễn
     await brandRepository.deleteById(id);
+
+    sessionManager.broadcastResourceUpdate({
+      action: "delete",
+      resourceType: "brand",
+      id: brand._id,
+      slug: brand.slug,
+      name: brand.name,
+      message: `Thương hiệu "${brand.name}" đã được xóa khỏi hệ thống.`,
+    });
+
     return {
       message: `Đã xóa vĩnh viễn thương hiệu "${brand.name}" thành công!`,
       deleted: true,

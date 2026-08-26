@@ -169,6 +169,17 @@ const productSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    // Trạng thái hiển thị & Xóa mềm bảo toàn dữ liệu
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
   },
   {
     timestamps: true,

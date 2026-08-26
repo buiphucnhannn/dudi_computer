@@ -1,5 +1,6 @@
 import { bannerRepository } from "../repositories/bannerRepository.js";
 import { ApiError } from "../utils/apiError.js";
+import { sessionManager } from "../utils/sessionManager.js";
 
 const DEFAULT_BANNERS = [
   // 1. Hero Carousel (Slider đầu trang chủ)
@@ -201,7 +202,17 @@ export const bannerService = {
     if (data.isActive !== undefined) updateData.isActive = Boolean(data.isActive);
     if (data.description !== undefined) updateData.description = data.description.trim();
 
-    return await bannerRepository.updateById(id, updateData);
+    const updated = await bannerRepository.updateById(id, updateData);
+    if (updateData.isActive !== undefined) {
+      sessionManager.broadcastResourceUpdate({
+        action: updated.isActive ? "publish" : "hide",
+        resourceType: "banner",
+        id: updated._id,
+        name: updated.title,
+        message: updated.isActive ? "Banner quảng cáo đã được bật hiển thị." : "Banner quảng cáo đã được tạm ẩn.",
+      });
+    }
+    return updated;
   },
 
   toggleBannerStatus: async (id) => {
@@ -210,27 +221,25 @@ export const bannerService = {
       throw new ApiError(404, "Không tìm thấy banner để đổi trạng thái");
     }
 
-    return await bannerRepository.updateById(id, {
+    const updated = await bannerRepository.updateById(id, {
       isActive: !existing.isActive,
     });
+
+    sessionManager.broadcastResourceUpdate({
+      action: updated.isActive ? "publish" : "hide",
+      resourceType: "banner",
+      id: updated._id,
+      name: updated.title,
+      message: updated.isActive ? "Banner quảng cáo đã được bật hiển thị." : "Banner quảng cáo đã được tạm ẩn.",
+    });
+
+    return updated;
   },
 
   deleteBanner: async (id) => {
-    const existing = await bannerRepository.findById(id);
-    if (!existing) {
-      throw new ApiError(404, "Không tìm thấy banner để xóa");
-    }
-
-    // Nếu ảnh lưu trên Cloudinary và có publicId thì dọn dẹp
-    if (existing.publicId) {
-      try {
-        const { deleteFromCloudinary } = await import("../config/cloudinary.js");
-        await deleteFromCloudinary(existing.publicId);
-      } catch (err) {
-        console.warn("Không thể xóa ảnh trên Cloudinary:", err?.message);
-      }
-    }
-
-    return await bannerRepository.deleteById(id);
+    throw new ApiError(
+      400,
+      "Banner không hỗ trợ xóa trực tiếp để bảo toàn cấu trúc giao diện hệ thống. Quản trị viên vui lòng chuyển sang trạng thái Tạm ẩn (Ẩn banner)."
+    );
   },
 };

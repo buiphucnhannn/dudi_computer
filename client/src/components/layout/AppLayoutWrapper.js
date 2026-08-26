@@ -17,7 +17,7 @@ export default function AppLayoutWrapper({ children }) {
   return (
     <>
       <Header />
-      <main className="flex-1 w-full overflow-x-hidden">{children}</main>
+      <main className="flex-1 w-full">{children}</main>
       <Footer />
       <FloatingWidgets />
       <PromotionPopup />

@@ -19,6 +19,7 @@ import notificationRoutes from "./notificationRoutes.js";
 import settingRoutes from "./settingRoutes.js";
 import bannerRoutes from "./bannerRoutes.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import { sessionManager } from "../utils/sessionManager.js";
 
 const router = Router();
 
@@ -27,6 +28,18 @@ router.get("/health", (req, res) => {
   res.status(200).json(
     new ApiResponse(200, { status: "OK", timestamp: new Date().toISOString() }, "Server ZComputer API is running")
   );
+});
+
+// Real-time Event Stream (SSE) cho cả khách vãng lai và người dùng
+router.get("/system/events", (req, res) => {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache, no-transform",
+    "Connection": "keep-alive",
+    "X-Accel-Buffering": "no",
+  });
+  res.write(`data: ${JSON.stringify({ type: "CONNECTED", timestamp: Date.now() })}\n\n`);
+  sessionManager.addPublicSession(res);
 });
 
 router.use("/auth", authRoutes);

@@ -149,16 +149,16 @@ export default function FeedbackModal({ isOpen, onClose }) {
 
       // Hiện Toast cảm ơn cực đẹp
       showToast({
-        title: "Gửi phản hồi thành công!",
+        title: "Gửi yêu cầu hỗ trợ thành công!",
         message:
-          "Cảm ơn bạn đã đóng góp ý kiến để DUDI SOFTWARE ngày càng hoàn thiện và phục vụ bạn tốt hơn!",
+          "Cảm ơn Quý khách! Đội ngũ Chăm sóc khách hàng DUDI SOFTWARE sẽ tiếp nhận và liên hệ hỗ trợ Quý khách trong thời gian sớm nhất.",
         type: "success",
         duration: 5000,
       });
     } catch (error) {
       const errorMsg =
         error.response?.data?.message ||
-        "Có lỗi xảy ra khi gửi phản hồi. Vui lòng thử lại sau.";
+        "Có lỗi xảy ra khi gửi yêu cầu hỗ trợ. Vui lòng thử lại sau.";
       showToast({
         title: "Gửi thất bại",
         message: errorMsg,
@@ -195,10 +195,10 @@ export default function FeedbackModal({ isOpen, onClose }) {
         {/* Title & Subtitle */}
         <div className="text-center mb-6">
           <h3 className="text-xl sm:text-[22px] font-black text-gray-900 tracking-tight">
-            Góp ý & Phản hồi
+            Chăm sóc khách hàng
           </h3>
-          <p className="text-xs sm:text-sm text-gray-500 mt-1 max-w-xs mx-auto leading-relaxed">
-            Chúng tôi luôn lắng nghe để phục vụ bạn tốt hơn mỗi ngày.
+          <p className="text-xs sm:text-sm text-gray-500 mt-1.5 max-w-sm mx-auto leading-relaxed">
+            Đội ngũ DUDI SOFTWARE luôn sẵn sàng lắng nghe, tư vấn và hỗ trợ giải đáp mọi thắc mắc của Quý khách.
           </p>
         </div>
 
@@ -244,7 +244,7 @@ export default function FeedbackModal({ isOpen, onClose }) {
             <textarea
               name="content"
               rows={3}
-              placeholder="Bạn muốn góp ý điều gì với chúng tôi? *"
+              placeholder="Nhập nội dung bạn cần hỗ trợ, yêu cầu mở khóa tài khoản hoặc tư vấn dịch vụ... *"
               value={formData.content}
               onChange={handleChange}
               disabled={loading}
@@ -266,7 +266,7 @@ export default function FeedbackModal({ isOpen, onClose }) {
             ) : (
               <>
                 <Send className="w-4 h-4" />
-                <span>Gửi phản hồi</span>
+                <span>Gửi yêu cầu hỗ trợ</span>
               </>
             )}
           </button>

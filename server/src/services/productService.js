@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 import { productRepository, categoryRepository } from "../repositories/index.js";
+import { Order } from "../models/Order.js";
 import { ApiError } from "../utils/apiError.js";
 import { uploadToCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
+import { sessionManager } from "../utils/sessionManager.js";
 
 class ProductService {
   async getProducts(queryParams) {
@@ -43,6 +45,7 @@ class ProductService {
       sort,
       page,
       limit,
+      isAdmin: queryParams.isAdmin === "true" || queryParams.isAdmin === true,
     });
   }
 
@@ -52,8 +55,13 @@ class ProductService {
     }
 
     const product = await productRepository.findBySlug(slug);
-    if (!product) {
-      throw new ApiError(404, "Không tìm thấy sản phẩm");
+    if (!product || product.isDeleted || product.isActive === false) {
+      throw new ApiError(404, "Sản phẩm không tồn tại hoặc đã tạm ngừng kinh doanh");
+    }
+
+    // Kiểm tra nếu danh mục của sản phẩm đang bị ẩn
+    if (product.category && product.category.isActive === false) {
+      throw new ApiError(404, "Danh mục của sản phẩm này hiện đang tạm ẩn");
     }
 
     // Tăng lượt xem tự động
@@ -268,7 +276,22 @@ class ProductService {
       updateData.price = Number(updateData.price);
     }
 
-    return await productRepository.updateById(id, updateData);
+    const updated = await productRepository.updateById(id, updateData);
+
+    if (updateData.isActive !== undefined) {
+      sessionManager.broadcastResourceUpdate({
+        action: updateData.isActive ? "publish" : "hide",
+        resourceType: "product",
+        id: updated._id,
+        slug: updated.slug,
+        name: updated.name,
+        message: updateData.isActive
+          ? `Sản phẩm "${updated.name}" đã được bật kinh doanh.`
+          : `Sản phẩm "${updated.name}" đã tạm ngừng kinh doanh.`,
+      });
+    }
+
+    return updated;
   }
 
   async deleteProduct(id) {
@@ -281,7 +304,32 @@ class ProductService {
       throw new ApiError(404, "Không tìm thấy sản phẩm để xóa");
     }
 
-    // Xóa toàn bộ ảnh liên quan trên Cloudinary
+    // Kiểm tra xem sản phẩm đã phát sinh trong đơn hàng chưa
+    const orderCount = await Order.countDocuments({ "items.product": id });
+
+    if (orderCount > 0) {
+      // 1. XÓA MỀM (Soft Delete): Ẩn khỏi hệ thống để bảo toàn lịch sử đơn hàng và doanh thu
+      await productRepository.updateById(id, {
+        isDeleted: true,
+        isActive: false,
+      });
+
+      sessionManager.broadcastResourceUpdate({
+        action: "delete",
+        resourceType: "product",
+        id: product._id,
+        slug: product.slug,
+        name: product.name,
+        message: `Sản phẩm "${product.name}" đã ngừng kinh doanh và được gỡ khỏi hệ thống.`,
+      });
+
+      return {
+        message: `Đã xóa mềm sản phẩm "${product.name}" thành công (sản phẩm đã phát sinh ${orderCount} đơn hàng nên được ẩn để bảo toàn lịch sử đơn).`,
+        softDeleted: true,
+      };
+    }
+
+    // 2. XÓA CỨNG (Hard Delete): Nếu sản phẩm chưa từng có đơn hàng
     if (Array.isArray(product.images)) {
       for (const img of product.images) {
         const publicId = typeof img === "object" ? img.public_id : null;
@@ -291,7 +339,21 @@ class ProductService {
       }
     }
 
-    return await productRepository.deleteById(id);
+    await productRepository.deleteById(id);
+
+    sessionManager.broadcastResourceUpdate({
+      action: "delete",
+      resourceType: "product",
+      id: product._id,
+      slug: product.slug,
+      name: product.name,
+      message: `Sản phẩm "${product.name}" đã ngừng kinh doanh và được gỡ khỏi hệ thống.`,
+    });
+
+    return {
+      message: `Đã xóa vĩnh viễn sản phẩm "${product.name}" thành công!`,
+      softDeleted: false,
+    };
   }
 
   async updateStock(id, newStock) {

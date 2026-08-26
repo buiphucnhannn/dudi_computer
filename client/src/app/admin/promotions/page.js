@@ -18,7 +18,6 @@ import {
   Package,
   FolderTree,
   Globe,
-  Upload,
   ChevronLeft,
   ChevronRight,
   Zap,
@@ -51,8 +50,6 @@ export default function AdminPromotionsPage() {
   const [modalMode, setModalMode] = useState("create");
   const [currentPromo, setCurrentPromo] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [uploadingBanner, setUploadingBanner] = useState(false);
-  const bannerInputRef = useRef(null);
 
   // Dữ liệu hỗ trợ chọn sản phẩm / danh mục
   const [allProducts, setAllProducts] = useState([]);
@@ -73,7 +70,6 @@ export default function AdminPromotionsPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    banner: "",
     discountType: "percentage",
     discountValue: 10,
     applyScope: "products",
@@ -204,7 +200,6 @@ export default function AdminPromotionsPage() {
     setFormData({
       name: promo.name || "",
       description: promo.description || "",
-      banner: promo.banner || "",
       discountType: promo.discountType || "percentage",
       discountValue: promo.discountValue || 0,
       applyScope: promo.applyScope || "products",
@@ -218,30 +213,22 @@ export default function AdminPromotionsPage() {
     setIsModalOpen(true);
   };
 
-  const handleBannerUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const localPreviewUrl = URL.createObjectURL(file);
-    setFormData((prev) => ({ ...prev, banner: localPreviewUrl }));
-    setUploadingBanner(true);
-    try {
-      const data = new FormData();
-      data.append("image", file);
-      data.append("folder", "dudi_software/promotions");
-      const uploadRes = await apiClient.post("/upload/image", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      const url = uploadRes.data?.data?.url || uploadRes.data?.url;
-      if (url) {
-        setFormData((prev) => ({ ...prev, banner: url }));
-        showToast("Tải ảnh banner thành công!");
-      }
-    } catch {
-      showToast("Không thể tải ảnh lên", "error");
-    } finally {
-      setUploadingBanner(false);
-    }
-  };
+  // Phân cấp cây danh mục (Root & Children)
+  const categoryTree = useMemo(() => {
+    const roots = allCategories
+      .filter((c) => !c.parent)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    return roots.map((root) => {
+      const children = allCategories
+        .filter((c) => {
+          const parentId = c.parent?._id || c.parent;
+          return parentId && parentId.toString() === root._id.toString();
+        })
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+      return { root, children };
+    });
+  }, [allCategories]);
 
   const toggleProduct = (productId) => {
     setFormData((prev) => ({
@@ -252,12 +239,59 @@ export default function AdminPromotionsPage() {
     }));
   };
 
-  const toggleCategory = (catId) => {
+  // Chọn / Bỏ chọn danh mục gốc -> Tự động cascade áp dụng toàn bộ danh mục con
+  const toggleRootCategory = (rootCat, children) => {
+    const rootId = rootCat._id;
+    const childIds = children.map((c) => c._id);
+    const allGroupIds = [rootId, ...childIds];
+
+    // Chỉ tính là đã chọn khi tất cả danh mục con đều được tick
+    const isAllChecked =
+      children.length === 0
+        ? formData.appliedCategories.includes(rootId)
+        : childIds.length > 0 && childIds.every((id) => formData.appliedCategories.includes(id));
+
+    if (isAllChecked) {
+      // Đang chọn hết toàn bộ -> Bỏ chọn cả nhóm
+      setFormData((prev) => ({
+        ...prev,
+        appliedCategories: prev.appliedCategories.filter(
+          (id) => !allGroupIds.includes(id)
+        ),
+      }));
+    } else {
+      // Chưa chọn hết -> Chọn tất cả danh mục trong nhóm (cha + toàn bộ con)
+      setFormData((prev) => ({
+        ...prev,
+        appliedCategories: Array.from(
+          new Set([...prev.appliedCategories, ...allGroupIds])
+        ),
+      }));
+    }
+  };
+
+  // Chọn / Bỏ chọn riêng danh mục con
+  const toggleChildCategory = (childId, rootCat, siblingChildren) => {
+    const isCurrentlySelected = formData.appliedCategories.includes(childId);
+    let newSelected = isCurrentlySelected
+      ? formData.appliedCategories.filter((id) => id !== childId)
+      : [...formData.appliedCategories, childId];
+
+    // Chỉ khi tất cả con trong nhóm đều được chọn thì mới tick danh mục cha
+    const allSiblingIds = siblingChildren.map((c) => c._id);
+    const areAllChildrenSelected =
+      allSiblingIds.length > 0 &&
+      allSiblingIds.every((id) => newSelected.includes(id));
+
+    if (areAllChildrenSelected) {
+      newSelected = Array.from(new Set([...newSelected, rootCat._id]));
+    } else {
+      newSelected = newSelected.filter((id) => id !== rootCat._id);
+    }
+
     setFormData((prev) => ({
       ...prev,
-      appliedCategories: prev.appliedCategories.includes(catId)
-        ? prev.appliedCategories.filter((id) => id !== catId)
-        : [...prev.appliedCategories, catId],
+      appliedCategories: newSelected,
     }));
   };
 
@@ -289,10 +323,6 @@ export default function AdminPromotionsPage() {
         );
         return;
       }
-    }
-    if (uploadingBanner) {
-      showToast("Ảnh đang tải, vui lòng chờ...", "warning");
-      return;
     }
     if (formData.applyScope === "products" && formData.appliedProducts.length === 0) {
       showToast("Vui lòng chọn ít nhất 1 sản phẩm để áp dụng!", "error");
@@ -520,27 +550,12 @@ export default function AdminPromotionsPage() {
                         {itemIndex}
                       </td>
                       <td className="py-3.5 px-4 whitespace-nowrap text-left">
-                        <div className="flex items-center gap-3">
-                          {promo.banner ? (
-                            <img
-                              src={promo.banner}
-                              alt={promo.name}
-                              className="w-10 h-7 object-cover rounded-lg border border-slate-200 shrink-0"
-                            />
-                          ) : (
-                            <div className="w-10 h-7 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center shrink-0">
-                              <Flame className="w-3.5 h-3.5 text-[#eb1c24]" />
-                            </div>
-                          )}
-                          <div className="min-w-0">
-                            <span
-                              className="font-bold text-slate-900 text-sm group-hover:text-[#eb1c24] transition inline-block max-w-[280px] truncate"
-                              title={promo.name}
-                            >
-                              {promo.name}
-                            </span>
-                          </div>
-                        </div>
+                        <span
+                          className="font-bold text-slate-900 text-sm group-hover:text-[#eb1c24] transition inline-block max-w-[340px] truncate"
+                          title={promo.name}
+                        >
+                          {promo.name}
+                        </span>
                       </td>
                       <td className="py-3.5 px-4 text-center whitespace-nowrap">
                         <span className="font-black text-[#eb1c24] text-xs sm:text-sm">
@@ -779,55 +794,6 @@ export default function AdminPromotionsPage() {
                 </div>
               </div>
 
-              {/* Banner Upload */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block font-bold text-slate-700">
-                    Ảnh banner chiến dịch (Tuỳ chọn)
-                  </label>
-                  {uploadingBanner && (
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#eb1c24] animate-pulse">
-                      <RefreshCw className="w-3 h-3 animate-spin" />
-                      Đang tải...
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    placeholder="URL ảnh banner..."
-                    value={formData.banner}
-                    onChange={(e) =>
-                      setFormData({ ...formData, banner: e.target.value })
-                    }
-                    className="flex-1 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-700 text-xs focus:border-red-500 focus:outline-hidden"
-                  />
-                  <input
-                    type="file"
-                    ref={bannerInputRef}
-                    onChange={handleBannerUpload}
-                    accept="image/*"
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => bannerInputRef.current?.click()}
-                    disabled={uploadingBanner}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] text-white font-bold transition shrink-0 cursor-pointer disabled:opacity-50 shadow-xs"
-                  >
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Tải lên</span>
-                  </button>
-                </div>
-                {formData.banner && (
-                  <img
-                    src={formData.banner}
-                    alt="Preview"
-                    className="mt-2 h-16 rounded-xl border border-slate-200 object-cover"
-                  />
-                )}
-              </div>
-
               {/* Phạm vi áp dụng */}
               <div className="space-y-3">
                 <label className="block font-bold text-slate-700">
@@ -917,40 +883,131 @@ export default function AdminPromotionsPage() {
                   </div>
                 )}
 
-                {/* Chọn nhiều danh mục */}
+                {/* Chọn nhiều danh mục theo phân cấp cha - con */}
                 {formData.applyScope === "category" && (
-                  <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                    <div className="p-3 bg-slate-50 border-b border-slate-200">
-                      <span className="text-[11px] font-bold text-slate-600">
-                        Chọn danh mục áp dụng (Đã chọn:{" "}
-                        <span className="text-[#eb1c24]">
-                          {formData.appliedCategories.length}
+                  <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
+                    <div className="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                        <FolderTree className="w-3.5 h-3.5 text-red-500" />
+                        <span>
+                          Chọn danh mục áp dụng (Đã chọn:{" "}
+                          <span className="text-[#eb1c24] font-black">
+                            {formData.appliedCategories.length}
+                          </span>
+                          )
                         </span>
-                        )
                       </span>
+                      {formData.appliedCategories.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData((prev) => ({ ...prev, appliedCategories: [] }))
+                          }
+                          className="text-[10px] font-bold text-slate-500 hover:text-red-600 transition cursor-pointer"
+                        >
+                          Bỏ chọn tất cả
+                        </button>
+                      )}
                     </div>
-                    <div className="max-h-48 overflow-y-auto divide-y divide-slate-100">
-                      {allCategories.map((cat) => {
-                        const isSelected = formData.appliedCategories.includes(cat._id);
+                    <div className="max-h-60 overflow-y-auto divide-y divide-slate-100 p-2 space-y-1.5">
+                      {categoryTree.map(({ root, children }) => {
+                        const rootId = root._id;
+                        const childIds = children.map((c) => c._id);
+                        const selectedChildrenCount = childIds.filter((id) =>
+                          formData.appliedCategories.includes(id)
+                        ).length;
+
+                        // Chỉ tick danh mục cha khi CHỌN HẾT tất cả danh mục con (hoặc gốc không có con)
+                        const isRootChecked =
+                          children.length === 0
+                            ? formData.appliedCategories.includes(rootId)
+                            : childIds.length > 0 && selectedChildrenCount === childIds.length;
+
+                        const hasAnyChildSelected = selectedChildrenCount > 0;
+
                         return (
-                          <label
-                            key={cat._id}
-                            className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition ${
-                              isSelected ? "bg-red-50/60" : "hover:bg-slate-50"
+                          <div
+                            key={root._id}
+                            className={`rounded-xl border transition overflow-hidden ${
+                              isRootChecked
+                                ? "border-red-200 bg-red-50/25"
+                                : hasAnyChildSelected
+                                ? "border-slate-200 bg-slate-50/30"
+                                : "border-slate-100 bg-white"
                             }`}
                           >
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => toggleCategory(cat._id)}
-                              className="w-3.5 h-3.5 accent-red-600 rounded shrink-0 cursor-pointer"
-                            />
-                            <span className="font-bold text-slate-800 text-xs">
-                              {cat.name}
-                            </span>
-                          </label>
+                            {/* Dòng Danh mục Gốc (Cha) */}
+                            <div
+                              onClick={() => toggleRootCategory(root, children)}
+                              className={`flex items-center justify-between px-3.5 py-2.5 cursor-pointer transition select-none ${
+                                isRootChecked
+                                  ? "bg-red-50/70 text-slate-900"
+                                  : "hover:bg-slate-50 text-slate-800"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <input
+                                  type="checkbox"
+                                  checked={isRootChecked}
+                                  onChange={() => {}} // Đã xử lý tại div cha
+                                  className="w-4 h-4 accent-red-600 rounded shrink-0 cursor-pointer"
+                                />
+                                <span className="font-bold text-xs">
+                                  {root.name}
+                                </span>
+                              </div>
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                  isRootChecked
+                                    ? "bg-red-100 text-[#eb1c24] font-black"
+                                    : hasAnyChildSelected
+                                    ? "bg-slate-100 text-slate-700 font-semibold"
+                                    : "bg-slate-100 text-slate-500"
+                                }`}
+                              >
+                                {children.length > 0
+                                  ? `${selectedChildrenCount}/${children.length} mục con`
+                                  : "Danh mục gốc"}
+                              </span>
+                            </div>
+
+                            {/* Danh sách các Danh mục Con (Cấp 2) */}
+                            {children.length > 0 && (
+                              <div className="pl-6 pr-3 py-1.5 bg-slate-50/50 border-t border-slate-100/80 space-y-0.5">
+                                {children.map((child) => {
+                                  const isChildSelected = formData.appliedCategories.includes(child._id);
+                                  return (
+                                    <label
+                                      key={child._id}
+                                      className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg cursor-pointer transition select-none ${
+                                        isChildSelected
+                                          ? "bg-red-100/50 text-[#eb1c24] font-bold"
+                                          : "hover:bg-slate-100 text-slate-600 text-xs font-medium"
+                                      }`}
+                                    >
+                                      <span className="text-slate-300 font-mono text-xs">└─</span>
+                                      <input
+                                        type="checkbox"
+                                        checked={isChildSelected}
+                                        onChange={() => toggleChildCategory(child._id, root, children)}
+                                        className="w-3.5 h-3.5 accent-red-600 rounded shrink-0 cursor-pointer"
+                                      />
+                                      <span className="text-xs">
+                                        {child.name}
+                                      </span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
                         );
                       })}
+                      {categoryTree.length === 0 && (
+                        <div className="py-6 text-center text-slate-400 text-xs">
+                          Không tìm thấy danh mục nào
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1047,7 +1104,7 @@ export default function AdminPromotionsPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={saving || uploadingBanner}
+                  disabled={saving}
                   className="px-5 py-2.5 rounded-xl bg-[#eb1c24] hover:bg-[#c9121a] text-white font-bold transition shadow-md shadow-red-600/20 disabled:opacity-50 cursor-pointer flex items-center gap-2"
                 >
                   {saving ? (

@@ -1,5 +1,6 @@
 import { jobRepository } from "../repositories/jobRepository.js";
 import { ApiError } from "../utils/apiError.js";
+import { sessionManager } from "../utils/sessionManager.js";
 
 export const jobService = {
   getJobs: async (params = {}) => {
@@ -34,8 +35,8 @@ export const jobService = {
 
   getJobBySlug: async (slug) => {
     const job = await jobRepository.findBySlug(slug);
-    if (!job) {
-      throw new ApiError(404, "Không tìm thấy vị trí tuyển dụng yêu cầu");
+    if (!job || !job.isActive) {
+      throw new ApiError(404, "Vị trí tuyển dụng không tồn tại hoặc đã tạm dừng nhận hồ sơ");
     }
     return job;
   },
@@ -57,7 +58,20 @@ export const jobService = {
     if (!job) {
       throw new ApiError(404, "Không tìm thấy vị trí tuyển dụng cần cập nhật");
     }
-    return await jobRepository.update(id, data);
+    const updated = await jobRepository.update(id, data);
+
+    if (data.isActive !== undefined) {
+      sessionManager.broadcastResourceUpdate({
+        action: data.isActive ? "publish" : "hide",
+        resourceType: "career",
+        id: updated._id,
+        slug: updated.slug,
+        name: updated.title,
+        message: data.isActive ? `Tin tuyển dụng "${updated.title}" đã được mở.` : `Tin tuyển dụng "${updated.title}" đã tạm đóng.`,
+      });
+    }
+
+    return updated;
   },
 
   deleteJob: async (id) => {
@@ -65,7 +79,18 @@ export const jobService = {
     if (!job) {
       throw new ApiError(404, "Không tìm thấy vị trí tuyển dụng cần xóa");
     }
-    return await jobRepository.delete(id);
+    const deleted = await jobRepository.delete(id);
+
+    sessionManager.broadcastResourceUpdate({
+      action: "delete",
+      resourceType: "career",
+      id: job._id,
+      slug: job.slug,
+      name: job.title,
+      message: `Tin tuyển dụng "${job.title}" đã kết thúc và được xóa khỏi hệ thống.`,
+    });
+
+    return deleted;
   },
 
   toggleJobStatus: async (id) => {
@@ -75,6 +100,16 @@ export const jobService = {
     }
     job.isActive = !job.isActive;
     await job.save();
+
+    sessionManager.broadcastResourceUpdate({
+      action: job.isActive ? "publish" : "hide",
+      resourceType: "career",
+      id: job._id,
+      slug: job.slug,
+      name: job.title,
+      message: job.isActive ? `Tin tuyển dụng "${job.title}" đã được mở.` : `Tin tuyển dụng "${job.title}" đã tạm đóng.`,
+    });
+
     return job;
   },
 };

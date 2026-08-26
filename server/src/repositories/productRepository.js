@@ -19,8 +19,16 @@ class ProductRepository extends BaseRepository {
     sort = "newest",
     page = 1,
     limit = 20,
+    isAdmin = false,
   }) {
-    const query = {};
+    const query = {
+      isDeleted: { $ne: true },
+    };
+
+    // Mặc định khách hàng chỉ xem sản phẩm active (trừ khi có cờ admin)
+    if (!isAdmin) {
+      query.isActive = { $ne: false };
+    }
 
     // Tìm kiếm theo từ khóa
     if (search) {

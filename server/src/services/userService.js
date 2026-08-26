@@ -32,7 +32,23 @@ export const userService = {
     }
 
     if (params.authType && params.authType !== "all") {
-      query.authType = params.authType;
+      if (params.authType === "hybrid") {
+        query.$or = [
+          { authType: "hybrid" },
+          { $and: [{ googleId: { $ne: null } }, { isPasswordSet: true }] },
+          { $and: [{ googleId: { $ne: null } }, { authType: "local" }] },
+        ];
+      } else if (params.authType === "google") {
+        query.$and = [
+          { $or: [{ authType: "google" }, { googleId: { $ne: null } }] },
+          { authType: { $ne: "hybrid" } },
+          { isPasswordSet: { $ne: true } },
+          { authType: { $ne: "local" } },
+        ];
+      } else if (params.authType === "local") {
+        query.authType = "local";
+        query.googleId = null;
+      }
     }
 
     const [customers, total] = await Promise.all([
@@ -45,8 +61,18 @@ export const userService = {
       User.countDocuments(query),
     ]);
 
+    const formattedCustomers = (customers || []).map((c) => {
+      const isHybrid =
+        c.authType === "hybrid" ||
+        (c.googleId && (c.isPasswordSet || c.authType === "local"));
+      return {
+        ...c,
+        authType: isHybrid ? "hybrid" : c.authType || (c.googleId ? "google" : "local"),
+      };
+    });
+
     return {
-      items: customers || [],
+      items: formattedCustomers,
       pagination: {
         page,
         limit,
@@ -169,7 +195,26 @@ export const userService = {
       throw new ApiError(404, "Không tìm thấy người dùng hoặc không thể xóa tài khoản Quản trị viên");
     }
 
+    // Kiểm tra xem người dùng đã từng đặt đơn hàng chưa
+    const orderCount = await Order.countDocuments({ user: id });
+
+    // Cưỡng chế ngắt kết nối session realtime nếu đang online
+    sessionManager.kickUser(id, "Tài khoản của bạn đã bị xóa khỏi hệ thống bởi Quản trị viên.");
+
+    if (orderCount > 0) {
+      // 1. XÓA MỀM (Soft Delete): Đổi status sang inactive để bảo toàn lịch sử đơn hàng
+      await User.findByIdAndUpdate(id, { status: "inactive" });
+      return {
+        message: `Đã vô hiệu hóa tài khoản "${customer.name}" thành công (tài khoản đã có ${orderCount} đơn hàng nên được lưu trữ để bảo toàn lịch sử đơn).`,
+        softDeleted: true,
+      };
+    }
+
+    // 2. XÓA CỨNG (Hard Delete) khi chưa có đơn hàng
     await User.findByIdAndDelete(id);
-    return true;
+    return {
+      message: `Đã xóa vĩnh viễn tài khoản "${customer.name}" thành công!`,
+      softDeleted: false,
+    };
   },
 };

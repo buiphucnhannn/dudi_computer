@@ -63,17 +63,17 @@ export default function FloatingWidgets() {
           </div>
         )}
 
-        {/* 2. Nút Góp ý / Phản hồi Tím (Mở FeedbackModal) */}
+        {/* 2. Nút Chăm sóc khách hàng Tím (Mở FeedbackModal) */}
         <div className="relative flex items-center justify-end group">
           <div className="absolute right-full mr-3 hidden sm:flex items-center py-1.5 px-2.5 bg-gray-900/95 backdrop-blur-md text-white text-xs font-semibold rounded-lg shadow-xl border border-white/10 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 pointer-events-none whitespace-nowrap z-20">
-            Góp ý & Phản hồi
+            Chăm sóc khách hàng
           </div>
           <span className="absolute inset-0 rounded-full bg-[#8b5cf6]/50 animate-ripple pointer-events-none"></span>
           <button
             onClick={() => setShowFeedbackModal(true)}
             className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#8b5cf6] hover:bg-[#7c3aed] text-white flex items-center justify-center shadow-md transition-all duration-300 hover:scale-105 cursor-pointer z-10"
-            title="Góp ý & Phản hồi"
-            aria-label="Góp ý & Phản hồi"
+            title="Chăm sóc khách hàng"
+            aria-label="Chăm sóc khách hàng"
           >
             <svg
               className="w-4 h-4 sm:w-5 sm:h-5 stroke-white fill-none stroke-[2]"

@@ -33,7 +33,7 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Xử lý khi tài khoản bị khóa (Banned)
+// Xử lý khi tài khoản đang đăng nhập bị khóa (Banned) giữa phiên làm việc
 const handleAccountBanned = (message) => {
   if (typeof window === "undefined") return;
 
@@ -55,10 +55,17 @@ const handleAccountBanned = (message) => {
     })
   );
 
-  // Chuyển hướng ra trang login nếu không phải đang ở trang đăng nhập/đăng ký
+  // Chỉ redirect nếu người dùng đang ở các trang khác (KHÔNG redirect nếu đang ở trang login/register)
   const pathname = window.location.pathname;
-  if (!pathname.includes("/login") && !pathname.includes("/register")) {
-    window.location.replace(`/login?error=${encodeURIComponent(msg)}`);
+  const isAuthPage =
+    pathname.includes("/login") ||
+    pathname.includes("/register") ||
+    pathname.includes("/dang-nhap") ||
+    pathname.includes("/dang-ky") ||
+    pathname.includes("/forgot-password");
+
+  if (!isAuthPage) {
+    window.location.replace("/login?banned=true");
   }
 };
 
@@ -66,6 +73,11 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const isAuthSubmit =
+      originalRequest?.url?.includes("/auth/login") ||
+      originalRequest?.url?.includes("/auth/google-login") ||
+      originalRequest?.url?.includes("/auth/register");
+
     const errorMsg = error.response?.data?.message || "";
     const isBanned =
       error.response?.data?.isBanned ||
@@ -73,8 +85,8 @@ apiClient.interceptors.response.use(
         (errorMsg.toLowerCase().includes("khóa") ||
           errorMsg.toLowerCase().includes("banned")));
 
-    // Khi phát hiện tài khoản bị khóa -> Thông báo & văng ra màn hình đăng nhập ngay lập tức
-    if (isBanned) {
+    // Khi phát hiện tài khoản bị khóa trong phiên làm việc (nếu không phải đang submit form đăng nhập)
+    if (isBanned && !isAuthSubmit) {
       handleAccountBanned(errorMsg);
       return Promise.reject(error);
     }
@@ -83,9 +95,9 @@ apiClient.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes("/auth/login") &&
-      !originalRequest.url.includes("/auth/logout") &&
-      !originalRequest.url.includes("/auth/refresh-token")
+      !originalRequest?.url?.includes("/auth/login") &&
+      !originalRequest?.url?.includes("/auth/logout") &&
+      !originalRequest?.url?.includes("/auth/refresh-token")
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -111,7 +123,9 @@ apiClient.interceptors.response.use(
           refreshMsg.toLowerCase().includes("khóa") ||
           refreshMsg.toLowerCase().includes("banned")
         ) {
-          handleAccountBanned(refreshMsg);
+          if (!isAuthSubmit) {
+            handleAccountBanned(refreshMsg);
+          }
         } else if (typeof window !== "undefined") {
           localStorage.removeItem("dudi_user");
           localStorage.removeItem("zcomputer_user");
@@ -120,25 +134,6 @@ apiClient.interceptors.response.use(
       } finally {
         isRefreshing = false;
       }
-    }
-
-    // Nếu lỗi 403 do tài khoản bị khóa / banned
-    if (
-      error.response?.status === 403 &&
-      (error.response?.data?.message?.toLowerCase().includes("khóa") ||
-        error.response?.data?.message?.toLowerCase().includes("banned"))
-    ) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("dudi_user");
-        localStorage.removeItem("zcomputer_user");
-        try {
-          const authChannel = new BroadcastChannel("dudi_auth_channel");
-          authChannel.postMessage({ type: "ACCOUNT_BANNED" });
-          authChannel.close();
-        } catch {}
-        window.location.href = "/login?banned=true";
-      }
-      return Promise.reject(error);
     }
 
     return Promise.reject(error);

@@ -112,17 +112,6 @@ export default function HomeNewsSection() {
           ))}
         </div>
       )}
-
-      {/* Bottom Button */}
-      <div className="mt-8 flex justify-center">
-        <Link
-          href="/news"
-          className="bg-[#eb1c24] hover:bg-[#d01720] text-white font-bold text-xs sm:text-sm px-8 py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:scale-102 cursor-pointer"
-        >
-          <span>XEM THÊM BÀI VIẾT & TIN TỨC</span>
-          <ChevronRight className="w-4 h-4" />
-        </Link>
-      </div>
     </section>
   );
 }
