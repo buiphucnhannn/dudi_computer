@@ -16,9 +16,11 @@ import {
   LayoutGrid,
   BellRing,
   ShoppingBag,
+  Crop,
 } from "lucide-react";
 import { bannerAPI, uploadAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
+import BannerCropperModal from "@/components/admin/banners/BannerCropperModal";
 
 // Định nghĩa thông tin 4 vùng hiển thị cố định chuẩn trên website
 const BANNER_ZONES = [
@@ -79,7 +81,7 @@ const BANNER_ZONES = [
 export default function BannersPage() {
   const { showToast } = useToast();
   const fileInputRef = useRef(null);
-  const uploadPromiseRef = useRef(null);
+  const pendingFileRef = useRef(null);
 
   // States
   const [banners, setBanners] = useState([]);
@@ -88,6 +90,7 @@ export default function BannersPage() {
 
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -205,7 +208,7 @@ export default function BannersPage() {
   // Open Modal Edit (Thay ảnh cho khung banner cố định)
   const handleOpenEdit = (banner) => {
     setEditingBanner(banner);
-    uploadPromiseRef.current = null;
+    pendingFileRef.current = null;
     const initialUrl = banner?.imageUrl ?? "";
     setFormData({
       title: banner?.title ?? "",
@@ -247,23 +250,16 @@ export default function BannersPage() {
       return;
     }
 
-    // 1. Hiển thị Preview tức thì (0ms)
+    // 1. Hiển thị Preview tức thì trên trình duyệt (Chưa gọi Cloudinary)
     const localPreviewUrl = URL.createObjectURL(file);
+    pendingFileRef.current = file;
+
     setFormData((prev) => ({
       ...prev,
       imageUrl: localPreviewUrl,
     }));
     setFormErrors((prev) => ({ ...prev, imageUrl: "" }));
     inspectImage(localPreviewUrl, formData.position || activeZone);
-
-    // 2. Chạy tải lên Cloudinary ngầm bất đồng bộ ngay trong lúc người dùng xem & nhập form
-    uploadPromiseRef.current = uploadAPI
-      .single(file, "banners")
-      .then((res) => res.data?.data)
-      .catch((err) => {
-        console.error("Lỗi upload ngầm:", err);
-        return null;
-      });
 
     showToast({
       title: "Tải ảnh thành công",
@@ -272,6 +268,24 @@ export default function BannersPage() {
     });
 
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // Handle Crop Complete (Cắt và căn chỉnh vùng ảnh)
+  const handleCropComplete = (croppedUrl, croppedFile) => {
+    pendingFileRef.current = croppedFile;
+
+    setFormData((prev) => ({
+      ...prev,
+      imageUrl: croppedUrl,
+    }));
+    setFormErrors((prev) => ({ ...prev, imageUrl: "" }));
+    inspectImage(croppedUrl, formData.position || activeZone);
+
+    showToast({
+      title: "Đã cắt ảnh",
+      message: "Đã cắt và căn chỉnh ảnh theo đúng tỉ lệ chuẩn!",
+      type: "success",
+    });
   };
 
   // Toggle Active Status
@@ -318,7 +332,8 @@ export default function BannersPage() {
 
     const currentBannerId = editingBanner?._id;
     const currentPayload = { ...formData };
-    const uploadPromise = uploadPromiseRef.current;
+    const fileToUpload = pendingFileRef.current;
+    pendingFileRef.current = null;
 
     // 1. TỐI ƯU TRẢI NGHIỆM: Đóng Modal ngay lập tức & Cập nhật giao diện tức thì (0ms chờ)
     if (currentBannerId) {
@@ -333,14 +348,16 @@ export default function BannersPage() {
       type: "success",
     });
 
-    // 2. ĐỒNG BỘ BẤT ĐỒNG BỘ NGẦM (Lấy link Cloudinary chính thức & lưu vào Database)
+    // 2. KHI BẤM LƯU: Tải file lên Cloudinary và cập nhật Database bất đồng bộ
     (async () => {
       try {
         let finalImageUrl = currentPayload.imageUrl;
         let finalPublicId = currentPayload.publicId;
 
-        if (uploadPromise) {
-          const uploadData = await uploadPromise;
+        // Chỉ upload lên Cloudinary ngay lúc bấm lưu
+        if (fileToUpload) {
+          const uploadRes = await uploadAPI.single(fileToUpload, "banners");
+          const uploadData = uploadRes.data?.data;
           if (uploadData?.url) {
             finalImageUrl = uploadData.url;
             finalPublicId = uploadData.public_id || "";
@@ -363,7 +380,20 @@ export default function BannersPage() {
           }
         }
       } catch (err) {
-        console.error("Lỗi đồng bộ ngầm banner:", err);
+        console.error("Lỗi lưu ảnh lên Cloudinary & Database:", err);
+        if (err.response?.status === 401 || err?.status === 401) {
+          showToast({
+            title: "Hết phiên đăng nhập",
+            message: "Phiên đăng nhập Admin đã hết hạn. Vui lòng đăng nhập lại để lưu ảnh lên máy chủ!",
+            type: "warning",
+          });
+        } else {
+          showToast({
+            title: "Lỗi đồng bộ",
+            message: err.response?.data?.message || "Không thể đồng bộ ảnh lên máy chủ. Vui lòng thử lại!",
+            type: "error",
+          });
+        }
       }
     })();
   };
@@ -776,7 +806,7 @@ export default function BannersPage() {
                     {safeImageUrl && (
                       <div className="space-y-2 mt-2">
                         {/* Header bar of Preview */}
-                        <div className="flex items-center justify-between text-[11px]">
+                        <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-slate-700">Xem trước khung ảnh:</span>
                             {imgMeta && (
@@ -786,32 +816,45 @@ export default function BannersPage() {
                             )}
                           </div>
 
-                          {/* Scale mode toggle */}
-                          <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-slate-200">
+                          <div className="flex items-center gap-1.5">
+                            {/* Nút Mở Công Cụ Kéo Thả & Cắt Vùng Ảnh */}
                             <button
                               type="button"
-                              onClick={() => setPreviewFit("cover")}
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold transition cursor-pointer ${
-                                previewFit === "cover"
-                                  ? "bg-slate-900 text-white"
-                                  : "text-slate-600 hover:text-slate-900"
-                              }`}
-                              title="Tự động phóng đầy khung web (không méo hình)"
+                              onClick={() => setCropModalOpen(true)}
+                              className="px-2.5 py-1 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white rounded-lg text-[10.5px] font-bold transition cursor-pointer flex items-center gap-1.5 shadow-xs shadow-red-500/20 active:scale-95"
+                              title="Kéo thả di chuyển, phóng to thu nhỏ và chọn góc ảnh đẹp nhất"
                             >
-                              Phủ khung (Cover)
+                              <Crop className="w-3.5 h-3.5" />
+                              <span>Kéo & Cắt góc ảnh</span>
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => setPreviewFit("contain")}
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold transition cursor-pointer ${
-                                previewFit === "contain"
-                                  ? "bg-slate-900 text-white"
-                                  : "text-slate-600 hover:text-slate-900"
-                              }`}
-                              title="Xem nguyên kích thước ảnh"
-                            >
-                              Nguyên bản (Contain)
-                            </button>
+
+                            {/* Scale mode toggle */}
+                            <div className="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-slate-200">
+                              <button
+                                type="button"
+                                onClick={() => setPreviewFit("cover")}
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold transition cursor-pointer ${
+                                  previewFit === "cover"
+                                    ? "bg-slate-900 text-white"
+                                    : "text-slate-600 hover:text-slate-900"
+                                }`}
+                                title="Tự động phóng đầy khung web (không méo hình)"
+                              >
+                                Phủ khung (Cover)
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setPreviewFit("contain")}
+                                className={`px-2 py-0.5 rounded text-[10px] font-bold transition cursor-pointer ${
+                                  previewFit === "contain"
+                                    ? "bg-slate-900 text-white"
+                                    : "text-slate-600 hover:text-slate-900"
+                                }`}
+                                title="Xem nguyên kích thước ảnh"
+                              >
+                                Nguyên bản (Contain)
+                              </button>
+                            </div>
                           </div>
                         </div>
 
@@ -925,6 +968,15 @@ export default function BannersPage() {
           </div>
         </div>
       )}
+
+      {/* 6. MODAL CẮT, ZOOM & CĂN CHỈNH GÓC ẢNH BANNER */}
+      <BannerCropperModal
+        isOpen={cropModalOpen}
+        onClose={() => setCropModalOpen(false)}
+        imageSrc={formData.imageUrl}
+        zoneInfo={currentZoneInfo}
+        onCropComplete={handleCropComplete}
+      />
     </div>
   );
 }
