@@ -149,16 +149,18 @@ export default function ProductSidebar({
     const discountCount = products.filter(
       (p) =>
         Number(p.originalPrice || 0) > Number(p.price || 0) ||
-        p.discountPercent > 0
+        Number(p.discountPercent || 0) > 0 ||
+        p.isFlashSale === true ||
+        p.isFlashSale === "true"
     ).length;
 
-    const hotCount = products.filter(
-      (p) => p.isHot || p.isFlashSale || p.badge === "HOT" || (p.soldCount && p.soldCount > 10)
+    const flashSaleCount = products.filter(
+      (p) => p.isFlashSale === true || p.isFlashSale === "true"
     ).length;
 
     return [
       { label: "Đang giảm giá", value: "discount", count: discountCount },
-      { label: "Sản phẩm Hot Sale", value: "hot", count: hotCount },
+      { label: "Chiến dịch Flash Sale", value: "flash_sale", count: flashSaleCount },
     ];
   }, [products]);
 

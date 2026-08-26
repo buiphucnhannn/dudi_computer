@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { MessageSquare, Send, X, Loader2 } from "lucide-react";
 import { feedbackAPI } from "@/lib/api";
+import { isValidVietnamesePhone, normalizeVietnamesePhone } from "@/lib/validation";
 import { useToast } from "@/components/common/ToastContext";
 
 export default function FeedbackModal({ isOpen, onClose }) {
@@ -76,11 +77,10 @@ export default function FeedbackModal({ isOpen, onClose }) {
       });
       return;
     }
-    const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
-    if (!phoneRegex.test(phone)) {
+    if (!isValidVietnamesePhone(phone)) {
       showToast({
         title: "Số điện thoại không hợp lệ",
-        message: "Vui lòng nhập đúng 10 số điện thoại di động (ví dụ: 0909163821 hoặc 0388999888).",
+        message: "Vui lòng nhập đúng 10 số điện thoại di động Việt Nam (các đầu số 03, 05, 07, 08, 09).",
         type: "error",
       });
       return;

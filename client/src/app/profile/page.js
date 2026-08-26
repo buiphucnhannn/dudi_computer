@@ -21,6 +21,7 @@ import {
   Save,
 } from "lucide-react";
 import { authAPI } from "@/lib/api";
+import { isValidVietnamesePhone, normalizeVietnamesePhone } from "@/lib/validation";
 import {
   selectCurrentUser,
   selectIsAuthenticated,
@@ -113,16 +114,27 @@ export default function ProfilePage() {
     if (!newPhone.trim()) {
       showToast({
         title: "Thiếu thông tin",
-        message: "Vui lòng nhập số điện thoại hợp lệ.",
-        type: "error",
+        message: "Vui lòng nhập số điện thoại.",
+        type: "warning",
+      });
+      return;
+    }
+
+    if (!isValidVietnamesePhone(newPhone)) {
+      showToast({
+        title: "Số điện thoại không hợp lệ",
+        message:
+          "Vui lòng nhập đúng 10 số di động Việt Nam (các đầu số 03, 05, 07, 08, 09).",
+        type: "warning",
       });
       return;
     }
 
     setSavingPhone(true);
     try {
+      const normalized = normalizeVietnamesePhone(newPhone);
       const res = await authAPI.updateProfile({
-        phone: newPhone.trim(),
+        phone: normalized,
       });
       const updatedUser = res.data?.data;
       dispatch(setCredentials({ user: updatedUser }));

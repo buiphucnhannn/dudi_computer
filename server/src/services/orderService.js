@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { orderRepository } from "../repositories/index.js";
 import { Product } from "../models/Product.js";
 import { ApiError } from "../utils/apiError.js";
+import { isValidVietnamesePhone, normalizeVietnamesePhone } from "../utils/validators.js";
 
 class OrderService {
   async getOrders(queryParams = {}) {
@@ -76,11 +77,19 @@ class OrderService {
     }
 
     const finalCustomerName = customerName || fullName;
-    if (!finalCustomerName || !phone) {
-      throw new ApiError(400, "Vui lòng nhập họ tên khách hàng và số điện thoại người nhận");
+    if (!finalCustomerName) {
+      throw new ApiError(400, "Vui lòng nhập họ và tên người nhận");
     }
 
-    if (!address) {
+    const normalizedPhone = normalizeVietnamesePhone(phone);
+    if (!normalizedPhone || !isValidVietnamesePhone(normalizedPhone)) {
+      throw new ApiError(
+        400,
+        "Số điện thoại người nhận không hợp lệ. Vui lòng nhập đúng 10 số di động Việt Nam (đầu 03, 05, 07, 08, 09)"
+      );
+    }
+
+    if (!address || !address.trim()) {
       throw new ApiError(400, "Vui lòng nhập địa chỉ nhận hàng");
     }
 

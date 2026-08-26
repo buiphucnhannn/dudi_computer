@@ -5,6 +5,7 @@ import { ApiError } from "../utils/apiError.js";
 import { User } from "../models/User.js";
 import { Otp } from "../models/Otp.js";
 import { mailService } from "./mailService.js";
+import { isValidVietnamesePhone, normalizeVietnamesePhone } from "../utils/validators.js";
 
 class AuthService {
   // Helper tạo cả Access Token và Refresh Token, đồng thời lưu Refresh Token vào Database
@@ -406,7 +407,21 @@ class AuthService {
     }
 
     if (name !== undefined && name.trim()) user.name = name.trim();
-    if (phone !== undefined) user.phone = phone.trim();
+    if (phone !== undefined) {
+      const cleanPhone = phone.trim();
+      if (cleanPhone) {
+        const normalized = normalizeVietnamesePhone(cleanPhone);
+        if (!isValidVietnamesePhone(normalized)) {
+          throw new ApiError(
+            400,
+            "Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số di động Việt Nam (đầu 03, 05, 07, 08, 09)"
+          );
+        }
+        user.phone = normalized;
+      } else {
+        user.phone = "";
+      }
+    }
     if (address !== undefined) user.address = typeof address === "string" ? address.trim() : address;
     if (avatar !== undefined) user.avatar = avatar;
 

@@ -1,45 +1,105 @@
 import { promotionRepository } from "../repositories/promotionRepository.js";
+import { Promotion } from "../models/Promotion.js";
 import { Product } from "../models/Product.js";
 import { ApiError } from "../utils/apiError.js";
 
 export const promotionService = {
-  // Lấy Flash Sale promotion đang chạy (cho trang chủ)
+  // Lấy danh sách toàn bộ Flash Sale promotions đang chạy (cho trang chủ)
   getFlashSalePromotion: async () => {
     const now = new Date();
-    let flashSale = await promotionRepository.findOne(
-      {
+    
+    // 1. Tìm tất cả các chiến dịch Flash Sale đang diễn ra (hỗ trợ nhiều chiến dịch cùng lúc)
+    let activeFlashSales = await Promotion.find({
+      isActive: true,
+      isFlashSale: true,
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    })
+      .sort({ priority: -1, updatedAt: -1 })
+      .lean();
+
+    // Fallback: Nếu không có chiến dịch nào tick isFlashSale, lấy các khuyến mãi active thường
+    if (!activeFlashSales || activeFlashSales.length === 0) {
+      activeFlashSales = await Promotion.find({
         isActive: true,
-        isFlashSale: true,
         startDate: { $lte: now },
         endDate: { $gte: now },
-      },
-      { sort: { priority: -1, updatedAt: -1 } }
-    );
-
-    if (!flashSale) {
-      flashSale = await promotionRepository.findOne(
-        {
-          isActive: true,
-          startDate: { $lte: now },
-          endDate: { $gte: now },
-        },
-        { sort: { priority: -1, updatedAt: -1 } }
-      );
+      })
+        .sort({ priority: -1, updatedAt: -1 })
+        .lean();
     }
 
-    if (!flashSale) {
+    if (!activeFlashSales || activeFlashSales.length === 0) {
       return null;
     }
 
-    // Lấy danh sách sản phẩm áp dụng Flash Sale
-    const productIds = await promotionService._getAffectedProductIds(flashSale);
-    const products = await Product.find({ _id: { $in: productIds } })
-      .select("-description")
-      .limit(20)
-      .lean();
+    // Lấy chiến dịch ưu tiên cao nhất làm đại diện
+    const mainPromotion = activeFlashSales[0];
+    
+    // Tìm thời điểm kết thúc gần nhất trong số các chiến dịch đang chạy để đếm ngược chính xác
+    const nearestEndDate = activeFlashSales.reduce((min, p) => {
+      const end = new Date(p.endDate);
+      return end < min ? end : min;
+    }, new Date(mainPromotion.endDate));
+
+    // 2. Thu thập và hợp nhất danh sách sản phẩm từ TẤT CẢ các chiến dịch Flash Sale đang chạy
+    const allProductIdsSet = new Set();
+    for (const promo of activeFlashSales) {
+      const ids = await promotionService._getAffectedProductIds(promo);
+      ids.forEach((id) => allProductIdsSet.add(id));
+    }
+
+    let products = [];
+    if (allProductIdsSet.size > 0) {
+      products = await Product.find({ _id: { $in: Array.from(allProductIdsSet) } })
+        .select("-description")
+        .populate("category", "name slug pcPartType")
+        .lean();
+    }
+
+    // Nếu không có sản phẩm chỉ định cụ thể, tìm các sản phẩm có cờ isFlashSale hoặc có giảm giá
+    if (products.length === 0) {
+      products = await Product.find({
+        $or: [
+          { isFlashSale: true },
+          { discountPercent: { $gt: 0 } },
+          { originalPrice: { $gt: 0 } },
+        ],
+      })
+        .select("-description")
+        .populate("category", "name slug pcPartType")
+        .limit(30)
+        .lean();
+    }
+
+    // 3. SẮP XẾP: Ưu tiên giảm giá nhiều nhất lên đầu (% giảm cao nhất rồi đến số tiền giảm)
+    products.sort((a, b) => {
+      const getPercent = (p) => {
+        if (p.discountPercent && Number(p.discountPercent) > 0) return Number(p.discountPercent);
+        const orig = Number(p.originalPrice || 0);
+        const cur = Number(p.price || 0);
+        if (orig > cur && orig > 0) return Math.round(((orig - cur) / orig) * 100);
+        return 0;
+      };
+
+      const getDiscountAmount = (p) => {
+        const orig = Number(p.originalPrice || p.price || 0);
+        const cur = Number(p.price || 0);
+        return orig > cur ? orig - cur : 0;
+      };
+
+      const percentDiff = getPercent(b) - getPercent(a);
+      if (percentDiff !== 0) return percentDiff;
+
+      return getDiscountAmount(b) - getDiscountAmount(a);
+    });
 
     return {
-      promotion: flashSale,
+      promotion: {
+        ...mainPromotion,
+        endDate: nearestEndDate,
+      },
+      promotions: activeFlashSales,
       products: products,
     };
   },
@@ -196,7 +256,11 @@ export const promotionService = {
         promo.discountType === "percentage"
           ? promo.discountValue
           : Math.round((discountAmount / basePrice) * 100);
-      product.isFlashSale = true;
+      
+      // Chỉ gắn cờ isFlashSale nếu chiến dịch này là Flash Sale
+      if (promo.isFlashSale) {
+        product.isFlashSale = true;
+      }
       await product.save();
     }
   },
@@ -206,6 +270,22 @@ export const promotionService = {
     const productIds = await promotionService._getAffectedProductIds(promo);
     if (productIds.length === 0) return;
 
+    const now = new Date();
+    // Kiểm tra xem sản phẩm có còn thuộc bất kỳ chiến dịch Flash Sale nào khác đang active không
+    const otherFlashSales = await Promotion.find({
+      _id: { $ne: promo._id },
+      isActive: true,
+      isFlashSale: true,
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    });
+
+    const otherFlashSaleIds = new Set();
+    for (const otherPromo of otherFlashSales) {
+      const ids = await promotionService._getAffectedProductIds(otherPromo);
+      ids.forEach((id) => otherFlashSaleIds.add(id));
+    }
+
     const products = await Product.find({ _id: { $in: productIds } });
     for (const product of products) {
       if (product.originalPrice > 0) {
@@ -213,7 +293,7 @@ export const promotionService = {
       }
       product.discountPrice = 0;
       product.discountPercent = 0;
-      product.isFlashSale = false;
+      product.isFlashSale = otherFlashSaleIds.has(product._id.toString());
       await product.save();
     }
   },

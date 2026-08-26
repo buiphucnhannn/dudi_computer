@@ -340,23 +340,26 @@ function ProductsContent() {
       });
     }
 
-    // PROMOTIONS
+    // PROMOTIONS (Đang giảm giá & Chiến dịch Flash Sale)
     if (filters.promotions.length > 0) {
       if (filters.promotions.includes("discount")) {
         result = result.filter(
           (product) =>
             Number(product.discountPercent || 0) > 0 ||
             Number(product.originalPrice || 0) > Number(product.price || 0) ||
-            product.isFlashSale,
+            product.isFlashSale === true ||
+            product.isFlashSale === "true",
         );
       }
 
-      if (filters.promotions.includes("hot")) {
+      if (
+        filters.promotions.includes("flash_sale") ||
+        filters.promotions.includes("hot")
+      ) {
         result = result.filter(
           (product) =>
-            product.isHot ||
-            product.isFeatured ||
-            Number(product.soldCount || 0) > 10,
+            product.isFlashSale === true ||
+            product.isFlashSale === "true",
         );
       }
     }
