@@ -28,23 +28,24 @@ export default function BannerCropperModal({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imageLoaded, setImageLoaded] = useState(false);
   const [naturalSize, setNaturalSize] = useState({ width: 0, height: 0 });
+  const [containerDimensions, setContainerDimensions] = useState({ width: 600, height: 300 });
 
   const containerRef = useRef(null);
   const imageRef = useRef(null);
 
-  // Parse aspect ratio from zoneInfo (e.g., "21:9", "3:2", "4:3", "16:4")
+  // Khớp chính xác 100% tỉ lệ thật trên giao diện website
   const getAspectRatioNumber = () => {
-    if (!zoneInfo?.id) return 21 / 9;
+    if (!zoneInfo?.id) return 2 / 1;
     switch (zoneInfo.id) {
       case "promo_grid":
-        return 3 / 2;
+        return 3 / 2; // 1.5:1
       case "popup":
-        return 4 / 3;
+        return 4 / 3; // 1.33:1
       case "product_top":
-        return 16 / 4;
+        return 5 / 1; // 5:1
       case "hero_slider":
       default:
-        return 21 / 9;
+        return 2 / 1; // 2:1 Khớp 100% với HeroSlider aspect-[2/1]
     }
   };
 
@@ -67,6 +68,25 @@ export default function BannerCropperModal({
       img.src = imageSrc;
     }
   }, [isOpen, imageSrc]);
+
+  // Update container size on mount & resize
+  useEffect(() => {
+    if (!isOpen) return;
+    const updateSize = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          setContainerDimensions({ width: rect.width, height: rect.height });
+        }
+      }
+    };
+    updateSize();
+    const resizeObserver = new ResizeObserver(updateSize);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+    return () => resizeObserver.disconnect();
+  }, [isOpen, targetAspect]);
 
   // Mouse Drag Handlers
   const handleMouseDown = (e) => {
@@ -115,7 +135,7 @@ export default function BannerCropperModal({
   // Mouse Wheel Zoom
   const handleWheel = (e) => {
     e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 0.1 : -0.1;
+    const zoomFactor = e.deltaY < 0 ? 0.08 : -0.08;
     setScale((prev) => Math.min(Math.max(0.5, prev + zoomFactor), 4));
   };
 
@@ -126,27 +146,43 @@ export default function BannerCropperModal({
     setRotation(0);
   };
 
-  // Export cropped canvas
+  // Tính toán kích thước cơ sở hiển thị theo đúng chuẩn Cover
+  const imgAspect = naturalSize.width > 0 ? naturalSize.width / (naturalSize.height || 1) : 1;
+  let domBaseWidth = containerDimensions.width;
+  let domBaseHeight = containerDimensions.height;
+
+  if (imgAspect > targetAspect) {
+    // Ảnh ngang bè hơn khung -> Khớp theo chiều cao khung
+    domBaseHeight = containerDimensions.height;
+    domBaseWidth = containerDimensions.height * imgAspect;
+  } else {
+    // Ảnh đứng/vuông hơn khung -> Khớp theo chiều rộng khung
+    domBaseWidth = containerDimensions.width;
+    domBaseHeight = containerDimensions.width / (imgAspect || 1);
+  }
+
+  // Export cropped canvas (Đồng bộ 100% pixel-perfect với những gì người dùng thấy)
   const handleApplyCrop = () => {
     if (!imageLoaded || !imageRef.current || !containerRef.current) return;
 
     const img = imageRef.current;
-    const container = containerRef.current;
-    const containerRect = container.getBoundingClientRect();
 
-    // Export Resolution (Standardized high-def output)
+    // Kích thước chuẩn xuất ra (High Resolution)
     let exportWidth = 1920;
     let exportHeight = Math.round(exportWidth / targetAspect);
 
     if (zoneInfo?.id === "promo_grid") {
       exportWidth = 1200;
-      exportHeight = 800;
+      exportHeight = 800; // 3:2
     } else if (zoneInfo?.id === "popup") {
-      exportWidth = 1000;
-      exportHeight = 750;
+      exportWidth = 1200;
+      exportHeight = 900; // 4:3
     } else if (zoneInfo?.id === "product_top") {
       exportWidth = 1600;
-      exportHeight = 400;
+      exportHeight = 320; // 5:1
+    } else if (zoneInfo?.id === "hero_slider") {
+      exportWidth = 1920;
+      exportHeight = 960; // 2:1 Khớp hoàn hảo với website
     }
 
     const canvas = document.createElement("canvas");
@@ -159,40 +195,35 @@ export default function BannerCropperModal({
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
 
-    // Ratio between Canvas coordinate space and Preview Container coordinate space
-    const scaleFactor = exportWidth / containerRect.width;
+    // Tỉ lệ scale giữa Canvas và Container DOM
+    const scaleFactor = exportWidth / containerDimensions.width;
+    const canvasBaseWidth = domBaseWidth * scaleFactor;
+    const canvasBaseHeight = domBaseHeight * scaleFactor;
 
     ctx.save();
-    // Move to center of canvas
+    // Dời gốc tọa độ về chính giữa canvas
     ctx.translate(exportWidth / 2, exportHeight / 2);
 
-    // Apply user translation scaled to export resolution
+    // Áp dụng tọa độ dịch chuyển của người dùng (nhân tỉ lệ scaleFactor)
     ctx.translate(position.x * scaleFactor, position.y * scaleFactor);
 
-    // Apply rotation
+    // Áp dụng góc xoay
     ctx.rotate((rotation * Math.PI) / 180);
 
-    // Apply user scale
+    // Áp dụng độ phóng to thu nhỏ
     ctx.scale(scale, scale);
 
-    // Draw the image centered
-    const imgAspect = naturalSize.width / (naturalSize.height || 1);
-    let drawWidth, drawHeight;
-
-    if (imgAspect > targetAspect) {
-      // Image is wider than container: match container height
-      drawHeight = exportHeight;
-      drawWidth = exportHeight * imgAspect;
-    } else {
-      // Image is taller than container: match container width
-      drawWidth = exportWidth;
-      drawHeight = exportWidth / imgAspect;
-    }
-
-    ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+    // Vẽ ảnh chính xác tại tâm
+    ctx.drawImage(
+      img,
+      -canvasBaseWidth / 2,
+      -canvasBaseHeight / 2,
+      canvasBaseWidth,
+      canvasBaseHeight
+    );
     ctx.restore();
 
-    // Convert to Blob and File
+    // Convert sang file WebP chất lượng cao
     canvas.toBlob(
       (blob) => {
         if (!blob) return;
@@ -204,17 +235,17 @@ export default function BannerCropperModal({
         onClose();
       },
       "image/webp",
-      0.92
+      0.95
     );
   };
 
   if (!isOpen || !imageSrc) return null;
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-3 sm:p-4">
       {/* Dark Overlay */}
       <div
-        className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
@@ -223,20 +254,20 @@ export default function BannerCropperModal({
         className="relative z-10 w-full max-w-4xl bg-slate-900 text-white rounded-3xl shadow-2xl border border-slate-800 overflow-hidden flex flex-col max-h-[95vh] animate-in zoom-in-95 duration-150"
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-red-500/20 text-red-500 border border-red-500/30 flex items-center justify-center">
               <Crop className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <span>Cắt & Căn Chỉnh Vùng Ảnh</span>
+              <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                <span>Cắt & Căn Chỉnh Vùng Ảnh Chuẩn 100%</span>
                 <span className="text-[10.5px] px-2 py-0.5 rounded-full bg-red-500 text-white font-black">
-                  Tỉ lệ {zoneInfo?.aspectRatio || "21:9"}
+                  Khung {zoneInfo?.shortName}
                 </span>
               </h3>
-              <p className="text-xs text-slate-400">
-                Kéo chuột để di chuyển vùng ảnh cần lấy • Dùng thanh trượt để phóng to/thu nhỏ
+              <p className="text-[11px] sm:text-xs text-slate-400">
+                Kéo chuột để chọn chính xác phần ảnh muốn lấy • Cuộn chuột để phóng to/thu nhỏ
               </p>
             </div>
           </div>
@@ -251,7 +282,7 @@ export default function BannerCropperModal({
 
         {/* Viewport Cropper Area */}
         <div
-          className="relative bg-slate-950 p-6 flex items-center justify-center overflow-hidden select-none min-h-[340px] max-h-[58vh]"
+          className="relative bg-slate-950 p-4 sm:p-6 flex items-center justify-center overflow-hidden select-none min-h-[320px] sm:min-h-[380px] max-h-[58vh]"
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
@@ -263,32 +294,39 @@ export default function BannerCropperModal({
             style={{
               aspectRatio: `${targetAspect}`,
               width: "100%",
-              maxWidth: targetAspect > 2.5 ? "760px" : "620px",
+              maxWidth: targetAspect > 3 ? "760px" : targetAspect > 1.8 ? "680px" : "560px",
             }}
-            className="relative rounded-2xl overflow-hidden border-2 border-red-500 shadow-[0_0_50px_rgba(235,28,36,0.3)] bg-black/90 cursor-grab active:cursor-grabbing flex items-center justify-center"
+            className="relative rounded-2xl overflow-hidden border-2 border-red-500 shadow-[0_0_50px_rgba(235,28,36,0.35)] bg-black/95 cursor-grab active:cursor-grabbing flex items-center justify-center"
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleMouseUp}
           >
-            {/* Image being transformed */}
-            <img
-              ref={imageRef}
-              src={imageSrc}
-              alt="Crop target"
-              crossOrigin="anonymous"
-              draggable={false}
-              style={{
-                transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale})`,
-                transformOrigin: "center center",
-                transition: isDragging ? "none" : "transform 0.1s ease-out",
-                maxWidth: "none",
-                maxHeight: "none",
-                width: naturalSize.width > naturalSize.height ? "100%" : "auto",
-                height: naturalSize.height >= naturalSize.width ? "100%" : "auto",
-              }}
-              className="pointer-events-none object-cover"
-            />
+            {/* Image being transformed - Positioned 100% identically to Canvas */}
+            {imageLoaded && (
+              <img
+                ref={imageRef}
+                src={imageSrc}
+                alt="Crop target"
+                crossOrigin="anonymous"
+                draggable={false}
+                style={{
+                  width: `${domBaseWidth}px`,
+                  height: `${domBaseHeight}px`,
+                  position: "absolute",
+                  left: "50%",
+                  top: "50%",
+                  marginLeft: `-${domBaseWidth / 2}px`,
+                  marginTop: `-${domBaseHeight / 2}px`,
+                  transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale})`,
+                  transformOrigin: "center center",
+                  transition: isDragging ? "none" : "transform 0.08s ease-out",
+                  maxWidth: "none",
+                  maxHeight: "none",
+                }}
+                className="pointer-events-none select-none"
+              />
+            )}
 
             {/* Rule of Thirds Overlay Grid */}
             <div className="absolute inset-0 pointer-events-none grid grid-cols-3 grid-rows-3 opacity-30">
@@ -298,15 +336,15 @@ export default function BannerCropperModal({
               <div className="border-r border-b border-white/40" />
               <div className="border-r border-b border-white/40" />
               <div className="border-b border-white/40" />
-              <div className="border-r border-white/40" />
-              <div className="border-r border-white/40" />
+              <div className="border-r border-b border-white/40" />
+              <div className="border-r border-b border-white/40" />
               <div />
             </div>
 
             {/* Floating helper badges */}
             <div className="absolute top-2.5 left-2.5 bg-black/80 backdrop-blur-xs border border-white/10 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 pointer-events-none">
               <Move className="w-3.5 h-3.5 text-red-400" />
-              <span>Khung {zoneInfo?.shortName} ({zoneInfo?.aspectRatio})</span>
+              <span>Khung chuẩn: {zoneInfo?.shortName}</span>
             </div>
 
             <div className="absolute bottom-2.5 right-2.5 bg-black/80 backdrop-blur-xs border border-white/10 text-white text-[10.5px] font-mono font-bold px-2.5 py-1 rounded-lg pointer-events-none">
@@ -316,8 +354,8 @@ export default function BannerCropperModal({
         </div>
 
         {/* Toolbar & Controls */}
-        <div className="p-5 bg-slate-900 border-t border-slate-800 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="p-4 sm:p-5 bg-slate-900 border-t border-slate-800 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
             {/* Zoom Slider */}
             <div className="flex items-center gap-3 bg-slate-950 px-4 py-2 rounded-2xl border border-slate-800 flex-1 min-w-[240px]">
               <button
@@ -332,7 +370,7 @@ export default function BannerCropperModal({
                 type="range"
                 min="0.5"
                 max="3"
-                step="0.05"
+                step="0.02"
                 value={scale}
                 onChange={(e) => setScale(parseFloat(e.target.value))}
                 className="w-full accent-red-500 cursor-pointer h-1.5 bg-slate-800 rounded-lg appearance-none"
@@ -381,9 +419,9 @@ export default function BannerCropperModal({
 
           {/* Action Buttons */}
           <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
-            <div className="text-[11.5px] text-slate-400 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>Ảnh sau khi cắt sẽ tự động được xuất ra chất lượng cao sắc nét</span>
+            <div className="text-[11px] sm:text-[11.5px] text-slate-400 flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>Khung cắt khớp 100% với tỉ lệ hiển thị thực tế trên website</span>
             </div>
 
             <div className="flex items-center gap-2.5">
