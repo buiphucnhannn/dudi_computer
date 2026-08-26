@@ -472,33 +472,29 @@ export default function FlashSaleSection() {
                 return (
                   <div
                     key={item._id || item.id}
-                    className="w-[82%] sm:w-[calc((100%-12px)/2)] lg:w-[calc((100%-24px)/3)] shrink-0 snap-start bg-white rounded-xl sm:rounded-2xl border border-gray-200/90 shadow-2xs hover:border-[#eb1c24] hover:shadow-[0_12px_28px_rgba(235,28,36,0.12)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-2.5 sm:p-3"
+                    className="w-[82%] sm:w-[calc((100%-12px)/2)] lg:w-[calc((100%-24px)/3)] shrink-0 snap-start bg-white rounded-2xl border border-gray-200/90 shadow-xs hover:border-red-400/80 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative p-3 sm:p-3.5"
                   >
                     <div>
                       <Link
                         href={detailHref}
-                        className="block relative aspect-[4/3] w-full rounded-xl overflow-hidden border border-red-500/80 mb-3 bg-white group/img p-2"
+                        className="block relative aspect-square w-full rounded-xl overflow-hidden border border-slate-100 bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 mb-3 group/img p-3.5 flex items-center justify-center"
                       >
                         {/* Tag Giảm giá góc trên bên trái */}
                         {hasDiscount && (
-                          <div className="absolute top-0 left-0 z-20 pointer-events-none">
-                            <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tl-[10px] rounded-br-[8px] shadow-xs">
-                              Giảm {discountPercent}%
-                            </span>
+                          <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-[#eb1c24] to-[#ff4757] text-white text-[11px] font-black px-2 py-0.5 rounded-lg shadow-sm pointer-events-none">
+                            Giảm {discountPercent}%
                           </div>
                         )}
 
                         {/* Tag HOT SALE góc trên bên phải */}
-                        <div className="absolute top-0 right-0 z-20 pointer-events-none">
-                          <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2 py-0.5 rounded-tr-[10px] rounded-bl-[8px] flex items-center gap-1 shadow-xs">
-                            🔥 FLASH SALE
-                          </span>
+                        <div className="absolute top-2 right-2 z-20 bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1 pointer-events-none">
+                          🔥 FLASH SALE
                         </div>
 
                         <img
                           src={imgSrc}
                           alt={item.name}
-                          className="w-full h-full object-contain p-1 group-hover/img:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-108 transition-transform duration-500 ease-out"
                           loading="lazy"
                           onError={(e) => {
                             e.currentTarget.src =
@@ -515,8 +511,8 @@ export default function FlashSaleSection() {
                         </div>
 
                         {/* Watermark */}
-                        <div className="absolute bottom-1 left-1.5 opacity-80 pointer-events-none z-20">
-                          <span className="text-[9px] font-black text-[#eb1c24] tracking-tight uppercase">
+                        <div className="absolute bottom-1.5 left-2 pointer-events-none opacity-85 z-20">
+                          <span className="inline-block bg-white/80 backdrop-blur-xs px-1.5 py-0.5 rounded text-[8.5px] font-black text-[#eb1c24] tracking-wider uppercase border border-red-100/60 shadow-2xs">
                             DUDI SOFTWARE
                           </span>
                         </div>
@@ -541,7 +537,7 @@ export default function FlashSaleSection() {
                             }`}
                             title="So sánh sản phẩm"
                           >
-                            <Scale className="w-[18px] h-[18px]" />
+                            <Scale className="w-4 h-4" />
                           </button>
 
                           {mounted && !isAdmin && (
@@ -554,30 +550,34 @@ export default function FlashSaleSection() {
                               }`}
                               title={isFav ? "Đã có trong giỏ hàng" : "Thêm vào giỏ hàng"}
                             >
-                              <ShoppingCart className="w-[18px] h-[18px]" />
+                              <ShoppingCart className="w-4 h-4" />
                             </button>
                           )}
                         </div>
                       </div>
 
-                      <Link href={detailHref} className="block group-hover:text-[#eb1c24] transition-colors">
-                        <h3
-                          className="text-xs font-bold text-gray-800 line-clamp-2 leading-snug min-h-[34px]"
-                          title={item.name}
-                        >
-                          {item.name}
-                        </h3>
+                      <Link
+                        href={detailHref}
+                        className="font-bold text-xs sm:text-[13px] text-gray-900 hover:text-[#eb1c24] group-hover:text-[#eb1c24] line-clamp-2 min-h-[36px] leading-snug mb-2 transition-colors block"
+                        title={item.name}
+                      >
+                        {item.name}
                       </Link>
 
                       {/* Price Section */}
-                      <div className="pt-1.5">
-                        <div className="flex items-baseline gap-1.5 flex-wrap">
+                      <div className="mb-2.5">
+                        {hasDiscount && (
+                          <div className="text-xs text-gray-400 line-through mb-0.5">
+                            {formatVND(originalPrice)}
+                          </div>
+                        )}
+                        <div className="flex items-baseline gap-2 flex-wrap">
                           <span className="text-sm sm:text-base font-black text-[#eb1c24]">
                             {formatVND(price)}
                           </span>
                           {hasDiscount && (
-                            <span className="text-[11px] text-gray-400 line-through">
-                              {formatVND(originalPrice)}
+                            <span className="text-[10px] font-black text-[#eb1c24] bg-red-50 border border-red-200/60 px-1.5 py-0.5 rounded-md">
+                              -{discountPercent}%
                             </span>
                           )}
                         </div>
@@ -589,14 +589,14 @@ export default function FlashSaleSection() {
                       const badges = getProductCardBadges(item);
                       if (!badges || badges.length === 0) return null;
                       return (
-                        <div className="bg-gray-50 rounded-lg p-1.5 grid grid-cols-2 gap-1 text-[9.5px] text-gray-600 my-2 border border-gray-100 min-h-[44px]">
+                        <div className="bg-gray-50/90 rounded-xl p-2 grid grid-cols-2 gap-1.5 text-[9.5px] text-gray-600 mb-2 border border-gray-100/90 min-h-[44px]">
                           {badges.slice(0, 4).map((badge, bIdx) => (
                             <div
                               key={bIdx}
-                              className="flex items-center gap-1 truncate"
+                              className="flex items-center gap-1.5 truncate"
                               title={badge.title || badge.label}
                             >
-                              {renderSpecIcon(badge.icon)}
+                              <span className="text-gray-400 shrink-0">{renderSpecIcon(badge.icon)}</span>
                               <span className="truncate font-medium">{badge.label}</span>
                             </div>
                           ))}
@@ -605,14 +605,14 @@ export default function FlashSaleSection() {
                     })()}
 
                     {/* Views & Add button */}
-                    <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100 mt-2">
+                    <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100 mt-1">
                       <span className="flex items-center gap-1">
                         <Eye className="w-3.5 h-3.5" />
                         <span>{item.views || 49} lượt xem</span>
                       </span>
                       <button
                         onClick={(e) => handleBuyNow(e, item)}
-                        className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                        className="text-[#eb1c24] hover:text-white bg-red-50 hover:bg-[#eb1c24] font-bold text-xs px-2.5 py-1 rounded-lg transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-sm"
                       >
                         + Mua ngay
                       </button>
