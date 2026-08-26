@@ -57,8 +57,8 @@ function formatFriendlyCategoryName(slugOrId, categories = []) {
 
 export default function ActiveFilters({
   filters,
-  search = "",
   categories = [],
+  search = "",
   onFilterChange,
   onClearSearch,
   onClear,

@@ -147,6 +147,17 @@ export default function OrderCheckoutModal({
       return;
     }
 
+    // Kiểm tra các sản phẩm hết hàng
+    const outOfStockItem = activeItems.find(
+      (it) => typeof it.stock === "number" && it.stock <= 0
+    );
+    if (outOfStockItem) {
+      setErrors({
+        api: `Sản phẩm "${outOfStockItem.name}" hiện đã hết hàng trong kho. Vui lòng loại bỏ khỏi đơn hàng.`,
+      });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const normalizedPhone = normalizeVietnamesePhone(formData.phone);

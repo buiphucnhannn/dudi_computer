@@ -57,6 +57,8 @@ export default function ProductCard({ product }) {
 
   const thumbnail = getProductImage(product);
 
+  const isOutOfStock = typeof product.stock === "number" && product.stock <= 0;
+
   const detailHref = `/product-detail?slug=${encodeURIComponent(
     product.slug || product._id,
   )}`;
@@ -64,6 +66,14 @@ export default function ProductCard({ product }) {
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isOutOfStock) {
+      showToast({
+        title: "Sản phẩm đã hết hàng",
+        message: `Sản phẩm "${product.name}" hiện đã hết hàng trong kho.`,
+        type: "warning",
+      });
+      return;
+    }
     dispatch(addToCart({ product, quantity: 1 }));
     showToast({
       title: "Đã thêm vào giỏ hàng",
@@ -75,22 +85,20 @@ export default function ProductCard({ product }) {
   const handleToggleCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const prodId = product._id || product.id || product.slug;
-    if (isCart) {
-      dispatch(removeFromCartAsync(prodId));
+    if (isOutOfStock) {
       showToast({
-        title: "Đã xóa khỏi giỏ",
-        message: `Đã bỏ "${product.name}" khỏi giỏ hàng`,
-        type: "info",
+        title: "Sản phẩm đã hết hàng",
+        message: `Sản phẩm "${product.name}" hiện đã hết hàng trong kho.`,
+        type: "warning",
       });
-    } else {
-      dispatch(addToCartAsync({ product, quantity: 1 }));
-      showToast({
-        title: "Đã thêm vào giỏ hàng",
-        message: `Đã thêm "${product.name}" vào giỏ hàng thành công!`,
-        type: "success",
-      });
+      return;
     }
+    dispatch(addToCartAsync({ product, quantity: 1 }));
+    showToast({
+      title: "Đã thêm vào giỏ hàng",
+      message: `Đã thêm "${product.name}" vào giỏ hàng (+1)!`,
+      type: "success",
+    });
   };
 
   const handleToggleCompare = (e) => {
@@ -119,11 +127,17 @@ export default function ProductCard({ product }) {
       }}
       className="bg-white rounded-2xl border border-slate-200/90 hover:border-red-400/80 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between overflow-hidden group relative cursor-pointer"
     >
-      {/* Discount badge */}
-      {hasDiscount && (
-        <span className="absolute top-2.5 left-2.5 z-20 bg-gradient-to-r from-[#eb1c24] to-[#ff4757] text-white text-[11px] font-black px-2.5 py-0.5 rounded-lg shadow-sm">
-          -{discountPercent}%
+      {/* Stock or Discount badge */}
+      {isOutOfStock ? (
+        <span className="absolute top-2.5 left-2.5 z-20 bg-slate-900/90 backdrop-blur-xs text-white text-[10.5px] font-bold px-2.5 py-0.5 rounded-lg shadow-sm border border-slate-700">
+          Hết hàng
         </span>
+      ) : (
+        hasDiscount && (
+          <span className="absolute top-2.5 left-2.5 z-20 bg-gradient-to-r from-[#eb1c24] to-[#ff4757] text-white text-[11px] font-black px-2.5 py-0.5 rounded-lg shadow-sm">
+            -{discountPercent}%
+          </span>
+        )
       )}
 
       {/* Brand tag & Action buttons */}
@@ -139,14 +153,14 @@ export default function ProductCard({ product }) {
           <Scale className="w-3.5 h-3.5" />
         </button>
 
-        {mounted && !isAdmin && (
+        {mounted && !isAdmin && !isOutOfStock && (
           <button
             onClick={handleToggleCart}
             className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${isCart
                 ? "bg-[#eb1c24] text-white shadow-sm"
                 : "bg-white/80 hover:bg-white text-gray-700 hover:text-[#eb1c24]"
               }`}
-            title={isCart ? "Đã có trong giỏ hàng (Bấm để xóa)" : "Thêm vào giỏ hàng"}
+            title={isCart ? "Đã có trong giỏ hàng (Bấm để thêm tiếp)" : "Thêm vào giỏ hàng"}
           >
             <ShoppingCart className="w-3.5 h-3.5" />
           </button>
@@ -265,6 +279,10 @@ export default function ProductCard({ product }) {
                 <Eye className="w-3.5 h-3.5" />
                 <span>Xem chi tiết</span>
               </button>
+            ) : isOutOfStock ? (
+              <div className="flex-1 flex items-center justify-center py-1.5 px-2 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-500 text-[10.5px] sm:text-xs font-bold select-none">
+                <span>Tạm hết hàng</span>
+              </div>
             ) : (
               <>
                 <button

@@ -29,59 +29,62 @@ const commitments = [
 
 export default function CommitmentsSection() {
   return (
-    <section className="relative w-full overflow-hidden bg-gray-50 py-20 md:py-24">
+    <section className="relative w-full overflow-hidden bg-slate-50/70 py-10 sm:py-12 md:py-14 border-t border-slate-200/60">
       {/* Background decoration */}
-      <div className="pointer-events-none absolute left-0 top-0 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-600/5 blur-[120px]" />
+      <div className="pointer-events-none absolute left-0 top-0 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-600/5 blur-3xl" />
 
-      <div className="relative mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-8">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-8">
           {/* Image */}
           <div className="group relative lg:col-span-5">
-            <div className="absolute inset-0 scale-90 bg-red-600/20 blur-2xl transition-transform duration-700 group-hover:scale-100" />
+            <div className="absolute inset-0 scale-95 bg-red-600/10 blur-xl transition-transform duration-700 group-hover:scale-100" />
 
-            <div className="relative h-[400px] overflow-hidden rounded-xl border border-gray-200 bg-gray-100 md:h-[500px]">
+            <div className="relative h-[280px] sm:h-[340px] md:h-[380px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <img
-                src="screen.webp"
-                alt="DUDI SOFTWARE thu mua"
-                className="h-full w-full"
+                src="/screen.webp"
+                alt="ZComputer thu mua"
+                className="h-full w-full object-cover"
               />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             </div>
           </div>
 
           {/* Content */}
-          <div className="flex flex-col gap-10 lg:col-span-7 lg:pl-12">
+          <div className="flex flex-col gap-6 lg:col-span-7 lg:pl-6">
             <div>
-              <h2 className="mb-4 text-3xl font-black uppercase text-gray-900 md:text-4xl">
+              <span className="text-xs font-black uppercase tracking-wider text-red-600 mb-1 block">
+                UY TÍN & CHẤT LƯỢNG
+              </span>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase text-slate-900 tracking-tight">
                 Chúng Tôi Cam Kết
               </h2>
 
-              <div className="mb-6 h-1 w-16 bg-red-600" />
+              <div className="mt-2 mb-3 h-1 w-16 rounded-full bg-red-600 shadow-2xs" />
 
-              <p className="text-base leading-relaxed text-gray-500 md:text-lg">
+              <p className="text-xs sm:text-sm leading-relaxed text-slate-500 max-w-xl">
                 Quy trình làm việc minh bạch, chuyên nghiệp, đặt lợi ích của
                 khách hàng lên hàng đầu.
               </p>
             </div>
 
             {/* Commitment list */}
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
               {commitments.map((item) => {
                 const Icon = item.icon;
 
                 return (
-                  <div key={item.title} className="flex items-start gap-4">
-                    <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded border border-gray-200 bg-white">
-                      <Icon size={20} className="text-red-600" />
+                  <div key={item.title} className="flex items-start gap-3 p-3 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-red-100 bg-red-50 text-red-600 shadow-2xs">
+                      <Icon size={18} />
                     </div>
 
                     <div>
-                      <h4 className="mb-2 text-base font-bold text-gray-900">
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
                         {item.title}
                       </h4>
 
-                      <p className="text-sm leading-relaxed text-gray-500">
+                      <p className="mt-1 text-[11px] sm:text-xs leading-relaxed text-slate-500">
                         {item.description}
                       </p>
                     </div>

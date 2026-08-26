@@ -33,30 +33,38 @@ const ProductActions = ({ product }) => {
     setIsBuyModalOpen(true);
   };
 
+  const isOutOfStock = typeof product?.stock === "number" && product.stock <= 0;
+
   return (
     <>
       {mounted && !isAdmin && (
-        <div className="flex flex-col sm:flex-row gap-4 mt-2">
-          <button
-            onClick={handleOpenBuyModal}
-            className="flex-1 bg-red-600 text-white min-h-14 rounded-xl font-bold text-lg hover:bg-red-700 transition-colors shadow-md flex flex-col items-center justify-center cursor-pointer"
-          >
-            <span>MUA NGAY</span>
-            <span className="text-xs font-normal opacity-90">
-              Giao hàng tận nơi hoặc nhận tại cửa hàng
-            </span>
-          </button>
+        isOutOfStock ? (
+          <div className="w-full py-3.5 px-4 rounded-xl bg-slate-100 border border-slate-200 text-center text-slate-600 font-bold text-sm select-none mt-2">
+            Sản phẩm này hiện đang tạm hết hàng
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row gap-4 mt-2">
+            <button
+              onClick={handleOpenBuyModal}
+              className="flex-1 bg-red-600 text-white min-h-14 rounded-xl font-bold text-lg hover:bg-red-700 transition-colors shadow-md flex flex-col items-center justify-center cursor-pointer"
+            >
+              <span>MUA NGAY</span>
+              <span className="text-xs font-normal opacity-90">
+                Giao hàng tận nơi hoặc nhận tại cửa hàng
+              </span>
+            </button>
 
-          <button
-            onClick={handleOpenBuyModal}
-            className="flex-1 bg-white text-red-600 border-2 border-red-600 min-h-14 rounded-xl font-bold text-lg hover:bg-red-50 transition-colors shadow-sm flex flex-col items-center justify-center cursor-pointer"
-          >
-            <span>MUA TRẢ GÓP</span>
-            <span className="text-xs font-normal text-slate-500">
-              Duyệt hồ sơ nhanh chóng
-            </span>
-          </button>
-        </div>
+            <button
+              onClick={handleOpenBuyModal}
+              className="flex-1 bg-white text-red-600 border-2 border-red-600 min-h-14 rounded-xl font-bold text-lg hover:bg-red-50 transition-colors shadow-sm flex flex-col items-center justify-center cursor-pointer"
+            >
+              <span>MUA TRẢ GÓP</span>
+              <span className="text-xs font-normal text-slate-500">
+                Duyệt hồ sơ nhanh chóng
+              </span>
+            </button>
+          </div>
+        )
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-4 mt-2 text-sm text-slate-500 border-t border-slate-200 pt-6">

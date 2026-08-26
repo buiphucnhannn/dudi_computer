@@ -46,7 +46,7 @@ export default function SuperAdminOverview() {
     },
     {
       id: "customer",
-      label: "Quản lý khách hàng",
+      label: "Quản lý tài khoản",
       icon: Users,
       color: "from-emerald-600 to-teal-700 text-emerald-600",
     },
@@ -84,8 +84,8 @@ export default function SuperAdminOverview() {
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${isActive
-                    ? "bg-white text-slate-900 shadow-xs scale-100 font-extrabold"
-                    : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
+                  ? "bg-white text-slate-900 shadow-xs scale-100 font-extrabold"
+                  : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
                   }`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? tab.color.split(" ").pop() : "text-slate-400"}`} />

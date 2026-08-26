@@ -126,6 +126,41 @@ export default function KeyboardTestContent() {
   const lastKeyReleaseTimes = useRef({});
   const audioCtxRef = useRef(null);
 
+  // Tự động scale vừa khít khung hình Desktop / Laptop / Tablet
+  const [scale, setScale] = useState(1);
+  const [keyboardHeight, setKeyboardHeight] = useState(295);
+  const containerRef = useRef(null);
+  const innerKeyboardRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        const targetWidth = 1080;
+        if (containerWidth > 0) {
+          const s = Math.min(1, containerWidth / targetWidth);
+          setScale(s);
+          setKeyboardHeight(Math.round(295 * s));
+        }
+      }
+    };
+
+    handleResize();
+
+    let resizeObserver;
+    if (typeof ResizeObserver !== "undefined" && containerRef.current) {
+      resizeObserver = new ResizeObserver(handleResize);
+      resizeObserver.observe(containerRef.current);
+    } else {
+      window.addEventListener("resize", handleResize);
+    }
+
+    return () => {
+      if (resizeObserver) resizeObserver.disconnect();
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   // Âm thanh cơ học SFX (Web Audio API)
   const playSwitchSound = useCallback(() => {
     if (!sfxEnabled) return;
@@ -394,6 +429,38 @@ export default function KeyboardTestContent() {
     setTouchpadPos({ x: 50, y: 50, isHover: false });
   };
 
+  // Xử lý khi click / touch trực tiếp vào phím trên màn hình
+  const handleVirtualKeyPress = useCallback(
+    (code) => {
+      playSwitchSound();
+      setTestedKeys((prev) => new Set(prev).add(code));
+      setActiveKeys((prev) => {
+        const next = new Set(prev).add(code);
+        if (next.size > maxGhosting) setMaxGhosting(next.size);
+        return next;
+      });
+      setTimeout(() => {
+        setActiveKeys((prev) => {
+          const next = new Set(prev);
+          next.delete(code);
+          return next;
+        });
+      }, 150);
+
+      setKeyLog((prev) => [
+        {
+          id: Date.now() + "-" + Math.random(),
+          label: getLogShortLabel(code),
+          code: code,
+          isDouble: false,
+          type: "keyboard",
+        },
+        ...prev.slice(0, 47),
+      ]);
+    },
+    [playSwitchSound, maxGhosting]
+  );
+
   // Render phím bấm chuẩn layout
   const renderKey = (code, mainLabel, subLabel = null, widthStyle = "w-[40px]", heightStyle = "h-[40px]") => {
     const isDown = activeKeys.has(code);
@@ -417,14 +484,15 @@ export default function KeyboardTestContent() {
     return (
       <div
         key={code}
-        className={`${widthStyle} ${heightStyle} rounded-lg border flex flex-col items-center justify-center text-xs font-bold select-none cursor-default shrink-0 transition-all duration-75 ${keyClasses}`}
+        onClick={() => handleVirtualKeyPress(code)}
+        className={`${widthStyle} ${heightStyle} rounded-lg border flex flex-col items-center justify-center text-xs font-bold select-none cursor-pointer active:scale-95 shrink-0 transition-all duration-75 ${keyClasses}`}
       >
         {subLabel && !isTested && (
-          <span className="text-[10px] text-gray-400 leading-none mb-0.5">
+          <span className="text-[10px] text-gray-400 leading-none mb-0.5 pointer-events-none">
             {subLabel}
           </span>
         )}
-        <span className="leading-tight text-center px-0.5 truncate">{mainLabel}</span>
+        <span className="leading-tight text-center px-0.5 truncate pointer-events-none">{mainLabel}</span>
       </div>
     );
   };
@@ -485,21 +553,21 @@ export default function KeyboardTestContent() {
         )}
 
         {/* Top Control Bar */}
-        <div className="flex items-center justify-between gap-4 mb-5">
+        <div className="flex items-center justify-between gap-3 mb-4 sm:mb-5 flex-wrap sm:flex-nowrap">
           <Link
             href="/"
             data-no-touchpad
-            className="inline-flex items-center gap-2 bg-[#131822] hover:bg-[#1c2433] text-gray-300 hover:text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border border-gray-800 transition-all cursor-pointer shadow-sm"
+            className="inline-flex items-center gap-2 bg-[#131822] hover:bg-[#1c2433] text-gray-300 hover:text-white px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border border-gray-800 transition-all cursor-pointer shadow-sm active:scale-95"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>QUAY LẠI</span>
           </Link>
 
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               data-no-touchpad
               onClick={() => setSfxEnabled(!sfxEnabled)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all cursor-pointer ${
                 sfxEnabled
                   ? "bg-[#131822] text-gray-200 border-gray-800 hover:border-gray-600"
                   : "bg-red-950/40 text-red-400 border-red-900/60"
@@ -512,7 +580,7 @@ export default function KeyboardTestContent() {
             <button
               data-no-touchpad
               onClick={handleReset}
-              className="flex items-center gap-1.5 bg-[#131822] hover:bg-[#eb1c24] text-gray-200 hover:text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border border-gray-800 hover:border-[#eb1c24] transition-all cursor-pointer shadow-sm active:scale-95"
+              className="flex items-center gap-1.5 bg-[#131822] hover:bg-[#eb1c24] text-gray-200 hover:text-white px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border border-gray-800 hover:border-[#eb1c24] transition-all cursor-pointer shadow-sm active:scale-95"
             >
               <RotateCcw className="w-4 h-4" />
               <span>LÀM MỚI</span>
@@ -521,15 +589,15 @@ export default function KeyboardTestContent() {
         </div>
 
         {/* Main Grid: Bàn Phím + Touchpad (Trái) & Bảng Thống Kê (Phải) */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 sm:gap-6 items-stretch">
           {/* Cột trái: Khung Bàn Phím + Touchpad (xl:col-span-9) */}
-          <div className="xl:col-span-9 bg-[#10141d] border border-gray-800/80 rounded-3xl p-6 sm:p-7 shadow-2xl flex flex-col justify-between h-full">
+          <div className="xl:col-span-9 bg-[#10141d] border border-gray-800/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-7 shadow-2xl flex flex-col justify-between h-full">
             {/* Header Tiêu đề & Thanh Progress */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-3 border-b border-gray-800/60">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 pb-3 border-b border-gray-800/60">
               <div>
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2.5">
+                <h1 className="text-lg sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
                   <span className="text-[#eb1c24] flex items-center justify-center">
-                    <Shield className="w-6 h-6 fill-[#eb1c24]/20" />
+                    <Shield className="w-5 h-5 sm:w-6 sm:h-6 fill-[#eb1c24]/20" />
                   </span>
                   <span className="bg-gradient-to-r from-white via-white to-gray-300 bg-clip-text text-transparent">
                     TEST BÀN PHÍM
@@ -553,11 +621,32 @@ export default function KeyboardTestContent() {
               </div>
             </div>
 
-            {/* Bàn Phím 3 Cụm Chuẩn (Tách biệt rõ ràng với gap-8) */}
-            <div className="w-full flex items-center justify-start xl:justify-center overflow-x-auto xl:overflow-visible py-2 px-1">
-              <div className="flex items-start gap-8 justify-center bg-[#0a0d13] p-4 sm:p-5 rounded-2xl border border-gray-800/60 shadow-inner shrink-0 xl:shrink">
-                {/* 1. Cụm Chính (Alphanumeric 60% Block - Chuẩn xác 684px tuyệt đối) */}
-                <div className="flex flex-col gap-1.5 w-[684px] shrink-0">
+            {/* Bàn Phím 3 Cụm Chuẩn (Tự động co giãn scale vừa vặn khung hình Desktop/Laptop, tránh tình trạng kéo qua lại) */}
+            <div
+              ref={containerRef}
+              className="w-full flex items-center justify-center overflow-hidden py-1"
+            >
+              <div
+                style={{
+                  height: `${keyboardHeight}px`,
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "flex-start",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  ref={innerKeyboardRef}
+                  style={{
+                    transform: `scale(${scale})`,
+                    transformOrigin: "top center",
+                    width: "1080px",
+                  }}
+                  className="flex items-start gap-6 sm:gap-7 justify-center bg-[#0a0d13] p-3.5 sm:p-4 rounded-2xl border border-gray-800/60 shadow-inner shrink-0"
+                >
+                  {/* 1. Cụm Chính (Alphanumeric 60% Block - Chuẩn xác 684px tuyệt đối) */}
+                  <div className="flex flex-col gap-1.5 w-[684px] shrink-0">
                   {/* Hàng 1 (Function Row: Esc, F1-F12 căn chuẩn khít 684px) */}
                   <div className="flex items-center h-[40px] w-full">
                     {renderKey("Escape", "Esc", null, "w-[40px]")}
@@ -754,15 +843,16 @@ export default function KeyboardTestContent() {
                 </div>
               </div>
             </div>
+          </div>
 
             {/* Khu Vực Touchpad Hiển Thị Trạng Thái */}
-            <div className="pt-3 border-t border-gray-800/60 flex flex-col items-center justify-center mt-2">
-              <div className="w-full max-w-[360px] flex flex-col items-center">
+            <div className="pt-4 border-t border-gray-800/60 flex flex-col items-center justify-center mt-3">
+              <div className="w-full max-w-[340px] sm:max-w-[380px] flex flex-col items-center">
                 {/* Vùng cảm ứng Touchpad */}
                 <div
                   onMouseMove={handleTouchpadMouseMove}
                   onMouseLeave={() => setTouchpadPos((p) => ({ ...p, isHover: false }))}
-                  className={`w-full h-22 border rounded-t-2xl flex items-center justify-center cursor-crosshair transition-all duration-150 select-none relative overflow-hidden group ${
+                  className={`w-full h-20 sm:h-22 border rounded-t-2xl flex items-center justify-center cursor-crosshair transition-all duration-150 select-none relative overflow-hidden group ${
                     touchpadActive.middle
                       ? "bg-[#eb1c24]/25 border-[#eb1c24]"
                       : "bg-[#141a24] hover:bg-[#18202d] text-gray-400 border-gray-800"
@@ -784,36 +874,48 @@ export default function KeyboardTestContent() {
                 <div className="grid grid-cols-3 gap-1.5 w-full pt-1.5">
                   <div
                     data-mouse-test-btn
-                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none cursor-default ${
+                    onClick={() => {
+                      handleMouseButtonDown("left");
+                      setTimeout(() => handleMouseButtonUp("left"), 200);
+                    }}
+                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none cursor-pointer active:scale-95 ${
                       touchpadActive.left
                         ? "bg-[#eb1c24] text-white border-[#eb1c24] scale-95 shadow-[0_0_10px_rgba(235,28,36,0.5)]"
                         : touchpadTested.left
                         ? "bg-white text-gray-900 border-white shadow-sm font-black"
-                        : "bg-[#161c26] text-gray-300 border-[#222b3a]"
+                        : "bg-[#161c26] text-gray-300 border-[#222b3a] hover:border-gray-600"
                     }`}
                   >
                     TRÁI
                   </div>
                   <div
                     data-mouse-test-btn
-                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none cursor-default ${
+                    onClick={() => {
+                      handleMouseButtonDown("middle");
+                      setTimeout(() => handleMouseButtonUp("middle"), 200);
+                    }}
+                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none cursor-pointer active:scale-95 ${
                       touchpadActive.middle
                         ? "bg-[#eb1c24] text-white border-[#eb1c24] scale-95 shadow-[0_0_10px_rgba(235,28,36,0.5)]"
                         : touchpadTested.middle
                         ? "bg-white text-gray-900 border-white shadow-sm font-black"
-                        : "bg-[#161c26] text-gray-300 border-[#222b3a]"
+                        : "bg-[#161c26] text-gray-300 border-[#222b3a] hover:border-gray-600"
                     }`}
                   >
                     GIỮA
                   </div>
                   <div
                     data-mouse-test-btn
-                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none cursor-default ${
+                    onClick={() => {
+                      handleMouseButtonDown("right");
+                      setTimeout(() => handleMouseButtonUp("right"), 200);
+                    }}
+                    className={`py-2.5 rounded-b-xl text-xs font-extrabold border text-center transition-all select-none cursor-pointer active:scale-95 ${
                       touchpadActive.right
                         ? "bg-[#eb1c24] text-white border-[#eb1c24] scale-95 shadow-[0_0_10px_rgba(235,28,36,0.5)]"
                         : touchpadTested.right
                         ? "bg-white text-gray-900 border-white shadow-sm font-black"
-                        : "bg-[#161c26] text-gray-300 border-[#222b3a]"
+                        : "bg-[#161c26] text-gray-300 border-[#222b3a] hover:border-gray-600"
                     }`}
                   >
                     PHẢI
@@ -826,89 +928,89 @@ export default function KeyboardTestContent() {
           {/* Cột phải: Thống Kê Realtime & Log Nhấn Phím (xl:col-span-3) */}
           <div className="xl:col-span-3 flex flex-col justify-between space-y-4 h-full">
             {/* Box 1: THỐNG KÊ REALTIME */}
-            <div className="bg-[#10141d] border border-gray-800/80 rounded-3xl p-5 shadow-xl">
+            <div className="bg-[#10141d] border border-gray-800/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl">
               <h2 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-2 mb-3.5">
                 <Zap className="w-4 h-4 text-[#eb1c24]" />
                 <span>THỐNG KÊ REALTIME</span>
               </h2>
 
-              <div className="grid grid-cols-2 gap-3 mb-3.5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-2 gap-2.5 sm:gap-3 mb-3.5">
                 {/* Tốc độ gõ */}
-                <div className="bg-[#141a24] border border-gray-800/80 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center">
+                <div className="bg-[#141a24] border border-gray-800/80 rounded-2xl p-3 sm:p-3.5 flex flex-col items-center justify-center text-center">
                   <span className="text-[10px] font-bold text-gray-400 uppercase">
                     TỐC ĐỘ GÕ
                   </span>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-2xl font-black text-white">{kpm}</span>
+                    <span className="text-xl sm:text-2xl font-black text-white">{kpm}</span>
                     <span className="text-[10px] font-bold text-gray-500">KPM</span>
                   </div>
                 </div>
 
                 {/* Đã nhấn */}
-                <div className="bg-[#141a24] border border-gray-800/80 rounded-2xl p-3.5 flex flex-col items-center justify-center text-center">
+                <div className="bg-[#141a24] border border-gray-800/80 rounded-2xl p-3 sm:p-3.5 flex flex-col items-center justify-center text-center">
                   <span className="text-[10px] font-bold text-gray-400 uppercase">
                     ĐÃ NHẤN
                   </span>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-2xl font-black text-white">
+                    <span className="text-xl sm:text-2xl font-black text-white">
                       {testedKeys.size}
                     </span>
                     <span className="text-[10px] font-bold text-gray-500">/ 104</span>
                   </div>
                 </div>
-              </div>
 
-              {/* Box 2: MAX GHOSTING */}
-              <div className="bg-gradient-to-r from-[#3a0d10] via-[#1a141b] to-[#141a24] border border-red-900/40 rounded-2xl p-4 mb-3.5 shadow-sm">
-                <span className="text-[10px] font-black text-red-400 uppercase tracking-wider block">
-                  MAX GHOSTING
-                </span>
-                <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className="text-3xl font-black text-[#eb1c24]">
-                    {maxGhosting}
+                {/* Box 2: MAX GHOSTING */}
+                <div className="bg-gradient-to-r from-[#3a0d10] via-[#1a141b] to-[#141a24] border border-red-900/40 rounded-2xl p-3 sm:p-3.5 shadow-sm flex flex-col justify-center">
+                  <span className="text-[10px] font-black text-red-400 uppercase tracking-wider block">
+                    MAX GHOSTING
                   </span>
-                  <span className="text-xs text-gray-400 font-medium">phím</span>
+                  <div className="flex items-baseline gap-1.5 mt-0.5">
+                    <span className="text-2xl sm:text-3xl font-black text-[#eb1c24]">
+                      {maxGhosting}
+                    </span>
+                    <span className="text-xs text-gray-400 font-medium">phím</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Box 3: CẢNH BÁO ĐÚP */}
-              <div
-                className={`border rounded-2xl p-4 transition-colors ${
-                  doublePressCount > 0
-                    ? "bg-red-950/40 border-red-800/80 shadow-md"
-                    : "bg-[#141a24] border-gray-800/80"
-                }`}
-              >
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">
-                  CẢNH BÁO ĐÚP
-                </span>
-                <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span
-                    className={`text-2xl font-black ${
-                      doublePressCount > 0 ? "text-[#eb1c24]" : "text-gray-300"
-                    }`}
-                  >
-                    {doublePressCount}
+                {/* Box 3: CẢNH BÁO ĐÚP */}
+                <div
+                  className={`border rounded-2xl p-3 sm:p-3.5 transition-colors flex flex-col justify-center ${
+                    doublePressCount > 0
+                      ? "bg-red-950/40 border-red-800/80 shadow-md"
+                      : "bg-[#141a24] border-gray-800/80"
+                  }`}
+                >
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">
+                    CẢNH BÁO ĐÚP
                   </span>
-                  <span className="text-xs text-gray-400 font-medium">lỗi</span>
+                  <div className="flex items-baseline gap-1.5 mt-0.5">
+                    <span
+                      className={`text-xl sm:text-2xl font-black ${
+                        doublePressCount > 0 ? "text-[#eb1c24]" : "text-gray-300"
+                      }`}
+                    >
+                      {doublePressCount}
+                    </span>
+                    <span className="text-xs text-gray-400 font-medium">lỗi</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Box 4: LOG NHẤN PHÍM */}
-            <div className="bg-[#10141d] border border-gray-800/80 rounded-3xl p-5 shadow-xl flex-1 flex flex-col justify-between">
+            <div className="bg-[#10141d] border border-gray-800/80 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl flex-1 flex flex-col justify-between">
               <h2 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-2 mb-3">
                 <Clock className="w-4 h-4 text-orange-400" />
                 <span>LOG NHẤN PHÍM</span>
               </h2>
 
-              <div className="bg-[#0b0e14] border border-gray-800/80 rounded-2xl p-3 flex-1 min-h-[150px] max-h-[200px] overflow-y-auto">
+              <div className="bg-[#0b0e14] border border-gray-800/80 rounded-2xl p-3 flex-1 min-h-[140px] max-h-[220px] overflow-y-auto">
                 {keyLog.length === 0 ? (
-                  <div className="h-full min-h-[130px] flex flex-col items-center justify-center text-gray-500 text-xs font-medium text-center">
-                    <span>Hãy gõ phím bất kỳ để kiểm tra log...</span>
+                  <div className="h-full min-h-[120px] flex flex-col items-center justify-center text-gray-500 text-xs font-medium text-center">
+                    <span>Hãy gõ phím bất kỳ hoặc chạm vào phím để kiểm tra log...</span>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-6 gap-1.5">
+                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 xl:grid-cols-6 gap-1.5">
                     {keyLog.map((log) => {
                       let badgeStyle = "bg-[#18202d] text-gray-200 border border-gray-700/60";
                       if (log.type === "mouse") {

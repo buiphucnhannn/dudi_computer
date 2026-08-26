@@ -363,6 +363,12 @@ class AuthService {
         throw new ApiError(401, "Refresh Token không hợp lệ");
       }
 
+      if (user.status === "banned") {
+        user.refreshToken = undefined;
+        await user.save({ validateBeforeSave: false });
+        throw new ApiError(403, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ ban quản trị.");
+      }
+
       if (incomingRefreshToken !== user.refreshToken) {
         throw new ApiError(
           401,
@@ -375,6 +381,7 @@ class AuthService {
 
       return { accessToken, refreshToken: newRefreshToken };
     } catch (error) {
+      if (error instanceof ApiError) throw error;
       throw new ApiError(401, error?.message || "Refresh Token không hợp lệ");
     }
   }

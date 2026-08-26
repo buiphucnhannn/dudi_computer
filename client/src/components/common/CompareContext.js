@@ -62,26 +62,23 @@ export const CompareProvider = ({ children }) => {
     } catch (_) {}
   };
 
+  const getProductIdentifiers = (val) => {
+    if (!val) return [];
+    if (typeof val === "string" || typeof val === "number") {
+      return [String(val).trim()];
+    }
+    const ids = [];
+    if (val._id) ids.push(String(val._id).trim());
+    if (val.id) ids.push(String(val.id).trim());
+    if (val.slug) ids.push(String(val.slug).trim());
+    return ids;
+  };
+
   const isSameProduct = (item, target) => {
     if (!item || !target) return false;
-    if (typeof target === "object") {
-      const targetSlug = target.slug;
-      const targetId = target._id || target.id;
-      const itemSlug = item.slug;
-      const itemId = item._id || item.id;
-      return Boolean(
-        (targetSlug && itemSlug && targetSlug === itemSlug) ||
-        (targetId && itemId && String(targetId) === String(itemId)) ||
-        (targetSlug && itemId && targetSlug === String(itemId)) ||
-        (targetId && itemSlug && String(targetId) === itemSlug)
-      );
-    }
-    const targetStr = String(target);
-    return Boolean(
-      (item.slug && item.slug === targetStr) ||
-      (item._id && String(item._id) === targetStr) ||
-      (item.id && String(item.id) === targetStr)
-    );
+    const itemIds = getProductIdentifiers(item);
+    const targetIds = getProductIdentifiers(target);
+    return itemIds.some((id) => targetIds.includes(id));
   };
 
   const getProductId = (product) => {
@@ -90,51 +87,65 @@ export const CompareProvider = ({ children }) => {
 
   const addToCompare = useCallback(
     (product) => {
-      const exists = compareItems.some((item) => isSameProduct(item, product));
+      setCompareItems((prev) => {
+        const exists = prev.some((item) => isSameProduct(item, product));
 
-      if (exists) {
-        const filtered = compareItems.filter((item) => !isSameProduct(item, product));
-        saveItems(filtered);
-        return;
-      }
-
-      // Kiểm tra chỉ so sánh các sản phẩm CÙNG LOẠI
-      if (compareItems.length > 0) {
-        const currentType = detectProductType(compareItems[0]);
-        const newType = detectProductType(product);
-
-        if (currentType !== newType) {
-          const currentLabel = getProductTypeLabel(currentType);
-          const newLabel = getProductTypeLabel(newType);
-          toast?.showToast?.(
-            `Chỉ có thể so sánh sản phẩm cùng loại (${currentLabel}). Vui lòng xóa danh sách hoặc chọn ${currentLabel}.`,
-            "warning"
-          );
-          return;
+        if (exists) {
+          const filtered = prev.filter((item) => !isSameProduct(item, product));
+          try {
+            localStorage.setItem("zcomputer_compare_products", JSON.stringify(filtered));
+          } catch (_) {}
+          return filtered;
         }
-      }
 
-      if (compareItems.length >= 3) {
-        toast?.showToast?.("Chỉ có thể so sánh tối đa 3 sản phẩm cùng lúc", "warning");
-        return;
-      }
+        // Kiểm tra chỉ so sánh các sản phẩm CÙNG LOẠI
+        if (prev.length > 0) {
+          const currentType = detectProductType(prev[0]);
+          const newType = detectProductType(product);
 
-      const updated = [...compareItems, product];
-      saveItems(updated);
+          if (currentType !== newType) {
+            const currentLabel = getProductTypeLabel(currentType);
+            toast?.showToast?.(
+              `Chỉ có thể so sánh sản phẩm cùng loại (${currentLabel}). Vui lòng xóa danh sách hoặc chọn ${currentLabel}.`,
+              "warning"
+            );
+            return prev;
+          }
+        }
+
+        if (prev.length >= 3) {
+          toast?.showToast?.("Chỉ có thể so sánh tối đa 3 sản phẩm cùng lúc", "warning");
+          return prev;
+        }
+
+        const updated = [...prev, product];
+        try {
+          localStorage.setItem("zcomputer_compare_products", JSON.stringify(updated));
+        } catch (_) {}
+        return updated;
+      });
     },
-    [compareItems, toast]
+    [toast]
   );
 
   const removeFromCompare = useCallback(
     (productOrId) => {
-      const filtered = compareItems.filter((item) => !isSameProduct(item, productOrId));
-      saveItems(filtered);
+      setCompareItems((prev) => {
+        const filtered = prev.filter((item) => !isSameProduct(item, productOrId));
+        try {
+          localStorage.setItem("zcomputer_compare_products", JSON.stringify(filtered));
+        } catch (_) {}
+        return filtered;
+      });
     },
-    [compareItems]
+    []
   );
 
   const clearCompare = useCallback(() => {
-    saveItems([]);
+    setCompareItems([]);
+    try {
+      localStorage.setItem("zcomputer_compare_products", JSON.stringify([]));
+    } catch (_) {}
   }, []);
 
   const isComparing = useCallback(
@@ -150,6 +161,7 @@ export const CompareProvider = ({ children }) => {
       return;
     }
     const slugs = compareItems
+      .slice(0, 3)
       .map((item) => getProductId(item))
       .filter(Boolean)
       .join(",");

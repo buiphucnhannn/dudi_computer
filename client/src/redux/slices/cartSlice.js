@@ -142,25 +142,50 @@ export const cartSlice = createSlice({
       state.items = getLocalCart();
     },
 
-    // Thêm sản phẩm vào giỏ (Synchronous reducer)
+    // Thêm sản phẩm vào giỏ (Tự động +1 số lượng nếu sản phẩm đã tồn tại)
     addToCart: (state, action) => {
       const { product, quantity = 1 } = action.payload;
-      const existingIndex = state.items.findIndex((i) => i._id === product._id);
+      if (!product) return;
+
+      // Không cho phép thêm sản phẩm hết hàng (stock = 0)
+      if (typeof product.stock === "number" && product.stock <= 0) {
+        return;
+      }
+
+      const prodId = product._id || product.id;
+      const maxAvailableStock = typeof product.stock === "number" ? Math.max(1, product.stock) : 99;
+
+      const existingIndex = state.items.findIndex(
+        (i) =>
+          (prodId && (i._id === prodId || i.id === prodId)) ||
+          (product.slug && i.slug === product.slug)
+      );
 
       if (existingIndex > -1) {
+        const itemStock = state.items[existingIndex].stock !== undefined ? state.items[existingIndex].stock : maxAvailableStock;
         state.items[existingIndex].quantity = Math.min(
-          99,
-          state.items[existingIndex].quantity + quantity
+          itemStock,
+          Number(state.items[existingIndex].quantity || 1) + Number(quantity)
         );
+        if (product.stock !== undefined) {
+          state.items[existingIndex].stock = product.stock;
+        }
       } else {
         state.items.push({
-          _id: product._id,
+          _id: product._id || product.id,
           name: product.name,
           slug: product.slug,
           price: product.price,
-          originalPrice: product.originalPrice,
-          thumbnail: product.thumbnail || product.images?.[0] || "",
-          quantity: Math.min(99, Math.max(1, quantity)),
+          originalPrice: product.originalPrice || product.oldPrice,
+          stock: product.stock !== undefined ? Number(product.stock) : maxAvailableStock,
+          thumbnail:
+            product.thumbnail ||
+            product.image ||
+            (Array.isArray(product.images)
+              ? product.images[0]?.url || product.images[0]
+              : "") ||
+            "",
+          quantity: Math.min(maxAvailableStock, Math.max(1, Number(quantity))),
         });
       }
 
@@ -170,10 +195,15 @@ export const cartSlice = createSlice({
     // Cập nhật số lượng
     updateQuantity: (state, action) => {
       const { productId, quantity } = action.payload;
+      const targetId = String(productId);
       if (quantity <= 0) {
-        state.items = state.items.filter((item) => item._id !== productId);
+        state.items = state.items.filter(
+          (item) => String(item._id || item.id || item.slug) !== targetId
+        );
       } else {
-        const item = state.items.find((item) => item._id === productId);
+        const item = state.items.find(
+          (item) => String(item._id || item.id || item.slug) === targetId
+        );
         if (item) {
           item.quantity = Math.min(99, quantity);
         }
@@ -183,8 +213,10 @@ export const cartSlice = createSlice({
 
     // Xóa 1 sản phẩm
     removeFromCart: (state, action) => {
-      const productId = action.payload;
-      state.items = state.items.filter((item) => item._id !== productId);
+      const productId = String(action.payload);
+      state.items = state.items.filter(
+        (item) => String(item._id || item.id || item.slug) !== productId
+      );
       saveCartToStorage(state.items);
     },
 

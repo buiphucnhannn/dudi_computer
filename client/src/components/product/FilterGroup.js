@@ -13,17 +13,37 @@ export default function FilterGroup({
 
       <div className="space-y-2.5">
         {items.map((item) => {
-          const label = typeof item === "string" ? item : item.label;
+          const rawLabel = typeof item === "string" ? item : item.label;
           const value = typeof item === "string" ? item : item.value;
-          const count = typeof item === "object" && typeof item.count === "number" ? item.count : undefined;
+          const count =
+            typeof item === "object" && typeof item.count === "number"
+              ? item.count
+              : undefined;
+          const isChild =
+            typeof item === "object" &&
+            Boolean(
+              item.isChild ||
+                item.parent ||
+                (typeof rawLabel === "string" &&
+                  (rawLabel.startsWith("—") || rawLabel.startsWith("--") || rawLabel.startsWith("- ")))
+            );
+          const isParent = typeof item === "object" && Boolean(item.isParent);
+
+          // Loại bỏ hoàn toàn các dấu gạch — hoặc -- ở đầu tên nhãn
+          const label =
+            typeof rawLabel === "string"
+              ? rawLabel.replace(/^[—\-\s]+/, "").trim()
+              : rawLabel;
 
           const checked =
-            type === "single" ? selected === value : selected.includes(value);
+            type === "single" ? selected === value : (selected || []).includes(value);
 
           return (
             <label
               key={value}
-              className="flex cursor-pointer items-center justify-between group py-0.5 select-none"
+              className={`flex cursor-pointer items-center justify-between group py-0.5 select-none transition-all ${
+                isChild ? "pl-4 sm:pl-5" : ""
+              }`}
             >
               <div className="flex items-center gap-2.5 min-w-0 pr-2">
                 <input
@@ -35,7 +55,11 @@ export default function FilterGroup({
 
                 <span
                   className={`text-xs sm:text-sm truncate transition-colors ${
-                    checked ? "font-bold text-[#dc2626]" : "text-gray-700 group-hover:text-gray-900"
+                    checked
+                      ? "font-bold text-[#dc2626]"
+                      : isParent
+                      ? "font-bold text-gray-900 group-hover:text-[#dc2626]"
+                      : "font-normal text-gray-700 group-hover:text-gray-900"
                   }`}
                 >
                   {label}

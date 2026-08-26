@@ -121,30 +121,33 @@ export default function FeaturedProductsSection({ products = [], categories = []
   const handleToggleCart = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
-    const isCart = cartItems.some(
-      (i) => (i._id || i.id || i.slug) === (item._id || item.id || item.slug)
-    );
-    const prodId = item._id || item.id || item.slug;
-    if (isCart) {
-      dispatch(removeFromCartAsync(prodId));
+    if (typeof item.stock === "number" && item.stock <= 0) {
       showToast({
-        title: "Đã xóa khỏi giỏ",
-        message: `Đã bỏ "${item.name}" khỏi giỏ hàng`,
-        type: "info",
+        title: "Sản phẩm đã hết hàng",
+        message: `Sản phẩm "${item.name}" hiện đã hết hàng trong kho.`,
+        type: "warning",
       });
-    } else {
-      dispatch(addToCartAsync({ product: item, quantity: 1 }));
-      showToast({
-        title: "Đã thêm vào giỏ hàng",
-        message: `Đã thêm "${item.name}" vào giỏ hàng thành công!`,
-        type: "success",
-      });
+      return;
     }
+    dispatch(addToCartAsync({ product: item, quantity: 1 }));
+    showToast({
+      title: "Đã thêm vào giỏ hàng",
+      message: `Đã thêm "${item.name}" vào giỏ hàng (+1)!`,
+      type: "success",
+    });
   };
 
   const handleBuyNow = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
+    if (typeof item.stock === "number" && item.stock <= 0) {
+      showToast({
+        title: "Sản phẩm đã hết hàng",
+        message: `Sản phẩm "${item.name}" hiện đã hết hàng trong kho.`,
+        type: "warning",
+      });
+      return;
+    }
     setBuyModalItem(item);
   };
 
@@ -219,6 +222,7 @@ export default function FeaturedProductsSection({ products = [], categories = []
               showHotSaleBadge,
             } = getProductDiscountInfo(item);
 
+            const isOutOfStock = typeof item.stock === "number" && item.stock <= 0;
             const imgSrc = getProductImage(item);
             const isFav = cartItems.some(
               (i) => (i._id || i.id) === (item._id || item.id)
@@ -238,10 +242,16 @@ export default function FeaturedProductsSection({ products = [], categories = []
                     href={detailHref}
                     className="block relative aspect-square w-full rounded-xl overflow-hidden border border-slate-100 bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 mb-3 group/img p-3.5 flex items-center justify-center"
                   >
-                    {hasDiscount && (
-                      <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-[#eb1c24] to-[#ff4757] text-white text-[11px] font-black px-2 py-0.5 rounded-lg shadow-sm">
-                        Giảm {discountPercent}%
+                    {isOutOfStock ? (
+                      <div className="absolute top-2 left-2 z-20 bg-slate-900/90 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-lg shadow-sm border border-slate-700">
+                        Hết hàng
                       </div>
+                    ) : (
+                      hasDiscount && (
+                        <div className="absolute top-2 left-2 z-20 bg-gradient-to-r from-[#eb1c24] to-[#ff4757] text-white text-[11px] font-black px-2 py-0.5 rounded-lg shadow-sm">
+                          Giảm {discountPercent}%
+                        </div>
+                      )
                     )}
 
                     {showHotSaleBadge && (
@@ -296,7 +306,7 @@ export default function FeaturedProductsSection({ products = [], categories = []
                         <Scale className="w-4 h-4" />
                       </button>
 
-                      {mounted && !isAdmin && (
+                      {mounted && !isAdmin && !isOutOfStock && (
                         <button
                           onClick={(e) => handleToggleCart(e, item)}
                           className={`p-1.5 rounded-full transition-all cursor-pointer ${isFav
@@ -361,13 +371,17 @@ export default function FeaturedProductsSection({ products = [], categories = []
                     <Eye className="w-3.5 h-3.5" />
                     <span>{item.views || 68} lượt xem</span>
                   </span>
-                  <button
-                    type="button"
-                    onClick={(e) => handleBuyNow(e, item)}
-                    className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
-                  >
-                    + Mua ngay
-                  </button>
+                  {isOutOfStock ? (
+                    <span className="text-slate-400 font-semibold">Tạm hết hàng</span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => handleBuyNow(e, item)}
+                      className="text-[#eb1c24] font-bold hover:underline cursor-pointer"
+                    >
+                      + Mua ngay
+                    </button>
+                  )}
                 </div>
               </div>
             );

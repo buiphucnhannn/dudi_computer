@@ -376,8 +376,20 @@ export default function Header() {
     });
   }, [dbCategories]);
 
-  // Polling unread notifications for logged in user
+  // Polling unread notifications for logged in user & lắng nghe sự kiện tài khoản bị khóa
   useEffect(() => {
+    const handleBannedEvent = (e) => {
+      dispatch(logoutUser());
+      dispatch(resetCartOnLogout());
+      showToast({
+        title: "Tài khoản bị khóa",
+        message: e.detail?.message || "Tài khoản của bạn đã bị khóa bởi ban quản trị.",
+        type: "error",
+      });
+    };
+
+    window.addEventListener("account-banned", handleBannedEvent);
+
     if (mounted && isAuthenticated) {
       const fetchUnread = async () => {
         try {
@@ -389,11 +401,17 @@ export default function Header() {
       };
       fetchUnread();
       const interval = setInterval(fetchUnread, 15000);
-      return () => clearInterval(interval);
+      return () => {
+        window.removeEventListener("account-banned", handleBannedEvent);
+        clearInterval(interval);
+      };
     } else {
       setUserUnreadCount(0);
+      return () => {
+        window.removeEventListener("account-banned", handleBannedEvent);
+      };
     }
-  }, [mounted, isAuthenticated]);
+  }, [mounted, isAuthenticated, dispatch, showToast]);
 
   // Instant live search results
   const searchResults = useMemo(() => {

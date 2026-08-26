@@ -149,6 +149,23 @@ class OrderService {
       }
 
       if (targetProduct) {
+        const currentStock = Number(targetProduct.stock || 0);
+
+        // Kiểm tra tồn kho: Nếu tồn kho = 0 hoặc không đủ số lượng đặt mua
+        if (currentStock <= 0) {
+          throw new ApiError(
+            400,
+            `Sản phẩm "${targetProduct.name}" hiện đã hết hàng (Tồn kho: 0). Vui lòng chọn sản phẩm khác.`
+          );
+        }
+
+        if (quantity > currentStock) {
+          throw new ApiError(
+            400,
+            `Sản phẩm "${targetProduct.name}" chỉ còn ${currentStock} sản phẩm trong kho (Bạn yêu cầu: ${quantity}). Vui lòng giảm số lượng đặt mua.`
+          );
+        }
+
         // Lấy giá bán thực tế từ Database (ưu tiên discountPrice nếu có giá trị)
         const livePrice =
           targetProduct.discountPrice && targetProduct.discountPrice > 0
@@ -172,7 +189,7 @@ class OrderService {
         });
 
         // Cập nhật giảm tồn kho và tăng số lượng bán
-        targetProduct.stock = Math.max(0, (targetProduct.stock || 0) - quantity);
+        targetProduct.stock = Math.max(0, currentStock - quantity);
         targetProduct.soldCount = (targetProduct.soldCount || 0) + quantity;
         await targetProduct.save();
       } else {

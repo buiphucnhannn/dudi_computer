@@ -21,39 +21,21 @@ import {
 } from "lucide-react";
 
 import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
-import ProductComparisonModal from "./ProductComparisonModal";
-import ProductComparisonBar from "./ProductComparisonBar";
-
-import { productAPI } from "@/lib/api";
+import { useCompare } from "@/components/common/CompareContext";
 import { parseProductSpecs } from "@/lib/specParser";
 
 const ProductInfo = ({ product }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { showToast } = useToast();
+  const { compareItems, addToCompare, isComparing } = useCompare();
   const cartItems = useSelector(selectCartItems) || [];
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const isAdmin = useSelector(selectIsAdmin);
-  const [allProducts, setAllProducts] = useState([]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
-
-  // Tải danh sách sản phẩm từ API
-  useEffect(() => {
-    productAPI.getAll({ limit: 100 })
-      .then((res) => {
-        if (res.data?.data?.products) {
-          setAllProducts(res.data.data.products);
-        } else if (Array.isArray(res.data?.data)) {
-          setAllProducts(res.data.data);
-        }
-      })
-      .catch((err) => {
-        console.error("Lỗi khi tải sản phẩm so sánh:", err);
-      });
   }, []);
 
   const isCart = cartItems.some(
@@ -63,24 +45,24 @@ const ProductInfo = ({ product }) => {
       (product?.slug && item.slug === product.slug)
   );
 
+  const isOutOfStock = typeof product?.stock === "number" && product.stock <= 0;
+
   const handleToggleCart = () => {
     if (!product) return;
-    const productId = product._id || product.id || product.slug;
-    if (isCart) {
-      dispatch(removeFromCartAsync(productId));
+    if (isOutOfStock) {
       showToast({
-        title: "Đã xóa khỏi giỏ",
-        message: `Đã bỏ "${product.name}" khỏi giỏ hàng`,
-        type: "info",
+        title: "Sản phẩm đã hết hàng",
+        message: `Sản phẩm "${product.name}" hiện đã hết hàng trong kho.`,
+        type: "warning",
       });
-    } else {
-      dispatch(addToCartAsync({ product, quantity: 1 }));
-      showToast({
-        title: "Đã thêm vào giỏ hàng",
-        message: `Đã thêm "${product.name}" vào giỏ hàng thành công!`,
-        type: "success",
-      });
+      return;
     }
+    dispatch(addToCartAsync({ product, quantity: 1 }));
+    showToast({
+      title: "Đã thêm vào giỏ hàng",
+      message: `Đã thêm "${product.name}" vào giỏ hàng (+1)!`,
+      type: "success",
+    });
   };
 
   // =====================================================
@@ -88,12 +70,6 @@ const ProductInfo = ({ product }) => {
   // =====================================================
 
   const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
-
-  const [isComparisonModalOpen, setIsComparisonModalOpen] =
-    useState(false);
-
-  // Danh sách sản phẩm đang so sánh
-  const [comparisonProducts, setComparisonProducts] = useState([]);
 
   // =====================================================
   // SPECIFICATIONS & HIGHLIGHTS
@@ -126,144 +102,12 @@ const ProductInfo = ({ product }) => {
       : 0;
 
   // =====================================================
-  // HELPER
-  // =====================================================
-
-  const getProductId = (item) => {
-    return (
-      item?.slug ||
-      item?._id ||
-      item?.id
-    );
-  };
-
-  // =====================================================
   // THÊM SẢN PHẨM HIỆN TẠI VÀO SO SÁNH
   // =====================================================
 
   const handleOpenComparison = () => {
     if (!product) return;
-
-    const currentProductId =
-      getProductId(product);
-
-    const exists = comparisonProducts.some(
-      (item) =>
-        getProductId(item) === currentProductId
-    );
-
-    if (!exists) {
-      setComparisonProducts([product]);
-    }
-  };
-
-  // =====================================================
-  // MỞ POPUP THÊM SẢN PHẨM
-  // =====================================================
-
-  const handleOpenAddProductModal = () => {
-    if (comparisonProducts.length >= 3) {
-      return;
-    }
-
-    setIsComparisonModalOpen(true);
-  };
-
-  // =====================================================
-  // THÊM SẢN PHẨM VÀO BAR
-  // =====================================================
-
-  const handleAddComparisonProduct = (
-    selectedProduct
-  ) => {
-    if (!selectedProduct) return;
-
-    const selectedId =
-      getProductId(selectedProduct);
-
-    if (!selectedId) return;
-
-    // Không vượt quá 3 sản phẩm
-    if (comparisonProducts.length >= 3) {
-      return;
-    }
-
-    // Không thêm trùng
-    const alreadyExists =
-      comparisonProducts.some(
-        (item) =>
-          getProductId(item) === selectedId
-      );
-
-    if (alreadyExists) {
-      return;
-    }
-
-    setComparisonProducts((prev) => [
-      ...prev,
-      selectedProduct,
-    ]);
-
-    // Đóng popup
-    setIsComparisonModalOpen(false);
-  };
-
-  // =====================================================
-  // XÓA 1 SẢN PHẨM
-  // =====================================================
-
-  const handleRemoveComparison = (
-    productId
-  ) => {
-    setComparisonProducts((prev) =>
-      prev.filter(
-        (item) =>
-          getProductId(item) !== productId
-      )
-    );
-  };
-
-  // =====================================================
-  // XÓA TẤT CẢ
-  // =====================================================
-
-  const handleClearComparison = () => {
-    setComparisonProducts([]);
-  };
-
-  // =====================================================
-  // SO SÁNH NGAY
-  // =====================================================
-
-  const handleCompare = () => {
-    if (comparisonProducts.length < 2) {
-      return;
-    }
-
-    /*
-     * Lấy slug/id của các sản phẩm.
-     *
-     * Ưu tiên slug vì trang compare có thể
-     * dùng slug để gọi productAPI.getBySlug().
-     */
-    const productIds = comparisonProducts
-      .map((item) => getProductId(item))
-      .filter(Boolean);
-
-    if (productIds.length < 2) {
-      return;
-    }
-
-    /*
-     * Ví dụ:
-     *
-     * /compare?products=pc-gaming-1,pc-gaming-2
-     */
-    const query = productIds
-      .map((id) => encodeURIComponent(id))
-      .join(",");
-
-    router.push(`/compare?products=${query}`);
+    addToCompare(product);
   };
 
   const handleShare = async () => {
@@ -372,10 +216,11 @@ const ProductInfo = ({ product }) => {
 
           <span>
             Tình trạng:{" "}
-            <strong className="font-bold text-emerald-600">
-              {product?.status ===
-                "out_of_stock"
+            <strong className={`font-bold ${isOutOfStock ? "text-red-600" : "text-emerald-600"}`}>
+              {isOutOfStock
                 ? "Hết hàng"
+                : typeof product?.stock === "number"
+                ? `Còn hàng (Kho: ${product.stock})`
                 : "Còn hàng"}
             </strong>
           </span>
@@ -518,8 +363,8 @@ const ProductInfo = ({ product }) => {
               "
             >
               <Scale size={17} />
-              {comparisonProducts.length > 0
-                ? `So sánh cấu hình (${comparisonProducts.length}/3)`
+              {compareItems.length > 0
+                ? `So sánh cấu hình (${compareItems.length}/3)`
                 : "So sánh cấu hình"}
             </button>
           </div>
@@ -531,75 +376,71 @@ const ProductInfo = ({ product }) => {
               <button
                 type="button"
                 onClick={handleOpenComparison}
-                className="
-                  flex h-11 flex-1 items-center
+                className={`
+                  flex h-11 items-center
                   justify-center gap-2 rounded-lg
                   border-2 border-red-600
                   px-3 text-xs font-bold uppercase
                   text-red-600 transition
                   hover:bg-red-50
                   sm:text-sm cursor-pointer
-                "
+                  ${isOutOfStock ? "w-full" : "flex-1"}
+                `}
               >
                 <Scale size={17} />
-                {comparisonProducts.length > 0
-                  ? `So sánh (${comparisonProducts.length}/3)`
+                {compareItems.length > 0
+                  ? `So sánh (${compareItems.length}/3)`
                   : "So sánh"}
               </button>
 
-              {/* CART TOGGLE */}
-              <button
-                type="button"
-                onClick={handleToggleCart}
-                className={`
-                  flex h-11 flex-1 items-center
-                  justify-center gap-2 rounded-lg
-                  border-2 border-red-600
-                  px-3 text-xs font-bold uppercase transition
-                  cursor-pointer sm:text-sm
-                  ${isCart
-                    ? "bg-red-600 text-white shadow-sm hover:bg-red-700"
-                    : "bg-transparent text-red-600 hover:bg-red-50"
-                  }
-                `}
-              >
-                <ShoppingCart
-                  size={17}
-                  className={isCart ? "text-white" : "text-red-600"}
-                />
-                {isCart ? "Đã trong giỏ" : "Thêm vào giỏ"}
-              </button>
+              {/* ADD TO CART - CHỈ HIỂN THỊ KHI CÒN HÀNG */}
+              {!isOutOfStock && (
+                <button
+                  type="button"
+                  onClick={handleToggleCart}
+                  className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg border-2 border-red-600 bg-transparent text-red-600 hover:bg-red-50 px-3 text-xs font-bold uppercase transition cursor-pointer sm:text-sm active:scale-95"
+                >
+                  <ShoppingCart size={17} className="text-red-600" />
+                  <span>Thêm vào giỏ</span>
+                </button>
+              )}
             </div>
 
-            {/* BUY */}
-            <button
-              type="button"
-              onClick={() => {
-                if (!isAuthenticated) {
-                  showToast({
-                    title: "Yêu cầu đăng nhập",
-                    message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
-                    type: "warning",
-                  });
-                  const currentUrl = typeof window !== "undefined" ? window.location.pathname : "/";
-                  router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
-                  return;
-                }
-                setIsBuyModalOpen(true);
-              }}
-              className="
-                flex h-12 w-full items-center
-                justify-center gap-2 rounded-lg
-                bg-red-600 px-4
-                text-base font-bold uppercase
-                text-white shadow-sm transition
-                hover:bg-red-700
-                active:scale-[0.99] cursor-pointer
-              "
-            >
-              <ShoppingCart size={20} />
-              Mua ngay
-            </button>
+            {/* BUY - CHỈ HIỂN THỊ KHI CÒN HÀNG / HIỂN THỊ THÔNG BÁO KHI HẾT HÀNG */}
+            {isOutOfStock ? (
+              <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-100 py-3.5 px-4 text-slate-600 font-bold text-sm select-none">
+                <span>Sản phẩm này hiện đang tạm hết hàng</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    showToast({
+                      title: "Yêu cầu đăng nhập",
+                      message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
+                      type: "warning",
+                    });
+                    const currentUrl = typeof window !== "undefined" ? window.location.pathname : "/";
+                    router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
+                    return;
+                  }
+                  setIsBuyModalOpen(true);
+                }}
+                className="
+                  flex h-12 w-full items-center
+                  justify-center gap-2 rounded-lg
+                  bg-red-600 px-4
+                  text-base font-bold uppercase
+                  text-white shadow-sm transition
+                  hover:bg-red-700
+                  active:scale-[0.99] cursor-pointer
+                "
+              >
+                <ShoppingCart size={20} />
+                Mua ngay
+              </button>
+            )}
           </>
         )}
       </div>
@@ -609,36 +450,6 @@ const ProductInfo = ({ product }) => {
         isOpen={isBuyModalOpen}
         onClose={() => setIsBuyModalOpen(false)}
         prefilledProduct={product}
-      />
-
-      {/* ADD PRODUCT MODAL */}
-      <ProductComparisonModal
-        isOpen={isComparisonModalOpen}
-        onClose={() =>
-          setIsComparisonModalOpen(false)
-        }
-        products={allProducts}
-        selectedProducts={comparisonProducts}
-        currentProduct={product}
-        onAddProduct={
-          handleAddComparisonProduct
-        }
-      />
-
-      {/* COMPARISON BAR */}
-      <ProductComparisonBar
-        products={comparisonProducts}
-        maxProducts={3}
-        onAddProduct={
-          handleOpenAddProductModal
-        }
-        onRemove={
-          handleRemoveComparison
-        }
-        onClear={
-          handleClearComparison
-        }
-        onCompare={handleCompare}
       />
     </>
   );

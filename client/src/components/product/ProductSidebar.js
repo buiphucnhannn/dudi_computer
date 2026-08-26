@@ -209,13 +209,13 @@ function CategoryTreeFilter({
 }
 
 export default function ProductSidebar({
-  categories = [],
   filters,
   products = [],
+  categories = [],
   onFilterChange,
   isMobileOpen = false,
-  onCloseMobile = () => {},
-  onClearFilters = () => {},
+  onCloseMobile = () => { },
+  onClearFilters = () => { },
 }) {
   // Lock body scroll when mobile drawer is open
   useEffect(() => {

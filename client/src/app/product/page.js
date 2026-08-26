@@ -2,7 +2,6 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 
 import { PackageSearch } from "lucide-react";
 import ProductCard from "@/components/product/ProductCard";
@@ -93,7 +92,7 @@ function ProductsContent() {
     const fetchData = async () => {
       try {
         const [prodRes, catRes] = await Promise.allSettled([
-          productAPI.getAll({ limit: 500 }),
+          productAPI.getAll({ limit: 1000 }),
           categoryAPI.getAll(),
         ]);
 
@@ -259,7 +258,7 @@ function ProductsContent() {
     }
 
     return result;
-  }, [products, search, filters, sort]);
+  }, [products, search, filters, sort, categories]);
 
   // =========================
   // PAGINATION
@@ -285,10 +284,6 @@ function ProductsContent() {
   };
 
   const handleFilterChange = (newFilters) => {
-    // Khi chọn danh mục mới trên Sidebar hoặc chuyển đổi danh mục, tự động làm mới thanh tìm kiếm
-    if (newFilters.category !== filters.category) {
-      setSearch("");
-    }
     setFilters(newFilters);
     setCurrentPage(1);
   };
@@ -370,9 +365,9 @@ function ProductsContent() {
         <div className="flex gap-6">
           {/* SIDEBAR (Desktop & Mobile Drawer) */}
           <ProductSidebar
-            categories={categories}
             filters={filters}
             products={products}
+            categories={categories}
             onFilterChange={handleFilterChange}
             isMobileOpen={isMobileFilterOpen}
             onCloseMobile={() => setIsMobileFilterOpen(false)}
@@ -393,8 +388,8 @@ function ProductsContent() {
 
             <ActiveFilters
               filters={filters}
-              search={search}
               categories={categories}
+              search={search}
               onFilterChange={handleFilterChange}
               onClearSearch={() => handleSearch("")}
               onClear={handleClearFilters}
