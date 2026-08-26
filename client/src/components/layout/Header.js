@@ -37,6 +37,8 @@ import {
   LayoutDashboard,
   PackageCheck,
   Bell,
+  FolderTree,
+  Layers,
 } from "lucide-react";
 import {
   fetchCloudWishlist,
