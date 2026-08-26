@@ -11,6 +11,7 @@ import {
   updateProfile,
   forgotPassword,
   resetPassword,
+  getSessionStream,
 } from "../controllers/authController.js";
 import { verifyJWT } from "../middlewares/authMiddleware.js";
 import {
@@ -33,5 +34,6 @@ router.post("/refresh-token", refreshAccessToken);
 router.post("/logout", verifyJWT, logoutUser);
 router.get("/profile", verifyJWT, getProfile);
 router.put("/profile", verifyJWT, updateProfile);
+router.get("/session-stream", verifyJWT, getSessionStream);
 
 export default router;

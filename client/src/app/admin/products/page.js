@@ -11,6 +11,7 @@ import ProductToolbar from "@/components/admin/products/ProductToolbar";
 import ProductGrid from "@/components/admin/products/ProductGrid";
 import ProductPagination from "@/components/admin/products/ProductPagination";
 import ProductModal from "@/components/admin/products/ProductModal";
+import { useToast } from "@/components/common/ToastContext";
 
 function AdminProductsContent() {
   // Always start with empty list and loading state so stale/mock data is NEVER rendered on reload
@@ -23,15 +24,16 @@ function AdminProductsContent() {
     brand: "",
   });
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(searchParams?.get("search") || "");
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 1500);
   const [sort, setSort] = useState("newest");
   const [viewMode, setViewMode] = useState("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 8;
 
   useEffect(() => {
-    const q = searchParams?.get("search");
-    if (q !== null && q !== undefined) {
+    const q = searchParams.get("q");
+    if (q) {
       setSearchQuery(q);
     }
   }, [searchParams]);
@@ -40,12 +42,7 @@ function AdminProductsContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [deleteConfirmProduct, setDeleteConfirmProduct] = useState(null);
-  const [toastMessage, setToastMessage] = useState("");
-
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(""), 3500);
-  };
+  const { showToast } = useToast();
 
   // Dedicated function to fetch fresh data directly from Database
   const fetchProductsFromDatabase = useCallback(async (showSkeleton = true) => {
@@ -122,8 +119,6 @@ function AdminProductsContent() {
       outOfStock: products.filter((p) => p.stock === 0 || p.status === "out_of_stock").length,
     };
   }, [products]);
-
-  const debouncedSearch = useDebounce(searchQuery, 1500);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -252,7 +247,11 @@ function AdminProductsContent() {
       await fetchProductsFromDatabase(false);
     } catch (err) {
       console.error("Lỗi khi lưu sản phẩm vào Database:", err);
-      showToast("Có lỗi xảy ra khi lưu vào Database. Vui lòng thử lại!");
+      showToast(
+        err.response?.data?.message ||
+          `Không thể lưu thông tin sản phẩm "${productData.name}". Vui lòng kiểm tra lại dữ liệu nhập.`,
+        "error"
+      );
     }
   };
 
@@ -266,7 +265,10 @@ function AdminProductsContent() {
       await fetchProductsFromDatabase(false);
     } catch (err) {
       console.error("Lỗi khi cập nhật tồn kho vào Database:", err);
-      showToast("Không thể cập nhật tồn kho trên Database!");
+      showToast(
+        err.response?.data?.message || "Không thể cập nhật số lượng tồn kho. Vui lòng thử lại sau giây lát.",
+        "error"
+      );
     }
   };
 
@@ -280,13 +282,16 @@ function AdminProductsContent() {
     try {
       // 1. Gửi lệnh xóa trong Database
       await productAPI.delete(targetId);
-      showToast(`Đã xóa sản phẩm "${prodName}" !`);
+      showToast(`Đã xóa sản phẩm "${prodName}" thành công!`);
 
       // 2. Fetch lại danh sách mới nhất từ Database
       await fetchProductsFromDatabase(false);
     } catch (err) {
       console.error("Lỗi khi xóa sản phẩm trong Database:", err);
-      showToast("Không thể xóa sản phẩm khỏi Database!");
+      showToast(
+        err.response?.data?.message || `Không thể xóa sản phẩm "${prodName}". Vui lòng kiểm tra lại.`,
+        "error"
+      );
     }
   };
 
@@ -318,14 +323,6 @@ function AdminProductsContent() {
 
   return (
     <div className="space-y-6 w-full">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-2xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-2xl animate-in slide-in-from-bottom-3 duration-300 border border-slate-700">
-          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
       {/* Page Header */}
       <ProductPageHeader
         onAddProduct={() => {

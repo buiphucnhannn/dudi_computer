@@ -32,6 +32,7 @@ import {
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { apiClient } from "@/lib/api";
 import { useDebounce } from "@/lib/useDebounce";
+import { useToast } from "@/components/common/ToastContext";
 
 const generateSlug = (text) => {
   return text
@@ -130,7 +131,7 @@ export default function AdminCategoriesAndBrandsPage() {
   // ==========================================
   // SHARED STATES
   // ==========================================
-  const [toast, setToast] = useState(null);
+  const { showToast: triggerSystemToast } = useToast();
   const [confirmState, setConfirmState] = useState({
     isOpen: false,
     title: "",
@@ -154,8 +155,12 @@ export default function AdminCategoriesAndBrandsPage() {
   }, [isCategoryModalOpen, isBrandModalOpen, savingCategory, savingBrand]);
 
   const showToast = (message, type = "success") => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
+    triggerSystemToast({
+      title: type === "error" ? "Thông báo lỗi" : "Thành công",
+      message: typeof message === "string" ? message : (message?.message || "Thao tác hoàn tất"),
+      type: type,
+      duration: 4000,
+    });
   };
 
   // --- FETCH DATA ---
@@ -270,22 +275,38 @@ export default function AdminCategoriesAndBrandsPage() {
   };
 
   const handleDeleteCategory = (id, name) => {
+    const directChildren = categories.filter(
+      (c) => (c.parent?._id || c.parent || "").toString() === id.toString()
+    );
+
+    // CHẶN xóa nếu danh mục cha vẫn còn danh mục con
+    if (directChildren.length > 0) {
+      const childNames = directChildren.map((c) => `"${c.name}"`).join(", ");
+      showToast(
+        `Không thể xóa danh mục "${name}" vì đang chứa ${directChildren.length} danh mục con (${childNames}). Vui lòng xóa hoặc chuyển các danh mục con sang nhóm khác trước!`,
+        "error"
+      );
+      return;
+    }
+
     setConfirmState({
       isOpen: true,
-      title: "Xóa danh mục sản phẩm?",
-      message: `Bạn có chắc muốn xóa danh mục "${name}"? Các sản phẩm thuộc danh mục này sẽ cần được gán lại.`,
-      confirmText: "Xóa danh mục",
+      title: `Xóa danh mục "${name}"?`,
+      message: `Bạn có chắc chắn muốn xóa danh mục "${name}"? Nếu danh mục đang chứa sản phẩm liên kết, hệ thống sẽ tự động chuyển sang trạng thái ẩn an toàn (xóa mềm).`,
+      confirmText: "Xác nhận xóa",
       type: "danger",
       loading: false,
       onConfirm: async () => {
         setConfirmState((prev) => ({ ...prev, loading: true }));
         try {
-          await apiClient.delete(`/categories/${id}`);
-          showToast("Đã xóa danh mục thành công!");
+          const res = await apiClient.delete(`/categories/${id}`);
+          const msg = res.data?.message || "Đã xử lý xóa danh mục thành công!";
+          showToast(msg, "success");
           setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
           fetchCategories();
         } catch (error) {
-          showToast(error.response?.data?.message || error.message || "Lỗi xóa danh mục", "error");
+          const errMsg = error.response?.data?.message || error.message || "Lỗi xóa danh mục";
+          showToast(errMsg, "error");
           setConfirmState((prev) => ({ ...prev, loading: false }));
         }
       },
@@ -351,23 +372,36 @@ export default function AdminCategoriesAndBrandsPage() {
     }
   };
 
-  const handleDeleteBrand = (id, name) => {
+  const handleDeleteBrand = (id, name, brand) => {
+    const pCount = brand?.productCount || 0;
+
+    // CHẶN xóa nếu thương hiệu vẫn còn sản phẩm
+    if (pCount > 0) {
+      showToast(
+        `Không thể xóa thương hiệu "${name}" vì đang có ${pCount} sản phẩm trong hệ thống. Vui lòng chuyển hoặc xóa các sản phẩm thuộc thương hiệu này trước!`,
+        "error"
+      );
+      return;
+    }
+
     setConfirmState({
       isOpen: true,
-      title: "Xóa thương hiệu / nhãn hàng?",
-      message: `Bạn có chắc muốn xóa thương hiệu "${name}" khỏi hệ thống?`,
-      confirmText: "Xóa thương hiệu",
+      title: `Xóa thương hiệu "${name}"?`,
+      message: `Bạn có chắc chắn muốn xóa vĩnh viễn thương hiệu "${name}" khỏi hệ thống?`,
+      confirmText: "Xác nhận xóa",
       type: "danger",
       loading: false,
       onConfirm: async () => {
         setConfirmState((prev) => ({ ...prev, loading: true }));
         try {
-          await apiClient.delete(`/brands/${id}`);
-          showToast("Đã xóa thương hiệu thành công!");
+          const res = await apiClient.delete(`/brands/${id}`);
+          const msg = res.data?.message || "Đã xóa vĩnh viễn thương hiệu thành công!";
+          showToast(msg, "success");
           setConfirmState((prev) => ({ ...prev, isOpen: false, loading: false }));
           fetchBrands();
         } catch (error) {
-          showToast(error.response?.data?.message || error.message || "Lỗi xóa thương hiệu", "error");
+          const errMsg = error.response?.data?.message || error.message || "Lỗi xóa thương hiệu";
+          showToast(errMsg, "error");
           setConfirmState((prev) => ({ ...prev, loading: false }));
         }
       },
@@ -450,24 +484,6 @@ export default function AdminCategoriesAndBrandsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Toast Alert */}
-      {toast && (
-        <div
-          className={`fixed top-6 right-6 z-70 flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-bold shadow-2xl animate-in slide-in-from-top-4 duration-200 ${
-            toast.type === "error"
-              ? "bg-red-600 text-white"
-              : "bg-emerald-600 text-white shadow-emerald-950/30"
-          }`}
-        >
-          {toast.type === "error" ? (
-            <AlertTriangle className="w-5 h-5 text-red-200 shrink-0" />
-          ) : (
-            <CheckCircle2 className="w-5 h-5 text-emerald-100 shrink-0" />
-          )}
-          <span>{toast.message}</span>
-        </div>
-      )}
-
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -597,25 +613,24 @@ export default function AdminCategoriesAndBrandsPage() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/90 border-b border-slate-200 text-[11px] font-black uppercase tracking-wider text-slate-500">
-                    <th className="py-3.5 px-4 w-14 text-center whitespace-nowrap">STT</th>
-                    <th className="py-3.5 px-4 min-w-[280px] whitespace-nowrap text-left">Tên Danh Mục</th>
-                    <th className="py-3.5 px-4 w-56 text-center whitespace-nowrap">Loại Linh Kiện (Build PC)</th>
-                    <th className="py-3.5 px-4 w-60 text-center whitespace-nowrap">Cấp Bậc & Phân Loại</th>
-                    <th className="py-3.5 px-4 w-40 text-center whitespace-nowrap">Trạng Thái</th>
-                    <th className="py-3.5 px-4 w-28 text-center whitespace-nowrap">Thao Tác</th>
+                    <th className="py-3.5 px-3 w-16 text-center whitespace-nowrap">STT</th>
+                    <th className="py-3.5 px-5 w-[42%] text-left whitespace-nowrap">Tên Danh Mục</th>
+                    <th className="py-3.5 px-5 w-[28%] text-left whitespace-nowrap">Cấp Bậc & Phân Loại</th>
+                    <th className="py-3.5 px-4 w-[18%] text-center whitespace-nowrap">Trạng Thái</th>
+                    <th className="py-3.5 px-4 w-[12%] text-center whitespace-nowrap">Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody key={debouncedCategorySearch + selectedGroupFilter + categoryPage} className="divide-y divide-slate-100 text-xs animate-smooth-fade">
                   {loadingCategories ? (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-slate-400">
+                      <td colSpan={5} className="py-12 text-center text-slate-400">
                         <RefreshCw className="w-6 h-6 animate-spin mx-auto text-[#eb1c24] mb-2" />
                         Đang tải danh mục...
                       </td>
                     </tr>
                   ) : paginatedCategoryTree.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-slate-400">
+                      <td colSpan={5} className="py-12 text-center text-slate-400">
                         Không tìm thấy danh mục nào phù hợp.
                       </td>
                     </tr>
@@ -630,54 +645,55 @@ export default function AdminCategoriesAndBrandsPage() {
                         <Fragment key={root._id}>
                           {/* 1. DÒNG DANH MỤC GỐC */}
                           <tr className="bg-gradient-to-r from-red-50/50 via-slate-50/70 to-white border-y border-red-100/70 font-bold hover:bg-red-50/70 transition">
-                            <td className="py-3.5 px-4 text-center text-[#eb1c24] font-mono font-black whitespace-nowrap">
+                            <td className="py-3.5 px-3 text-center text-[#eb1c24] font-mono font-black whitespace-nowrap">
                               #{actualIdx}
                             </td>
-                            <td className="py-3.5 px-4 whitespace-nowrap text-left">
-                              <div className="flex items-center gap-3">
+                            <td className="py-3.5 px-5 text-left">
+                              <div className="flex items-center gap-3.5">
                                 <div className="p-2.5 rounded-xl bg-[#eb1c24] text-white shadow-xs flex items-center justify-center shrink-0">
-                                  <RootIcon className="w-4 h-4" />
+                                  <RootIcon className="w-4.5 h-4.5" />
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm font-black text-slate-900 tracking-tight">
-                                    {root.name}
-                                  </span>
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-[#eb1c24] text-[10px] font-bold shrink-0">
-                                    {children.length} mục con
+                                <div className="flex flex-col min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-black text-slate-900 tracking-tight">
+                                      {root.name}
+                                    </span>
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-[#eb1c24] text-[10px] font-black shrink-0">
+                                      {children.length} mục con
+                                    </span>
+                                  </div>
+                                  <span className="text-[11px] text-slate-400 font-mono font-normal">
+                                    /{root.slug}
                                   </span>
                                 </div>
                               </div>
                             </td>
 
-                            <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                              <span className="text-slate-400 text-xs font-medium">—</span>
-                            </td>
-
-                            <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                              <span className="inline-flex items-center px-3 py-1 rounded-full bg-red-50 text-[#eb1c24] border border-red-100 font-bold text-xs">
+                            <td className="py-3.5 px-5 text-left whitespace-nowrap">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full bg-red-50 text-[#eb1c24] border border-red-100 font-black text-xs">
                                 🌟 Danh Mục Gốc
                               </span>
                             </td>
 
                             <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                                 <span>Hiển thị</span>
                               </span>
                             </td>
 
                             <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                              <div className="flex items-center justify-center gap-1.5">
+                              <div className="flex items-center justify-center gap-2">
                                 <button
                                   onClick={() => handleOpenEditCategory(root)}
-                                  className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-slate-600 transition cursor-pointer"
+                                  className="p-1.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-slate-600 transition cursor-pointer"
                                   title="Chỉnh sửa danh mục gốc"
                                 >
                                   <Edit2 className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteCategory(root._id, root.name)}
-                                  className="p-1.5 rounded-lg border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer"
+                                  className="p-1.5 rounded-xl border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer"
                                   title="Xóa danh mục gốc"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -695,33 +711,27 @@ export default function AdminCategoriesAndBrandsPage() {
                                 key={child._id}
                                 className="hover:bg-slate-50/80 transition group border-b border-slate-100 last:border-b-0"
                               >
-                                <td className="py-3 px-4 text-center text-slate-400 font-mono font-medium text-[11px] whitespace-nowrap">
+                                <td className="py-3 px-3 text-center text-slate-400 font-mono font-medium text-[11px] whitespace-nowrap">
                                   {actualIdx}.{cIdx + 1}
                                 </td>
-                                <td className="py-3 px-4 whitespace-nowrap text-left">
-                                  <div className="flex items-center gap-2 pl-6">
+                                <td className="py-3 px-5 text-left">
+                                  <div className="flex items-center gap-2.5 pl-6">
                                     <CornerDownRight className="w-4 h-4 text-slate-300 shrink-0" />
                                     <div className="p-1.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center shrink-0">
                                       <ChildIcon className="w-3.5 h-3.5" />
                                     </div>
-                                    <span className="font-bold text-slate-800 group-hover:text-[#eb1c24] transition text-xs sm:text-[13px]">
-                                      {child.name}
-                                    </span>
+                                    <div className="flex flex-col min-w-0">
+                                      <span className="font-bold text-slate-800 group-hover:text-[#eb1c24] transition text-xs sm:text-[13px]">
+                                        {child.name}
+                                      </span>
+                                      <span className="text-[10.5px] text-slate-400 font-mono font-normal">
+                                        /{child.slug}
+                                      </span>
+                                    </div>
                                   </div>
                                 </td>
 
-                                <td className="py-3 px-4 text-center whitespace-nowrap">
-                                  {child.pcPartType && child.pcPartType !== "none" ? (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-black text-[10.5px] uppercase tracking-wide">
-                                      <Cpu className="w-3 h-3" />
-                                      {child.pcPartType}
-                                    </span>
-                                  ) : (
-                                    <span className="text-slate-400 text-xs">Sản phẩm nguyên chiếc</span>
-                                  )}
-                                </td>
-
-                                <td className="py-3 px-4 text-center whitespace-nowrap">
+                                <td className="py-3 px-5 text-left whitespace-nowrap">
                                   <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
                                     ↳ Thuộc {root.name}
                                   </span>
@@ -742,18 +752,18 @@ export default function AdminCategoriesAndBrandsPage() {
                                 </td>
 
                                 <td className="py-3 px-4 text-center whitespace-nowrap">
-                                  <div className="flex items-center justify-center gap-1.5">
+                                  <div className="flex items-center justify-center gap-2">
                                     <button
                                       onClick={() => handleOpenEditCategory(child)}
-                                      className="p-1.5 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-slate-600 transition cursor-pointer"
-                                      title="Chỉnh sửa"
+                                      className="p-1.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-slate-600 transition cursor-pointer"
+                                      title="Chỉnh sửa danh mục con"
                                     >
                                       <Edit2 className="w-3.5 h-3.5" />
                                     </button>
                                     <button
                                       onClick={() => handleDeleteCategory(child._id, child.name)}
-                                      className="p-1.5 rounded-lg border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer"
-                                      title="Xóa"
+                                      className="p-1.5 rounded-xl border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer"
+                                      title="Xóa danh mục con"
                                     >
                                       <Trash2 className="w-3.5 h-3.5" />
                                     </button>
@@ -954,7 +964,7 @@ export default function AdminCategoriesAndBrandsPage() {
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
                             <button
-                              onClick={() => handleDeleteBrand(b._id, b.name)}
+                              onClick={() => handleDeleteBrand(b._id, b.name, b)}
                               className="p-1.5 rounded-lg border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer"
                               title="Xóa"
                             >
@@ -1047,7 +1057,7 @@ export default function AdminCategoriesAndBrandsPage() {
                   <h3 className="text-base font-black text-slate-900">
                     {categoryModalMode === "create" ? "Thêm Danh Mục Mới" : "Chỉnh Sửa Danh Mục"}
                   </h3>
-                  <p className="text-[11px] text-slate-500">Thiết lập phân cấp và cấu hình linh kiện Build PC</p>
+                  <p className="text-[11px] text-slate-500">Thiết lập tên, phân cấp và mô tả danh mục sản phẩm</p>
                 </div>
               </div>
               <button
@@ -1093,9 +1103,9 @@ export default function AdminCategoriesAndBrandsPage() {
                 </select>
               </div>
 
-              {/* Cấu hình loại linh kiện Build PC */}
+              {/* Cấu hình loại linh kiện Build PC (Tùy chọn) */}
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Loại linh kiện (Dành cho tính năng Build PC)</label>
+                <label className="block font-bold text-slate-700 mb-1">Loại linh kiện (Tùy chọn - Dành cho linh kiện máy tính)</label>
                 <select
                   value={categoryForm.pcPartType}
                   onChange={(e) => setCategoryForm({ ...categoryForm, pcPartType: e.target.value })}

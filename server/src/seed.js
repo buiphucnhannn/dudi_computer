@@ -9416,20 +9416,155 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
     const productsSource = Array.isArray(customProducts) && customProducts.length > 0 ? customProducts : PRODUCTS_DATA;
     console.log(`[Seed] Đang nạp ${productsSource.length} sản phẩm thực tế vào MongoDB...`);
 
-    const productsToInsert = productsSource.map((p, index) => {
-      let catName = p.categoryName || "Laptop & Macbook";
-      let catSlug = p.categorySlug || "laptop";
+    const normalizeBrand = (rawBrand, productName) => {
+      let b = (rawBrand || "").trim();
+      const name = (productName || "").toLowerCase();
+      if (!b || b.toLowerCase() === "zcomputer" || b.toLowerCase() === "custom") {
+        if (name.includes("asus") || name.includes("rog") || name.includes("tuf")) return "ASUS";
+        if (name.includes("dell") || name.includes("alienware") || name.includes("latitude") || name.includes("xps") || name.includes("inspiron") || name.includes("vostro") || name.includes("precision")) return "Dell";
+        if (name.includes("lenovo") || name.includes("thinkpad") || name.includes("legion") || name.includes("loq") || name.includes("ideapad")) return "Lenovo";
+        if (name.includes("apple") || name.includes("macbook")) return "Apple";
+        if (name.includes("hp") || name.includes("omen") || name.includes("victus") || name.includes("pavilion") || name.includes("elitebook") || name.includes("probook") || name.includes("envy") || name.includes("spectre")) return "HP";
+        if (name.includes("acer") || name.includes("nitro") || name.includes("predator") || name.includes("swift") || name.includes("aspire")) return "Acer";
+        if (name.includes("msi") || name.includes("katana") || name.includes("cyborg") || name.includes("bravo") || name.includes("stealth")) return "MSI";
+        if (name.includes("gigabyte") || name.includes("aorus")) return "Gigabyte";
+        if (name.includes("surface")) return "Microsoft";
+        if (name.includes("samsung") || name.includes("odyssey")) return "Samsung";
+        if (name.includes("lg") || name.includes("ultragear") || name.includes("gram")) return "LG";
+        if (name.includes("kingston") || name.includes("fury")) return "Kingston";
+        if (name.includes("corsair") || name.includes("vengeance")) return "Corsair";
+        if (name.includes("logitech") || name.includes("g pro") || name.includes("mx master")) return "Logitech";
+        if (name.includes("razer") || name.includes("deathadder") || name.includes("viper") || name.includes("blackwidow")) return "Razer";
+        if (name.includes("intel") || name.includes("core i")) return "Intel";
+        if (name.includes("amd") || name.includes("ryzen")) return "AMD";
+        return "Custom";
+      }
+      const lower = b.toLowerCase();
+      if (lower === "dell") return "Dell";
+      if (lower === "asus") return "ASUS";
+      if (lower === "lenovo") return "Lenovo";
+      if (lower === "apple") return "Apple";
+      if (lower === "hp") return "HP";
+      if (lower === "acer") return "Acer";
+      if (lower === "msi") return "MSI";
+      if (lower === "gigabyte") return "Gigabyte";
+      if (lower === "surface" || lower === "microsoft") return "Microsoft";
+      if (lower === "samsung") return "Samsung";
+      if (lower === "lg") return "LG";
+      if (lower === "kingston") return "Kingston";
+      if (lower === "corsair") return "Corsair";
+      if (lower === "logitech") return "Logitech";
+      if (lower === "razer") return "Razer";
+      if (lower === "akko") return "Akko";
+      if (lower === "keychron") return "Keychron";
+      if (lower === "dareu") return "DareU";
+      if (lower === "asrock") return "ASRock";
+      if (lower === "intel") return "Intel";
+      if (lower === "amd") return "AMD";
+      if (lower === "nvidia") return "NVIDIA";
+      return b.charAt(0).toUpperCase() + b.slice(1);
+    };
 
-      // Chuẩn hóa: Gom các danh mục dạng Laptop Dell, Laptop Asus... về danh mục Laptop
-      if (catSlug.startsWith("laptop-") && !["laptop-gaming", "laptop-van-phong"].includes(catSlug)) {
-        catSlug = "laptop";
-        catName = "Laptop & Macbook";
+    const productsToInsert = productsSource.map((p, index) => {
+      const name = p.name || `Sản phẩm ${index + 1}`;
+      const nameLower = name.toLowerCase();
+      const rawCatSlug = (p.categorySlug || "").toLowerCase();
+      const rawCatName = (p.categoryName || "").toLowerCase();
+
+      let catSlug = "laptop-van-phong";
+      let catName = "Laptop Văn phòng";
+
+      // 1. Nhận diện linh kiện phần cứng
+      if (rawCatSlug === "cpu-bo-vi-xu-ly" || nameLower.startsWith("cpu") || nameLower.includes("vi xử lý")) {
+        catSlug = "cpu-bo-vi-xu-ly";
+        catName = "CPU - Bộ vi xử lý";
+      } else if (rawCatSlug === "mainboard-bo-mach-chu" || nameLower.startsWith("main") || nameLower.includes("bo mạch")) {
+        catSlug = "mainboard-bo-mach-chu";
+        catName = "Mainboard - Bo mạch chủ";
+      } else if (rawCatSlug === "ram-bo-nho-trong" || nameLower.startsWith("ram") || nameLower.includes("bộ nhớ ram")) {
+        catSlug = "ram-bo-nho-trong";
+        catName = "RAM - Bộ nhớ trong";
+      } else if (rawCatSlug === "vga-card-man-hinh" || nameLower.startsWith("card màn hình") || nameLower.startsWith("vga")) {
+        catSlug = "vga-card-man-hinh";
+        catName = "VGA - Card màn hình";
+      } else if (rawCatSlug === "o-cung-hdd-ssd" || nameLower.startsWith("ssd") || nameLower.startsWith("ổ cứng") || nameLower.startsWith("hdd")) {
+        catSlug = "o-cung-hdd-ssd";
+        catName = "Ổ cứng HDD - SSD";
+      } else if (rawCatSlug === "psu-nguon-may-tinh" || nameLower.startsWith("nguồn") || nameLower.startsWith("psu")) {
+        catSlug = "psu-nguon-may-tinh";
+        catName = "PSU - Nguồn máy tính";
+      } else if (rawCatSlug === "case-vo-may-tinh" || nameLower.startsWith("vỏ case") || nameLower.startsWith("case")) {
+        catSlug = "case-vo-may-tinh";
+        catName = "CASE - Vỏ máy tính";
+      } else if (rawCatSlug === "tan-nhiet-cooling" || nameLower.startsWith("tản nhiệt") || nameLower.includes("cooling") || nameLower.includes("tản nước")) {
+        catSlug = "tan-nhiet-cooling";
+        catName = "Tản nhiệt Cooling";
+      } else if (rawCatSlug === "man-hinh" || nameLower.startsWith("màn hình") || rawCatName.includes("màn hình")) {
+        catSlug = "man-hinh";
+        catName = "Màn hình máy tính";
+      } else if (rawCatSlug === "ban-phim" || nameLower.startsWith("bàn phím") || nameLower.includes("bàn phím")) {
+        catSlug = "ban-phim";
+        catName = "Bàn phím";
+      } else if (rawCatSlug === "chuot" || nameLower.startsWith("chuột") || nameLower.includes("chuột")) {
+        catSlug = "chuot";
+        catName = "Chuột";
+      }
+      // 2. Nhận diện Bộ Máy PC
+      else if (
+        nameLower.startsWith("bộ máy") ||
+        nameLower.startsWith("pc ") ||
+        nameLower.startsWith("máy tính để bàn") ||
+        nameLower.startsWith("máy tính aio") ||
+        rawCatSlug.startsWith("pc")
+      ) {
+        if (nameLower.includes("đồ họa") || nameLower.includes("workstation") || nameLower.includes("render") || nameLower.includes("3d") || rawCatSlug === "pc-do-hoa") {
+          catSlug = "pc-do-hoa";
+          catName = "PC Đồ Họa";
+        } else if (nameLower.includes("văn phòng") || nameLower.includes("office") || rawCatSlug === "pc-van-phong") {
+          catSlug = "pc-van-phong";
+          catName = "PC Văn Phòng";
+        } else {
+          catSlug = "pc-gaming";
+          catName = "PC Gaming";
+        }
+      }
+      // 3. Nhận diện Laptop & Macbook
+      else {
+        if (nameLower.includes("macbook") || nameLower.includes("apple") || rawCatSlug === "macbook") {
+          catSlug = "macbook";
+          catName = "Macbook";
+        } else if (
+          nameLower.includes("gaming") ||
+          nameLower.includes("legion") ||
+          nameLower.includes("tuf") ||
+          nameLower.includes("rog") ||
+          nameLower.includes("loq") ||
+          nameLower.includes("nitro") ||
+          nameLower.includes("predator") ||
+          nameLower.includes("katana") ||
+          nameLower.includes("cyborg") ||
+          nameLower.includes("omen") ||
+          nameLower.includes("victus") ||
+          nameLower.includes("alienware") ||
+          nameLower.includes("g5") ||
+          nameLower.includes("rtx") ||
+          nameLower.includes("gtx") ||
+          rawCatSlug === "laptop-gaming"
+        ) {
+          catSlug = "laptop-gaming";
+          catName = "Laptop Gaming";
+        } else {
+          catSlug = "laptop-van-phong";
+          catName = "Laptop Văn phòng";
+        }
       }
 
       const matchedCatId =
-        categoryMap[catName.toLowerCase().trim()] ||
         categoryMap[catSlug.toLowerCase().trim()] ||
+        categoryMap[catName.toLowerCase().trim()] ||
         defaultCategoryId;
+
+      const cleanBrand = normalizeBrand(p.brand, name);
 
       const price = Number(p.price) || 0;
       const originalPrice = Number(p.originalPrice) || price;
@@ -9440,7 +9575,6 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
       const images = Array.isArray(p.images) && p.images.length > 0 ? p.images : [p.thumbnail || "https://zcomputer.vn/uploads/image-1784088696463-533147643.webp"];
       const thumbnail = p.thumbnail || images[0] || "https://zcomputer.vn/uploads/image-1784088696463-533147643.webp";
 
-      const name = p.name || `Sản phẩm ${index + 1}`;
       const isM1 = name.match(/\b(Apple\s*)?M[1234]\b/i) && !name.match(/\bM1[4-9]\b/i) && !name.match(/Zephyrus/i);
       const isMonitor = catName.toLowerCase().includes("màn hình") || name.toLowerCase().startsWith("màn hình");
       const isPSU = catName.toLowerCase().includes("psu") || catName.toLowerCase().includes("nguồn") || name.toLowerCase().startsWith("nguồn");
@@ -9536,7 +9670,7 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
         shortName,
         sku,
         slug: p.slug || `san-pham-${index + 1}`,
-        brand: p.brand || "ZCOMPUTER",
+        brand: cleanBrand || "Custom",
         category: matchedCatId,
         categoryName: catName,
         categorySlug: catSlug,

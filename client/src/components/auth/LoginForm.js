@@ -29,7 +29,11 @@ export default function LoginForm() {
 
   // Modes: 'login' | 'otp'
   const [mode, setMode] = useState("login");
-  const [loginError, setLoginError] = useState("");
+  const [loginError, setLoginError] = useState(() => {
+    return searchParams?.get("banned") === "true"
+      ? "Tài khoản của bạn đã bị khóa bởi Quản trị viên. Vui lòng liên hệ ban quản trị để biết thêm chi tiết."
+      : "";
+  });
 
   const [formData, setFormData] = useState({
     email: "",

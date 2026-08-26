@@ -157,8 +157,31 @@ export const promotionService = {
         .replace(/(^-|-$)+/g, "");
     }
 
-    if (new Date(data.startDate) > new Date(data.endDate)) {
-      throw new ApiError(400, "Ngày bắt đầu không được lớn hơn ngày kết thúc");
+    if (!data.startDate || !data.endDate) {
+      throw new ApiError(400, "Vui lòng nhập đầy đủ ngày bắt đầu và ngày kết thúc khuyến mãi");
+    }
+
+    const start = new Date(data.startDate);
+    const end = new Date(data.endDate);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      throw new ApiError(400, "Định dạng ngày bắt đầu hoặc ngày kết thúc không hợp lệ");
+    }
+
+    if (start > end) {
+      throw new ApiError(400, "Ngày kết thúc phải diễn ra sau hoặc cùng ngày với ngày bắt đầu");
+    }
+
+    // Nếu kích hoạt chương trình: ngày kết thúc không được ở trong quá khứ
+    if (data.isActive !== false) {
+      const endOfDay = new Date(end);
+      endOfDay.setHours(23, 59, 59, 999);
+      if (endOfDay < new Date()) {
+        throw new ApiError(
+          400,
+          "Không thể kích hoạt chương trình có ngày kết thúc trong quá khứ! Vui lòng chọn ngày kết thúc từ hôm nay trở đi."
+        );
+      }
     }
 
     if (data.discountType === "percentage" && data.discountValue > 100) {
@@ -179,6 +202,38 @@ export const promotionService = {
     const promo = await promotionRepository.findById(id);
     if (!promo) {
       throw new ApiError(404, "Không tìm thấy chương trình khuyến mãi cần cập nhật");
+    }
+
+    const startDateStr = data.startDate || promo.startDate;
+    const endDateStr = data.endDate || promo.endDate;
+
+    if (startDateStr && endDateStr) {
+      const start = new Date(startDateStr);
+      const end = new Date(endDateStr);
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        throw new ApiError(400, "Định dạng ngày bắt đầu hoặc ngày kết thúc không hợp lệ");
+      }
+
+      if (start > end) {
+        throw new ApiError(400, "Ngày kết thúc phải diễn ra sau hoặc cùng ngày với ngày bắt đầu");
+      }
+
+      const willBeActive = data.isActive !== undefined ? data.isActive : promo.isActive;
+      if (willBeActive) {
+        const endOfDay = new Date(end);
+        endOfDay.setHours(23, 59, 59, 999);
+        if (endOfDay < new Date()) {
+          throw new ApiError(
+            400,
+            "Không thể kích hoạt chương trình khuyến mãi đã hết hạn trong quá khứ! Vui lòng gia hạn ngày kết thúc."
+          );
+        }
+      }
+    }
+
+    if (data.discountType === "percentage" && data.discountValue > 100) {
+      throw new ApiError(400, "Mức giảm phần trăm không được vượt quá 100%");
     }
 
     // Khôi phục giá gốc cho sản phẩm cũ trước khi cập nhật
@@ -215,6 +270,16 @@ export const promotionService = {
     if (promo.isActive) {
       // Tắt → Khôi phục giá gốc
       await promotionService._removeDiscountFromProducts(promo);
+    } else {
+      // Bật lại: kiểm tra xem ngày kết thúc có trong quá khứ không
+      const endOfDay = new Date(promo.endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      if (endOfDay < new Date()) {
+        throw new ApiError(
+          400,
+          "Chương trình khuyến mãi này đã hết hạn. Vui lòng chỉnh sửa gia hạn ngày kết thúc trước khi kích hoạt lại!"
+        );
+      }
     }
 
     promo.isActive = !promo.isActive;

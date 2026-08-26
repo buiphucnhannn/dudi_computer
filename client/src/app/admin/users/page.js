@@ -31,6 +31,7 @@ import { apiClient } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { useDebounce } from "@/lib/useDebounce";
 import { selectCurrentUser, getAdminRoleInfo } from "@/redux/slices/authSlice";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function AdminUsersPage() {
   const currentUser = useSelector(selectCurrentUser);
@@ -51,7 +52,7 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [toast, setToast] = useState(null);
+  const { showToast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
@@ -76,11 +77,6 @@ export default function AdminUsersPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDetailModalOpen]);
-
-  const showToast = (message, type = "success") => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
-  };
 
   const debouncedSearch = useDebounce(searchTerm, 1500);
 
@@ -217,23 +213,6 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Toast Alert */}
-      {toast && (
-        <div
-          className={`fixed top-6 right-6 z-70 flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-bold shadow-2xl animate-in slide-in-from-top-4 duration-200 ${toast.type === "error"
-              ? "bg-red-600 text-white"
-              : "bg-slate-900 text-white border border-slate-700"
-            }`}
-        >
-          {toast.type === "error" ? (
-            <XCircle className="w-5 h-5 text-white" />
-          ) : (
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-          )}
-          <span>{toast.message}</span>
-        </div>
-      )}
-
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -630,6 +609,10 @@ export default function AdminUsersPage() {
                 <div>
                   <span className="text-slate-400 font-medium block">Hình thức đăng ký:</span>
                   <span className="font-bold text-slate-800 uppercase">{selectedCustomer.authType}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 font-medium block">Ngày tham gia:</span>
+                  <span className="font-bold text-slate-800">{formatDate(selectedCustomer.createdAt) || "Mới đăng ký"}</span>
                 </div>
                 <div>
                   <span className="text-slate-400 font-medium block">Trạng thái:</span>

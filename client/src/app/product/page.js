@@ -12,7 +12,7 @@ import ProductSearch from "@/components/product/ProductSearch";
 import ProductPagination from "@/components/product/ProductPagination";
 import ActiveFilters from "@/components/product/ActiveFilters";
 import { productAPI, categoryAPI } from "@/lib/api";
-import { detectProductType, PRODUCT_TYPES } from "@/lib/specParser";
+import { isProductMatchingCategory } from "@/lib/productHelpers";
 
 // Module-level cache để load tức thì 0ms khi quay lại trang
 let globalProductCache = null;
@@ -161,115 +161,9 @@ function ProductsContent() {
     // CATEGORY (Lọc động theo Danh mục Database & Phân cấp Cha - Con)
     if (filters.category) {
       const selectedCat = filters.category.toLowerCase().trim();
-
-      // 1. Tìm category tương ứng trong danh sách categories từ DB
-      const targetCat = categories.find(
-        (c) =>
-          (c.slug || "").toLowerCase() === selectedCat ||
-          (c._id || "").toString() === selectedCat ||
-          (c.name || "").toLowerCase() === selectedCat
+      result = result.filter((product) =>
+        isProductMatchingCategory(product, selectedCat, categories)
       );
-
-      // 2. Gom tất cả ID, Slug và Tên của category này + các category con của nó
-      const matchCategoryIds = new Set();
-      const matchCategorySlugs = new Set();
-      const matchCategoryNames = new Set();
-      let pcPartType = null;
-
-      if (targetCat) {
-        matchCategoryIds.add(targetCat._id.toString());
-        if (targetCat.slug) matchCategorySlugs.add(targetCat.slug.toLowerCase());
-        if (targetCat.name) matchCategoryNames.add(targetCat.name.toLowerCase());
-        if (targetCat.pcPartType && targetCat.pcPartType !== "none") {
-          pcPartType = targetCat.pcPartType;
-        }
-
-        // Tìm tất cả danh mục con thuộc danh mục cha này
-        categories.forEach((c) => {
-          const parentId = (c.parent?._id || c.parent || "").toString();
-          if (parentId === targetCat._id.toString()) {
-            matchCategoryIds.add(c._id.toString());
-            if (c.slug) matchCategorySlugs.add(c.slug.toLowerCase());
-            if (c.name) matchCategoryNames.add(c.name.toLowerCase());
-          }
-        });
-      } else {
-        matchCategorySlugs.add(selectedCat);
-      }
-
-      result = result.filter((product) => {
-        const prodType = detectProductType(product);
-        const pName = (product.name || "").toLowerCase();
-        const pCatId = (product.category?._id || product.category || "").toString();
-        const pCatSlug = (product.categorySlug || "").toLowerCase();
-        const pCatName = (product.categoryName || "").toLowerCase();
-
-        // Khớp trực tiếp theo Category ID trong DB
-        if (pCatId && matchCategoryIds.has(pCatId)) return true;
-
-        // Khớp theo Category Slug
-        if (pCatSlug && matchCategorySlugs.has(pCatSlug)) return true;
-
-        // Khớp theo Category Name
-        if (pCatName && matchCategoryNames.has(pCatName)) return true;
-
-        // Khớp theo pcPartType (cpu, vga, mainboard, ram, ssd, psu, case, cooler, monitor, gear)
-        if (pcPartType && prodType === pcPartType) return true;
-
-        // Fallback nhận diện thông minh cho các slug phổ biến
-        if (selectedCat.includes("laptop") || selectedCat.includes("macbook")) {
-          return prodType === PRODUCT_TYPES.LAPTOP || pCatSlug.includes("laptop") || pCatName.includes("laptop");
-        }
-        if (selectedCat === "pc" || selectedCat.includes("pc-") || selectedCat.includes("bộ máy tính")) {
-          return prodType === PRODUCT_TYPES.PC || pCatSlug === "pc" || pCatName.includes("bộ máy tính");
-        }
-        if (selectedCat.includes("man-hinh") || selectedCat.includes("màn hình")) {
-          return prodType === PRODUCT_TYPES.MONITOR;
-        }
-        if (selectedCat.includes("mainboard") || selectedCat.includes("bo mạch")) {
-          return prodType === PRODUCT_TYPES.MAINBOARD;
-        }
-        if (selectedCat.includes("psu") || selectedCat.includes("nguồn")) {
-          return prodType === PRODUCT_TYPES.PSU;
-        }
-        if (selectedCat.includes("cpu") || selectedCat.includes("vi xử lý")) {
-          return prodType === PRODUCT_TYPES.CPU;
-        }
-        if (selectedCat.includes("vga") || selectedCat.includes("card")) {
-          return prodType === PRODUCT_TYPES.VGA;
-        }
-        if (selectedCat.includes("ram") || selectedCat.includes("bộ nhớ")) {
-          return prodType === PRODUCT_TYPES.RAM;
-        }
-        if (
-          selectedCat.includes("ssd") ||
-          selectedCat.includes("hdd") ||
-          selectedCat.includes("o-cung") ||
-          selectedCat.includes("ổ cứng")
-        ) {
-          return prodType === PRODUCT_TYPES.STORAGE;
-        }
-        if (selectedCat.includes("case") || selectedCat.includes("vỏ")) {
-          return prodType === PRODUCT_TYPES.CASE;
-        }
-        if (selectedCat.includes("chuot") || selectedCat.includes("chuột")) {
-          return prodType === PRODUCT_TYPES.MOUSE || pCatSlug.includes("chuot") || pName.includes("chuột");
-        }
-        if (selectedCat.includes("ban-phim") || selectedCat.includes("bàn phím")) {
-          return prodType === PRODUCT_TYPES.KEYBOARD || pCatSlug.includes("ban-phim") || pName.includes("bàn phím");
-        }
-        if (selectedCat.includes("tan-nhiet") || selectedCat.includes("cooling") || selectedCat.includes("tản nhiệt")) {
-          return prodType === PRODUCT_TYPES.COOLER;
-        }
-
-        // Khớp fallback chung
-        return (
-          pCatSlug.includes(selectedCat) ||
-          pCatName.includes(selectedCat) ||
-          selectedCat.includes(pCatSlug) ||
-          selectedCat.includes(pCatName)
-        );
-      });
     }
 
     // CONDITION (Tình trạng: Chọn 1 trong 2 - Mới 100% hoặc Cũ Like New)
@@ -500,6 +394,7 @@ function ProductsContent() {
             <ActiveFilters
               filters={filters}
               search={search}
+              categories={categories}
               onFilterChange={handleFilterChange}
               onClearSearch={() => handleSearch("")}
               onClear={handleClearFilters}

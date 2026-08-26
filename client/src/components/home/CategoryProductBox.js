@@ -26,6 +26,7 @@ import {
   getProductDiscountInfo,
   sortProductsByPriority,
   getProductImage,
+  isProductMatchingCategory,
 } from "@/lib/productHelpers";
 import { getProductCardBadges } from "@/lib/specParser";
 import { useDispatch, useSelector } from "react-redux";
@@ -90,110 +91,16 @@ export default function CategoryProductBox({
 
   const filteredProducts = useMemo(() => {
     let list = products;
-    if (activeTab !== "all" && tabs.length > 0) {
-      list = products.filter((p) => {
-        const name = (p.name || "").toLowerCase();
-        const cat = (p.categoryName || "").toLowerCase();
-        const catSlug = (p.categorySlug || "").toLowerCase();
-        const brand = (p.brand || "").toLowerCase();
-
-        // 1. Laptop tabs
-        if (activeTab === "laptop-gaming" || activeTab === "gaming") {
-          return (
-            catSlug.includes("gaming") ||
-            name.includes("gaming") ||
-            name.includes("legion") ||
-            name.includes("tuf") ||
-            name.includes("rog") ||
-            name.includes("predator") ||
-            name.includes("nitro") ||
-            name.includes("loq") ||
-            name.includes("victus")
-          );
-        }
-        if (activeTab === "laptop-van-phong" || activeTab === "van-phong") {
-          return (
-            catSlug.includes("van-phong") ||
-            name.includes("văn phòng") ||
-            name.includes("thinkpad") ||
-            name.includes("latitude") ||
-            name.includes("zenbook") ||
-            name.includes("vivobook") ||
-            name.includes("inspiron") ||
-            name.includes("pavilion") ||
-            name.includes("vostro")
-          );
-        }
-        if (activeTab === "macbook") {
-          return (
-            catSlug === "macbook" ||
-            name.includes("macbook") ||
-            brand.includes("apple")
-          );
-        }
-
-        // 2. PC tabs
-        if (activeTab === "pc-gaming") {
-          return (
-            catSlug === "pc-gaming" ||
-            name.includes("gaming") ||
-            name.includes("rtx") ||
-            name.includes("gtx") ||
-            name.includes("rx ")
-          );
-        }
-        if (activeTab === "pc-do-hoa") {
-          return (
-            catSlug === "pc-do-hoa" ||
-            name.includes("i7") ||
-            name.includes("i9") ||
-            name.includes("ryzen 9") ||
-            name.includes("workstation") ||
-            name.includes("32gb")
-          );
-        }
-        if (activeTab === "pc-van-phong") {
-          return (
-            catSlug === "pc-van-phong" ||
-            name.includes("văn phòng") ||
-            name.includes("i3") ||
-            name.includes("i5") ||
-            name.includes("vostro") ||
-            name.includes("h610")
-          );
-        }
-
-        // 3. Monitor tabs
-        if (activeTab === "24-inch" || activeTab === "24inch") {
-          return name.includes("24 inch") || name.includes("24inch") || name.includes("23.8") || name.includes('24"');
-        }
-        if (activeTab === "27-inch" || activeTab === "27inch") {
-          return name.includes("27 inch") || name.includes("27inch") || name.includes('27"');
-        }
-        if (activeTab === "32-inch" || activeTab === "32inch") {
-          return name.includes("32 inch") || name.includes("32inch") || name.includes('32"');
-        }
-
-        // 4. PSU tabs
-        if (activeTab === "850w") return name.includes("850w") || name.includes("850");
-        if (activeTab === "750w") return name.includes("750w") || name.includes("750");
-        if (activeTab === "650w") return name.includes("650w") || name.includes("650");
-
-        // 5. Mainboard tabs
-        if (activeTab === "b760") return name.includes("b760");
-        if (activeTab === "z790") return name.includes("z790");
-        if (activeTab === "b650") return name.includes("b650");
-
-        return catSlug.includes(activeTab) || cat.includes(activeTab) || name.includes(activeTab);
-      });
+    if (activeTab !== "all" && tabs.length > 1) {
+      list = products.filter((p) => isProductMatchingCategory(p, activeTab));
     }
 
     // Sắp xếp ưu tiên: Flash Sale / Hot Sale / Giảm giá nhiều nhất -> Mới nhất -> Nhiều lượt xem
     return sortProductsByPriority(list).slice(0, 4);
-  }, [activeTab, tabs.length, products]);
+  }, [activeTab, tabs, products]);
 
   const renderSpecIcon = (iconName) => {
-    const props = { className: "w-3.5 h-3.5 text-gray-400 shrink-0" };
+    const props = { className: "w-3.5 h-3.5 text-[#eb1c24] shrink-0" };
     switch (iconName) {
       case "Cpu": return <Cpu {...props} />;
       case "Layers": return <Layers {...props} />;
@@ -221,8 +128,8 @@ export default function CategoryProductBox({
           <div className="w-20 sm:w-24 h-1.5 bg-[#eb1c24] rounded-full mt-1.5 shadow-xs"></div>
         </div>
 
-        {/* Filter Pills */}
-        {tabs.length > 0 && (
+        {/* Filter Pills: Chỉ hiển thị khi thật sự có danh mục con trong Database (tabs.length > 1) */}
+        {tabs.length > 1 && (
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.slug;

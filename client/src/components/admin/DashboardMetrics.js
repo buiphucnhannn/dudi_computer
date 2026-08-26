@@ -24,7 +24,6 @@ export default function DashboardMetrics() {
     stockItems,
     createOrder,
     restockProduct,
-    toastMessage,
   } = useDashboard();
 
   const [showOrderModal, setShowOrderModal] = useState(false);
@@ -72,14 +71,6 @@ export default function DashboardMetrics() {
 
   return (
     <section className="relative">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-2xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-2xl animate-in slide-in-from-bottom-3 duration-300 border border-slate-700">
-          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
       {/* 4 Dashboard Metric Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Metric 1: Doanh thu hôm nay */}

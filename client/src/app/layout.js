@@ -2,6 +2,7 @@ import "./globals.css";
 import ReduxProvider from "@/redux/provider";
 import { ToastProvider } from "@/components/common/ToastContext";
 import { CompareProvider } from "@/components/common/CompareContext";
+import SessionWatcher from "@/components/common/SessionWatcher";
 import AppLayoutWrapper from "@/components/layout/AppLayoutWrapper";
 
 export const metadata = {
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
         <ReduxProvider>
           <ToastProvider>
             <CompareProvider>
+              <SessionWatcher />
               <AppLayoutWrapper>{children}</AppLayoutWrapper>
             </CompareProvider>
           </ToastProvider>

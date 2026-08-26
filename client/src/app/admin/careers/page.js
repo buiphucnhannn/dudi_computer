@@ -33,6 +33,7 @@ import ConfirmModal from "@/components/admin/ConfirmModal";
 import { formatDate } from "@/lib/utils";
 import { useDebounce } from "@/lib/useDebounce";
 import { jobAPI, apiClient } from "@/lib/api";
+import { useToast } from "@/components/common/ToastContext";
 
 const generateSlug = (text) => {
   return text
@@ -72,7 +73,7 @@ export default function AdminCareersPage() {
   const [currentJob, setCurrentJob] = useState(null);
   const [saving, setSaving] = useState(false);
   const [isSlugManual, setIsSlugManual] = useState(false);
-  const [toast, setToast] = useState(null);
+  const { showToast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 8;
 
@@ -121,11 +122,6 @@ export default function AdminCareersPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isModalOpen, saving]);
-
-  const showToast = (message, type = "success") => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
-  };
 
   const debouncedSearch = useDebounce(searchTerm, 1500);
 
@@ -306,24 +302,6 @@ export default function AdminCareersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Toast Alert */}
-      {toast && (
-        <div
-          className={`fixed top-6 right-6 z-70 flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-bold shadow-2xl animate-in slide-in-from-top-4 duration-200 ${
-            toast.type === "error"
-              ? "bg-red-600 text-white"
-              : "bg-slate-900 text-white border border-slate-700"
-          }`}
-        >
-          {toast.type === "error" ? (
-            <AlertTriangle className="w-5 h-5 text-red-200" />
-          ) : (
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-          )}
-          <span>{toast.message}</span>
-        </div>
-      )}
-
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>

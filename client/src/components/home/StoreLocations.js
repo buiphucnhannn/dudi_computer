@@ -88,15 +88,7 @@ export default function StoreLocations() {
               <div className="w-2 h-2 rounded-full bg-[#eb1c24] animate-pulse"></div>
               <span>Chi nhánh Thủ Đức</span>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900">
-              <a
-                href="https://maps.google.com/?q=49/2+Đường+14+Phường+Thủ+Đức+TP+Hồ+Chí+Minh"
-                target="_blank"
-                rel="noreferrer"
-                className="absolute top-2.5 left-2.5 z-20 bg-white/95 hover:bg-white text-gray-800 text-[11px] font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1 shadow-md transition-all hover:scale-105 cursor-pointer"
-              >
-                <span>Maps</span> <ExternalLink className="w-3 h-3 text-blue-600" />
-              </a>
+            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900 shadow-lg">
               <iframe
                 title="Bản đồ chỉ đường đến chi nhánh Thủ Đức"
                 src="https://maps.google.com/maps?q=49/2%20%C4%90%C6%B0%E1%BB%9Dng%2014,%20Ph%C6%B0%E1%BB%9Dng%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
@@ -117,15 +109,7 @@ export default function StoreLocations() {
               <div className="w-2 h-2 rounded-full bg-[#eb1c24] animate-pulse"></div>
               <span>Chi nhánh Nguyễn Thị Minh Khai</span>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900">
-              <a
-                href="https://maps.google.com/?q=232+Đường+Nguyễn+Thị+Minh+Khai+Phường+Xuân+Hòa+TP+Hồ+Chí+Minh"
-                target="_blank"
-                rel="noreferrer"
-                className="absolute top-2.5 left-2.5 z-20 bg-white/95 hover:bg-white text-gray-800 text-[11px] font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1 shadow-md transition-all hover:scale-105 cursor-pointer"
-              >
-                <span>Maps</span> <ExternalLink className="w-3 h-3 text-blue-600" />
-              </a>
+            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900 shadow-lg">
               <iframe
                 title="Bản đồ chỉ đường đến chi nhánh Nguyễn Thị Minh Khai"
                 src="https://maps.google.com/maps?q=232%20%C4%90%C6%B0%E1%BB%9Dng%20Nguy%E1%BB%85n%20Th%E1%BB%8B%20Minh%20Khai,%20Ph%C6%B0%E1%BB%9Dng%20Xu%C3%A2n%20H%C3%B2a,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"

@@ -14,6 +14,7 @@ import {
   formatOrderInitials,
 } from "@/components/admin/orders/orderStore";
 import { useDebounce } from "@/lib/useDebounce";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function OrdersPage() {
   // Always start with empty list and loading state so stale data is NEVER rendered on reload
@@ -25,14 +26,9 @@ export default function OrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+  const { showToast } = useToast();
 
   const pageSize = 5;
-
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(""), 3500);
-  };
 
   // Dedicated function to fetch fresh orders directly from Database
   const fetchOrdersFromDatabase = useCallback(async (showSkeleton = true) => {
@@ -202,14 +198,6 @@ export default function OrdersPage() {
 
   return (
     <div className="flex flex-col w-full gap-6">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-2xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-2xl animate-in slide-in-from-bottom-3 duration-300 border border-slate-700">
-          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
         <div>

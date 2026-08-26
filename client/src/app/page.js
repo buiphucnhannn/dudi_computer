@@ -7,209 +7,98 @@ import PromoGridCards from "@/components/home/PromoGridCards";
 import ServiceFeatures from "@/components/home/ServiceFeatures";
 import CategoryPills from "@/components/home/CategoryPills";
 import FlashSaleSection from "@/components/home/FlashSaleSection";
-import ZComputerShorts from "@/components/home/ZComputerShorts";
 import FeaturedProductsSection from "@/components/home/FeaturedProductsSection";
 import BrandLogosBar from "@/components/home/BrandLogosBar";
 import CategoryProductBox from "@/components/home/CategoryProductBox";
 import HomeNewsSection from "@/components/home/HomeNewsSection";
 import CustomerGallery from "@/components/home/CustomerGallery";
-import { productAPI } from "@/lib/api";
-import { sortProductsByPriority } from "@/lib/productHelpers";
+import { productAPI, categoryAPI } from "@/lib/api";
+import { sortProductsByPriority, isProductMatchingCategory } from "@/lib/productHelpers";
 
 export default function Home() {
   const [selectedCategoryPill, setSelectedCategoryPill] = useState("all");
   const [products, setProducts] = useState([]);
+  const [dbCategories, setDbCategories] = useState([]);
 
   useEffect(() => {
-    const loadProducts = async () => {
+    // 1. Tải danh sách sản phẩm & danh mục thực từ Database
+    const loadData = async () => {
       try {
-        const res = await productAPI.getAll({ limit: 200 });
+        const [prodRes, catRes] = await Promise.all([
+          productAPI.getAll({ limit: 300 }),
+          categoryAPI.getAll(),
+        ]);
+
         let rawProducts = [];
-        if (res.data && res.data.data && res.data.data.products) {
-          rawProducts = res.data.data.products;
-        } else if (res.data && Array.isArray(res.data.data)) {
-          rawProducts = res.data.data;
+        if (prodRes.data?.data?.products) {
+          rawProducts = prodRes.data.data.products;
+        } else if (Array.isArray(prodRes.data?.data)) {
+          rawProducts = prodRes.data.data;
         }
-        // Sắp xếp ưu tiên: Giảm giá nhiều nhất/Hot Sale -> Mới nhất -> Nhiều lượt xem
         setProducts(sortProductsByPriority(rawProducts));
+
+        if (Array.isArray(catRes.data?.data)) {
+          setDbCategories(catRes.data.data);
+        }
       } catch (error) {
-        console.error("Lỗi khi tải sản phẩm từ Database:", error);
+        console.error("Lỗi khi tải dữ liệu trang chủ từ Database:", error);
       }
     };
-    loadProducts();
+
+    loadData();
   }, []);
 
-  // Lọc sản phẩm cho 5 khối Danh Mục Sản Phẩm
-  const laptopProducts = useMemo(() => {
-    return products.filter((p) => {
-      const catSlug = (p.categorySlug || "").toLowerCase();
-      const cat = (p.categoryName || p.category?.name || "").toLowerCase();
-      const name = (p.name || "").toLowerCase();
-      
-      // Loại trừ các bộ máy PC, linh kiện rời
-      if (
-        name.startsWith("bộ máy") ||
-        name.startsWith("máy tính để bàn") ||
-        name.startsWith("pc ") ||
-        name.includes("case pc") ||
-        name.startsWith("main") ||
-        name.startsWith("nguồn") ||
-        catSlug.includes("pc-") ||
-        catSlug === "mainboard-bo-mach-chu" ||
-        catSlug === "psu-nguon-may-tinh" ||
-        catSlug === "man-hinh"
-      ) {
-        return false;
-      }
+  // Tabs danh mục con chuẩn cho Laptop
+  const laptopTabs = [
+    { name: "Tất cả", slug: "all" },
+    { name: "Laptop Gaming", slug: "laptop-gaming" },
+    { name: "Laptop Văn phòng", slug: "laptop-van-phong" },
+    { name: "Macbook", slug: "macbook" },
+  ];
 
-      return (
-        catSlug === "laptop-cu" ||
-        catSlug === "laptop-gaming" ||
-        catSlug === "laptop-van-phong" ||
-        catSlug === "macbook" ||
-        cat.includes("laptop") ||
-        name.includes("laptop") ||
-        name.includes("thinkpad") ||
-        name.includes("macbook") ||
-        name.includes("surface") ||
-        name.includes("latitude") ||
-        name.includes("xps")
-      );
-    });
-  }, [products]);
+  // Tabs danh mục con chuẩn cho PC
+  const pcTabs = [
+    { name: "Tất cả", slug: "all" },
+    { name: "PC Gaming", slug: "pc-gaming" },
+    { name: "PC Đồ Họa", slug: "pc-do-hoa" },
+    { name: "PC Văn Phòng", slug: "pc-van-phong" },
+  ];
+
+  // Tabs danh mục con cho Phụ Kiện Gear (Bàn phím & Chuột)
+  const gearTabs = [
+    { name: "Tất cả", slug: "all" },
+    { name: "Bàn phím", slug: "ban-phim" },
+    { name: "Chuột", slug: "chuot" },
+  ];
+
+  // Lọc sản phẩm cho từng khối Danh Mục Sản Phẩm (Đảm bảo chuẩn xác 100% không bị lẫn)
+  const laptopProducts = useMemo(() => {
+    return products.filter((p) => isProductMatchingCategory(p, "laptop", dbCategories));
+  }, [products, dbCategories]);
 
   const pcProducts = useMemo(() => {
-    return products.filter((p) => {
-      const catSlug = (p.categorySlug || "").toLowerCase();
-      const cat = (p.categoryName || p.category?.name || "").toLowerCase();
-      const name = (p.name || "").toLowerCase();
-
-      // Loại trừ laptop và linh kiện rời (Mainboard, Nguồn, VGA, RAM, CPU, SSD, Màn hình, Gear)
-      if (
-        name.includes("laptop") ||
-        name.includes("macbook") ||
-        name.includes("surface") ||
-        name.startsWith("mainboard") ||
-        name.startsWith("bo mạch") ||
-        name.startsWith("nguồn") ||
-        name.startsWith("card màn hình") ||
-        name.startsWith("ram") ||
-        name.startsWith("ssd") ||
-        name.startsWith("cpu") ||
-        name.startsWith("bàn phím") ||
-        name.startsWith("chuột") ||
-        catSlug.includes("laptop") ||
-        catSlug === "macbook" ||
-        catSlug === "mainboard-bo-mach-chu" ||
-        catSlug === "psu-nguon-may-tinh" ||
-        catSlug === "vga-card-man-hinh" ||
-        catSlug === "cpu-bo-vi-xu-ly" ||
-        catSlug === "ram-bo-nho-trong" ||
-        catSlug === "o-cung-hdd-ssd" ||
-        catSlug === "man-hinh" ||
-        catSlug === "ban-phim" ||
-        catSlug === "chuot"
-      ) {
-        return false;
-      }
-
-      return (
-        catSlug === "pc-cu" ||
-        catSlug === "pc-gaming" ||
-        catSlug === "pc-do-hoa" ||
-        catSlug === "pc-van-phong" ||
-        name.startsWith("bộ máy") ||
-        name.startsWith("pc ") ||
-        name.startsWith("máy tính để bàn") ||
-        name.startsWith("máy tính aio")
-      );
-    });
-  }, [products]);
+    return products.filter((p) => isProductMatchingCategory(p, "pc", dbCategories));
+  }, [products, dbCategories]);
 
   const monitorProducts = useMemo(() => {
-    return products.filter((p) => {
-      const catSlug = (p.categorySlug || "").toLowerCase();
-      const cat = (p.categoryName || p.category?.name || "").toLowerCase();
-      const name = (p.name || "").toLowerCase();
+    return products.filter((p) => isProductMatchingCategory(p, "man-hinh", dbCategories));
+  }, [products, dbCategories]);
 
-      // Loại trừ card màn hình (VGA), laptop, PC
-      if (
-        name.includes("card màn hình") ||
-        name.includes("vga") ||
-        catSlug.includes("vga") ||
-        name.startsWith("laptop") ||
-        name.startsWith("bộ máy") ||
-        catSlug.includes("laptop") ||
-        catSlug.includes("pc-")
-      ) {
-        return false;
-      }
-
-      return (
-        catSlug === "man-hinh" ||
-        cat.includes("màn hình") ||
-        cat.includes("monitor") ||
-        name.startsWith("màn hình") ||
-        name.includes("monitor")
-      );
-    });
-  }, [products]);
+  const gearProducts = useMemo(() => {
+    return products.filter(
+      (p) =>
+        isProductMatchingCategory(p, "ban-phim", dbCategories) ||
+        isProductMatchingCategory(p, "chuot", dbCategories)
+    );
+  }, [products, dbCategories]);
 
   const psuProducts = useMemo(() => {
-    return products.filter((p) => {
-      const catSlug = (p.categorySlug || "").toLowerCase();
-      const cat = (p.categoryName || p.category?.name || "").toLowerCase();
-      const name = (p.name || "").toLowerCase();
-      
-      // Loại trừ bộ máy PC và laptop
-      if (
-        name.startsWith("bộ máy") ||
-        name.startsWith("pc ") ||
-        name.includes("laptop") ||
-        name.includes("màn hình") ||
-        catSlug.includes("pc-") ||
-        catSlug.includes("laptop")
-      ) {
-        return false;
-      }
-
-      return (
-        catSlug === "psu-nguon-may-tinh" ||
-        cat.includes("psu") ||
-        cat.includes("nguồn") ||
-        name.includes("nguồn") ||
-        name.includes("psu")
-      );
-    });
-  }, [products]);
+    return products.filter((p) => isProductMatchingCategory(p, "psu-nguon-may-tinh", dbCategories));
+  }, [products, dbCategories]);
 
   const mainboardProducts = useMemo(() => {
-    return products.filter((p) => {
-      const catSlug = (p.categorySlug || "").toLowerCase();
-      const cat = (p.categoryName || p.category?.name || "").toLowerCase();
-      const name = (p.name || "").toLowerCase();
-
-      // Loại trừ bộ máy PC và laptop
-      if (
-        name.startsWith("bộ máy") ||
-        name.startsWith("pc ") ||
-        name.includes("laptop") ||
-        name.includes("màn hình") ||
-        catSlug.includes("pc-") ||
-        catSlug.includes("laptop")
-      ) {
-        return false;
-      }
-
-      return (
-        catSlug === "mainboard-bo-mach-chu" ||
-        cat.includes("mainboard") ||
-        cat.includes("bo mạch") ||
-        name.includes("mainboard") ||
-        name.includes("bo mạch")
-      );
-    });
-  }, [products]);
+    return products.filter((p) => isProductMatchingCategory(p, "mainboard-bo-mach-chu", dbCategories));
+  }, [products, dbCategories]);
 
   return (
     <div className="container mx-auto px-2 sm:px-4 pt-0 pb-0">
@@ -242,70 +131,53 @@ export default function Home() {
         <FlashSaleSection />
       </div>
 
-      {/* 6. ZComputer Shorts / Video ngắn */}
-      <div className="mb-6 sm:mb-8">
-        <ZComputerShorts />
-      </div>
-
-      {/* 7. 🌟 SẢN PHẨM NỔI BẬT KHUYÊN DÙNG */}
+      {/* 6. 🌟 SẢN PHẨM NỔI BẬT KHUYÊN DÙNG */}
       <div className="mb-6 sm:mb-8">
         <FeaturedProductsSection products={products} />
       </div>
 
-      {/* 8. Logo các thương hiệu đối tác */}
+      {/* 7. Logo các thương hiệu đối tác */}
       <div className="mb-6 sm:mb-8">
         <BrandLogosBar />
       </div>
 
-      {/* 9. 💻 LAPTOP CŨ Box */}
+      {/* 8. 💻 LAPTOP Box (Tabs lọc chính xác theo dòng máy) */}
       <CategoryProductBox
-        title="LAPTOP CŨ"
+        title="LAPTOP"
         mainSlug="laptop-cu"
-        tabs={[
-          { name: "Tất cả", slug: "all" },
-          { name: "Laptop Gaming", slug: "laptop-gaming" },
-          { name: "Laptop Văn phòng", slug: "laptop-van-phong" },
-          { name: "Macbook", slug: "macbook" },
-        ]}
+        tabs={laptopTabs}
         products={laptopProducts}
       />
 
-      {/* 10. 🖥️ PC CŨ Box */}
+      {/* 9. 🖥️ PC Box (Đã bỏ chữ "Máy tính để bàn" theo yêu cầu) */}
       <CategoryProductBox
-        title="PC CŨ"
+        title="PC"
         mainSlug="pc-cu"
-        tabs={[
-          { name: "Tất cả", slug: "all" },
-          { name: "PC Gaming", slug: "pc-gaming" },
-          { name: "PC Đồ họa", slug: "pc-do-hoa" },
-          { name: "PC Văn phòng", slug: "pc-van-phong" },
-        ]}
+        tabs={pcTabs}
         products={pcProducts}
       />
 
-      {/* 11. 📺 MÀN HÌNH Box */}
+      {/* 10. 📺 MÀN HÌNH MÁY TÍNH Box (Chỉ chứa màn hình, không kèm chuột/bàn phím) */}
       <CategoryProductBox
-        title="MÀN HÌNH"
+        title="MÀN HÌNH MÁY TÍNH"
         mainSlug="man-hinh"
-        tabs={[
-          { name: "Tất cả", slug: "all" },
-          { name: "24 inch", slug: "24-inch" },
-          { name: "27 inch", slug: "27-inch" },
-          { name: "32 inch", slug: "32-inch" },
-        ]}
+        tabs={[]}
         products={monitorProducts}
+      />
+
+      {/* 11. ⌨️ PHỤ KIỆN GAMING GEAR (Bàn phím & Chuột riêng biệt chuyên nghiệp) */}
+      <CategoryProductBox
+        title="PHỤ KIỆN GAMING GEAR"
+        mainSlug="ban-phim"
+        tabs={gearTabs}
+        products={gearProducts}
       />
 
       {/* 12. ⚡ PSU - NGUỒN MÁY TÍNH Box */}
       <CategoryProductBox
         title="PSU - NGUỒN MÁY TÍNH"
         mainSlug="psu-nguon-may-tinh"
-        tabs={[
-          { name: "Tất cả", slug: "all" },
-          { name: "850W", slug: "850w" },
-          { name: "750W", slug: "750w" },
-          { name: "650W", slug: "650w" },
-        ]}
+        tabs={[]}
         products={psuProducts}
       />
 
@@ -313,12 +185,7 @@ export default function Home() {
       <CategoryProductBox
         title="MAINBOARD - BO MẠCH CHỦ"
         mainSlug="mainboard-bo-mach-chu"
-        tabs={[
-          { name: "Tất cả", slug: "all" },
-          { name: "B760", slug: "b760" },
-          { name: "Z790", slug: "z790" },
-          { name: "B650", slug: "b650" },
-        ]}
+        tabs={[]}
         products={mainboardProducts}
       />
 
@@ -327,7 +194,7 @@ export default function Home() {
         <HomeNewsSection />
       </div>
 
-      {/* 15. 🌟 LỜI CẢM ƠN TỪ ZCOMPUTER & HÌNH ẢNH KHÁCH HÀNG (Nền đen tràn viền) */}
+      {/* 15. 🌟 LỜI CẢM ƠN TỪ DUDI SOFTWARE & HÌNH ẢNH KHÁCH HÀNG */}
       <CustomerGallery />
     </div>
   );

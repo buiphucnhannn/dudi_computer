@@ -75,6 +75,25 @@ apiClient.interceptors.response.use(
       }
     }
 
+    // Nếu lỗi 403 do tài khoản bị khóa / banned
+    if (
+      error.response?.status === 403 &&
+      (error.response?.data?.message?.toLowerCase().includes("khóa") ||
+        error.response?.data?.message?.toLowerCase().includes("banned"))
+    ) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("dudi_user");
+        localStorage.removeItem("zcomputer_user");
+        try {
+          const authChannel = new BroadcastChannel("dudi_auth_channel");
+          authChannel.postMessage({ type: "ACCOUNT_BANNED" });
+          authChannel.close();
+        } catch {}
+        window.location.href = "/login?banned=true";
+      }
+      return Promise.reject(error);
+    }
+
     return Promise.reject(error);
   }
 );

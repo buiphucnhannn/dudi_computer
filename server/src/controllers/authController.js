@@ -1,5 +1,6 @@
 import { authService } from "../services/index.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import { sessionManager } from "../utils/sessionManager.js";
 
 // Cấu hình cookie HttpOnly an toàn chống XSS & CSRF
 const getAccessCookieOptions = () => ({
@@ -190,5 +191,23 @@ export const resetPassword = async (req, res, next) => {
       .json(new ApiResponse(200, result, result.message));
   } catch (error) {
     next(error);
+  }
+};
+
+export const getSessionStream = async (req, res) => {
+  try {
+    res.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache, no-transform",
+      "Connection": "keep-alive",
+      "X-Accel-Buffering": "no",
+    });
+
+    res.write(`data: ${JSON.stringify({ type: "CONNECTED", userId: req.user._id })}\n\n`);
+    sessionManager.addSession(req.user._id, res);
+  } catch (error) {
+    if (!res.headersSent) {
+      res.status(500).json({ message: "Lỗi thiết lập phiên realtime" });
+    }
   }
 };

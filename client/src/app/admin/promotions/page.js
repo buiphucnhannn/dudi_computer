@@ -27,6 +27,7 @@ import ConfirmModal from "@/components/admin/ConfirmModal";
 import { apiClient } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { useDebounce } from "@/lib/useDebounce";
+import { useToast } from "@/components/common/ToastContext";
 
 const generateSlug = (text) => {
   return text
@@ -57,8 +58,8 @@ export default function AdminPromotionsPage() {
   const [allProducts, setAllProducts] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   const [productSearchTerm, setProductSearchTerm] = useState("");
+  const { showToast } = useToast();
 
-  const [toast, setToast] = useState(null);
   const [confirmState, setConfirmState] = useState({
     isOpen: false,
     title: "",
@@ -91,11 +92,6 @@ export default function AdminPromotionsPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isModalOpen, saving]);
-
-  const showToast = (message, type = "success") => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
-  };
 
   // --- Fetch ---
   const fetchPromotions = async () => {
@@ -268,8 +264,31 @@ export default function AdminPromotionsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      showToast("Vui lòng nhập tên chương trình", "error");
+      showToast("Vui lòng nhập tên chương trình khuyến mãi", "error");
       return;
+    }
+    if (!formData.startDate) {
+      showToast("Vui lòng chọn ngày bắt đầu khuyến mãi", "error");
+      return;
+    }
+    if (!formData.endDate) {
+      showToast("Vui lòng chọn ngày kết thúc khuyến mãi", "error");
+      return;
+    }
+    if (new Date(formData.startDate) > new Date(formData.endDate)) {
+      showToast("Ngày kết thúc phải diễn ra sau hoặc cùng ngày với ngày bắt đầu!", "error");
+      return;
+    }
+    if (formData.isActive) {
+      const endOfDay = new Date(formData.endDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      if (endOfDay < new Date()) {
+        showToast(
+          "Không thể kích hoạt chương trình có ngày kết thúc trong quá khứ! Vui lòng chọn ngày kết thúc từ hôm nay trở đi.",
+          "error"
+        );
+        return;
+      }
     }
     if (uploadingBanner) {
       showToast("Ảnh đang tải, vui lòng chờ...", "warning");
@@ -381,26 +400,6 @@ export default function AdminPromotionsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Toast */}
-      {toast && (
-        <div
-          className={`fixed top-6 right-6 z-70 flex items-center gap-3 px-5 py-3.5 rounded-2xl text-sm font-bold shadow-2xl animate-in slide-in-from-top-4 duration-200 ${
-            toast.type === "error"
-              ? "bg-red-600 text-white"
-              : toast.type === "warning"
-              ? "bg-amber-600 text-white"
-              : "bg-slate-900 text-white border border-slate-700"
-          }`}
-        >
-          {toast.type === "error" || toast.type === "warning" ? (
-            <AlertTriangle className="w-5 h-5 text-amber-200" />
-          ) : (
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-          )}
-          <span>{toast.message}</span>
-        </div>
-      )}
-
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -721,17 +720,27 @@ export default function AdminPromotionsPage() {
               </div>
 
               {/* Thời gian */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Ngày bắt đầu</label>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Ngày bắt đầu <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="date"
+                    required
                     value={formData.startDate}
-                    onChange={(e) =>
-                      setFormData({ ...formData, startDate: e.target.value })
-                    }
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 font-medium focus:border-red-500 focus:outline-hidden"
+                    max={formData.endDate || undefined}
+                    onChange={(e) => {
+                      const newStart = e.target.value;
+                      setFormData((prev) => ({
+                        ...prev,
+                        startDate: newStart,
+                        endDate: prev.endDate && prev.endDate < newStart ? newStart : prev.endDate,
+                      }));
+                    }}
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 font-medium text-slate-800 focus:border-red-500 focus:outline-hidden"
                   />
+                  <p className="text-[10px] text-slate-400 mt-1">Thời điểm chiến dịch bắt đầu có hiệu lực</p>
                 </div>
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
@@ -741,11 +750,15 @@ export default function AdminPromotionsPage() {
                     type="date"
                     required
                     value={formData.endDate}
+                    min={formData.startDate || new Date().toISOString().split("T")[0]}
                     onChange={(e) =>
                       setFormData({ ...formData, endDate: e.target.value })
                     }
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 font-medium focus:border-red-500 focus:outline-hidden"
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-200 font-medium text-slate-800 focus:border-red-500 focus:outline-hidden"
                   />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Ngày kết thúc phải từ {formData.startDate || "hôm nay"} trở đi
+                  </p>
                 </div>
               </div>
 

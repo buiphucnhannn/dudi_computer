@@ -58,10 +58,14 @@ export const updateBrand = async (req, res, next) => {
 
 export const deleteBrand = async (req, res, next) => {
   try {
-    await brandService.deleteBrand(req.params.id);
+    const { force, softDelete } = req.query;
+    const result = await brandService.deleteBrand(req.params.id, {
+      force: force === "true" || force === true,
+      softDelete: softDelete === "true" || softDelete === true,
+    });
     return res
       .status(200)
-      .json(new ApiResponse(200, null, "Xóa thương hiệu thành công"));
+      .json(new ApiResponse(200, result, result.message || "Xóa thương hiệu thành công"));
   } catch (error) {
     next(error);
   }

@@ -53,6 +53,10 @@ export class BaseRepository {
     return await this.model.findByIdAndDelete(id).exec();
   }
 
+  async delete(id) {
+    return await this.deleteById(id);
+  }
+
   async deleteMany(filter = {}) {
     return await this.model.deleteMany(filter).exec();
   }

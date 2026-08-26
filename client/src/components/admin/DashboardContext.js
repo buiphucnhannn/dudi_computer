@@ -7,6 +7,7 @@ import {
   normalizeOrderStatus,
   formatOrderInitials,
 } from "./orders/orderStore";
+import { useToast } from "@/components/common/ToastContext";
 
 const DashboardContext = createContext(null);
 
@@ -14,7 +15,7 @@ export function DashboardProvider({ children }) {
   const [orders, setOrders] = useState([]);
   const [stockItems, setStockItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
-  const [toastMessage, setToastMessage] = useState("");
+  const { showToast } = useToast();
   const [revenuePeriod, setRevenuePeriod] = useState("7d");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -60,9 +61,8 @@ export function DashboardProvider({ children }) {
   }, [fetchDashboardData]);
 
   // Toast helper
-  const triggerToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(""), 3500);
+  const triggerToast = (msg, type = "success") => {
+    showToast(msg, type);
   };
 
   // 1. Calculated Metrics & Dynamic Chart Datasets based on live orders
@@ -375,7 +375,6 @@ export function DashboardProvider({ children }) {
         createOrder,
         updateOrderStatus,
         restockProduct,
-        toastMessage,
         triggerToast,
         revenuePeriod,
         setRevenuePeriod,

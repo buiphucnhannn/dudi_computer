@@ -87,13 +87,37 @@ class BrandService {
     return await brandRepository.update(id, data);
   }
 
-  async deleteBrand(id) {
+  async deleteBrand(id, options = {}) {
     const brand = await brandRepository.findById(id);
     if (!brand) {
       throw new ApiError(404, "Không tìm thấy thương hiệu cần xóa");
     }
 
-    return await brandRepository.delete(id);
+    const { force = false } = options;
+
+    // 1. Đếm và CHẶN xóa nếu vẫn còn sản phẩm liên kết với thương hiệu này
+    const brandName = (brand.name || "").trim();
+    const productCount = await Product.countDocuments({
+      $or: [
+        { brand: { $regex: new RegExp(`^${brandName}$`, "i") } },
+        { brand: brand.name },
+      ],
+    });
+
+    if (productCount > 0 && !force) {
+      throw new ApiError(
+        400,
+        `Không thể xóa thương hiệu "${brand.name}" vì đang có ${productCount} sản phẩm trong hệ thống. Vui lòng chuyển hoặc xóa các sản phẩm thuộc thương hiệu này trước!`
+      );
+    }
+
+    // 2. Nếu không còn sản phẩm: Xóa vĩnh viễn
+    await brandRepository.deleteById(id);
+    return {
+      message: `Đã xóa vĩnh viễn thương hiệu "${brand.name}" thành công!`,
+      deleted: true,
+      productCount: 0,
+    };
   }
 }
 

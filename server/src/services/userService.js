@@ -1,6 +1,7 @@
 import { User } from "../models/User.js";
 import { Order } from "../models/Order.js";
 import { ApiError } from "../utils/apiError.js";
+import { sessionManager } from "../utils/sessionManager.js";
 
 export const userService = {
   // Lấy danh sách tài khoản khách hàng (Chỉ lấy tài khoản khách hàng, loại trừ admin)
@@ -109,7 +110,19 @@ export const userService = {
     }
 
     customer.status = status;
+    if (status === "banned") {
+      // 1. Thu hồi và xóa sạch Refresh Token trong database
+      customer.refreshToken = null;
+    }
     await customer.save();
+
+    // 2. Kích hoạt REALTIME kick người dùng ngay lập tức nếu status là banned
+    if (status === "banned") {
+      sessionManager.kickUser(
+        customer._id.toString(),
+        "Tài khoản của bạn đã bị Quản trị viên khóa. Bạn đã bị đăng xuất khỏi hệ thống."
+      );
+    }
 
     return {
       _id: customer._id,

@@ -1,25 +1,212 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { X, Filter, RotateCcw, Check } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  X,
+  Filter,
+  RotateCcw,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  FolderTree,
+  Laptop,
+  Monitor,
+  Cpu,
+  CircuitBoard,
+  HardDrive,
+  MemoryStick,
+  Zap,
+  Server,
+  Fan,
+  Mouse,
+  Keyboard,
+  Sparkles,
+  Layers,
+} from "lucide-react";
 import FilterGroup from "./FilterGroup";
 import { detectProductType, PRODUCT_TYPES } from "@/lib/specParser";
+import { isProductMatchingCategory } from "@/lib/productHelpers";
 
-const BASE_CATEGORIES = [
-  { label: "Laptop", value: "laptop" },
-  { label: "PC", value: "pc" },
-  { label: "Màn hình máy tính", value: "man-hinh" },
-  { label: "Mainboard - Bo mạch chủ", value: "mainboard-bo-mach-chu" },
-  { label: "PSU - Nguồn máy tính", value: "psu-nguon-may-tinh" },
-  { label: "CPU - Bộ vi xử lý", value: "cpu-bo-vi-xu-ly" },
-  { label: "VGA - Card màn hình", value: "vga-card-man-hinh" },
-  { label: "RAM - Bộ nhớ trong", value: "ram-bo-nho-trong" },
-  { label: "Ổ cứng HDD - SSD", value: "o-cung-hdd-ssd" },
-  { label: "CASE - Vỏ máy tính", value: "case-vo-may-tinh" },
-  { label: "Chuột", value: "chuot" },
-  { label: "Bàn phím", value: "ban-phim" },
-  { label: "Tản nhiệt Cooling", value: "tan-nhiet-cooling" },
-];
+const getCategoryIcon = (slug = "", name = "", part = "none") => {
+  const s = slug.toLowerCase();
+  const n = name.toLowerCase();
+  if (s.includes("laptop") || n.includes("laptop") || s.includes("macbook") || n.includes("macbook")) return Laptop;
+  if ((s.includes("pc") || n.includes("pc") || n.includes("máy tính để bàn")) && !s.includes("linh-kien")) return Monitor;
+  if (s.includes("man-hinh") || n.includes("màn hình") || part === "monitor") return Monitor;
+  if (s.includes("cpu") || n.includes("cpu") || n.includes("vi xử lý") || part === "cpu") return Cpu;
+  if (s.includes("vga") || n.includes("vga") || n.includes("card") || part === "vga") return Sparkles;
+  if (s.includes("ram") || n.includes("ram") || part === "ram") return MemoryStick;
+  if (s.includes("mainboard") || n.includes("bo mạch") || part === "mainboard") return CircuitBoard;
+  if (s.includes("o-cung") || n.includes("ổ cứng") || s.includes("ssd") || s.includes("hdd") || part === "ssd" || part === "hdd") return HardDrive;
+  if (s.includes("psu") || n.includes("nguồn") || part === "psu") return Zap;
+  if (s.includes("case") || n.includes("vỏ máy") || part === "case") return Server;
+  if (s.includes("tan-nhiet") || n.includes("tản nhiệt") || part === "cooler") return Fan;
+  if (s.includes("chuot") || n.includes("chuột")) return Mouse;
+  if (s.includes("ban-phim") || n.includes("bàn phím")) return Keyboard;
+  return FolderTree;
+};
+
+// Component cây danh mục chuyên nghiệp, phân cấp rõ ràng và dễ đọc
+function CategoryTreeFilter({
+  treeData = [],
+  totalProductCount = 0,
+  selectedCategory = "",
+  onSelectCategory = () => {},
+}) {
+  const [expandedRoots, setExpandedRoots] = useState({});
+
+  const toggleExpand = (slug, e) => {
+    e.stopPropagation();
+    setExpandedRoots((prev) => ({
+      ...prev,
+      [slug]: !prev[slug],
+    }));
+  };
+
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-xs">
+      <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2.5">
+        <h3 className="text-xs sm:text-sm font-black uppercase tracking-wide text-gray-900 flex items-center gap-2">
+          <FolderTree className="w-4 h-4 text-[#eb1c24]" />
+          <span>Danh mục</span>
+        </h3>
+        {selectedCategory && (
+          <button
+            type="button"
+            onClick={() => onSelectCategory("")}
+            className="text-[11px] font-bold text-[#eb1c24] hover:underline cursor-pointer"
+          >
+            Bỏ chọn
+          </button>
+        )}
+      </div>
+
+      <div className="max-h-[380px] overflow-y-auto pr-1 space-y-1 scrollbar-thin">
+        {/* Tất cả sản phẩm button */}
+        <div
+          onClick={() => onSelectCategory("")}
+          className={`flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-all text-xs sm:text-[13px] ${
+            !selectedCategory
+              ? "bg-red-50 text-[#eb1c24] font-bold shadow-2xs border-l-3 border-[#eb1c24]"
+              : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+          }`}
+        >
+          <div className="flex items-center gap-2.5 min-w-0 pr-1">
+            <span
+              className={`w-2 h-2 rounded-full shrink-0 ${
+                !selectedCategory ? "bg-[#eb1c24]" : "bg-gray-300"
+              }`}
+            />
+            <span className="truncate">Tất cả sản phẩm</span>
+          </div>
+          <span className="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 font-semibold shrink-0">
+            {totalProductCount}
+          </span>
+        </div>
+
+        {/* Tree Roots & Children */}
+        {treeData.map((root) => {
+          const isRootSelected = selectedCategory === root.slug;
+          const hasChildren = Array.isArray(root.children) && root.children.length > 0;
+          const isChildSelected = hasChildren && root.children.some((c) => c.slug === selectedCategory);
+          const isExpanded = expandedRoots[root.slug] ?? (isRootSelected || isChildSelected || true);
+          const Icon = getCategoryIcon(root.slug, root.name, root.pcPartType);
+
+          return (
+            <div key={root.slug} className="space-y-0.5 pt-0.5">
+              {/* Dòng Danh mục Cha */}
+              <div
+                onClick={() => onSelectCategory(root.slug)}
+                className={`flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-all text-xs sm:text-[13px] group ${
+                  isRootSelected
+                    ? "bg-red-50 text-[#eb1c24] font-bold border-l-3 border-[#eb1c24]"
+                    : isChildSelected
+                    ? "text-gray-900 font-bold bg-gray-50/90"
+                    : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0 pr-1">
+                  <Icon
+                    className={`w-4 h-4 shrink-0 transition-colors ${
+                      isRootSelected ? "text-[#eb1c24]" : "text-gray-400 group-hover:text-gray-600"
+                    }`}
+                  />
+                  <span className="font-semibold text-gray-800 group-hover:text-gray-900">
+                    {root.name}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span
+                    className={`text-[11px] px-2 py-0.5 rounded-full ${
+                      isRootSelected
+                        ? "bg-red-100 text-red-700 font-bold"
+                        : "text-gray-400 bg-gray-100 group-hover:text-gray-600"
+                    }`}
+                  >
+                    {root.count}
+                  </span>
+
+                  {hasChildren && (
+                    <button
+                      type="button"
+                      onClick={(e) => toggleExpand(root.slug, e)}
+                      className="p-1 text-gray-400 hover:text-gray-700 transition-transform"
+                    >
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          isExpanded ? "rotate-0 text-[#eb1c24]" : "-rotate-90"
+                        }`}
+                      />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Danh mục con dạng lồng ghép tinh tế */}
+              {hasChildren && isExpanded && (
+                <div className="ml-4 pl-3 border-l-2 border-slate-100 space-y-0.5 py-1">
+                  {root.children.map((child) => {
+                    const isSelected = selectedCategory === child.slug;
+                    return (
+                      <div
+                        key={child.slug}
+                        onClick={() => onSelectCategory(child.slug)}
+                        className={`flex items-center justify-between px-2.5 py-1.5 rounded-lg cursor-pointer transition-all text-xs group ${
+                          isSelected
+                            ? "bg-red-50 text-[#eb1c24] font-bold border-l-2 border-[#eb1c24]"
+                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        }`}
+                      >
+                        <span className="pr-1 flex items-center gap-2">
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                              isSelected ? "bg-[#eb1c24]" : "bg-gray-300 group-hover:bg-gray-400"
+                            }`}
+                          />
+                          <span>{child.name}</span>
+                        </span>
+                        <span
+                          className={`text-[10.5px] px-1.5 py-0.2 rounded-full shrink-0 ${
+                            isSelected
+                              ? "bg-red-100 text-red-700 font-bold"
+                              : "text-gray-400 bg-gray-100 group-hover:text-gray-600"
+                          }`}
+                        >
+                          {child.count}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function ProductSidebar({
   categories = [],
@@ -42,141 +229,46 @@ export default function ProductSidebar({
     };
   }, [isMobileOpen]);
 
-  // 1. Calculate Real Dynamic Category Counts from Database Categories
-  const computedCategories = useMemo(() => {
-    if (Array.isArray(categories) && categories.length > 0) {
-      const activeCats = categories.filter((c) => c.isActive !== false);
+  // 1. Cấu trúc cây Danh mục thực tế từ Database
+  const categoryTreeData = useMemo(() => {
+    if (!Array.isArray(categories) || categories.length === 0) return [];
 
-      // Phân nhóm danh mục gốc và danh mục con
-      const rootCats = activeCats.filter((c) => !c.parent || c.parent === null);
-      const childCats = activeCats.filter((c) => !!c.parent);
+    const activeCats = categories.filter((c) => c.isActive !== false);
+    const rootCats = activeCats.filter((c) => !c.parent || c.parent === null);
+    const childCats = activeCats.filter((c) => !!c.parent);
 
-      const resultList = [];
+    // Hàm đếm số sản phẩm khớp với 1 category cụ thể
+    const countForCategory = (targetCat, isParentWithChildren = false) => {
+      const myChildren = isParentWithChildren
+        ? childCats.filter((ch) => (ch.parent?._id || ch.parent || "").toString() === targetCat._id.toString())
+        : [];
 
-      // Hàm đếm số sản phẩm khớp với 1 category cụ thể
-      const countForCategory = (targetCat, isParentWithChildren = false) => {
-        const matchIds = new Set([targetCat._id.toString()]);
-        const matchSlugs = new Set([targetCat.slug.toLowerCase()]);
-        const matchNames = new Set([targetCat.name.toLowerCase()]);
-        const partType = targetCat.pcPartType && targetCat.pcPartType !== "none" ? targetCat.pcPartType : null;
+      return products.filter((p) => {
+        if (isProductMatchingCategory(p, targetCat.slug, categories)) return true;
+        if (myChildren.some((ch) => isProductMatchingCategory(p, ch.slug, categories))) return true;
+        return false;
+      }).length;
+    };
 
-        if (isParentWithChildren) {
-          childCats.forEach((ch) => {
-            const pId = (ch.parent?._id || ch.parent || "").toString();
-            if (pId === targetCat._id.toString()) {
-              matchIds.add(ch._id.toString());
-              if (ch.slug) matchSlugs.add(ch.slug.toLowerCase());
-              if (ch.name) matchNames.add(ch.name.toLowerCase());
-            }
-          });
-        }
+    return rootCats.map((root) => {
+      const myChildren = childCats.filter(
+        (c) => (c.parent?._id || c.parent || "").toString() === root._id.toString()
+      );
 
-        return products.filter((p) => {
-          const prodType = detectProductType(p);
-          const pCatId = (p.category?._id || p.category || "").toString();
-          const pCatSlug = (p.categorySlug || "").toLowerCase();
-          const pCatName = (p.categoryName || "").toLowerCase();
-          const pName = (p.name || "").toLowerCase();
+      const rootCount = countForCategory(root, myChildren.length > 0);
 
-          if (pCatId && matchIds.has(pCatId)) return true;
-          if (pCatSlug && matchSlugs.has(pCatSlug)) return true;
-          if (pCatName && matchNames.has(pCatName)) return true;
-          if (partType && prodType === partType) return true;
-
-          // Fallback theo slug / type
-          const s = targetCat.slug.toLowerCase();
-          if (s.includes("laptop") || s.includes("macbook")) {
-            return prodType === PRODUCT_TYPES.LAPTOP || pCatSlug.includes("laptop") || pCatName.includes("laptop");
-          }
-          if (s === "pc" || s.includes("pc-") || s.includes("bộ máy tính")) {
-            return prodType === PRODUCT_TYPES.PC || pCatSlug === "pc" || pCatName.includes("bộ máy tính");
-          }
-          if (s.includes("man-hinh") || s.includes("màn hình")) return prodType === PRODUCT_TYPES.MONITOR;
-          if (s.includes("mainboard") || s.includes("bo mạch")) return prodType === PRODUCT_TYPES.MAINBOARD;
-          if (s.includes("psu") || s.includes("nguồn")) return prodType === PRODUCT_TYPES.PSU;
-          if (s.includes("cpu") || s.includes("vi xử lý")) return prodType === PRODUCT_TYPES.CPU;
-          if (s.includes("vga") || s.includes("card")) return prodType === PRODUCT_TYPES.VGA;
-          if (s.includes("ram") || s.includes("bộ nhớ")) return prodType === PRODUCT_TYPES.RAM;
-          if (s.includes("ssd") || s.includes("hdd") || s.includes("o-cung") || s.includes("ổ cứng")) return prodType === PRODUCT_TYPES.STORAGE;
-          if (s.includes("case") || s.includes("vỏ")) return prodType === PRODUCT_TYPES.CASE;
-          if (s.includes("chuot") || s.includes("chuột")) return prodType === PRODUCT_TYPES.MOUSE || pCatSlug.includes("chuot") || pName.includes("chuột");
-          if (s.includes("ban-phim") || s.includes("bàn phím")) return prodType === PRODUCT_TYPES.KEYBOARD || pCatSlug.includes("ban-phim") || pName.includes("bàn phím");
-          if (s.includes("tan-nhiet") || s.includes("cooling") || s.includes("tản nhiệt")) return prodType === PRODUCT_TYPES.COOLER;
-
-          return false;
-        }).length;
+      return {
+        name: root.name,
+        slug: root.slug,
+        pcPartType: root.pcPartType,
+        count: rootCount,
+        children: myChildren.map((ch) => ({
+          name: ch.name,
+          slug: ch.slug,
+          count: countForCategory(ch, false),
+        })),
       };
-
-      rootCats.forEach((root) => {
-        const children = childCats.filter(
-          (c) => (c.parent?._id || c.parent || "").toString() === root._id.toString()
-        );
-        const rootCount = countForCategory(root, children.length > 0);
-
-        resultList.push({
-          label: root.name,
-          value: root.slug,
-          count: rootCount,
-          isParent: children.length > 0,
-        });
-
-        children.forEach((child) => {
-          const childCount = countForCategory(child, false);
-          resultList.push({
-            label: `↳ ${child.name}`,
-            value: child.slug,
-            count: childCount,
-            isChild: true,
-          });
-        });
-      });
-
-      // Nếu có danh mục con không tìm thấy cha trong roots, thêm vào cuối
-      childCats.forEach((ch) => {
-        const pId = (ch.parent?._id || ch.parent || "").toString();
-        const parentFound = rootCats.some((r) => r._id.toString() === pId);
-        if (!parentFound) {
-          resultList.push({
-            label: ch.name,
-            value: ch.slug,
-            count: countForCategory(ch, false),
-          });
-        }
-      });
-
-      return resultList;
-    }
-
-    // Fallback nếu chưa tải được DB categories
-    const counts = {};
-    products.forEach((p) => {
-      const type = detectProductType(p);
-      const catSlug = (p.categorySlug || "").toLowerCase();
-      const catName = (p.categoryName || "").toLowerCase();
-
-      const inc = (key) => {
-        counts[key] = (counts[key] || 0) + 1;
-      };
-
-      if (type === PRODUCT_TYPES.LAPTOP || catSlug.includes("laptop") || catName.includes("laptop")) inc("laptop");
-      else if (type === PRODUCT_TYPES.PC || catSlug === "pc" || catName === "pc" || catSlug.includes("pc-") || catName.includes("bộ máy tính")) inc("pc");
-      else if (type === PRODUCT_TYPES.MONITOR || catSlug.includes("man-hinh") || catName.includes("màn hình")) inc("man-hinh");
-      else if (type === PRODUCT_TYPES.MAINBOARD || catSlug.includes("mainboard") || catName.includes("bo mạch")) inc("mainboard-bo-mach-chu");
-      else if (type === PRODUCT_TYPES.PSU || catSlug.includes("psu") || catName.includes("nguồn")) inc("psu-nguon-may-tinh");
-      else if (type === PRODUCT_TYPES.CPU || catSlug.includes("cpu") || catName.includes("vi xử lý")) inc("cpu-bo-vi-xu-ly");
-      else if (type === PRODUCT_TYPES.VGA || catSlug.includes("vga") || catName.includes("card màn hình")) inc("vga-card-man-hinh");
-      else if (type === PRODUCT_TYPES.RAM || catSlug.includes("ram") || catName.includes("bộ nhớ")) inc("ram-bo-nho-trong");
-      else if (type === PRODUCT_TYPES.SSD || catSlug.includes("o-cung") || catName.includes("ổ cứng") || catSlug.includes("ssd")) inc("o-cung-hdd-ssd");
-      else if (type === PRODUCT_TYPES.CASE || catSlug.includes("case") || catName.includes("vỏ máy")) inc("case-vo-may-tinh");
-      else if (type === PRODUCT_TYPES.MOUSE || catSlug.includes("chuot") || catName.includes("chuột")) inc("chuot");
-      else if (type === PRODUCT_TYPES.KEYBOARD || catSlug.includes("ban-phim") || catName.includes("bàn phím")) inc("ban-phim");
-      else if (type === PRODUCT_TYPES.COOLER || catSlug.includes("tan-nhiet") || catName.includes("tản nhiệt")) inc("tan-nhiet-cooling");
     });
-
-    return BASE_CATEGORIES.map((c) => ({
-      ...c,
-      count: counts[c.value] || 0,
-    }));
   }, [categories, products]);
 
   // 2. Calculate Real Condition Counts
@@ -213,35 +305,37 @@ export default function ProductSidebar({
     ];
   }, [products]);
 
-  // 3. Calculate Real Brand Counts
+  // 3. Calculate Real Brand Counts (Deduplicate & normalize case)
   const computedBrands = useMemo(() => {
-    const brandCounts = {};
+    const brandMap = {}; // key: lowercase, value: { canonicalName, count }
     products.forEach((p) => {
-      if (p.brand) {
-        const b = p.brand.trim();
-        brandCounts[b] = (brandCounts[b] || 0) + 1;
+      if (p.brand && p.brand.trim()) {
+        const raw = p.brand.trim();
+        const lower = raw.toLowerCase();
+        if (!brandMap[lower]) {
+          brandMap[lower] = {
+            canonicalName: raw,
+            count: 0,
+          };
+        }
+        // Ưu tiên cách viết hoa chuẩn
+        if (["ASUS", "MSI", "HP", "LG", "AMD", "NVIDIA", "ASRock", "DareU"].includes(raw.toUpperCase())) {
+          brandMap[lower].canonicalName = raw;
+        } else if (raw === "Dell" || raw === "Apple" || raw === "Lenovo" || raw === "Acer" || raw === "Samsung" || raw === "Gigabyte" || raw === "Microsoft" || raw === "Kingston" || raw === "Corsair" || raw === "Logitech" || raw === "Razer" || raw === "Akko" || raw === "Keychron") {
+          brandMap[lower].canonicalName = raw;
+        }
+        brandMap[lower].count += 1;
       }
     });
 
-    const brandNames = Object.keys(brandCounts).sort((a, b) => brandCounts[b] - brandCounts[a]);
-    if (brandNames.length === 0) {
-      return [
-        "Lenovo",
-        "Dell",
-        "ASUS",
-        "HP",
-        "Acer",
-        "MSI",
-        "Samsung",
-        "LG",
-        "Gigabyte",
-      ].map((b) => ({ label: b, value: b, count: 0 }));
-    }
+    const sorted = Object.values(brandMap)
+      .filter((item) => item.count > 0)
+      .sort((a, b) => b.count - a.count);
 
-    return brandNames.map((b) => ({
-      label: b,
-      value: b,
-      count: brandCounts[b] || 0,
+    return sorted.map((b) => ({
+      label: b.canonicalName,
+      value: b.canonicalName,
+      count: b.count,
     }));
   }, [products]);
 
@@ -307,20 +401,20 @@ export default function ProductSidebar({
 
   const filterContent = (
     <div className="space-y-4">
+      {/* Bộ lọc Danh mục Cây phân cấp hiện đại */}
+      <CategoryTreeFilter
+        treeData={categoryTreeData}
+        totalProductCount={products.length}
+        selectedCategory={filters.category || ""}
+        onSelectCategory={handleCategoryChange}
+      />
+
       <FilterGroup
         title="Tình trạng"
         items={computedConditions}
         selected={filters.condition || ""}
         type="single"
         onChange={handleConditionChange}
-      />
-
-      <FilterGroup
-        title="Danh mục"
-        items={computedCategories}
-        selected={filters.category}
-        type="single"
-        onChange={handleCategoryChange}
       />
 
       <FilterGroup
@@ -344,7 +438,7 @@ export default function ProductSidebar({
   return (
     <>
       {/* 1. Desktop Sidebar */}
-      <aside className="hidden w-60 shrink-0 lg:block">
+      <aside className="hidden w-64 lg:w-[270px] shrink-0 lg:block">
         <div className="sticky top-24 space-y-4">{filterContent}</div>
       </aside>
 

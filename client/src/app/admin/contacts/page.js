@@ -23,16 +23,17 @@ import ConfirmModal from "@/components/admin/ConfirmModal";
 import { contactAPI } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { useDebounce } from "@/lib/useDebounce";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function AdminContactsPage() {
   const [contacts, setContacts] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
-    contacted: 0,
+    processing: 0,
     resolved: 0,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedContact, setSelectedContact] = useState(null);
@@ -40,7 +41,7 @@ export default function AdminContactsPage() {
   const [modalStatus, setModalStatus] = useState("pending");
   const [modalNote, setModalNote] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
-  const [toast, setToast] = useState(null);
+  const { showToast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
@@ -65,11 +66,6 @@ export default function AdminContactsPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDetailModalOpen]);
-
-  const showToast = (message, type = "success") => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
-  };
 
   const debouncedSearch = useDebounce(searchTerm, 1500);
 
@@ -193,26 +189,6 @@ export default function AdminContactsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Toast Notification */}
-      {toast && (
-        <div className="fixed top-6 right-6 z-50 animate-in fade-in slide-in-from-top-4 duration-200">
-          <div
-            className={`flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl border text-sm font-semibold backdrop-blur-md ${
-              toast.type === "error"
-                ? "bg-red-500/90 text-white border-red-400"
-                : "bg-emerald-600/90 text-white border-emerald-500"
-            }`}
-          >
-            {toast.type === "error" ? (
-              <AlertCircle className="w-5 h-5 shrink-0" />
-            ) : (
-              <CheckCircle2 className="w-5 h-5 shrink-0" />
-            )}
-            <span>{toast.message}</span>
-          </div>
-        </div>
-      )}
-
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>

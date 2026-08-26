@@ -37,10 +37,10 @@ import {
   AlignJustify,
   ExternalLink,
 } from "lucide-react";
-import { apiClient } from "@/lib/api";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { formatDate } from "@/lib/utils";
 import { useDebounce } from "@/lib/useDebounce";
+import { useToast } from "@/components/common/ToastContext";
 
 // Hàm tạo slug chuẩn SEO không dấu
 const generateSlug = (text) => {
@@ -129,7 +129,7 @@ export default function AdminNewsPage() {
   });
 
   // --- Common UI States ---
-  const [toast, setToast] = useState(null);
+  const { showToast } = useToast();
   const [confirmState, setConfirmState] = useState({
     isOpen: false,
     title: "",
@@ -139,11 +139,6 @@ export default function AdminNewsPage() {
     onConfirm: null,
     loading: false,
   });
-
-  const showToast = (message, type = "success") => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
-  };
 
   // Đóng modal bằng phím ESC
   useEffect(() => {

@@ -32,3 +32,20 @@ export function formatDate(dateInput) {
   const year = d.getFullYear();
   return `${day}/${month}/${year}`;
 }
+
+/**
+ * Format ngày giờ sang định dạng chuẩn HH:mm dd/mm/yyyy
+ * @param {string|Date|number} dateInput
+ * @returns {string} ví dụ: "14:30 24/08/2026"
+ */
+export function formatDateTime(dateInput) {
+  if (!dateInput) return "";
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return "";
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${hours}:${minutes} ${day}/${month}/${year}`;
+}

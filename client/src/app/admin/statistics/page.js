@@ -1,26 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
 import StatisticsHeader from "@/components/admin/statistics/StatisticsHeader";
 import StatisticsKpiCards from "@/components/admin/statistics/StatisticsKpiCards";
 import RevenueChart from "@/components/admin/statistics/RevenueChart";
 import SalesRatioChart from "@/components/admin/statistics/SalesRatioChart";
 import TopProductsTable from "@/components/admin/statistics/TopProductsTable";
 import { statisticAPI } from "@/lib/api";
+import { useToast } from "@/components/common/ToastContext";
 
 export default function StatisticsPage() {
   const [currentPeriod, setCurrentPeriod] = useState("month");
-  const [toastMessage, setToastMessage] = useState("");
-
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(""), 3500);
-  };
+  const { showToast } = useToast();
 
   const handleExportReport = async () => {
     try {
-      showToast("Đang tạo file báo cáo...");
+      showToast("Đang kết xuất dữ liệu và khởi tạo file báo cáo...");
 
       const [chartRes, prodRes] = await Promise.all([
         statisticAPI.getRevenueChart("month"),
@@ -31,7 +26,7 @@ export default function StatisticsPage() {
       const topProductsList = prodRes.data?.data || [];
 
       const csvRows = [
-        ["BÁO CÁO DOANH THU & HIỆU SUẤT KINH DOANH ZCOMPUTER"],
+        ["BÁO CÁO DOANH THU & HIỆU SUẤT KINH DOANH DUDI SOFTWARE"],
         [`Thời gian xuất: ${new Date().toLocaleString("vi-VN")}`],
         [`Kỳ báo cáo: ${currentPeriod}`],
         [],
@@ -66,23 +61,15 @@ export default function StatisticsPage() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      showToast("Đã tải xuống file báo cáo thống kê kinh doanh CSV từ dữ liệu thật!");
+      showToast("Đã xuất và tải xuống file báo cáo thống kê kinh doanh CSV thành công!");
     } catch (err) {
       console.error("Lỗi xuất file báo cáo:", err);
-      showToast("Có lỗi xảy ra khi xuất file báo cáo!");
+      showToast("Không thể xuất file báo cáo do sự cố kết nối dữ liệu. Vui lòng thử lại sau.", "error");
     }
   };
 
   return (
     <div className="flex flex-col w-full gap-6 sm:gap-8">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-2xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-2xl animate-in slide-in-from-bottom-3 duration-300 border border-slate-700">
-          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
       {/* Header */}
       <StatisticsHeader
         currentPeriod={currentPeriod}

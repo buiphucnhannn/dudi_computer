@@ -47,10 +47,14 @@ export const updateCategory = async (req, res, next) => {
 
 export const deleteCategory = async (req, res, next) => {
   try {
-    await categoryService.deleteCategory(req.params.id);
+    const { force, softDelete } = req.query;
+    const result = await categoryService.deleteCategory(req.params.id, {
+      force: force === "true" || force === true,
+      softDelete: softDelete === "true" || softDelete === true,
+    });
     return res
       .status(200)
-      .json(new ApiResponse(200, null, "Xóa danh mục thành công"));
+      .json(new ApiResponse(200, result, result.message || "Xóa danh mục thành công"));
   } catch (error) {
     next(error);
   }
