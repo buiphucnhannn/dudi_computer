@@ -147,8 +147,55 @@ class ProductService {
       thumbnail = allImages[0].url;
     }
 
+    let categoryId = null;
+    let categoryName =
+      productData.categoryName ||
+      (typeof productData.category === "string" ? productData.category : "") ||
+      "Laptop";
+    let categorySlug = productData.categorySlug || "";
+
+    const categoryLookup = productData.category || productData.categoryName;
+    if (categoryLookup) {
+      const categoryDoc = await categoryRepository.findByNameOrSlug(categoryLookup);
+      if (categoryDoc) {
+        categoryId = categoryDoc._id;
+        categoryName = categoryDoc.name;
+        categorySlug = categoryDoc.slug;
+      }
+    }
+
+    let specs = {};
+    if (productData.specs) {
+      try {
+        specs =
+          typeof productData.specs === "string"
+            ? JSON.parse(productData.specs)
+            : productData.specs;
+      } catch (e) {
+        console.warn("Lỗi parse specs:", e);
+      }
+    }
+
+    let specifications = [];
+    if (productData.specifications) {
+      try {
+        specifications =
+          typeof productData.specifications === "string"
+            ? JSON.parse(productData.specifications)
+            : productData.specifications;
+      } catch (e) {
+        console.warn("Lỗi parse specifications:", e);
+      }
+    }
+
     const newProduct = {
       ...productData,
+      specs: { ...(typeof productData.specs === "object" ? productData.specs : {}), ...specs },
+      specifications: specifications.length > 0 ? specifications : (Array.isArray(productData.specifications) ? productData.specifications : []),
+      category: categoryId || (productData.category ? productData.category : undefined),
+      categoryName: categoryName,
+      categorySlug: categorySlug,
+      brand: (productData.brand || "ZCOMPUTER").trim(),
       slug,
       shortName: productData.shortName || name,
       stock: Number(productData.stock ?? 10),
@@ -277,8 +324,44 @@ class ProductService {
     if (updateData.stock !== undefined) {
       updateData.stock = Number(updateData.stock);
     }
-    if (updateData.price !== undefined) {
-      updateData.price = Number(updateData.price);
+    if (updateData.category !== undefined || updateData.categoryName !== undefined) {
+      const categoryLookup = updateData.category || updateData.categoryName;
+      if (categoryLookup) {
+        const categoryDoc = await categoryRepository.findByNameOrSlug(categoryLookup);
+        if (categoryDoc) {
+          updateData.category = categoryDoc._id;
+          updateData.categoryName = categoryDoc.name;
+          updateData.categorySlug = categoryDoc.slug;
+        } else if (typeof updateData.category === "string" && !updateData.categoryName) {
+          updateData.categoryName = updateData.category;
+        }
+      }
+    }
+
+    if (updateData.specs !== undefined) {
+      try {
+        updateData.specs =
+          typeof updateData.specs === "string"
+            ? JSON.parse(updateData.specs)
+            : updateData.specs;
+      } catch (e) {
+        console.warn("Lỗi parse specs khi cập nhật:", e);
+      }
+    }
+
+    if (updateData.specifications !== undefined) {
+      try {
+        updateData.specifications =
+          typeof updateData.specifications === "string"
+            ? JSON.parse(updateData.specifications)
+            : updateData.specifications;
+      } catch (e) {
+        console.warn("Lỗi parse specifications khi cập nhật:", e);
+      }
+    }
+
+    if (updateData.brand) {
+      updateData.brand = updateData.brand.trim();
     }
 
     const updated = await productRepository.updateById(id, updateData);

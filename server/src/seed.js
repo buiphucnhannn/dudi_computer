@@ -9865,53 +9865,92 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
       const isMainboard = catName.toLowerCase().includes("mainboard") || name.toLowerCase().startsWith("mainboard");
       const isLaptop = catName.toLowerCase().includes("laptop") || catName.toLowerCase().includes("macbook") || name.toLowerCase().includes("laptop");
 
+      const pSpecs = p.specs || {};
       let autoSpecs = Array.isArray(p.specifications) && p.specifications.length > 0 ? p.specifications : [];
       let autoDesc = p.description || "";
 
+      // Smart extraction for structured specifications
+      const extractedCpu = pSpecs.cpu || (
+        isM1 ? "Apple M1 Chip" : (
+          name.match(/\b(i[3579][-\s]\d+\w*|Ryzen\s*[3579]\s*\w+|Apple\s*M[1234]|Core\s*Ultra\s*\d\w*|Xeon\s*\w+)\b/i)?.[0] ||
+          (name.match(/Core\s*i[3579]\s*\w+/i)?.[0] || (isLaptop ? "Intel Core i5" : "Intel Core"))
+        )
+      );
+
+      const extractedRam = pSpecs.ram || (
+        name.match(/\b(\d+GB)\s*(RAM|DDR[45])?\b/i)?.[1]?.toUpperCase() ||
+        name.match(/\b(\d+GB)\b/i)?.[0]?.toUpperCase() ||
+        (isLaptop ? "16GB" : "16GB")
+      );
+
+      const extractedStorage = pSpecs.storage || pSpecs.ssd || (
+        name.match(/(SSD\s*\d+(GB|TB)|\d+(GB|TB)\s*SSD|NVMe\s*\d+(GB|TB)|\d+(GB|TB)\s*NVMe)/i)?.[0]?.toUpperCase() ||
+        (name.includes("256GB") ? "SSD 256GB" : name.includes("1TB") ? "SSD 1TB" : "SSD 512GB")
+      );
+
+      const extractedGpu = pSpecs.gpu || pSpecs.vga || (
+        name.match(/(RTX\s*\d{4}(\s*Ti|\s*Super|\s*\d+GB)?|GTX\s*\d{4}(\s*Super)?|RX\s*\d{4}(\s*XT)?|Intel\s*Iris\s*Xe|Iris\s*Xe|Apple\s*GPU|Radeon\s*Graphics)/i)?.[0] ||
+        (name.toLowerCase().includes("gaming") ? "RTX 3050" : (isLaptop ? "Intel Iris Xe" : "Card đồ họa rời"))
+      );
+
+      const extractedSize = pSpecs.size || (
+        isMonitor ? (name.match(/\b(\d+(\.\d+)?\s*(inch|['"]))\b/i)?.[1]?.replace(/['"]/g, " inch") || "27 inch") : ""
+      );
+
+      const extractedRes = pSpecs.resolution || (
+        isMonitor ? (name.match(/\b(4K\s*UHD|2K\s*WQHD|2K\s*QHD|2K|WQHD|QHD|FHD|1080p)\b/i)?.[0]?.toUpperCase() || "Full HD (1920 x 1080)") : ""
+      );
+
+      const extractedHz = pSpecs.refreshRate || (
+        isMonitor ? (name.match(/\b(\d{2,3}\s*Hz)\b/i)?.[0] || "165Hz") : ""
+      );
+
+      const extractedPanel = pSpecs.panel || (
+        isMonitor ? (name.match(/\b(Fast\s*IPS|OLED|IPS|VA|TN)\b/i)?.[0] || "Fast IPS 1ms") : ""
+      );
+
+      const extractedWatt = pSpecs.wattage || (
+        isPSU ? (name.match(/\b(\d{3,4}\s*W)\b/i)?.[1] || "750W") : ""
+      );
+
+      const extractedEff = pSpecs.efficiency || (
+        isPSU ? (name.match(/\b(80\s*Plus\s*(Gold|Bronze|Platinum|Silver)|80\s*Plus)\b/i)?.[0] || "80 Plus Gold") : ""
+      );
+
+      const extractedChip = pSpecs.chipset || (
+        isMainboard ? (name.match(/\b(Z790|B760M?|B650M?|H610M?|X670M?)\b/i)?.[0]?.toUpperCase() || "Intel B760") : ""
+      );
+
+      const extractedSocket = pSpecs.socket || (
+        isMainboard ? (name.match(/\b(LGA\s*1700|AM5|LGA\s*1200|AM4)\b/i)?.[0] || (extractedChip.includes("650") ? "AM5" : "LGA 1700")) : ""
+      );
+
       if (autoSpecs.length === 0) {
         if (isMonitor) {
-          const size = name.match(/\b(\d+(\.\d+)?\s*(inch|['"]))\b/i)?.[1]?.replace(/['"]/g, " inch") || "27 inch";
-          const res = name.match(/\b(4K\s*UHD|2K\s*WQHD|2K\s*QHD|2K|WQHD|QHD|FHD|1080p)\b/i)?.[0]?.toUpperCase() || "Full HD (1920 x 1080)";
-          const hz = name.match(/\b(\d{2,3}\s*Hz)\b/i)?.[0] || "165Hz";
-          const panel = name.match(/\b(Fast\s*IPS|OLED|IPS|VA|TN)\b/i)?.[0] || "Fast IPS";
           autoSpecs = [
-            { name: "Kích thước màn hình", value: size },
-            { name: "Độ phân giải", value: res },
-            { name: "Tần số quét", value: hz },
-            { name: "Tấm nền", value: `${panel} 1ms` },
+            { name: "Kích thước màn hình", value: extractedSize || "27 inch" },
+            { name: "Độ phân giải", value: extractedRes || "Full HD" },
+            { name: "Tần số quét", value: extractedHz || "165Hz" },
+            { name: "Tấm nền & Công nghệ", value: extractedPanel || "Fast IPS" },
           ];
         } else if (isPSU) {
-          const watt = name.match(/\b(\d{3,4}\s*W)\b/i)?.[1] || "750W";
-          const eff = name.match(/\b(80\s*Plus\s*(Gold|Bronze|Platinum)|80\s*Plus)\b/i)?.[0] || "80 Plus Gold";
           autoSpecs = [
-            { name: "Công suất", value: `${watt} Công suất thực` },
-            { name: "Chứng nhận", value: eff },
-            { name: "Thiết kế dây", value: name.includes("Modular") ? "Full Modular" : "Dây cáp bọc lưới" },
+            { name: "Công suất danh định", value: `${extractedWatt || "750W"} Công suất thực` },
+            { name: "Chứng nhận hiệu suất", value: extractedEff || "80 Plus Gold" },
+            { name: "Thiết kế dây cáp", value: name.includes("Modular") ? "Full Modular" : "Dây cáp bọc lưới" },
           ];
         } else if (isMainboard) {
-          const chip = name.match(/\b(Z790|B760M?|B650M?|H610M?)\b/i)?.[0]?.toUpperCase() || "Intel B760";
           autoSpecs = [
-            { name: "Chipset", value: chip },
-            { name: "Socket", value: chip.includes("650") ? "AM5" : "LGA 1700" },
-            { name: "Hỗ trợ RAM", value: name.includes("DDR5") ? "4 khe DDR5" : "4 khe DDR4" },
-          ];
-        } else if (isLaptop) {
-          const cpu = isM1 ? "Apple M1 Chip" : (name.match(/Ryzen\s*[3579]\s*\w+/i)?.[0] || name.match(/Core\s*i[3579]\s*\w+/i)?.[0] || name.match(/\bi[3579][-\s]\d+\w*/i)?.[0] || "Intel Core");
-          const ram = name.match(/\b(\d+GB)\s*(RAM|DDR[45])?\b/i)?.[1]?.toUpperCase() || "16GB";
-          const ssd = name.match(/(SSD\s*\d+(GB|TB)|\d+(GB|TB)\s*SSD)/i)?.[0]?.toUpperCase() || (name.includes("256GB") ? "SSD 256GB" : "SSD 512GB");
-          autoSpecs = [
-            { name: "CPU", value: cpu },
-            { name: "RAM", value: ram },
-            { name: "Ổ cứng", value: ssd },
+            { name: "Chipset bo mạch chủ", value: extractedChip || "Intel B760" },
+            { name: "Socket CPU tương thích", value: extractedSocket || "LGA 1700" },
+            { name: "Chuẩn hỗ trợ RAM", value: name.includes("DDR5") ? "4 khe DDR5" : "4 khe DDR4" },
           ];
         } else {
-          const cpu = name.match(/\b(i[3579][-\s]\d+\w*|Ryzen\s*[3579]\s*\w+)\b/i)?.[0] || "Intel Core i5";
-          const ram = name.match(/\b(\d+GB)\s*(RAM|DDR[45])?\b/i)?.[1]?.toUpperCase() || "16GB";
-          const ssd = name.match(/(SSD\s*\d+(GB|TB)|\d+(GB|TB)\s*SSD)/i)?.[0]?.toUpperCase() || "SSD 512GB";
           autoSpecs = [
-            { name: "CPU", value: cpu },
-            { name: "RAM", value: ram },
-            { name: "Ổ cứng", value: ssd },
+            { name: "CPU / Vi xử lý", value: extractedCpu || "Intel Core" },
+            { name: "RAM / Bộ nhớ trong", value: extractedRam || "16GB" },
+            { name: "Ổ cứng lưu trữ", value: extractedStorage || "SSD 512GB" },
+            { name: "Card đồ họa (VGA)", value: extractedGpu || "Card đồ họa rời" },
           ];
         }
       }
@@ -9935,18 +9974,19 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
       const sku = `ZC-${cPrefix}-${bPrefix}-${String(index + 1).padStart(4, "0")}`;
 
       const structuredSpecs = {
-        cpu: isLaptop || !isMonitor && !isPSU && !isMainboard ? (name.match(/\b(i[3579][-\s]\d+\w*|Ryzen\s*[3579]\s*\w+|Apple\s*M[1234])\b/i)?.[0] || "Intel Core") : "",
-        ram: isLaptop || !isMonitor && !isPSU && !isMainboard ? (name.match(/\b(\d+GB)\s*(RAM|DDR[45])?\b/i)?.[1]?.toUpperCase() || "16GB") : "",
-        storage: isLaptop || !isMonitor && !isPSU && !isMainboard ? (name.match(/(SSD\s*\d+(GB|TB)|\d+(GB|TB)\s*SSD)/i)?.[0]?.toUpperCase() || "SSD 512GB") : "",
-        gpu: isLaptop || !isMonitor && !isPSU && !isMainboard ? (name.match(/(RTX\s*\d{4}(\s*Ti|\s*Super)?|GTX\s*\d{4}|RX\s*\d{4})/i)?.[0] || "Card đồ họa rời") : "",
-        size: isMonitor ? (name.match(/\b(\d+(\.\d+)?\s*(inch|['"]))\b/i)?.[1]?.replace(/['"]/g, " inch") || "27 inch") : "",
-        resolution: isMonitor ? (name.match(/\b(4K\s*UHD|2K\s*WQHD|2K\s*QHD|2K|WQHD|QHD|FHD|1080p)\b/i)?.[0]?.toUpperCase() || "Full HD") : "",
-        refreshRate: isMonitor ? (name.match(/\b(\d{2,3}\s*Hz)\b/i)?.[0] || "165Hz") : "",
-        panel: isMonitor ? (name.match(/\b(Fast\s*IPS|OLED|IPS|VA|TN)\b/i)?.[0] || "Fast IPS") : "",
-        wattage: isPSU ? (name.match(/\b(\d{3,4}\s*W)\b/i)?.[1] || "750W") : "",
-        efficiency: isPSU ? (name.match(/\b(80\s*Plus\s*(Gold|Bronze|Platinum)|80\s*Plus)\b/i)?.[0] || "80 Plus Gold") : "",
-        chipset: isMainboard ? (name.match(/\b(Z790|B760M?|B650M?|H610M?)\b/i)?.[0]?.toUpperCase() || "Intel B760") : "",
-        socket: isMainboard ? (name.match(/\b(LGA\s*1700|AM5|LGA\s*1200|AM4)\b/i)?.[0] || "LGA 1700") : "",
+        cpu: isLaptop || (!isMonitor && !isPSU && !isMainboard) ? extractedCpu : "",
+        ram: isLaptop || (!isMonitor && !isPSU && !isMainboard) ? extractedRam : "",
+        storage: isLaptop || (!isMonitor && !isPSU && !isMainboard) ? extractedStorage : "",
+        gpu: isLaptop || (!isMonitor && !isPSU && !isMainboard) ? extractedGpu : "",
+        screen: isLaptop ? (name.match(/15\.6|14|16|13\.3/)?.[0] ? `${name.match(/15\.6|14|16|13\.3/)[0]} inch FHD` : '15.6" FHD 144Hz') : "",
+        size: extractedSize,
+        resolution: extractedRes,
+        refreshRate: extractedHz,
+        panel: extractedPanel,
+        wattage: extractedWatt,
+        efficiency: extractedEff,
+        chipset: extractedChip,
+        socket: extractedSocket,
       };
 
       return {

@@ -370,7 +370,14 @@ export default function FeaturedProductsSection({ products = [], categories = []
                     <Eye className="w-3.5 h-3.5" />
                     <span>{item.views || 68} lượt xem</span>
                   </span>
-                  {isOutOfStock ? (
+                  {isAdmin ? (
+                    <Link
+                      href={detailHref}
+                      className="text-slate-800 font-bold hover:underline"
+                    >
+                      Chi tiết →
+                    </Link>
+                  ) : isOutOfStock ? (
                     <span className="text-slate-400 font-semibold">Tạm hết hàng</span>
                   ) : (
                     <button
