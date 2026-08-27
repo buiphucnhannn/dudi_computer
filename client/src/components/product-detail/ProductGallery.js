@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CreditCard } from "lucide-react";
+import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 const paymentMethods = [
   {
@@ -65,7 +66,7 @@ const ProductGallery = ({ product }) => {
   const images =
     rawImages.length > 0
       ? rawImages
-      : ["/images/dudi/dudisoftware1.png"];
+      : [DEFAULT_FALLBACK_IMAGE];
 
   const activeIndex = Math.min(
     selectedImage,
@@ -80,6 +81,7 @@ const ProductGallery = ({ product }) => {
           src={images[activeIndex]}
           alt={product?.name || "Sản phẩm"}
           className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 ease-out group-hover:scale-105"
+          onError={handleImageError}
         />
         {/* Subtle Watermark Tag */}
         <div className="absolute bottom-2.5 left-3 pointer-events-none opacity-80 z-20">
@@ -114,6 +116,7 @@ const ProductGallery = ({ product }) => {
               src={image}
               alt={`${product?.name || "Thumbnail"} ${index + 1}`}
               className="w-full h-full object-contain mix-blend-multiply"
+              onError={handleImageError}
             />
           </button>
         ))}

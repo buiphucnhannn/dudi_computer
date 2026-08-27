@@ -20,6 +20,7 @@ import {
   CloudUpload,
 } from "lucide-react";
 import { useToast } from "@/components/common/ToastContext";
+import { handleImageError } from "@/lib/imageFallback";
 
 /**
  * Tối ưu nén ảnh trước khi tải lên (Client-side compression)
@@ -53,7 +54,9 @@ const compressImageFile = async (file, maxWidth = 1600, maxHeight = 1600, qualit
           const canvas = document.createElement("canvas");
           canvas.width = width;
           canvas.height = height;
-          const ctx = canvas.getContext("2d");
+          const ctx = canvas.getContext("2d", { alpha: true });
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
           ctx.drawImage(img, 0, 0, width, height);
 
           canvas.toBlob(
@@ -641,6 +644,7 @@ export default function ProductModal({
                             src={item.preview || item.url}
                             alt={`Preview ${idx + 1}`}
                             className="h-full w-full object-contain"
+                            onError={handleImageError}
                           />
 
                           {/* Hover action overlay */}

@@ -28,6 +28,7 @@ import {
 import { selectIsAuthenticated, selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { formatVND } from "@/lib/utils";
+import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/lib/imageFallback";
 import OrderCheckoutModal from "./OrderCheckoutModal";
 
 export default function CartContent() {
@@ -212,10 +213,11 @@ export default function CartContent() {
                         <img
                           src={
                             item.thumbnail ||
-                            "/images/dudi/dudisoftware1.png"
+                            DEFAULT_FALLBACK_IMAGE
                           }
                           alt={item.name}
                           className="w-full h-full object-contain"
+                          onError={handleImageError}
                         />
                       </div>
                       <div className="flex flex-col min-w-0">

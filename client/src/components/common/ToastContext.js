@@ -56,7 +56,7 @@ function humanizeMessage(rawMsg, type = "info") {
   if (/user\s*already\s*exists|email\s*already|duplicate\s*key|e11000/i.test(str)) {
     return "Email hoặc số điện thoại này đã được đăng ký tài khoản trước đó. Vui lòng sử dụng thông tin khác hoặc đăng nhập.";
   }
-  if (/otp.*invalid|mã\s*otp\s*không\s*đúng|otp\s*expired|hết\s*hạn/i.test(str)) {
+  if (/otp.*invalid|mã\s*otp\s*không\s*đúng|otp\s*expired|otp.*hết\s*hạn|mã\s*otp.*hết\s*hạn/i.test(str)) {
     return "Mã xác thực OTP không chính xác hoặc đã hết thời gian hiệu lực. Vui lòng bấm gửi lại mã mới.";
   }
   if (/password.*mismatch|mật\s*khẩu\s*không\s*khớp/i.test(str)) {

@@ -18,7 +18,12 @@ body {
   overflow-x: clip;
 }
 
-/* Tối ưu chiều rộng container chuẩn tỷ lệ hiển thị zcomputer.vn */
+/* Chống tràn chữ và tràn khung theo chiều ngang triệt để trên toàn bộ giao diện */
+*, ::before, ::after {
+  overflow-wrap: break-word;
+}
+
+/* Tối ưu chiều rộng container chuẩn tỷ lệ hiển thị*/
 @media (min-width: 1280px) {
   .container {
     max-width: 1450px !important;
@@ -115,5 +120,18 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
   pointer-events: none !important;
   position: absolute !important;
   right: 0 !important;
+}
+
+/* Tối ưu render hình ảnh siêu sắc nét, chống mờ và răng cưa khi scale WebP / PNG */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.crisp-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 

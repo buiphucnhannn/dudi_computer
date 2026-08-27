@@ -23,6 +23,7 @@ import {
 import { formatVND } from "@/lib/utils";
 import { addToCart, addToCartAsync, removeFromCartAsync, selectCartItems } from "@/redux/slices/cartSlice";
 import { selectIsAdmin } from "@/redux/slices/authSlice";
+import { handleImageError } from "@/lib/imageFallback";
 import { useCompare } from "@/components/common/CompareContext";
 import { useToast } from "@/components/common/ToastContext";
 import { getProductCardBadges } from "@/lib/specParser";
@@ -175,10 +176,7 @@ export default function ProductCard({ product }) {
             alt={product.name}
             className="w-full h-full object-contain mix-blend-multiply group-hover:scale-108 transition-transform duration-500 ease-out"
             loading="lazy"
-            onError={(e) => {
-              e.currentTarget.src =
-                "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
-            }}
+            onError={handleImageError}
           />
         </div>
         {/* Watermark */}

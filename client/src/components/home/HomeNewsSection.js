@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Calendar, ChevronRight, Newspaper } from "lucide-react";
 import { newsAPI } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
+import { handleImageError, NEWS_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 export default function HomeNewsSection() {
   const [news, setNews] = useState([]);
@@ -81,13 +82,11 @@ export default function HomeNewsSection() {
               {/* Image */}
               <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden mb-3 bg-slate-100">
                 <img
-                  src={item.thumbnail || "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&auto=format&fit=crop&q=80"}
+                  src={item.thumbnail || NEWS_FALLBACK_IMAGE}
                   alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
-                  onError={(e) => {
-                    e.currentTarget.src = "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&auto=format&fit=crop&q=80";
-                  }}
+                  onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
                 />
               </div>
 

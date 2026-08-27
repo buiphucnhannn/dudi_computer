@@ -23,6 +23,7 @@ import {
   Clock,
 } from "lucide-react";
 import { formatVND, smoothScrollBy } from "@/lib/utils";
+import { handleImageError } from "@/lib/imageFallback";
 import {
   getProductDiscountInfo,
   sortProductsByBestSeller,
@@ -267,10 +268,7 @@ export default function FeaturedProductsSection({ products = [], categories = []
                       alt={item.name}
                       className="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-108 transition-transform duration-500 ease-out"
                       loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.src =
-                          "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
-                      }}
+                      onError={handleImageError}
                     />
 
                     <div className="absolute bottom-1.5 left-2 pointer-events-none opacity-85 z-20">

@@ -42,6 +42,7 @@ import { formatDate } from "@/lib/utils";
 import { useDebounce } from "@/lib/useDebounce";
 import { useToast } from "@/components/common/ToastContext";
 import { apiClient } from "@/lib/api";
+import { handleImageError, NEWS_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 // Hàm tạo slug chuẩn SEO không dấu
 const generateSlug = (text) => {
@@ -1028,14 +1029,17 @@ export default function AdminNewsPage() {
                           </td>
                           <td className="py-3.5 px-4 whitespace-nowrap text-left">
                             <div className="flex items-center gap-3.5">
-                              <img
-                                src={
-                                  art.thumbnail ||
-                                  "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=200"
-                                }
-                                alt={art.title}
-                                className="w-12 h-8 object-cover rounded-lg border border-slate-200 shrink-0"
-                              />
+                              <div className="w-12 h-8 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center p-0.5 overflow-hidden shrink-0">
+                                <img
+                                  src={
+                                    art.thumbnail ||
+                                    NEWS_FALLBACK_IMAGE
+                                  }
+                                  alt={art.title}
+                                  className="w-full h-full object-contain"
+                                  onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
+                                />
+                              </div>
                               <div className="min-w-0">
                                 <a
                                   href={`/news/${art.slug}`}
@@ -1490,15 +1494,18 @@ export default function AdminNewsPage() {
                 {thumbnailPreviewUrl && (
                   <div className="mt-2.5">
                     <div className="relative inline-block group">
-                      <img
-                        src={thumbnailPreviewUrl}
-                        alt="Preview ảnh đại diện"
-                        className="h-16 w-24 rounded-xl border border-slate-200 object-cover shadow-xs"
-                      />
+                      <div className="h-16 w-24 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center p-1 overflow-hidden shadow-xs">
+                        <img
+                          src={thumbnailPreviewUrl}
+                          alt="Preview ảnh đại diện"
+                          className="h-full w-full object-contain"
+                          onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
+                        />
+                      </div>
                       <button
                         type="button"
                         onClick={handleClearThumbnail}
-                        className="absolute -top-2 -right-2 p-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-md transition cursor-pointer"
+                        className="absolute -top-2 -right-2 p-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-md transition cursor-pointer z-10"
                         title="Xóa ảnh đại diện này"
                       >
                         <X className="w-3 h-3" />
@@ -2133,6 +2140,7 @@ export default function AdminNewsPage() {
                             src={imageModalData.url}
                             alt="Uploaded Preview"
                             className="h-28 mx-auto object-cover rounded-xl border border-slate-200 shadow-xs"
+                            onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
                           />
                           {/* Nút X Xóa Ảnh Tải Lên */}
                           <button
@@ -2197,6 +2205,7 @@ export default function AdminNewsPage() {
                           src={imageModalData.url}
                           alt="URL Preview"
                           className="h-24 mx-auto object-cover rounded-xl border border-slate-200"
+                          onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
                         />
                         {/* Nút X Xóa Ảnh URL */}
                         <button

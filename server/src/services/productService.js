@@ -2,8 +2,13 @@ import mongoose from "mongoose";
 import { productRepository, categoryRepository } from "../repositories/index.js";
 import { Order } from "../models/Order.js";
 import { ApiError } from "../utils/apiError.js";
-import { uploadToCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 import { sessionManager } from "../utils/sessionManager.js";
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+  deleteCloudinaryByUrl,
+  deleteManyCloudinaryByUrls,
+} from "../config/cloudinary.js";
 
 class ProductService {
   async getProducts(queryParams) {
@@ -329,14 +334,21 @@ class ProductService {
       };
     }
 
-    // 2. XÓA CỨNG (Hard Delete): Nếu sản phẩm chưa từng có đơn hàng
+    // 2. XÓA CỨNG (Hard Delete): Nếu sản phẩm chưa từng có đơn hàng -> Dọn dẹp toàn bộ ảnh trên Cloudinary
+    const urlsToDelete = [];
+    if (product.thumbnail) urlsToDelete.push(product.thumbnail);
     if (Array.isArray(product.images)) {
       for (const img of product.images) {
-        const publicId = typeof img === "object" ? img.public_id : null;
-        if (publicId) {
-          await deleteFromCloudinary(publicId);
+        if (typeof img === "string") {
+          urlsToDelete.push(img);
+        } else if (typeof img === "object" && img) {
+          if (img.url) urlsToDelete.push(img.url);
+          if (img.public_id) await deleteFromCloudinary(img.public_id);
         }
       }
+    }
+    if (urlsToDelete.length > 0) {
+      await deleteManyCloudinaryByUrls(urlsToDelete);
     }
 
     await productRepository.deleteById(id);

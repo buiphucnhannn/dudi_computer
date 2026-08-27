@@ -7,14 +7,14 @@ const getAccessCookieOptions = () => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  maxAge: 15 * 60 * 1000, // 15 phút
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
 });
 
 const getRefreshCookieOptions = () => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 ngày
 });
 
 export const registerUser = async (req, res, next) => {

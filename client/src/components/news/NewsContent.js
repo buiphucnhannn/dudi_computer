@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, Eye, ChevronRight, Search, Newspaper } from "lucide-react";
 import { newsAPI } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
+import { handleImageError, NEWS_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 const CATEGORIES = [
   "Tất cả",
@@ -125,14 +126,16 @@ export default function NewsContent() {
           >
             <input
               type="text"
+              maxLength={100}
               placeholder="Tìm kiếm bài viết..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-4 pr-10 text-xs sm:text-sm focus:outline-none focus:bg-white focus:border-[#eb1c24] transition-colors"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-4 pr-10 text-xs sm:text-sm focus:outline-none focus:bg-white focus:border-[#eb1c24] transition-colors truncate font-medium"
             />
             <button
               type="submit"
-              className="absolute right-5 md:right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#eb1c24]"
+              className="absolute right-5 md:right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#eb1c24] cursor-pointer"
+              aria-label="Tìm kiếm"
             >
               <Search className="w-4 h-4" />
             </button>
@@ -191,12 +194,10 @@ export default function NewsContent() {
                     className="lg:col-span-7 relative aspect-[16/10] overflow-hidden bg-slate-900 block cursor-pointer"
                   >
                     <img
-                      src={featuredArticle.thumbnail || "/post-3.webp"}
+                      src={featuredArticle.thumbnail || NEWS_FALLBACK_IMAGE}
                       alt={featuredArticle.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      onError={(e) => {
-                        e.currentTarget.src = "/post-3.webp";
-                      }}
+                      onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
                     />
                     <div className="absolute top-3.5 left-3.5 z-10">
                       <span className="bg-[#eb1c24] text-white text-xs font-black px-3 py-1 rounded-md uppercase tracking-wider shadow-md">
@@ -268,13 +269,11 @@ export default function NewsContent() {
                           className="block relative aspect-[16/10] overflow-hidden bg-slate-100"
                         >
                           <img
-                            src={item.thumbnail || "/post-1.webp"}
+                            src={item.thumbnail || NEWS_FALLBACK_IMAGE}
                             alt={item.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
-                            onError={(e) => {
-                              e.currentTarget.src = "/post-1.webp";
-                            }}
+                            onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
                           />
                           <div className="absolute top-2.5 left-2.5 z-10">
                             <span className="bg-[#eb1c24] text-white text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase tracking-wider shadow-sm">

@@ -15,6 +15,7 @@ import {
 } from "react";
 import { detectProductType, getProductTypeLabel } from "@/lib/specParser";
 import { getProductImage } from "@/lib/productHelpers";
+import { handleImageError } from "@/lib/imageFallback";
 
 const ProductComparisonModal = ({
   isOpen,
@@ -457,10 +458,7 @@ const ProductComparisonModal = ({
                             duration-300
                           "
                           loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.src =
-                              "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
-                          }}
+                          onError={handleImageError}
                         />
                       </div>
 

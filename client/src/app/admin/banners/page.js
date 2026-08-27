@@ -21,6 +21,7 @@ import {
 import { bannerAPI, uploadAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
 import BannerCropperModal from "@/components/admin/banners/BannerCropperModal";
+import { handleImageError, BANNER_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 // Định nghĩa thông tin 3 vùng hiển thị cố định chuẩn trên website
 const BANNER_ZONES = [
@@ -506,12 +507,10 @@ export default function BannersPage() {
                 {/* Banner Thumbnail Container */}
                 <div className="relative aspect-[16/9] w-full bg-slate-900 overflow-hidden group">
                   <img
-                    src={banner.imageUrl || "/banner.webp"}
+                    src={banner.imageUrl || BANNER_FALLBACK_IMAGE}
                     alt={banner.title || "Banner"}
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      e.currentTarget.src = "/banner.webp";
-                    }}
+                    onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                   />
 
                   {/* Top Badges Bar (Flexbox prevents any overlap) */}
@@ -849,16 +848,14 @@ export default function BannersPage() {
                           }`}
                         >
                           <img
-                            src={safeImageUrl}
+                            src={safeImageUrl || BANNER_FALLBACK_IMAGE}
                             alt="Preview"
                             className={`w-full h-full ${
                               previewFit === "cover"
                                 ? "object-cover object-center"
                                 : "object-contain object-center"
                             }`}
-                            onError={(e) => {
-                              e.currentTarget.src = "/banner.webp";
-                            }}
+                            onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                           />
                           <div className="absolute top-2 left-2 bg-black/75 text-white text-[9.5px] font-bold px-2 py-0.5 rounded backdrop-blur-xs border border-white/10">
                             Khung {currentZoneInfo.shortName} ({currentZoneInfo.aspectRatio})

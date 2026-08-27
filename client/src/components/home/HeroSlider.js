@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { bannerAPI } from "@/lib/api";
+import { handleImageError, BANNER_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 const DEFAULT_BANNERS = [
   { imageUrl: "https://zcomputer.vn/uploads/image-1784730915598-869631355.webp", link: "/product" },
@@ -152,9 +153,7 @@ export default function HeroSlider() {
                     src="/images/dudi/dudi_showroom_hero.jpg"
                     alt="DUDI SOFTWARE Showroom"
                     className="absolute inset-0 w-full h-full object-cover object-center opacity-35 group-hover:scale-105 transition-transform duration-700 pointer-events-none"
-                    onError={(e) => {
-                      e.currentTarget.src = "/banner.webp";
-                    }}
+                    onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/70 to-transparent pointer-events-none" />
 
@@ -168,6 +167,7 @@ export default function HeroSlider() {
                         src="/images/dudi/dudisoftware4.png"
                         alt="DUDI SOFTWARE Logo"
                         className="w-11 h-11 sm:w-14 sm:h-14 object-contain drop-shadow-md rounded-2xl"
+                        onError={handleImageError}
                       />
                       <div className="text-left">
                         <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight leading-none">
@@ -212,14 +212,12 @@ export default function HeroSlider() {
                   className="block w-full h-full cursor-pointer"
                 >
                   <img
-                    src={imgSrc}
+                    src={imgSrc || BANNER_FALLBACK_IMAGE}
                     alt={item.title || `DUDI SOFTWARE Banner ${idx + 1}`}
                     className={`w-full h-full object-cover object-center select-none pointer-events-none transition-transform ease-out ${
                       isHovered && isActive ? "scale-105 duration-[6000ms]" : "scale-100 duration-[3000ms]"
                     }`}
-                    onError={(e) => {
-                      e.currentTarget.src = "/banner.webp";
-                    }}
+                    onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                     loading={idx === 0 ? "eager" : "lazy"}
                     draggable={false}
                   />
@@ -227,14 +225,12 @@ export default function HeroSlider() {
               ) : (
                 <div className="block w-full h-full cursor-default select-none">
                   <img
-                    src={imgSrc}
+                    src={imgSrc || BANNER_FALLBACK_IMAGE}
                     alt={item.title || `DUDI SOFTWARE Banner ${idx + 1}`}
                     className={`w-full h-full object-cover object-center select-none pointer-events-none transition-transform ease-out ${
                       isHovered && isActive ? "scale-105 duration-[6000ms]" : "scale-100 duration-[3000ms]"
                     }`}
-                    onError={(e) => {
-                      e.currentTarget.src = "/banner.webp";
-                    }}
+                    onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                     loading={idx === 0 ? "eager" : "lazy"}
                     draggable={false}
                   />

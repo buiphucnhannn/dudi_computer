@@ -100,7 +100,7 @@ export default function ActiveFilters({
   const categoryLabel = formatFriendlyCategoryName(filters.category, categories);
 
   return (
-    <div className="mb-5 flex flex-wrap items-center gap-2">
+    <div className="mb-5 flex flex-wrap items-center gap-2 max-w-full overflow-hidden">
       {/* Category Tag */}
       {filters.category && (
         <button
@@ -110,11 +110,11 @@ export default function ActiveFilters({
               category: "",
             })
           }
-          className="inline-flex items-center gap-1.5 rounded-full bg-red-50 hover:bg-red-100 text-[#eb1c24] border border-red-200/80 px-3.5 py-1.5 text-xs font-bold shadow-2xs transition-all cursor-pointer group"
+          className="max-w-full inline-flex items-center gap-1.5 rounded-full bg-red-50 hover:bg-red-100 text-[#eb1c24] border border-red-200/80 px-3.5 py-1.5 text-xs font-bold shadow-2xs transition-all cursor-pointer group"
           title="Bỏ lọc danh mục này"
         >
-          <span>{categoryLabel}</span>
-          <X className="h-3.5 w-3.5 text-[#eb1c24] group-hover:scale-110 transition-transform" />
+          <span className="truncate max-w-[200px]">{categoryLabel}</span>
+          <X className="h-3.5 w-3.5 text-[#eb1c24] group-hover:scale-110 transition-transform shrink-0" />
         </button>
       )}
 
@@ -122,11 +122,11 @@ export default function ActiveFilters({
       {filters.condition && (
         <button
           onClick={removeCondition}
-          className="inline-flex items-center gap-1.5 rounded-full bg-red-50 hover:bg-red-100 text-[#eb1c24] border border-red-200/80 px-3.5 py-1.5 text-xs font-bold shadow-2xs transition-all cursor-pointer group"
+          className="max-w-full inline-flex items-center gap-1.5 rounded-full bg-red-50 hover:bg-red-100 text-[#eb1c24] border border-red-200/80 px-3.5 py-1.5 text-xs font-bold shadow-2xs transition-all cursor-pointer group"
           title="Bỏ lọc tình trạng"
         >
-          <span>Tình trạng: {filters.condition === "new" ? "Mới 100%" : "Cũ (Like New)"}</span>
-          <X className="h-3.5 w-3.5 text-[#eb1c24] group-hover:scale-110 transition-transform" />
+          <span className="truncate">Tình trạng: {filters.condition === "new" ? "Mới 100%" : "Cũ (Like New)"}</span>
+          <X className="h-3.5 w-3.5 text-[#eb1c24] group-hover:scale-110 transition-transform shrink-0" />
         </button>
       )}
 
@@ -134,11 +134,13 @@ export default function ActiveFilters({
       {search && search.trim() && (
         <button
           onClick={onClearSearch}
-          className="inline-flex items-center gap-1.5 rounded-full bg-red-50 hover:bg-red-100 text-[#eb1c24] border border-red-200/80 px-3.5 py-1.5 text-xs font-bold shadow-2xs transition-all cursor-pointer group"
-          title="Bỏ từ khóa tìm kiếm"
+          className="max-w-full inline-flex items-center gap-1.5 rounded-full bg-red-50 hover:bg-red-100 text-[#eb1c24] border border-red-200/80 px-3.5 py-1.5 text-xs font-bold shadow-2xs transition-all cursor-pointer group"
+          title={`Bỏ từ khóa: "${search}"`}
         >
-          <span>Từ khóa: &quot;{search}&quot;</span>
-          <X className="h-3.5 w-3.5 text-[#eb1c24] group-hover:scale-110 transition-transform" />
+          <span className="truncate max-w-[180px] sm:max-w-[280px] md:max-w-[380px]">
+            Từ khóa: &quot;{search}&quot;
+          </span>
+          <X className="h-3.5 w-3.5 text-[#eb1c24] group-hover:scale-110 transition-transform shrink-0" />
         </button>
       )}
 
@@ -147,11 +149,11 @@ export default function ActiveFilters({
         <button
           key={brand}
           onClick={() => removeBrand(brand)}
-          className="inline-flex items-center gap-1.5 rounded-full bg-red-50 hover:bg-red-100 text-[#eb1c24] border border-red-200/80 px-3.5 py-1.5 text-xs font-bold shadow-2xs transition-all cursor-pointer group"
+          className="max-w-full inline-flex items-center gap-1.5 rounded-full bg-red-50 hover:bg-red-100 text-[#eb1c24] border border-red-200/80 px-3.5 py-1.5 text-xs font-bold shadow-2xs transition-all cursor-pointer group"
           title={`Bỏ lọc thương hiệu ${brand}`}
         >
-          <span>{brand}</span>
-          <X className="h-3.5 w-3.5 text-[#eb1c24] group-hover:scale-110 transition-transform" />
+          <span className="truncate max-w-[150px]">{brand}</span>
+          <X className="h-3.5 w-3.5 text-[#eb1c24] group-hover:scale-110 transition-transform shrink-0" />
         </button>
       ))}
 
@@ -160,17 +162,19 @@ export default function ActiveFilters({
         <button
           key={promotion}
           onClick={() => removePromotion(promotion)}
-          className="inline-flex items-center gap-1.5 rounded-full bg-red-50 hover:bg-red-100 text-[#eb1c24] border border-red-200/80 px-3.5 py-1.5 text-xs font-bold shadow-2xs transition-all cursor-pointer group"
+          className="max-w-full inline-flex items-center gap-1.5 rounded-full bg-red-50 hover:bg-red-100 text-[#eb1c24] border border-red-200/80 px-3.5 py-1.5 text-xs font-bold shadow-2xs transition-all cursor-pointer group"
           title="Bỏ lọc khuyến mãi"
         >
-          <span>{promotion === "discount" ? "Đang giảm giá" : "Chiến dịch Flash Sale"}</span>
-          <X className="h-3.5 w-3.5 text-[#eb1c24] group-hover:scale-110 transition-transform" />
+          <span className="truncate max-w-[200px]">
+            {promotion === "discount" ? "Đang giảm giá" : "Chiến dịch Flash Sale"}
+          </span>
+          <X className="h-3.5 w-3.5 text-[#eb1c24] group-hover:scale-110 transition-transform shrink-0" />
         </button>
       ))}
 
       <button
         onClick={onClear}
-        className="ml-2 text-xs font-bold text-slate-500 hover:text-[#eb1c24] hover:underline cursor-pointer transition-colors px-2 py-1"
+        className="ml-2 text-xs font-bold text-slate-500 hover:text-[#eb1c24] hover:underline cursor-pointer transition-colors px-2 py-1 shrink-0"
       >
         Xóa tất cả
       </button>

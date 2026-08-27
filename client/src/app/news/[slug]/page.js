@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { newsAPI } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
+import { handleImageError, NEWS_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 export default function NewsDetailPage() {
   const params = useParams();
@@ -117,12 +118,10 @@ export default function NewsDetailPage() {
         {/* Ảnh thumbnail thật của bài viết làm nền */}
         <div className="absolute inset-0 z-0">
           <img
-            src={bgThumbnail}
+            src={bgThumbnail || NEWS_FALLBACK_IMAGE}
             alt={article.title}
             className="w-full h-full object-cover opacity-45"
-            onError={(e) => {
-              e.currentTarget.src = "/post-3.webp";
-            }}
+            onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
           />
           {/* Lớp gradient phủ mờ từ dưới lên */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#f8f9fa] via-black/50 to-transparent" />
@@ -264,12 +263,10 @@ export default function NewsDetailPage() {
                     >
                       <div className="w-20 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
                         <img
-                          src={rel.thumbnail || "/post-2.webp"}
+                          src={rel.thumbnail || NEWS_FALLBACK_IMAGE}
                           alt={rel.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e) => {
-                            e.currentTarget.src = "/post-2.webp";
-                          }}
+                          onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
                         />
                       </div>
                       <div className="min-w-0 flex-1">

@@ -22,6 +22,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { selectCurrentUser, selectRoleInfo, hasAdminModulePermission } from "@/redux/slices/authSlice";
+import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 const rawMenuGroups = [
   {
@@ -188,9 +189,10 @@ export default function AdminSidebar({ isOpen, onClose }) {
         <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3.5">
           <Link href="/admin" className="flex items-center gap-3 group min-w-0">
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJg90SQjFIlEd2xvqMrzbiRyGKa2AZ87VXJ5Du7OBzu0Zd3o6iw8tIIDFvm6sPFBFbCvYSGagYCpaKEHG9vFSqL38i91uQRRrCo9UTXewIm28quM39SSupX2lsB688GiJUDHxtlFJvMgaV1u7mcyn5gZfEYAgBelIa62J_3HCI6UUUGx5aI93X7AlUsiq0AU_jwFNmLrAPqjsutR0aDRkc9L4jBs1HZvr4UNvJPSC6hnuMmQTn4a9QrPQg3pHMeLRb_A"
+              src={DEFAULT_FALLBACK_IMAGE}
               alt="DUDI software"
               className="h-9 w-9 object-contain rounded-xl shadow-xs group-hover:scale-105 transition-transform shrink-0"
+              onError={handleImageError}
             />
             <div className="border-l border-slate-200 pl-3">
               <div className="text-[13px] font-black uppercase tracking-wider text-slate-900 leading-tight whitespace-nowrap">
