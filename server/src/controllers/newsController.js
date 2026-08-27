@@ -19,7 +19,12 @@ export const getAllNews = async (req, res, next) => {
 export const getNewsBySlug = async (req, res, next) => {
   try {
     const { slug } = req.params;
-    const data = await newsService.getNewsBySlug(slug);
+    const clientIp =
+      req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+      req.socket.remoteAddress ||
+      req.ip ||
+      "";
+    const data = await newsService.getNewsBySlug(slug, clientIp);
 
     return res.status(200).json(
       new ApiResponse(

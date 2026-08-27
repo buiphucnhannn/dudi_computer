@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CreditCard } from "lucide-react";
+import { CreditCard, Eye } from "lucide-react";
 import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/lib/imageFallback";
+import { formatViews } from "@/lib/productHelpers";
 
 const paymentMethods = [
   {
@@ -124,13 +125,13 @@ const ProductGallery = ({ product }) => {
 
       {/* ================= VIEW INFO ================= */}
       <div className="text-center mt-3 mb-4">
-        <p className="text-xs text-slate-500">
-          ◉ 0 lượt xem
+        <p className="inline-flex items-center gap-1.5 text-xs text-slate-500 font-medium bg-slate-100/80 px-2.5 py-1 rounded-full border border-slate-200/60">
+          <Eye className="w-3.5 h-3.5 text-slate-400" />
+          <span>{formatViews(product?.views)}</span>
         </p>
 
-        <p className="text-[10px] italic text-slate-400 mt-1">
-          Hình ảnh hiển thị có thể khác so với xem trực tiếp
-          ở cửa hàng
+        <p className="text-[10px] italic text-slate-400 mt-1.5">
+          Hình ảnh hiển thị có thể khác so với xem trực tiếp ở cửa hàng
         </p>
       </div>
 

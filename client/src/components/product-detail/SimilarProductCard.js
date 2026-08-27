@@ -20,6 +20,7 @@ import {
 import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { handleImageError } from "@/lib/imageFallback";
+import { formatViews } from "@/lib/productHelpers";
 
 const formatPrice = (price) => {
   if (!price) return "";
@@ -233,7 +234,7 @@ export default function SimilarProductCard({ product }) {
         <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
           <div className="flex items-center gap-1.5 text-slate-400 font-medium">
             <Eye className="w-3.5 h-3.5 text-slate-400" />
-            <span>{product.views || 10} lượt xem</span>
+            <span>{formatViews(product.views)}</span>
           </div>
 
           <Link

@@ -19,7 +19,12 @@ export const getAllProducts = async (req, res, next) => {
 export const getProductBySlug = async (req, res, next) => {
   try {
     const { slug } = req.params;
-    const data = await productService.getProductBySlug(slug);
+    const clientIp =
+      req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+      req.socket.remoteAddress ||
+      req.ip ||
+      "";
+    const data = await productService.getProductBySlug(slug, clientIp);
 
     return res.status(200).json(
       new ApiResponse(

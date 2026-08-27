@@ -284,3 +284,21 @@ export function isProductMatchingCategory(product, targetCatSlug, categories = [
 
   return catSlug.includes(s) || catName.includes(s) || name.includes(s);
 }
+
+/**
+ * Định dạng số lượt xem hiển thị chuyên nghiệp, gọn gàng và đẹp mắt
+ * Ví dụ: 85 -> "85 lượt xem", 1450 -> "1.5k lượt xem", 15200 -> "15.2k lượt xem"
+ * @param {number|string} views
+ * @returns {string}
+ */
+export function formatViews(views) {
+  const count = Number(views) || 0;
+  if (count <= 0) return "0 lượt xem";
+  if (count < 1000) return `${count} lượt xem`;
+  if (count < 1000000) {
+    const k = (count / 1000).toFixed(count % 1000 >= 100 ? 1 : 0);
+    return `${k}k lượt xem`;
+  }
+  const m = (count / 1000000).toFixed(1);
+  return `${m}M lượt xem`;
+}

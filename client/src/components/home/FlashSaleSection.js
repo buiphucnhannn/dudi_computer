@@ -28,6 +28,7 @@ import { handleImageError } from "@/lib/imageFallback";
 import {
   getProductDiscountInfo,
   sortProductsByPriority,
+  formatViews,
   getProductImage,
   isProductMatchingCategory,
 } from "@/lib/productHelpers";
@@ -582,9 +583,9 @@ export default function FlashSaleSection({ categories = [] }) {
 
                     {/* Views & Add button */}
                     <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100 mt-1">
-                      <span className="flex items-center gap-1">
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>{item.views || 49} lượt xem</span>
+                      <span className="flex items-center gap-1 font-medium text-slate-400">
+                        <Eye className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{formatViews(item.views)}</span>
                       </span>
                       {isAdmin ? (
                         <Link

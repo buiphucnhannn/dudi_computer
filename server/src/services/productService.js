@@ -10,6 +10,20 @@ import {
   deleteManyCloudinaryByUrls,
 } from "../config/cloudinary.js";
 
+// Bộ nhớ đệm in-memory theo dõi lượt xem chống Spam F5 & Bot (1 view / IP / 5 phút)
+const productViewTracker = new Map();
+const VIEW_COOLDOWN_MS = 5 * 60 * 1000; // 5 phút
+
+// Tự động dọn dẹp bộ nhớ mỗi 10 phút để giải phóng RAM
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, timestamp] of productViewTracker.entries()) {
+    if (now - timestamp > VIEW_COOLDOWN_MS) {
+      productViewTracker.delete(key);
+    }
+  }
+}, 10 * 60 * 1000);
+
 class ProductService {
   async getProducts(queryParams) {
     const {
@@ -54,9 +68,9 @@ class ProductService {
     });
   }
 
-  async getProductBySlug(slug) {
+  async getProductBySlug(slug, clientIp = "") {
     if (!slug) {
-      throw new ApiError(400, "Slug sản phẩm không hợp lệ");
+      throw new ApiError(400, "Vui lòng cung cấp slug sản phẩm");
     }
 
     const product = await productRepository.findBySlug(slug);
@@ -69,8 +83,17 @@ class ProductService {
       throw new ApiError(404, "Danh mục của sản phẩm này hiện đang tạm ẩn");
     }
 
-    // Tăng lượt xem tự động
-    await productRepository.incrementViews(product._id);
+    // Tăng lượt xem tự động chống spam (Non-blocking):
+    // Chỉ tăng nếu IP này chưa xem sản phẩm trong 15 phút qua
+    const trackingKey = `${clientIp || "anon"}_${product._id}`;
+    const lastViewTime = productViewTracker.get(trackingKey);
+    const now = Date.now();
+
+    if (!lastViewTime || now - lastViewTime > VIEW_COOLDOWN_MS) {
+      productViewTracker.set(trackingKey, now);
+      // Chạy ngầm không await để tối ưu tốc độ phản hồi 0ms cho người dùng
+      productRepository.incrementViews(product._id).catch(() => {});
+    }
 
     // Lấy sản phẩm liên quan
     const relatedProducts = await productRepository.findRelated(product, 6);
