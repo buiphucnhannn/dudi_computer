@@ -94,11 +94,24 @@ export default function LoginForm() {
   // Nếu đã đăng nhập và hợp lệ: Chuyển hướng theo redirect hoặc vai trò
   useEffect(() => {
     if (isAuthenticated && user && user.status !== "banned") {
-      const redirectUrl = searchParams?.get("redirect") || searchParams?.get("callbackUrl");
-      if (redirectUrl && user.role !== "admin") {
+      let redirectUrl = searchParams?.get("redirect") || searchParams?.get("callbackUrl");
+      if (redirectUrl && (redirectUrl.startsWith("/login") || redirectUrl.startsWith("/dang-nhap"))) {
+        redirectUrl = null;
+      }
+
+      if (
+        user.role === "admin" ||
+        user.role === "admin_super" ||
+        user.role === "admin_sales" ||
+        user.role === "admin_content"
+      ) {
+        if (redirectUrl && redirectUrl.startsWith("/admin")) {
+          router.push(redirectUrl);
+        } else {
+          router.push("/admin");
+        }
+      } else if (redirectUrl) {
         router.push(redirectUrl);
-      } else if (user.role === "admin") {
-        router.push("/admin");
       } else {
         router.push("/");
       }
@@ -203,11 +216,24 @@ export default function LoginForm() {
   }, []);
 
   const handleSuccessfulLoginRedirect = (loggedInUser) => {
-    const redirectUrl = searchParams?.get("redirect") || searchParams?.get("callbackUrl");
-    if (redirectUrl && loggedInUser?.role !== "admin") {
+    let redirectUrl = searchParams?.get("redirect") || searchParams?.get("callbackUrl");
+    if (redirectUrl && (redirectUrl.startsWith("/login") || redirectUrl.startsWith("/dang-nhap"))) {
+      redirectUrl = null;
+    }
+
+    if (
+      loggedInUser?.role === "admin" ||
+      loggedInUser?.role === "admin_super" ||
+      loggedInUser?.role === "admin_sales" ||
+      loggedInUser?.role === "admin_content"
+    ) {
+      if (redirectUrl && redirectUrl.startsWith("/admin")) {
+        router.push(redirectUrl);
+      } else {
+        router.push("/admin");
+      }
+    } else if (redirectUrl) {
       router.push(redirectUrl);
-    } else if (loggedInUser?.role === "admin") {
-      router.push("/admin");
     } else {
       router.push("/");
     }

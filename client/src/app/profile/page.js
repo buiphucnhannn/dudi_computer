@@ -82,7 +82,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (mounted && !isAuthenticated) {
-      router.push("/login");
+      router.push(`/login?redirect=${encodeURIComponent("/profile")}`);
     }
   }, [mounted, isAuthenticated, router]);
 

@@ -7,6 +7,7 @@ const getAccessCookieOptions = (rememberMe = false) => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  path: "/",
   maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000, // 30 ngày nếu Remember Me, 7 ngày nếu không
 });
 
@@ -14,6 +15,7 @@ const getRefreshCookieOptions = (rememberMe = false) => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  path: "/",
   maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 14 * 24 * 60 * 60 * 1000, // 30 ngày nếu Remember Me, 14 ngày nếu không
 });
 
@@ -140,6 +142,7 @@ export const logoutUser = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      path: "/",
     };
 
     return res

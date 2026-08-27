@@ -19,6 +19,16 @@ const ProductActions = ({ product }) => {
     setMounted(true);
   }, []);
 
+  // Tự động mở Modal Đặt Hàng nếu quay về từ Login với cờ buyNow=true
+  useEffect(() => {
+    if (typeof window !== "undefined" && isAuthenticated) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("buyNow") === "true") {
+        setIsBuyModalOpen(true);
+      }
+    }
+  }, [isAuthenticated]);
+
   const handleOpenBuyModal = () => {
     if (!isAuthenticated) {
       showToast({
@@ -26,8 +36,13 @@ const ProductActions = ({ product }) => {
         message: "Vui lòng đăng nhập để tiến hành đặt hàng.",
         type: "warning",
       });
-      const currentUrl = typeof window !== "undefined" ? window.location.pathname : "/";
-      router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
+      const currentPath = typeof window !== "undefined"
+        ? (window.location.pathname + window.location.search)
+        : (product?.slug ? `/product-detail?slug=${product.slug}` : "/");
+      const redirectTarget = currentPath.includes("buyNow")
+        ? currentPath
+        : `${currentPath}${currentPath.includes("?") ? "&" : "?"}buyNow=true`;
+      router.push(`/login?redirect=${encodeURIComponent(redirectTarget)}`);
       return;
     }
     setIsBuyModalOpen(true);

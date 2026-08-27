@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { logoutUser } from "@/redux/slices/authSlice";
+import { logoutUser, setCredentials } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { apiClient } from "@/lib/api";
 
@@ -11,6 +11,29 @@ export default function SessionWatcher() {
   const { showToast } = useToast();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const eventSourceRef = useRef(null);
+
+  // Đồng bộ và xác thực Session trực tiếp từ HttpOnly Cookie của server khi tải app
+  useEffect(() => {
+    let isMounted = true;
+    apiClient
+      .get("/auth/profile")
+      .then((res) => {
+        if (isMounted && res.data?.data) {
+          dispatch(setCredentials({ user: res.data.data }));
+        }
+      })
+      .catch((err) => {
+        if (isMounted && err.response?.status === 401) {
+          if (isAuthenticated) {
+            dispatch(logoutUser());
+          }
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     // 1. Lắng nghe BroadcastChannel giữa các tab trình duyệt
