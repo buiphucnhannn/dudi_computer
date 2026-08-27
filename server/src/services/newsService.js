@@ -4,6 +4,19 @@ import { ApiError } from "../utils/apiError.js";
 import { sessionManager } from "../utils/sessionManager.js";
 import { deleteCloudinaryByUrl, deleteManyCloudinaryByUrls } from "../config/cloudinary.js";
 
+// Bộ nhớ đệm in-memory theo dõi lượt xem bài viết chống Spam F5 (1 view / IP / 5 phút)
+const newsViewTracker = new Map();
+const NEWS_VIEW_COOLDOWN_MS = 5 * 60 * 1000;
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, timestamp] of newsViewTracker.entries()) {
+    if (now - timestamp > NEWS_VIEW_COOLDOWN_MS) {
+      newsViewTracker.delete(key);
+    }
+  }
+}, 10 * 60 * 1000);
+
 export const newsService = {
   getNews: async (params = {}) => {
     const { page = 1, limit = 10, category, search, tag } = params;
@@ -29,21 +42,21 @@ export const newsService = {
       }
     }
 
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { summary: { $regex: search, $options: "i" } },
+      ];
+    }
+
     if (tag) {
       query.tags = tag;
     }
 
-    if (search && search.trim()) {
-      query.$or = [
-        { title: { $regex: search.trim(), $options: "i" } },
-        { summary: { $regex: search.trim(), $options: "i" } },
-      ];
-    }
-
-    return await newsRepository.find(query, { page, limit });
+    return await newsRepository.getAll(query, page, limit);
   },
 
-  getNewsBySlug: async (slug) => {
+  getNewsBySlug: async (slug, clientIp = "") => {
     if (!slug) {
       throw new ApiError(400, "Slug bài viết không hợp lệ");
     }
@@ -62,8 +75,15 @@ export const newsService = {
       }
     }
 
-    // Tăng lượt xem tự động
-    await newsRepository.incrementViews(slug);
+    // Tăng lượt xem tự động chống spam (Non-blocking):
+    const trackingKey = `${clientIp || "anon"}_${article._id || slug}`;
+    const lastViewTime = newsViewTracker.get(trackingKey);
+    const now = Date.now();
+
+    if (!lastViewTime || now - lastViewTime > NEWS_VIEW_COOLDOWN_MS) {
+      newsViewTracker.set(trackingKey, now);
+      newsRepository.incrementViews(slug).catch(() => {});
+    }
 
     // Lấy thêm bài viết liên quan cùng chuyên mục (chỉ lấy bài thuộc chuyên mục active)
     const related = await newsRepository.getRelated(article.category, article.slug, 3);
