@@ -7,26 +7,82 @@ import { newsAPI } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { handleImageError, NEWS_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
+const CURATED_DEFAULT_NEWS = [
+  {
+    _id: "default-news-1",
+    title: "Top 5 Laptop Gaming Dưới 20 Triệu Đáng Mua Nhất 2025: Hiệu Năng Vượt Trội",
+    slug: "top-5-laptop-gaming-duoi-20-trieu-dang-mua-nhat-2025",
+    category: "Tin công nghệ",
+    thumbnail: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&auto=format&fit=crop&q=80",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: "default-news-2",
+    title: "Hướng Dẫn Build PC Gaming i5 13400F + RTX 4060 Chiến Mọi Tựa Game AAA",
+    slug: "huong-dan-build-pc-gaming-i5-13400f-rtx-4060-chien-moi-tua-game",
+    category: "Thủ thuật",
+    thumbnail: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: "default-news-3",
+    title: "So Sánh RTX 4060 vs RTX 3060 12GB: Đâu Là Lựa Chọn Kinh Tế Tối Ưu?",
+    slug: "so-sanh-rtx-4060-vs-rtx-3060-12gb-nen-chon-card-nao",
+    category: "Đánh giá sản phẩm",
+    thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: "default-news-4",
+    title: "Kinh Nghiệm Chọn Mua Laptop Cũ Like New Chuẩn Zin Không Lo Bị Luộc Đồ",
+    slug: "kinh-nghiem-chon-mua-laptop-cu-like-new-nguyen-zin-khong-lo-bi-luoc-do",
+    category: "Thủ thuật",
+    thumbnail: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&auto=format&fit=crop&q=80",
+    createdAt: new Date().toISOString(),
+  },
+];
+
 export default function HomeNewsSection() {
-  const [news, setNews] = useState([]);
+  const [news, setNews] = useState(CURATED_DEFAULT_NEWS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const loadNews = async () => {
       try {
         const res = await newsAPI.getAll({ limit: 4 });
-        if (res.data && res.data.data && res.data.data.news) {
-          setNews(res.data.data.news);
-        } else if (res.data && Array.isArray(res.data.data)) {
-          setNews(res.data.data);
+        let list = [];
+        if (res.data?.data?.news && Array.isArray(res.data.data.news)) {
+          list = res.data.data.news;
+        } else if (Array.isArray(res.data?.data)) {
+          list = res.data.data;
+        }
+
+        if (isMounted) {
+          if (list.length > 0) {
+            setNews(list);
+          } else {
+            setNews(CURATED_DEFAULT_NEWS);
+          }
         }
       } catch (error) {
-        console.error("Lỗi khi tải tin tức trang chủ:", error);
+        console.warn("Dùng danh sách tin tức chuẩn cho trang chủ:", error?.message);
+        if (isMounted) {
+          setNews(CURATED_DEFAULT_NEWS);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
+
     loadNews();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (

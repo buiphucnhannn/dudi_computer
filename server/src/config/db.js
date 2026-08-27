@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 import dns from "dns";
 import { Product } from "../models/Product.js";
 import { News } from "../models/News.js";
-import { performSeed } from "../seed.js";
+import { NewsCategory } from "../models/NewsCategory.js";
+import { performSeed, NEWS_DATA, NEWS_CATEGORIES_DATA } from "../seed.js";
 
 // Khắc phục lỗi querySrv ECONNREFUSED khi giải mã DNS SRV MongoDB Atlas trên môi trường Windows / mạng nội bộ
 try {
@@ -20,14 +21,26 @@ export const connectDB = async () => {
     });
     console.log(`[Database] MongoDB Connected: ${conn.connection.host}`);
 
-    // Tự động kiểm tra nếu Database chưa có dữ liệu thì thực hiện seed tự động
-    const productCount = await Product.countDocuments();
-    const newsCount = await News.countDocuments();
+    // Tự động kiểm tra nếu Database chưa có dữ liệu thì thực hiện seed an toàn
+    const [productCount, newsCount, newsCatCount] = await Promise.all([
+      Product.countDocuments(),
+      News.countDocuments(),
+      NewsCategory.countDocuments(),
+    ]);
 
-    if (productCount === 0 || newsCount === 0) {
-      console.log(`[Auto-Seed] Phát hiện Database chưa có đủ dữ liệu (${productCount} sản phẩm, ${newsCount} tin tức). Đang tự động nạp dữ liệu chuẩn...`);
+    if (productCount === 0) {
+      console.log(`[Auto-Seed] Phát hiện Database chưa có sản phẩm. Đang tự động nạp dữ liệu chuẩn...`);
       await performSeed();
       console.log(`[Auto-Seed] Tự động nạp dữ liệu hoàn tất!`);
+    } else {
+      if (newsCount === 0) {
+        console.log(`[Auto-Seed] Bổ sung ${NEWS_DATA.length} bài viết tin tức vào Database...`);
+        await News.insertMany(NEWS_DATA);
+      }
+      if (newsCatCount === 0) {
+        console.log(`[Auto-Seed] Bổ sung ${NEWS_CATEGORIES_DATA.length} danh mục tin tức vào Database...`);
+        await NewsCategory.insertMany(NEWS_CATEGORIES_DATA);
+      }
     }
   } catch (error) {
     console.warn(`[Database Info] Không thể kết nối MongoDB (${error.message}).`);

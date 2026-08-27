@@ -15,12 +15,33 @@ class CategoryRepository extends BaseRepository {
   }
 
   async findByNameOrSlug(identifier) {
-    const isObjectId = identifier.match(/^[0-9a-fA-F]{24}$/);
+    if (!identifier) return null;
+
+    if (typeof identifier === "object") {
+      if (identifier._id) {
+        const byObjId = await this.model.findById(identifier._id).exec();
+        if (byObjId) return byObjId;
+      }
+      identifier = identifier.name || identifier.slug || "";
+    }
+
+    if (typeof identifier !== "string" || !identifier.trim()) return null;
+
+    const trimmed = identifier.trim();
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(trimmed);
+
+    if (isObjectId) {
+      const byId = await this.model.findById(trimmed).exec();
+      if (byId) return byId;
+    }
+
+    const escaped = trimmed.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
     return await this.model.findOne({
       $or: [
-        { slug: identifier },
-        { name: { $regex: identifier, $options: "i" } },
-        ...(isObjectId ? [{ _id: identifier }] : []),
+        { slug: trimmed.toLowerCase() },
+        { name: { $regex: new RegExp(`^${escaped}$`, "i") } },
+        { name: { $regex: escaped, $options: "i" } },
       ],
     }).exec();
   }

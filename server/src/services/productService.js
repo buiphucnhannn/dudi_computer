@@ -187,6 +187,11 @@ class ProductService {
       }
     }
 
+    // Nếu không tìm thấy categoryDoc nhưng productData.category là ObjectId hợp lệ
+    if (!categoryId && productData.category && mongoose.Types.ObjectId.isValid(productData.category)) {
+      categoryId = productData.category;
+    }
+
     let specs = {};
     if (productData.specs) {
       try {
@@ -215,7 +220,7 @@ class ProductService {
       ...productData,
       specs: { ...(typeof productData.specs === "object" ? productData.specs : {}), ...specs },
       specifications: specifications.length > 0 ? specifications : (Array.isArray(productData.specifications) ? productData.specifications : []),
-      category: categoryId || (productData.category ? productData.category : undefined),
+      category: categoryId || undefined,
       categoryName: categoryName,
       categorySlug: categorySlug,
       brand: (productData.brand || "ZCOMPUTER").trim(),
@@ -357,6 +362,11 @@ class ProductService {
           updateData.categorySlug = categoryDoc.slug;
         } else if (typeof updateData.category === "string" && !updateData.categoryName) {
           updateData.categoryName = updateData.category;
+          if (!mongoose.Types.ObjectId.isValid(updateData.category)) {
+            delete updateData.category;
+          }
+        } else if (!mongoose.Types.ObjectId.isValid(updateData.category)) {
+          delete updateData.category;
         }
       }
     }

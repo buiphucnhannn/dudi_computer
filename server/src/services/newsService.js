@@ -56,7 +56,7 @@ export const newsService = {
       query.tags = tag;
     }
 
-    return await newsRepository.getAll(query, page, limit);
+    return await newsRepository.find(query, { page, limit });
   },
 
   getNewsBySlug: async (slug, clientIp = "") => {

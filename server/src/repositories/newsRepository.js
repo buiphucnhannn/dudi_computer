@@ -23,6 +23,10 @@ export const newsRepository = {
     };
   },
 
+  getAll: async function (query = {}, page = 1, limit = 10) {
+    return await this.find(query, { page, limit });
+  },
+
   findBySlug: async (slug) => {
     if (!slug) return null;
     return await News.findOne({
