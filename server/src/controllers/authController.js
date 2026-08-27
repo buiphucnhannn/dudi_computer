@@ -7,7 +7,7 @@ const getAccessCookieOptions = (rememberMe = false) => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 2 * 60 * 60 * 1000, // 30 ngày nếu Remember Me, 2 giờ nếu không
+  maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000, // 30 ngày nếu Remember Me, 7 ngày nếu không
 });
 
 const getRefreshCookieOptions = (rememberMe = false) => ({

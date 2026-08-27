@@ -3,6 +3,7 @@ import { Category } from "../models/Category.js";
 import { Product } from "../models/Product.js";
 import { ApiError } from "../utils/apiError.js";
 import { sessionManager } from "../utils/sessionManager.js";
+import { deleteCloudinaryByUrl } from "../config/cloudinary.js";
 
 class CategoryService {
   async getAllCategories() {
@@ -93,7 +94,10 @@ class CategoryService {
       );
     }
 
-    // 3. Nếu không còn danh mục con và không còn sản phẩm: Xóa vĩnh viễn
+    // 3. Nếu không còn danh mục con và không còn sản phẩm: Dọn dẹp ảnh trên Cloudinary & Xóa vĩnh viễn
+    if (category.image) await deleteCloudinaryByUrl(category.image);
+    if (category.icon && category.icon !== category.image) await deleteCloudinaryByUrl(category.icon);
+
     await categoryRepository.deleteById(id);
 
     sessionManager.broadcastResourceUpdate({

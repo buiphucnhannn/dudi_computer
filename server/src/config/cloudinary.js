@@ -89,4 +89,49 @@ export const deleteFromCloudinary = async (publicId) => {
   }
 };
 
+/**
+ * Trích xuất public_id từ Cloudinary URL (bỏ qua version /v.../ và file extension)
+ * @param {string} url - Cloudinary URL
+ * @returns {string|null}
+ */
+export const extractPublicIdFromUrl = (url) => {
+  if (!url || typeof url !== "string" || !url.includes("cloudinary.com")) return null;
+  try {
+    const match = url.match(/\/upload\/(?:v\d+\/)?([^\.\?]+)(?:\.[a-zA-Z0-9]+)?/);
+    if (match && match[1]) {
+      return match[1];
+    }
+  } catch (e) {
+    console.error("Lỗi trích xuất public_id từ URL Cloudinary:", e);
+  }
+  return null;
+};
+
+/**
+ * Xóa 1 ảnh trên Cloudinary trực tiếp bằng URL
+ * @param {string} url - Cloudinary URL
+ * @returns {Promise<any>}
+ */
+export const deleteCloudinaryByUrl = async (url) => {
+  if (!url) return null;
+  const publicId = extractPublicIdFromUrl(url);
+  if (publicId) {
+    return await deleteFromCloudinary(publicId);
+  }
+  return null;
+};
+
+/**
+ * Xóa nhiều ảnh trên Cloudinary bằng danh sách URLs cùng lúc
+ * @param {string[]} urls - Danh sách Cloudinary URLs
+ * @returns {Promise<any[]>}
+ */
+export const deleteManyCloudinaryByUrls = async (urls = []) => {
+  if (!Array.isArray(urls) || urls.length === 0) return [];
+  const validUrls = urls.filter((u) => typeof u === "string" && u.includes("cloudinary.com"));
+  const promises = validUrls.map((u) => deleteCloudinaryByUrl(u));
+  return await Promise.allSettled(promises);
+};
+
 export default cloudinary;
+

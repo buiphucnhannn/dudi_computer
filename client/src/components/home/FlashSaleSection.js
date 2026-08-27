@@ -23,7 +23,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { formatVND, smoothScrollBy } from "@/lib/utils";
+import { formatVND } from "@/lib/utils";
+import { handleImageError } from "@/lib/imageFallback";
 import {
   getProductDiscountInfo,
   sortProductsByPriority,
@@ -462,10 +463,7 @@ export default function FlashSaleSection({ categories = [] }) {
                           alt={item.name}
                           className="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-108 transition-transform duration-500 ease-out"
                           loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.src =
-                              "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
-                          }}
+                          onError={handleImageError}
                         />
 
                         {/* Center Hover Pill */}

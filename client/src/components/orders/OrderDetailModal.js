@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import OrderTimeline, { getStatusBadge } from "./OrderTimeline";
 import { formatVND, formatDate } from "@/lib/utils";
+import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 function formatDateTime(dateInput) {
   if (!dateInput) return "";
@@ -204,9 +205,10 @@ export default function OrderDetailModal({ order, isOpen, onClose }) {
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     <img
-                      src={item.thumbnail || "/images/dudi/dudisoftware1.png"}
+                      src={item.thumbnail || DEFAULT_FALLBACK_IMAGE}
                       alt={item.name}
                       className="w-14 h-14 rounded-xl object-contain bg-slate-50 border border-slate-200 shrink-0 p-1"
+                      onError={handleImageError}
                     />
                     <div className="min-w-0">
                       <p className="text-[13.5px] font-bold text-slate-900 line-clamp-2 leading-snug">

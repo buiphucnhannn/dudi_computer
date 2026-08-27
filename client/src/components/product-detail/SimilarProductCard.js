@@ -19,6 +19,7 @@ import {
 } from "@/redux/slices/cartSlice";
 import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
+import { handleImageError } from "@/lib/imageFallback";
 
 const formatPrice = (price) => {
   if (!price) return "";
@@ -111,6 +112,7 @@ export default function SimilarProductCard({ product }) {
                 : "group-hover:scale-108"
               }
             `}
+            onError={handleImageError}
           />
         </Link>
 

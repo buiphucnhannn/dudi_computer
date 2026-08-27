@@ -2,6 +2,7 @@ import { brandRepository } from "../repositories/brandRepository.js";
 import { Product } from "../models/Product.js";
 import { ApiError } from "../utils/apiError.js";
 import { sessionManager } from "../utils/sessionManager.js";
+import { deleteCloudinaryByUrl } from "../config/cloudinary.js";
 
 class BrandService {
   async getAllBrands(params = {}) {
@@ -130,7 +131,11 @@ class BrandService {
       );
     }
 
-    // 2. Nếu không còn sản phẩm: Xóa vĩnh viễn
+    // 2. Nếu không còn sản phẩm: Dọn dẹp logo trên Cloudinary & Xóa vĩnh viễn
+    if (brand.logo) {
+      await deleteCloudinaryByUrl(brand.logo);
+    }
+
     await brandRepository.deleteById(id);
 
     sessionManager.broadcastResourceUpdate({

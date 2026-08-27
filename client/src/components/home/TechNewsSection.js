@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ChevronRight, Calendar } from "lucide-react";
+import { handleImageError, NEWS_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 const TECH_NEWS = [
   {
@@ -52,10 +53,11 @@ export default function TechNewsSection() {
           >
             <div className="relative aspect-[16/10] rounded-xl overflow-hidden mb-3.5 bg-gray-50 border border-gray-100 shadow-2xs">
               <img
-                src={item.thumbnail}
+                src={item.thumbnail || NEWS_FALLBACK_IMAGE}
                 alt={item.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"
+                onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
               />
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-gray-400 mb-1.5">

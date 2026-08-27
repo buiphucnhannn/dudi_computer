@@ -2,6 +2,7 @@ import { User } from "../models/User.js";
 import { Order } from "../models/Order.js";
 import { ApiError } from "../utils/apiError.js";
 import { sessionManager } from "../utils/sessionManager.js";
+import { deleteCloudinaryByUrl } from "../config/cloudinary.js";
 
 export const userService = {
   // Lấy danh sách tài khoản khách hàng (Chỉ lấy tài khoản khách hàng, loại trừ admin)
@@ -210,7 +211,11 @@ export const userService = {
       };
     }
 
-    // 2. XÓA CỨNG (Hard Delete) khi chưa có đơn hàng
+    // 2. XÓA CỨNG (Hard Delete) khi chưa có đơn hàng -> Dọn dẹp avatar nếu lưu trên Cloudinary
+    if (customer.avatar && customer.avatar.includes("cloudinary.com")) {
+      await deleteCloudinaryByUrl(customer.avatar);
+    }
+
     await User.findByIdAndDelete(id);
     return {
       message: `Đã xóa vĩnh viễn tài khoản "${customer.name}" thành công!`,

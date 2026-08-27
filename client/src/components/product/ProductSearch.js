@@ -7,10 +7,11 @@ export default function ProductSearch({ value, onChange }) {
 
       <input
         type="text"
+        maxLength={100}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Tìm kiếm sản phẩm..."
-        className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-12 pr-10 text-sm outline-none transition focus:border-[#dc2626] focus:ring-2 focus:ring-red-50"
+        placeholder="Tìm kiếm sản phẩm trong danh mục..."
+        className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-12 pr-10 text-sm outline-none transition focus:border-[#dc2626] focus:ring-2 focus:ring-red-100 font-medium truncate"
       />
 
       {value && (

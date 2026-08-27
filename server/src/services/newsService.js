@@ -2,6 +2,7 @@ import { newsRepository } from "../repositories/newsRepository.js";
 import { NewsCategory } from "../models/NewsCategory.js";
 import { ApiError } from "../utils/apiError.js";
 import { sessionManager } from "../utils/sessionManager.js";
+import { deleteCloudinaryByUrl, deleteManyCloudinaryByUrls } from "../config/cloudinary.js";
 
 export const newsService = {
   getNews: async (params = {}) => {
@@ -181,6 +182,21 @@ export const newsService = {
     const article = await newsRepository.findById(id);
     if (!article) {
       throw new ApiError(404, "Không tìm thấy bài viết cần xóa");
+    }
+
+    // 1. Dọn dẹp ảnh thumbnail và các ảnh Cloudinary chèn trong nội dung bài viết
+    const urlsToDelete = [];
+    if (article.thumbnail) urlsToDelete.push(article.thumbnail);
+
+    if (article.content && typeof article.content === "string") {
+      const imgMatches = article.content.matchAll(/src=["'](https?:\/\/[^"']*cloudinary\.com[^"']*)["']/gi);
+      for (const match of imgMatches) {
+        if (match[1]) urlsToDelete.push(match[1]);
+      }
+    }
+
+    if (urlsToDelete.length > 0) {
+      await deleteManyCloudinaryByUrls(urlsToDelete);
     }
 
     const deleted = await newsRepository.delete(id);

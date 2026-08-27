@@ -1,5 +1,7 @@
 "use client";
 
+import { handleImageError } from "@/lib/imageFallback";
+
 export default function CustomerGallery() {
   const customerPhotos = Array.from({ length: 10 }).map(
     (_, idx) => `https://zcomputer.vn/images/customers/customer-${idx + 1}.jpg`
@@ -31,6 +33,7 @@ export default function CustomerGallery() {
                 alt={`DUDI SOFTWARE Customer ${idx + 1}`}
                 className="w-full h-full object-cover p-1.5 sm:p-2 rounded-xl group-hover:scale-110 transition-transform duration-500"
                 loading="lazy"
+                onError={handleImageError}
               />
             </div>
           ))}

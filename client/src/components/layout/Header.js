@@ -57,6 +57,7 @@ import {
 import { authAPI, productAPI, categoryAPI, notificationAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastContext";
 import { useCompare } from "@/components/common/CompareContext";
+import { handleImageError } from "@/lib/imageFallback";
 
 const NAV_CATEGORIES = [
   {
@@ -602,12 +603,13 @@ export default function Header() {
         >
           <form
             onSubmit={handleSearch}
-            className="relative w-full group/search z-50"
+            className="relative w-full group/search z-50 flex items-center bg-white border-2 border-[#eb1c24] rounded-full h-11 pl-5 pr-1.5 focus-within:ring-4 focus-within:ring-red-100/80 transition-all duration-300 shadow-xs"
           >
             <input
               id="desktop-search-input"
               aria-label="Tìm kiếm sản phẩm"
               type="text"
+              maxLength={100}
               placeholder="Bạn cần tìm linh kiện, PC hay Laptop..."
               value={searchQuery}
               onFocus={() => setIsSearchOpen(true)}
@@ -615,13 +617,13 @@ export default function Header() {
                 setSearchQuery(e.target.value);
                 setIsSearchOpen(true);
               }}
-              className="w-full border-2 border-[#eb1c24] bg-white rounded-full py-2.5 pl-6 pr-20 text-sm focus:outline-none focus:ring-3 focus:ring-red-100 transition-all duration-300 placeholder-gray-400 font-medium"
+              className="w-full bg-transparent text-sm text-gray-900 placeholder-gray-400 font-medium focus:outline-none pr-2 truncate"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={handleClearSearch}
-                className="absolute right-14 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full cursor-pointer transition-colors"
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-full cursor-pointer transition-colors shrink-0 mr-1.5"
                 aria-label="Xóa từ khóa"
               >
                 <X className="w-4 h-4" />
@@ -629,7 +631,7 @@ export default function Header() {
             )}
             <button
               type="submit"
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-[38px] w-12 bg-[#eb1c24] rounded-full text-white flex items-center justify-center hover:brightness-110 transition-all duration-200 cursor-pointer shadow-xs"
+              className="h-8 w-11 bg-[#eb1c24] hover:bg-[#d0171e] active:scale-95 rounded-full text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xs shrink-0"
               aria-label="Tìm kiếm"
             >
               <Search className="w-4 h-4" />
@@ -673,6 +675,7 @@ export default function Header() {
                                     src={img}
                                     alt={item.name}
                                     className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform"
+                                    onError={handleImageError}
                                   />
                                 ) : (
                                   <ShoppingCart className="w-5 h-5 text-gray-300" />
@@ -938,11 +941,15 @@ export default function Header() {
         ref={mobileSearchRef}
         className="md:hidden px-4 pb-3 relative z-30"
       >
-        <form onSubmit={handleSearch} className="relative w-full group/search">
+        <form
+          onSubmit={handleSearch}
+          className="relative w-full group/search flex items-center bg-white border-2 border-[#eb1c24] rounded-full h-9 pl-3.5 pr-1 focus-within:ring-3 focus-within:ring-red-100 transition-all shadow-xs"
+        >
           <input
             id="mobile-search-input"
             aria-label="Tìm kiếm sản phẩm di động"
             type="text"
+            maxLength={100}
             placeholder="Tìm kiếm linh kiện, PC, Laptop..."
             value={searchQuery}
             onFocus={() => setIsSearchOpen(true)}
@@ -950,13 +957,13 @@ export default function Header() {
               setSearchQuery(e.target.value);
               setIsSearchOpen(true);
             }}
-            className="w-full border-2 border-red-600/20 bg-gray-50 rounded-full py-1.5 pl-4 pr-16 text-xs focus:outline-none focus:bg-white focus:border-red-600/60 transition-all duration-300 shadow-inner"
+            className="w-full bg-transparent text-xs text-gray-900 placeholder-gray-400 font-medium focus:outline-none pr-1.5 truncate"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={handleClearSearch}
-              className="absolute right-11 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+              className="text-gray-400 hover:text-gray-600 p-1 rounded-full shrink-0 mr-1"
               aria-label="Xóa từ khóa"
             >
               <X className="w-3.5 h-3.5" />
@@ -964,10 +971,10 @@ export default function Header() {
           )}
           <button
             type="submit"
-            className="absolute right-0 top-0 h-full w-10 bg-[#eb1c24] rounded-r-full text-white flex items-center justify-center hover:brightness-110"
+            className="h-7 w-9 bg-[#eb1c24] hover:bg-[#d0171e] active:scale-95 rounded-full text-white flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-xs"
             aria-label="Tìm kiếm"
           >
-            <Search className="w-4 h-4" />
+            <Search className="w-3.5 h-3.5" />
           </button>
         </form>
 
@@ -999,6 +1006,7 @@ export default function Header() {
                                 src={img}
                                 alt={item.name}
                                 className="w-full h-full object-contain mix-blend-multiply"
+                                onError={handleImageError}
                               />
                             ) : (
                               <ShoppingCart className="w-4 h-4 text-gray-300" />

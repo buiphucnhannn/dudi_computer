@@ -27,6 +27,7 @@ import { apiClient } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { useDebounce } from "@/lib/useDebounce";
 import { useToast } from "@/components/common/ToastContext";
+import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 const generateSlug = (text) => {
   return text
@@ -858,9 +859,10 @@ export default function AdminPromotionsPage() {
                               className="w-3.5 h-3.5 accent-red-600 rounded shrink-0 cursor-pointer"
                             />
                             <img
-                              src={p.thumbnail || p.images?.[0] || ""}
+                              src={p.thumbnail || p.images?.[0] || DEFAULT_FALLBACK_IMAGE}
                               alt=""
                               className="w-8 h-8 object-cover rounded-lg border border-slate-200 shrink-0"
+                              onError={handleImageError}
                             />
                             <div className="min-w-0 flex-1">
                               <div className="font-bold text-slate-800 text-[11px] line-clamp-1">

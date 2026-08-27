@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { orderAPI } from "@/lib/api";
 import { formatVND } from "@/lib/utils";
 import { isValidVietnamesePhone, normalizeVietnamesePhone } from "@/lib/validation";
+import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/lib/imageFallback";
 import { selectCurrentUser, selectIsAuthenticated } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 
@@ -327,9 +328,10 @@ export default function OrderCheckoutModal({
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div className="w-10 h-10 rounded-lg bg-white p-1 border border-slate-200 shrink-0 flex items-center justify-center">
                           <img
-                            src={item.thumbnail || "/images/dudi/dudisoftware1.png"}
+                            src={item.thumbnail || DEFAULT_FALLBACK_IMAGE}
                             alt={item.name}
                             className="w-full h-full object-contain"
+                            onError={handleImageError}
                           />
                         </div>
                         <div className="min-w-0">

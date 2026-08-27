@@ -3,6 +3,7 @@ import { Promotion } from "../models/Promotion.js";
 import { Product } from "../models/Product.js";
 import { ApiError } from "../utils/apiError.js";
 import { sessionManager } from "../utils/sessionManager.js";
+import { deleteCloudinaryByUrl } from "../config/cloudinary.js";
 
 export const promotionService = {
   // Lấy chiến dịch Flash Sale duy nhất đang chạy (cho trang chủ)
@@ -255,7 +256,15 @@ export const promotionService = {
       throw new ApiError(404, "Không tìm thấy chương trình khuyến mãi cần xóa");
     }
 
-    // Khôi phục giá gốc cho sản phẩm trước khi xóa
+    // 1. Dọn dẹp ảnh banner trên Cloudinary nếu có
+    if (promo.bannerUrl) {
+      await deleteCloudinaryByUrl(promo.bannerUrl);
+    }
+    if (promo.imageUrl && promo.imageUrl !== promo.bannerUrl) {
+      await deleteCloudinaryByUrl(promo.imageUrl);
+    }
+
+    // 2. Khôi phục giá gốc cho sản phẩm trước khi xóa
     await promotionService._removeDiscountFromProducts(promo);
 
     const deleted = await promotionRepository.delete(id);

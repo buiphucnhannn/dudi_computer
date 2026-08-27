@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { bannerAPI } from "@/lib/api";
+import { handleImageError, BANNER_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 const DEFAULT_PROMO_CARDS = [
   {
@@ -90,6 +91,7 @@ export default function PromoGridCards() {
                     src="/images/dudi/dudisoftware4.png"
                     alt="DUDI SOFTWARE Logo"
                     className="w-8 h-8 sm:w-9 sm:h-9 object-contain drop-shadow-md rounded-xl"
+                    onError={handleImageError}
                   />
                   <div>
                     <span className="text-[12px] font-black uppercase tracking-wider text-white block group-hover:text-red-400 transition-colors">
@@ -121,12 +123,10 @@ export default function PromoGridCards() {
                 className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 aspect-[3/2] w-full cursor-pointer"
               >
                 <img
-                  src={card.imageUrl}
+                  src={card.imageUrl || BANNER_FALLBACK_IMAGE}
                   alt={card.title || `Khuyến mãi ${idx + 1}`}
                   className="w-full h-full object-cover object-center"
-                  onError={(e) => {
-                    e.currentTarget.src = "/banner.webp";
-                  }}
+                  onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                 />
               </Link>
             );
@@ -138,12 +138,10 @@ export default function PromoGridCards() {
               className="rounded-2xl overflow-hidden shadow-xs block bg-gray-100 aspect-[3/2] w-full cursor-default select-none"
             >
               <img
-                src={card.imageUrl}
+                src={card.imageUrl || BANNER_FALLBACK_IMAGE}
                 alt={card.title || `Khuyến mãi ${idx + 1}`}
                 className="w-full h-full object-cover object-center"
-                onError={(e) => {
-                  e.currentTarget.src = "/banner.webp";
-                }}
+                onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
               />
             </div>
           );
