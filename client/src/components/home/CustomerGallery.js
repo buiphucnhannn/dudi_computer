@@ -2,11 +2,50 @@
 
 import { handleImageError } from "@/lib/imageFallback";
 
-export default function CustomerGallery() {
-  const customerPhotos = Array.from({ length: 10 }).map(
-    (_, idx) => `https://zcomputer.vn/images/customers/customer-${idx + 1}.jpg`
-  );
+const GALLERY_PHOTOS = [
+  {
+    url: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=800&q=80",
+    title: "Dàn PC Gaming lắp ráp tại DUDI",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=800&q=80",
+    title: "Góc làm việc & Setup công nghệ",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80",
+    title: "Không gian Gaming & Setup rực rỡ",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=800&q=80",
+    title: "Kỹ thuật lắp ráp & cân chỉnh phần cứng",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80",
+    title: "Hệ thống linh kiện máy tính cao cấp",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=800&q=80",
+    title: "Workstation đồ họa & Render chuyên nghiệp",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+    title: "Trải nghiệm Laptop cao cấp chính hãng",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&w=800&q=80",
+    title: "Bàn phím cơ & Phụ kiện Gaming Gear",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?auto=format&fit=crop&w=800&q=80",
+    title: "Hệ thống tản nhiệt & Case PC hiện đại",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
+    title: "Đồng hành công nghệ cùng quý khách hàng",
+  },
+];
 
+export default function CustomerGallery() {
   return (
     <section className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-[#111111] py-16 border-t border-gray-800 mt-12 overflow-hidden text-white mb-0">
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
@@ -21,17 +60,18 @@ export default function CustomerGallery() {
           </p>
         </div>
 
-        {/* 10 Customer Photos Grid */}
+        {/* 10 Tech & Showroom Setup Photos Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-3.5">
-          {customerPhotos.map((src, idx) => (
+          {GALLERY_PHOTOS.map((item, idx) => (
             <div
               key={idx}
-              className="relative aspect-[4/3] rounded-xl overflow-hidden group shadow-lg border border-gray-800 bg-[#1a1a1a] cursor-pointer"
+              className="relative aspect-[4/3] rounded-xl overflow-hidden group shadow-lg border border-gray-800 bg-[#1a1a1a]"
+              title={item.title}
             >
               <img
-                src={src}
-                alt={`DUDI SOFTWARE Customer ${idx + 1}`}
-                className="w-full h-full object-cover p-1.5 sm:p-2 rounded-xl group-hover:scale-110 transition-transform duration-500"
+                src={item.url}
+                alt={item.title}
+                className="w-full h-full object-cover rounded-xl group-hover:scale-110 transition-transform duration-500"
                 loading="lazy"
                 onError={handleImageError}
               />
