@@ -212,6 +212,8 @@ export default function ProductSidebar({
   filters,
   products = [],
   categories = [],
+  brands = [],
+  totalProductCount = 0,
   onFilterChange,
   isMobileOpen = false,
   onCloseMobile = () => { },
@@ -237,125 +239,74 @@ export default function ProductSidebar({
     const rootCats = activeCats.filter((c) => !c.parent || c.parent === null);
     const childCats = activeCats.filter((c) => !!c.parent);
 
-    // Hàm đếm số sản phẩm khớp với 1 category cụ thể
-    const countForCategory = (targetCat, isParentWithChildren = false) => {
-      const myChildren = isParentWithChildren
-        ? childCats.filter((ch) => (ch.parent?._id || ch.parent || "").toString() === targetCat._id.toString())
-        : [];
-
-      return products.filter((p) => {
-        if (isProductMatchingCategory(p, targetCat.slug, categories)) return true;
-        if (myChildren.some((ch) => isProductMatchingCategory(p, ch.slug, categories))) return true;
-        return false;
-      }).length;
-    };
-
     return rootCats.map((root) => {
       const myChildren = childCats.filter(
         (c) => (c.parent?._id || c.parent || "").toString() === root._id.toString()
       );
 
-      const rootCount = countForCategory(root, myChildren.length > 0);
-
       return {
         name: root.name,
         slug: root.slug,
         pcPartType: root.pcPartType,
-        count: rootCount,
+        count: root.productCount,
         children: myChildren.map((ch) => ({
           name: ch.name,
           slug: ch.slug,
-          count: countForCategory(ch, false),
+          count: ch.productCount,
         })),
       };
     });
-  }, [categories, products]);
+  }, [categories]);
 
-  // 2. Calculate Real Condition Counts
-  const computedConditions = useMemo(() => {
-    let newCount = 0;
-    let usedCount = 0;
+  // 2. Condition Options
+  const computedConditions = useMemo(() => [
+    { label: "Mới 100%", value: "new" },
+    { label: "Cũ (Like New)", value: "used" },
+  ], []);
 
-    products.forEach((p) => {
-      const cond = (p.condition || "").toLowerCase();
-      const name = (p.name || "").toLowerCase();
-      const isUsed =
-        cond.includes("cũ") ||
-        cond.includes("like new") ||
-        cond.includes("99%") ||
-        cond.includes("used") ||
-        cond.includes("lướt") ||
-        cond.includes("second hand") ||
-        name.includes("cũ") ||
-        name.includes("like new") ||
-        name.includes("99%") ||
-        name.includes("lướt") ||
-        name.includes("second hand");
-
-      if (isUsed) {
-        usedCount++;
-      } else {
-        newCount++;
-      }
-    });
-
-    return [
-      { label: "Mới 100%", value: "new", count: newCount },
-      { label: "Cũ (Like New)", value: "used", count: usedCount },
-    ];
-  }, [products]);
-
-  // 3. Calculate Real Brand Counts (Deduplicate & normalize case)
+  // 3. Brand Options: Lấy từ API brands hoặc fallback
   const computedBrands = useMemo(() => {
-    const brandMap = {}; // key: lowercase, value: { canonicalName, count }
-    products.forEach((p) => {
-      if (p.brand && p.brand.trim()) {
-        const raw = p.brand.trim();
-        const lower = raw.toLowerCase();
-        if (!brandMap[lower]) {
-          brandMap[lower] = {
-            canonicalName: raw,
-            count: 0,
-          };
+    if (Array.isArray(brands) && brands.length > 0) {
+      return brands
+        .filter((b) => b.isActive !== false)
+        .map((b) => ({
+          label: b.name,
+          value: b.name,
+          count: b.productCount,
+        }));
+    }
+
+    // Fallback nếu có products sẵn
+    if (Array.isArray(products) && products.length > 0) {
+      const brandMap = {};
+      products.forEach((p) => {
+        if (p.brand && p.brand.trim()) {
+          const raw = p.brand.trim();
+          const lower = raw.toLowerCase();
+          if (!brandMap[lower]) {
+            brandMap[lower] = { canonicalName: raw, count: 0 };
+          }
+          brandMap[lower].count += 1;
         }
-        // Ưu tiên cách viết hoa chuẩn
-        if (["ASUS", "MSI", "HP", "LG", "AMD", "NVIDIA", "ASRock", "DareU"].includes(raw.toUpperCase())) {
-          brandMap[lower].canonicalName = raw;
-        } else if (raw === "Dell" || raw === "Apple" || raw === "Lenovo" || raw === "Acer" || raw === "Samsung" || raw === "Gigabyte" || raw === "Microsoft" || raw === "Kingston" || raw === "Corsair" || raw === "Logitech" || raw === "Razer" || raw === "Akko" || raw === "Keychron") {
-          brandMap[lower].canonicalName = raw;
-        }
-        brandMap[lower].count += 1;
-      }
-    });
+      });
+      return Object.values(brandMap)
+        .filter((item) => item.count > 0)
+        .sort((a, b) => b.count - a.count)
+        .map((b) => ({ label: b.canonicalName, value: b.canonicalName, count: b.count }));
+    }
 
-    const sorted = Object.values(brandMap)
-      .filter((item) => item.count > 0)
-      .sort((a, b) => b.count - a.count);
-
-    return sorted.map((b) => ({
-      label: b.canonicalName,
-      value: b.canonicalName,
-      count: b.count,
-    }));
-  }, [products]);
-
-  // 4. Calculate Real Promotion Counts
-  const computedPromotions = useMemo(() => {
-    const discountCount = products.filter(
-      (p) =>
-        Number(p.originalPrice || 0) > Number(p.price || 0) ||
-        Number(p.discountPercent || 0) > 0
-    ).length;
-
-    const flashSaleCount = products.filter(
-      (p) => p.isFlashSale === true || p.isFlashSale === "true"
-    ).length;
-
-    return [
-      { label: "Đang giảm giá", value: "discount", count: discountCount },
-      { label: "Chiến dịch Flash Sale", value: "flash_sale", count: flashSaleCount },
+    const defaultBrands = [
+      "ASUS", "MSI", "Dell", "HP", "Lenovo", "Acer", "Apple", "LG",
+      "Gigabyte", "Logitech", "Razer", "Kingston", "Corsair", "Akko"
     ];
-  }, [products]);
+    return defaultBrands.map((b) => ({ label: b, value: b }));
+  }, [brands, products]);
+
+  // 4. Promotion Options
+  const computedPromotions = useMemo(() => [
+    { label: "Đang giảm giá", value: "discount" },
+    { label: "Chiến dịch Flash Sale", value: "flash_sale" },
+  ], []);
 
   const handleConditionChange = (condition) => {
     onFilterChange({

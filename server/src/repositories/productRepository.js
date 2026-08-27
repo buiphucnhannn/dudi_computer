@@ -9,6 +9,7 @@ class ProductRepository extends BaseRepository {
   async findWithFilters({
     search,
     categoryId,
+    categoryIds,
     categoryName,
     brand,
     condition,
@@ -16,73 +17,108 @@ class ProductRepository extends BaseRepository {
     maxPrice,
     isHot,
     isFlashSale,
+    discount,
     sort = "newest",
     page = 1,
     limit = 20,
     isAdmin = false,
   }) {
-    const query = {
-      isDeleted: { $ne: true },
-    };
+    const andConditions = [{ isDeleted: { $ne: true } }];
 
     // Mặc định khách hàng chỉ xem sản phẩm active (trừ khi có cờ admin)
     if (!isAdmin) {
-      query.isActive = { $ne: false };
+      andConditions.push({ isActive: { $ne: false } });
     }
 
     // Tìm kiếm theo từ khóa
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { shortName: { $regex: search, $options: "i" } },
-        { sku: { $regex: search, $options: "i" } },
-        { brand: { $regex: search, $options: "i" } },
-        { categoryName: { $regex: search, $options: "i" } },
-        { shortDescription: { $regex: search, $options: "i" } },
-        { tags: { $in: [new RegExp(search, "i")] } },
-      ];
+    if (search && search.trim()) {
+      const s = search.trim();
+      andConditions.push({
+        $or: [
+          { name: { $regex: s, $options: "i" } },
+          { shortName: { $regex: s, $options: "i" } },
+          { sku: { $regex: s, $options: "i" } },
+          { brand: { $regex: s, $options: "i" } },
+          { categoryName: { $regex: s, $options: "i" } },
+          { shortDescription: { $regex: s, $options: "i" } },
+          { tags: { $in: [new RegExp(s, "i")] } },
+        ],
+      });
     }
 
-    // Lọc theo Category ID hoặc Category Slug / Category Name chính xác
-    if (categoryId) {
-      query.category = categoryId;
+    // Lọc theo Category ID / Category IDs hoặc Category Slug / Category Name
+    if (categoryIds && categoryIds.length > 0) {
+      andConditions.push({
+        $or: [
+          { category: { $in: categoryIds } },
+          { categorySlug: categoryName },
+          { categoryName: { $regex: new RegExp(`^${categoryName}$`, "i") } },
+        ],
+      });
+    } else if (categoryId) {
+      andConditions.push({ category: categoryId });
     } else if (categoryName && categoryName !== "all") {
-      query.$or = [
-        { categorySlug: categoryName },
-        { categoryName: { $regex: new RegExp(`^${categoryName}$`, "i") } },
-        { categorySlug: { $regex: categoryName, $options: "i" } },
-      ];
+      andConditions.push({
+        $or: [
+          { categorySlug: categoryName },
+          { categoryName: { $regex: new RegExp(`^${categoryName}$`, "i") } },
+          { categorySlug: { $regex: categoryName, $options: "i" } },
+        ],
+      });
     }
 
-    // Lọc theo Brand
+    // Lọc theo Brand (hỗ trợ 1 hoặc nhiều thương hiệu phân tách bằng dấu phẩy)
     if (brand) {
-      query.brand = { $regex: new RegExp(`^${brand}$`, "i") };
+      const brandList = Array.isArray(brand)
+        ? brand
+        : String(brand).split(",").map((b) => b.trim()).filter(Boolean);
+
+      if (brandList.length === 1) {
+        andConditions.push({ brand: { $regex: new RegExp(`^${brandList[0]}$`, "i") } });
+      } else if (brandList.length > 1) {
+        const regexPatterns = brandList.map((b) => `^${b}$`).join("|");
+        andConditions.push({ brand: { $regex: new RegExp(regexPatterns, "i") } });
+      }
     }
 
     // Lọc theo Tình trạng (Mới / Cũ / Like New)
     if (condition) {
       if (condition === "new" || condition === "moi") {
-        query.condition = { $regex: /Mới|New/i };
+        andConditions.push({ condition: { $regex: /Mới|New/i } });
       } else if (condition === "used" || condition === "cu" || condition === "like_new") {
-        query.condition = { $regex: /Cũ|Like New|99%|Đã qua sử dụng|Lướt|Second Hand/i };
+        andConditions.push({ condition: { $regex: /Cũ|Like New|99%|Đã qua sử dụng|Lướt|Second Hand/i } });
       } else {
-        query.condition = { $regex: condition, $options: "i" };
+        andConditions.push({ condition: { $regex: condition, $options: "i" } });
       }
     }
 
     // Lọc theo khoảng giá
     if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) query.price.$gte = Number(minPrice);
-      if (maxPrice) query.price.$lte = Number(maxPrice);
+      const priceCond = {};
+      if (minPrice) priceCond.$gte = Number(minPrice);
+      if (maxPrice) priceCond.$lte = Number(maxPrice);
+      andConditions.push({ price: priceCond });
     }
 
-    if (isFlashSale === "true" || isFlashSale === true) query.isFlashSale = true;
+    if (isFlashSale === "true" || isFlashSale === true) {
+      andConditions.push({ isFlashSale: true });
+    }
+
+    if (discount === "true" || discount === true) {
+      andConditions.push({
+        $or: [
+          { discountPercent: { $gt: 0 } },
+          { $expr: { $gt: ["$originalPrice", "$price"] } },
+        ],
+      });
+    }
+
+    const query = andConditions.length > 1 ? { $and: andConditions } : andConditions[0] || {};
 
     // Sắp xếp
     let sortOptions = { soldCount: -1, views: -1, createdAt: -1 };
-    if (sort === "price_asc") sortOptions = { price: 1 };
-    if (sort === "price_desc") sortOptions = { price: -1 };
+    if (sort === "price_asc" || sort === "price-low") sortOptions = { price: 1 };
+    if (sort === "price_desc" || sort === "price-high") sortOptions = { price: -1 };
     if (sort === "popular") sortOptions = { views: -1, soldCount: -1 };
     if (sort === "best_seller" || sort === "sold_desc" || sort === "selling") sortOptions = { soldCount: -1, views: -1 };
     if (sort === "newest") sortOptions = { createdAt: -1 };
@@ -105,7 +141,7 @@ class ProductRepository extends BaseRepository {
         total,
         page: Number(page),
         limit: Number(limit),
-        totalPages: Math.ceil(total / Number(limit)),
+        totalPages: Math.ceil(total / Number(limit)) || 1,
       },
     };
   }
