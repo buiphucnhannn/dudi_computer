@@ -5,9 +5,16 @@ import Link from "next/link";
 import {
   Heart,
   Cpu,
-  MemoryStick,
+  Layers,
+  HardDrive,
   CircuitBoard,
+  Monitor,
+  Maximize2,
+  Zap,
   Sparkles,
+  ShieldCheck,
+  Wifi,
+  Clock,
   Eye,
   ShoppingCart,
 } from "lucide-react";
@@ -20,10 +27,41 @@ import {
 import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { handleImageError } from "@/lib/imageFallback";
+import { getProductCardBadges } from "@/lib/specParser";
 
 const formatPrice = (price) => {
   if (!price) return "";
   return new Intl.NumberFormat("vi-VN").format(price) + "₫";
+};
+
+// Trích xuất tên thương hiệu chuẩn (loại bỏ ObjectId và fallback thông minh)
+const getDisplayBrand = (product) => {
+  if (!product) return "DUDI SOFTWARE";
+
+  const brand = typeof product.brand === "object" ? product.brand?.name : product.brand;
+  if (brand && typeof brand === "string" && !/^[0-9a-fA-F]{24}$/.test(brand.trim())) {
+    return brand.trim().toUpperCase();
+  }
+
+  if (product.brandName && typeof product.brandName === "string" && !/^[0-9a-fA-F]{24}$/.test(product.brandName.trim())) {
+    return product.brandName.trim().toUpperCase();
+  }
+
+  // Tự động nhận diện thương hiệu từ tên sản phẩm
+  const name = String(product.name || product.title || "");
+  const matched = name.match(
+    /\b(ASUS|ROG|TUF|MSI|GIGABYTE|AORUS|DELL|ALIENWARE|HP|VICTUS|OMEN|LENOVO|LEGION|LOQ|THINKPAD|ACER|PREDATOR|NITRO|APPLE|MACBOOK|SAMSUNG|LG|CORSAIR|LOGITECH|RAZER|VIEWSONIC|AOC|PHILIPS|ZOWIE|BENQ|KINGSTON|XPG|FSP|COOLER MASTER|THERMALTAKE|NZXT|LIAN LI|DEEPCOOL|GALAX|PALIT|ZOTAC|INNO3D|COLORFUL|AMD|INTEL|DAREU|AKKO|KEYCHRON)\b/i
+  );
+  if (matched) {
+    return matched[0].toUpperCase();
+  }
+
+  const categoryName = typeof product.category === "object" ? product.category?.name : product.categoryName;
+  if (categoryName && typeof categoryName === "string" && !/^[0-9a-fA-F]{24}$/.test(categoryName.trim())) {
+    return categoryName.trim().toUpperCase();
+  }
+
+  return "DUDI SOFTWARE";
 };
 
 export default function SimilarProductCard({ product }) {
@@ -84,7 +122,27 @@ export default function SimilarProductCard({ product }) {
     });
   };
 
-  const discount = product.discount || 0;
+  const discount = product.discount || product.discountPercent || 0;
+  const displayBrand = getDisplayBrand(product);
+  const badges = getProductCardBadges(product);
+
+  const renderBadgeIcon = (iconName) => {
+    const props = { className: "w-3.5 h-3.5 text-slate-400 shrink-0" };
+    switch (iconName) {
+      case "Cpu": return <Cpu {...props} />;
+      case "Layers": return <Layers {...props} />;
+      case "HardDrive": return <HardDrive {...props} />;
+      case "CircuitBoard": return <CircuitBoard {...props} />;
+      case "Monitor": return <Monitor {...props} />;
+      case "Maximize2": return <Maximize2 {...props} />;
+      case "Zap": return <Zap {...props} />;
+      case "Sparkles": return <Sparkles {...props} />;
+      case "ShieldCheck": return <ShieldCheck {...props} />;
+      case "Wifi": return <Wifi {...props} />;
+      case "Clock": return <Clock {...props} />;
+      default: return <Sparkles {...props} />;
+    }
+  };
 
   return (
     <article
@@ -141,8 +199,7 @@ export default function SimilarProductCard({ product }) {
             title={isCart ? "Đã có trong giỏ hàng (Bấm để bỏ)" : "Thêm vào giỏ hàng"}
           >
             <ShoppingCart
-              className={`w-4 h-4 transition-colors ${isCart ? "text-white" : ""
-                }`}
+              className={`w-4 h-4 transition-colors ${isCart ? "text-white" : ""}`}
             />
           </button>
         )}
@@ -166,20 +223,39 @@ export default function SimilarProductCard({ product }) {
 
       {/* Card Content */}
       <div className="flex flex-1 flex-col p-4">
-        {/* Category */}
-        <div className="mb-1.5 text-[11px] font-extrabold uppercase tracking-wider text-red-600">
-          {product.category || "PC & Laptop"}
+        {/* Brand & Condition */}
+        <div className="mb-1.5 flex items-center justify-between gap-1">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-red-600 truncate">
+            {displayBrand}
+          </span>
+          {product.condition && (
+            <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 shrink-0">
+              {product.condition}
+            </span>
+          )}
         </div>
 
         {/* Product Name */}
-        <Link href={href} className="block mb-3">
-          <h3 className="line-clamp-2 min-h-[40px] text-sm font-bold leading-5 text-slate-800 transition-colors group-hover:text-red-600">
+        <Link href={href} className="block mb-2">
+          <h3 className="line-clamp-2 min-h-[38px] text-[13px] font-bold leading-5 text-slate-800 transition-colors group-hover:text-red-600" title={product.name}>
             {product.name}
           </h3>
         </Link>
 
+        {/* 4 Specs Badges Grid */}
+        {badges && badges.length > 0 && (
+          <div className="bg-slate-50/80 rounded-xl p-1.5 sm:p-2 grid grid-cols-2 gap-1 sm:gap-1.5 text-[9.5px] sm:text-[10px] text-slate-600 mb-3 border border-slate-100 min-h-[52px]">
+            {badges.map((b, idx) => (
+              <div key={idx} className="flex items-center gap-1 truncate" title={b.title || b.label}>
+                {renderBadgeIcon(b.icon)}
+                <span className="truncate font-medium text-slate-700">{b.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Price Section */}
-        <div className="mb-3.5">
+        <div className="mb-3.5 mt-auto">
           {product.contactPrice ? (
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-500">
@@ -205,32 +281,8 @@ export default function SimilarProductCard({ product }) {
           )}
         </div>
 
-        {/* Specs Grid */}
-        {product.specs && (
-          <div
-            className={`
-              mb-4 grid grid-cols-2 gap-2
-              rounded-xl bg-slate-50 p-2.5 border border-slate-100 text-xs
-              ${product.outOfStock ? "opacity-75" : ""}
-            `}
-          >
-            {product.specs.cpu && (
-              <SpecItem icon={Cpu} value={product.specs.cpu} />
-            )}
-            {product.specs.ram && (
-              <SpecItem icon={MemoryStick} value={product.specs.ram} />
-            )}
-            {product.specs.motherboard && (
-              <SpecItem icon={CircuitBoard} value={product.specs.motherboard} />
-            )}
-            {product.specs.gpu && (
-              <SpecItem icon={Sparkles} value={product.specs.gpu} />
-            )}
-          </div>
-        )}
-
         {/* Bottom Views & CTA */}
-        <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
+        <div className="flex items-center justify-between border-t border-slate-100 pt-3 text-xs">
           <div className="flex items-center gap-1.5 text-slate-400 font-medium">
             <Eye className="w-3.5 h-3.5 text-slate-400" />
             <span>{product.views || 10} lượt xem</span>
@@ -246,16 +298,5 @@ export default function SimilarProductCard({ product }) {
         </div>
       </div>
     </article>
-  );
-}
-
-function SpecItem({ icon: Icon, value }) {
-  return (
-    <div className="flex min-w-0 items-center gap-1.5">
-      <Icon className="w-3.5 h-3.5 shrink-0 text-red-500/80" />
-      <span className="truncate font-medium text-[11px] text-slate-700">
-        {value}
-      </span>
-    </div>
   );
 }

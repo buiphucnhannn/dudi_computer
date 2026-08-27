@@ -284,3 +284,37 @@ export function isProductMatchingCategory(product, targetCatSlug, categories = [
 
   return catSlug.includes(s) || catName.includes(s) || name.includes(s);
 }
+
+/**
+ * Trích xuất tên thương hiệu chuẩn, loại bỏ các chuỗi ObjectId MongoDB 24 ký tự và fallback thông minh
+ * @param {object} product
+ * @returns {string} Tên thương hiệu hiển thị
+ */
+export function getCleanBrandName(product) {
+  if (!product) return "DUDI SOFTWARE";
+
+  const brand = typeof product.brand === "object" ? product.brand?.name : product.brand;
+  if (brand && typeof brand === "string" && !/^[0-9a-fA-F]{24}$/.test(brand.trim())) {
+    return brand.trim().toUpperCase();
+  }
+
+  if (product.brandName && typeof product.brandName === "string" && !/^[0-9a-fA-F]{24}$/.test(product.brandName.trim())) {
+    return product.brandName.trim().toUpperCase();
+  }
+
+  // Tự động nhận diện thương hiệu từ tên sản phẩm
+  const name = String(product.name || product.title || "");
+  const matched = name.match(
+    /\b(ASUS|ROG|TUF|MSI|GIGABYTE|AORUS|DELL|ALIENWARE|HP|VICTUS|OMEN|LENOVO|LEGION|LOQ|THINKPAD|ACER|PREDATOR|NITRO|APPLE|MACBOOK|SAMSUNG|LG|CORSAIR|LOGITECH|RAZER|VIEWSONIC|AOC|PHILIPS|ZOWIE|BENQ|KINGSTON|XPG|FSP|COOLER MASTER|THERMALTAKE|NZXT|LIAN LI|DEEPCOOL|GALAX|PALIT|ZOTAC|INNO3D|COLORFUL|AMD|INTEL|DAREU|AKKO|KEYCHRON)\b/i
+  );
+  if (matched) {
+    return matched[0].toUpperCase();
+  }
+
+  const categoryName = typeof product.category === "object" ? product.category?.name : product.categoryName;
+  if (categoryName && typeof categoryName === "string" && !/^[0-9a-fA-F]{24}$/.test(categoryName.trim())) {
+    return categoryName.trim().toUpperCase();
+  }
+
+  return "DUDI SOFTWARE";
+}
