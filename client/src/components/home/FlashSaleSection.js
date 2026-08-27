@@ -295,11 +295,11 @@ export default function FlashSaleSection({ categories = [] }) {
   return (
     <section className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-2.5 sm:gap-3 items-stretch my-2">
       {/* Left Flash Sale Banner Card */}
-      <div className="bg-[#eb1c24] text-white p-5 sm:p-6 rounded-2xl flex flex-col justify-center items-center text-center shadow-md w-full lg:w-[260px] min-h-[460px] h-full shrink-0 gap-6">
+      <div className="bg-[#eb1c24] text-white p-4 sm:p-5 rounded-2xl flex flex-col justify-center items-center text-center shadow-md w-full lg:w-[260px] min-h-[460px] h-full shrink-0 gap-5">
         <div className="w-full">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Zap className="w-6 h-6 text-yellow-300 fill-yellow-300 animate-bounce" />
-            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white drop-shadow-xs">
+            <Zap className="w-6 h-6 text-yellow-300 fill-yellow-300 animate-bounce shrink-0" />
+            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white drop-shadow-xs truncate">
               {promotion?.name || "FLASH SALE"}
             </h2>
           </div>
@@ -309,52 +309,52 @@ export default function FlashSaleSection({ categories = [] }) {
         </div>
 
         {/* Countdown Box */}
-        <div className="w-full bg-white/10 backdrop-blur-xs p-3.5 rounded-xl border border-white/20">
-          <div className="text-[11px] font-bold text-red-100 mb-2 uppercase tracking-wider flex items-center justify-center gap-1">
-            <Clock className="w-3.5 h-3.5" />
+        <div className="w-full bg-white/10 backdrop-blur-xs p-2.5 sm:p-3 rounded-xl border border-white/20">
+          <div className="text-[11px] font-bold text-red-100 mb-2 uppercase tracking-wider flex items-center justify-center gap-1 whitespace-nowrap">
+            <Clock className="w-3.5 h-3.5 shrink-0" />
             <span>Kết thúc sau</span>
           </div>
 
-          <div className="flex items-center justify-center gap-1.5 text-center">
+          <div className="flex items-center justify-between gap-1 text-center w-full">
             {timeLeft?.days > 0 && (
               <>
-                <div className="bg-black/40 px-2 py-1.5 rounded-lg min-w-[36px] border border-white/10 shadow-xs">
-                  <span className="text-sm font-black block leading-none text-yellow-300">
+                <div className="flex-1 min-w-0 bg-black/40 py-1.5 px-0.5 rounded-lg border border-white/10 shadow-xs flex flex-col items-center justify-center">
+                  <span className="text-xs sm:text-sm font-black leading-tight text-yellow-300 whitespace-nowrap tabular-nums">
                     {String(timeLeft.days).padStart(2, "0")}
                   </span>
-                  <span className="text-[9px] text-gray-300 font-medium uppercase mt-0.5 block">
+                  <span className="text-[8.5px] sm:text-[9px] text-gray-200 font-bold uppercase mt-0.5 whitespace-nowrap leading-none">
                     Ngày
                   </span>
                 </div>
-                <span className="font-bold text-yellow-300 text-xs">:</span>
+                <span className="font-bold text-yellow-300 text-xs shrink-0 select-none">:</span>
               </>
             )}
 
-            <div className="bg-black/40 px-2 py-1.5 rounded-lg min-w-[36px] border border-white/10 shadow-xs">
-              <span className="text-sm font-black block leading-none text-yellow-300">
+            <div className="flex-1 min-w-0 bg-black/40 py-1.5 px-0.5 rounded-lg border border-white/10 shadow-xs flex flex-col items-center justify-center">
+              <span className="text-xs sm:text-sm font-black leading-tight text-yellow-300 whitespace-nowrap tabular-nums">
                 {String(timeLeft?.hours || 0).padStart(2, "0")}
               </span>
-              <span className="text-[9px] text-gray-300 font-medium uppercase mt-0.5 block">
+              <span className="text-[8.5px] sm:text-[9px] text-gray-200 font-bold uppercase mt-0.5 whitespace-nowrap leading-none">
                 Giờ
               </span>
             </div>
-            <span className="font-bold text-yellow-300 text-xs">:</span>
+            <span className="font-bold text-yellow-300 text-xs shrink-0 select-none">:</span>
 
-            <div className="bg-black/40 px-2 py-1.5 rounded-lg min-w-[36px] border border-white/10 shadow-xs">
-              <span className="text-sm font-black block leading-none text-yellow-300">
+            <div className="flex-1 min-w-0 bg-black/40 py-1.5 px-0.5 rounded-lg border border-white/10 shadow-xs flex flex-col items-center justify-center">
+              <span className="text-xs sm:text-sm font-black leading-tight text-yellow-300 whitespace-nowrap tabular-nums">
                 {String(timeLeft?.minutes || 0).padStart(2, "0")}
               </span>
-              <span className="text-[9px] text-gray-300 font-medium uppercase mt-0.5 block">
+              <span className="text-[8.5px] sm:text-[9px] text-gray-200 font-bold uppercase mt-0.5 whitespace-nowrap leading-none">
                 Phút
               </span>
             </div>
-            <span className="font-bold text-yellow-300 text-xs">:</span>
+            <span className="font-bold text-yellow-300 text-xs shrink-0 select-none">:</span>
 
-            <div className="bg-black/40 px-2 py-1.5 rounded-lg min-w-[36px] border border-white/10 shadow-xs">
-              <span className="text-sm font-black block leading-none text-yellow-300">
+            <div className="flex-1 min-w-0 bg-black/40 py-1.5 px-0.5 rounded-lg border border-white/10 shadow-xs flex flex-col items-center justify-center">
+              <span className="text-xs sm:text-sm font-black leading-tight text-yellow-300 whitespace-nowrap tabular-nums">
                 {String(timeLeft?.seconds || 0).padStart(2, "0")}
               </span>
-              <span className="text-[9px] text-gray-300 font-medium uppercase mt-0.5 block">
+              <span className="text-[8.5px] sm:text-[9px] text-gray-200 font-bold uppercase mt-0.5 whitespace-nowrap leading-none">
                 Giây
               </span>
             </div>
@@ -364,10 +364,10 @@ export default function FlashSaleSection({ categories = [] }) {
         {/* View All Button */}
         <Link
           href="/product?sort=discount_desc"
-          className="bg-white text-[#eb1c24] hover:bg-yellow-300 hover:text-red-700 font-bold text-xs px-5 py-2.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-1.5 group cursor-pointer"
+          className="bg-white text-[#eb1c24] hover:bg-yellow-300 hover:text-red-700 font-bold text-xs px-5 py-2.5 rounded-full transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-1.5 group cursor-pointer whitespace-nowrap"
         >
           <span>Xem tất cả ưu đãi</span>
-          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform shrink-0" />
         </Link>
       </div>
 
