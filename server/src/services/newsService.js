@@ -21,25 +21,28 @@ export const newsService = {
   getNews: async (params = {}) => {
     const { page = 1, limit = 10, category, search, tag } = params;
 
-    // Lấy danh sách các chuyên mục tin tức đang kích hoạt (isActive: true)
-    const activeCats = await NewsCategory.find({ isActive: true }).select("name").lean();
-    const activeCatNames = activeCats.map((c) => c.name);
+    // Lấy danh sách các chuyên mục tin tức đang bị tạm ẩn (isActive: false)
+    const inactiveCats = await NewsCategory.find({ isActive: false }).select("name").lean();
+    const inactiveCatNames = (inactiveCats || []).map((c) => c.name.toLowerCase().trim());
 
     const query = {
       isPublished: true,
-      category: { $in: activeCatNames },
     };
 
+    if (inactiveCats && inactiveCats.length > 0) {
+      query.category = { $nin: inactiveCats.map((c) => c.name) };
+    }
+
     if (category && category !== "Tất cả" && category !== "all") {
-      // Nếu lọc danh mục cụ thể, chỉ cho phép nếu danh mục đó đang active
-      if (activeCatNames.includes(category)) {
-        query.category = category;
-      } else {
+      // Nếu lọc danh mục cụ thể, kiểm tra nếu danh mục đó đang bị ẩn
+      const isInactive = inactiveCatNames.includes(category.toLowerCase().trim());
+      if (isInactive) {
         return {
           items: [],
           pagination: { page: Number(page) || 1, limit: Number(limit) || 10, total: 0, totalPages: 1 },
         };
       }
+      query.category = { $regex: new RegExp(`^${category.trim()}$`, "i") };
     }
 
     if (search) {
@@ -69,7 +72,9 @@ export const newsService = {
 
     // Kiểm tra xem chuyên mục của bài viết có đang bị ẩn không
     if (article.category) {
-      const parentCat = await NewsCategory.findOne({ name: article.category }).lean();
+      const parentCat = await NewsCategory.findOne({
+        name: { $regex: new RegExp(`^${article.category.trim()}$`, "i") },
+      }).lean();
       if (parentCat && parentCat.isActive === false) {
         throw new ApiError(404, "Chuyên mục của bài viết này hiện đang tạm ẩn");
       }
@@ -95,12 +100,15 @@ export const newsService = {
   },
 
   getFeaturedNews: async (limit = 4) => {
-    const activeCats = await NewsCategory.find({ isActive: true }).select("name").lean();
-    const activeCatNames = activeCats.map((c) => c.name);
+    const inactiveCats = await NewsCategory.find({ isActive: false }).select("name").lean();
+    const inactiveCatNames = (inactiveCats || []).map((c) => c.name);
 
-    return await newsRepository.getFeatured(Number(limit) || 4, {
-      category: { $in: activeCatNames },
-    });
+    const query = {};
+    if (inactiveCatNames.length > 0) {
+      query.category = { $nin: inactiveCatNames };
+    }
+
+    return await newsRepository.getFeatured(Number(limit) || 4, query);
   },
 
   getAdminNews: async (params = {}) => {

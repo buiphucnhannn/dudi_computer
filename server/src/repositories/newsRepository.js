@@ -24,7 +24,11 @@ export const newsRepository = {
   },
 
   findBySlug: async (slug) => {
-    return await News.findOne({ slug, isPublished: true });
+    if (!slug) return null;
+    return await News.findOne({
+      slug: { $regex: new RegExp(`^${slug.trim()}$`, "i") },
+      isPublished: true,
+    });
   },
 
   findById: async (id) => {
@@ -33,14 +37,14 @@ export const newsRepository = {
 
   incrementViews: async (slug) => {
     return await News.findOneAndUpdate(
-      { slug },
+      { slug: { $regex: new RegExp(`^${slug.trim()}$`, "i") } },
       { $inc: { views: 1 } },
       { new: true }
     );
   },
 
-  getFeatured: async (limit = 4) => {
-    return await News.find({ isPublished: true })
+  getFeatured: async (limit = 4, extraQuery = {}) => {
+    return await News.find({ isPublished: true, ...extraQuery })
       .sort({ views: -1, createdAt: -1 })
       .limit(limit)
       .lean();
