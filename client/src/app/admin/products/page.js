@@ -102,6 +102,10 @@ function AdminProductsContent() {
             category: p.categoryName || (typeof p.category === "object" ? p.category?.name : p.category) || "Linh kiện PC",
             brand: p.brand || "DUDI",
             status: p.stock === 0 ? "out-of-stock" : "active",
+            warranty: p.warranty || "Bảo hành 3 - 12 Tháng",
+            condition: p.condition || "Mới 100%",
+            specs: p.specs || {},
+            specifications: p.specifications || [],
             image: thumb,
             thumbnail: thumb,
             images: p.images || [],
@@ -252,6 +256,19 @@ function AdminProductsContent() {
       formData.append("stock", productData.stock);
       formData.append("categoryName", productData.category);
       formData.append("brand", productData.brand);
+
+      if (productData.warranty) {
+        formData.append("warranty", productData.warranty);
+      }
+      if (productData.condition) {
+        formData.append("condition", productData.condition);
+      }
+      if (productData.specs) {
+        formData.append("specs", JSON.stringify(productData.specs));
+      }
+      if (productData.specifications && productData.specifications.length > 0) {
+        formData.append("specifications", JSON.stringify(productData.specifications));
+      }
 
       if (productData.existingImages && productData.existingImages.length > 0) {
         formData.append(

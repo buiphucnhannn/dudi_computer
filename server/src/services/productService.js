@@ -159,8 +159,34 @@ class ProductService {
       }
     }
 
+    let specs = {};
+    if (productData.specs) {
+      try {
+        specs =
+          typeof productData.specs === "string"
+            ? JSON.parse(productData.specs)
+            : productData.specs;
+      } catch (e) {
+        console.warn("Lỗi parse specs:", e);
+      }
+    }
+
+    let specifications = [];
+    if (productData.specifications) {
+      try {
+        specifications =
+          typeof productData.specifications === "string"
+            ? JSON.parse(productData.specifications)
+            : productData.specifications;
+      } catch (e) {
+        console.warn("Lỗi parse specifications:", e);
+      }
+    }
+
     const newProduct = {
       ...productData,
+      specs: { ...(typeof productData.specs === "object" ? productData.specs : {}), ...specs },
+      specifications: specifications.length > 0 ? specifications : (Array.isArray(productData.specifications) ? productData.specifications : []),
       category: categoryId || (productData.category ? productData.category : undefined),
       categoryName: categoryName,
       categorySlug: categorySlug,
@@ -304,6 +330,28 @@ class ProductService {
         } else if (typeof updateData.category === "string" && !updateData.categoryName) {
           updateData.categoryName = updateData.category;
         }
+      }
+    }
+
+    if (updateData.specs !== undefined) {
+      try {
+        updateData.specs =
+          typeof updateData.specs === "string"
+            ? JSON.parse(updateData.specs)
+            : updateData.specs;
+      } catch (e) {
+        console.warn("Lỗi parse specs khi cập nhật:", e);
+      }
+    }
+
+    if (updateData.specifications !== undefined) {
+      try {
+        updateData.specifications =
+          typeof updateData.specifications === "string"
+            ? JSON.parse(updateData.specifications)
+            : updateData.specifications;
+      } catch (e) {
+        console.warn("Lỗi parse specifications khi cập nhật:", e);
       }
     }
 
