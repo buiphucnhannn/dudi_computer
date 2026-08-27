@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { CreditCard } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { CreditCard, ChevronLeft, ChevronRight } from "lucide-react";
 import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
 const paymentMethods = [
@@ -56,6 +56,9 @@ const installmentMethods = [
 
 const ProductGallery = ({ product }) => {
   const [selectedImage, setSelectedImage] = useState(0);
+  const thumbnailsRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const rawImages = (
     product?.images?.length
@@ -73,6 +76,39 @@ const ProductGallery = ({ product }) => {
     images.length - 1
   );
 
+  const checkScroll = () => {
+    if (!thumbnailsRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = thumbnailsRef.current;
+    setCanScrollLeft(scrollLeft > 4);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 4);
+  };
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => window.removeEventListener("resize", checkScroll);
+  }, [images.length]);
+
+  const handleScrollLeft = () => {
+    if (thumbnailsRef.current) {
+      thumbnailsRef.current.scrollBy({ left: -180, behavior: "smooth" });
+    }
+  };
+
+  const handleScrollRight = () => {
+    if (thumbnailsRef.current) {
+      thumbnailsRef.current.scrollBy({ left: 180, behavior: "smooth" });
+    }
+  };
+
+  const handlePrevImage = () => {
+    setSelectedImage((prev) => (prev > 0 ? prev - 1 : images.length - 1));
+  };
+
+  const handleNextImage = () => {
+    setSelectedImage((prev) => (prev < images.length - 1 ? prev + 1 : 0));
+  };
+
   return (
     <div className="w-full min-w-0 flex flex-col">
       {/* ================= MAIN IMAGE ================= */}
@@ -83,6 +119,36 @@ const ProductGallery = ({ product }) => {
           className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 ease-out group-hover:scale-105"
           onError={handleImageError}
         />
+
+        {/* Floating Arrows on Main Image if multiple images */}
+        {images.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={handlePrevImage}
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 shadow-md border border-slate-200/80 text-slate-700 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white hover:text-red-600 hover:scale-110 transition-all cursor-pointer z-20"
+              title="Ảnh trước"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleNextImage}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 shadow-md border border-slate-200/80 text-slate-700 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-white hover:text-red-600 hover:scale-110 transition-all cursor-pointer z-20"
+              title="Ảnh tiếp theo"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </>
+        )}
+
+        {/* Counter Badge */}
+        {images.length > 1 && (
+          <div className="absolute top-2.5 right-3 z-20 bg-slate-900/60 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            {activeIndex + 1} / {images.length}
+          </div>
+        )}
+
         {/* Subtle Watermark Tag */}
         <div className="absolute bottom-2.5 left-3 pointer-events-none opacity-80 z-20">
           <span className="inline-block bg-white/80 backdrop-blur-xs px-2 py-0.5 rounded-md text-[9px] font-black text-[#eb1c24] tracking-wider uppercase border border-red-100/60 shadow-2xs">
@@ -91,46 +157,79 @@ const ProductGallery = ({ product }) => {
         </div>
       </div>
 
-      {/* ================= THUMBNAILS ================= */}
-      <div className="grid grid-cols-4 sm:grid-cols-5 gap-2.5 mt-3.5">
-        {images.slice(0, 8).map((image, index) => (
-          <button
-            key={`${image}-${index}`}
-            type="button"
-            onClick={() => setSelectedImage(index)}
-            className={`
-              aspect-square
-              bg-white
-              rounded-xl
-              overflow-hidden
-              p-1.5
-              transition-all duration-200 cursor-pointer
-              ${
-                activeIndex === index
-                  ? "border-2 border-red-600 shadow-xs scale-102"
-                  : "border border-slate-200/90 hover:border-red-400 hover:scale-102"
-              }
-            `}
+      {/* ================= THUMBNAILS CAROUSEL (LƯỚT NGANG KHI NHIỀU ẢNH) ================= */}
+      {images.length > 1 && (
+        <div className="relative mt-3.5 group/thumb">
+          {/* Scroll Left Button */}
+          {canScrollLeft && (
+            <button
+              type="button"
+              onClick={handleScrollLeft}
+              className="absolute -left-2 top-1/2 -translate-y-1/2 z-30 w-7 h-7 rounded-full bg-white shadow-md border border-slate-200 text-slate-700 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition cursor-pointer"
+              title="Cuộn sang trái"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Scrollable Track */}
+          <div
+            ref={thumbnailsRef}
+            onScroll={checkScroll}
+            className="flex items-center gap-2 overflow-x-auto py-1 px-0.5 scroll-smooth"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            <img
-              src={image}
-              alt={`${product?.name || "Thumbnail"} ${index + 1}`}
-              className="w-full h-full object-contain mix-blend-multiply"
-              onError={handleImageError}
-            />
-          </button>
-        ))}
-      </div>
+            {images.map((image, index) => (
+              <button
+                key={`${image}-${index}`}
+                type="button"
+                onClick={() => setSelectedImage(index)}
+                className={`
+                  shrink-0 w-16 h-16 sm:w-[70px] sm:h-[70px]
+                  bg-white
+                  rounded-xl
+                  overflow-hidden
+                  p-1.5
+                  transition-all duration-200 cursor-pointer
+                  ${
+                    activeIndex === index
+                      ? "border-2 border-red-600 shadow-xs ring-2 ring-red-500/20 scale-102"
+                      : "border border-slate-200/90 hover:border-red-400 hover:scale-102 opacity-75 hover:opacity-100"
+                  }
+                `}
+              >
+                <img
+                  src={image}
+                  alt={`${product?.name || "Thumbnail"} ${index + 1}`}
+                  className="w-full h-full object-contain mix-blend-multiply"
+                  onError={handleImageError}
+                />
+              </button>
+            ))}
+          </div>
+
+          {/* Scroll Right Button */}
+          {canScrollRight && (
+            <button
+              type="button"
+              onClick={handleScrollRight}
+              className="absolute -right-2 top-1/2 -translate-y-1/2 z-30 w-7 h-7 rounded-full bg-white shadow-md border border-slate-200 text-slate-700 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition cursor-pointer"
+              title="Cuộn sang phải"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ================= VIEW INFO ================= */}
       <div className="text-center mt-3 mb-4">
-        <p className="text-xs text-slate-500">
-          ◉ 0 lượt xem
+        <p className="text-xs text-slate-500 font-medium">
+          ◉ {product?.views || 0} lượt xem
         </p>
 
         <p className="text-[10px] italic text-slate-400 mt-1">
-          Hình ảnh hiển thị có thể khác so với xem trực tiếp
-          ở cửa hàng
+          Hình ảnh hiển thị có thể khác so với xem trực tiếp ở cửa hàng
         </p>
       </div>
 

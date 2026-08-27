@@ -23,6 +23,7 @@ import {
 import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
 import { useCompare } from "@/components/common/CompareContext";
 import { parseProductSpecs } from "@/lib/specParser";
+import { getCleanBrandName } from "@/lib/productHelpers";
 
 const ProductInfo = ({ product }) => {
   const router = useRouter();
@@ -205,8 +206,7 @@ const ProductInfo = ({ product }) => {
           <span>
             Thương hiệu:{" "}
             <strong className="font-bold text-red-600">
-              {product?.brand ||
-                "CUSTOM"}
+              {getCleanBrandName(product)}
             </strong>
           </span>
 
