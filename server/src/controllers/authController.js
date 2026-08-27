@@ -3,18 +3,18 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { sessionManager } from "../utils/sessionManager.js";
 
 // Cấu hình cookie HttpOnly an toàn chống XSS & CSRF
-const getAccessCookieOptions = () => ({
+const getAccessCookieOptions = (rememberMe = false) => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  maxAge: 15 * 60 * 1000, // 15 phút
+  maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 2 * 60 * 60 * 1000, // 30 ngày nếu Remember Me, 2 giờ nếu không
 });
 
-const getRefreshCookieOptions = () => ({
+const getRefreshCookieOptions = (rememberMe = false) => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+  maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000, // 30 ngày nếu Remember Me, 7 ngày nếu không
 });
 
 export const registerUser = async (req, res, next) => {
@@ -31,17 +31,18 @@ export const registerUser = async (req, res, next) => {
 
 export const verifyRegistrationOtp = async (req, res, next) => {
   try {
+    const rememberMe = Boolean(req.body?.rememberMe);
     const { user, accessToken, refreshToken, message } =
       await authService.verifyRegistrationOtp(req.body);
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, getAccessCookieOptions())
-      .cookie("refreshToken", refreshToken, getRefreshCookieOptions())
+      .cookie("accessToken", accessToken, getAccessCookieOptions(rememberMe))
+      .cookie("refreshToken", refreshToken, getRefreshCookieOptions(rememberMe))
       .json(
         new ApiResponse(
           200,
-          { user, accessToken, refreshToken },
+          { user, accessToken, refreshToken, rememberMe },
           message
         )
       );
@@ -64,16 +65,17 @@ export const resendVerificationOtp = async (req, res, next) => {
 
 export const loginUser = async (req, res, next) => {
   try {
+    const rememberMe = Boolean(req.body?.rememberMe);
     const { user, accessToken, refreshToken } = await authService.login(req.body);
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, getAccessCookieOptions())
-      .cookie("refreshToken", refreshToken, getRefreshCookieOptions())
+      .cookie("accessToken", accessToken, getAccessCookieOptions(rememberMe))
+      .cookie("refreshToken", refreshToken, getRefreshCookieOptions(rememberMe))
       .json(
         new ApiResponse(
           200,
-          { user, accessToken, refreshToken },
+          { user, accessToken, refreshToken, rememberMe },
           "Đăng nhập thành công"
         )
       );

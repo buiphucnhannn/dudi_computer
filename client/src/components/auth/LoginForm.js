@@ -54,6 +54,21 @@ export default function LoginForm() {
   const otpInputRefs = useRef([]);
   const gsiInitializedRef = useRef(false);
 
+  // Khởi tạo thông tin ghi nhớ đăng nhập từ localStorage nếu có
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isRemember = localStorage.getItem("dudi_remember_login") === "true";
+      const savedEmail = localStorage.getItem("dudi_remembered_email") || "";
+      if (isRemember && savedEmail) {
+        setFormData((prev) => ({
+          ...prev,
+          email: savedEmail,
+          rememberMe: true,
+        }));
+      }
+    }
+  }, []);
+
   // Kiểm tra thông báo tài khoản bị khóa hoặc lỗi từ URL/session
   useEffect(() => {
     const errorParam = searchParams?.get("error");
@@ -295,7 +310,19 @@ export default function LoginForm() {
       const res = await authAPI.login({
         email: formData.email.trim(),
         password: formData.password,
+        rememberMe: formData.rememberMe,
       });
+
+      // Lưu hoặc xoá email theo trạng thái Ghi nhớ đăng nhập
+      if (typeof window !== "undefined") {
+        if (formData.rememberMe) {
+          localStorage.setItem("dudi_remember_login", "true");
+          localStorage.setItem("dudi_remembered_email", formData.email.trim());
+        } else {
+          localStorage.removeItem("dudi_remember_login");
+          localStorage.removeItem("dudi_remembered_email");
+        }
+      }
 
       const user = res.data?.data?.user;
       dispatch(setCredentials({ user }));
@@ -417,7 +444,19 @@ export default function LoginForm() {
       const res = await authAPI.verifyRegistrationOtp({
         email: formData.email.trim(),
         otp: otpCode,
+        rememberMe: formData.rememberMe,
       });
+
+      // Lưu hoặc xoá email theo trạng thái Ghi nhớ đăng nhập
+      if (typeof window !== "undefined") {
+        if (formData.rememberMe) {
+          localStorage.setItem("dudi_remember_login", "true");
+          localStorage.setItem("dudi_remembered_email", formData.email.trim());
+        } else {
+          localStorage.removeItem("dudi_remember_login");
+          localStorage.removeItem("dudi_remembered_email");
+        }
+      }
 
       const user = res.data?.data?.user;
       dispatch(setCredentials({ user }));
