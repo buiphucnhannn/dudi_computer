@@ -344,9 +344,7 @@ export default function ProductSidebar({
     const discountCount = products.filter(
       (p) =>
         Number(p.originalPrice || 0) > Number(p.price || 0) ||
-        Number(p.discountPercent || 0) > 0 ||
-        p.isFlashSale === true ||
-        p.isFlashSale === "true"
+        Number(p.discountPercent || 0) > 0
     ).length;
 
     const flashSaleCount = products.filter(

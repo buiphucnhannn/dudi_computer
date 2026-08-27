@@ -11,7 +11,7 @@ class CartRepository extends BaseRepository {
       .findOne({ user: userId })
       .populate({
         path: "items.product",
-        select: "name shortName sku slug price originalPrice thumbnail images stockStatus isHot specs",
+        select: "name shortName sku slug price originalPrice thumbnail images stockStatus isFlashSale specs",
       })
       .lean();
   }

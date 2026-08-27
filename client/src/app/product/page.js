@@ -55,7 +55,7 @@ function ProductsContent() {
   const [filters, setFilters] = useState({
     category: categoryParam,
     brands: brandParam ? [brandParam] : [],
-    promotions: isFlashSaleParam === "true" ? ["discount"] : [],
+    promotions: isFlashSaleParam === "true" ? ["flash_sale"] : [],
     condition: conditionParam,
   });
 
@@ -76,7 +76,7 @@ function ProductsContent() {
       ...prev,
       category: categoryParam,
       brands: brandParam ? [brandParam] : prev.brands,
-      promotions: isFlashSaleParam === "true" ? ["discount"] : prev.promotions,
+      promotions: isFlashSaleParam === "true" ? ["flash_sale"] : prev.promotions,
       condition: conditionParam || prev.condition,
     }));
     setSearch(searchParam || "");
@@ -213,9 +213,7 @@ function ProductsContent() {
         result = result.filter(
           (product) =>
             Number(product.discountPercent || 0) > 0 ||
-            Number(product.originalPrice || 0) > Number(product.price || 0) ||
-            product.isFlashSale === true ||
-            product.isFlashSale === "true",
+            Number(product.originalPrice || 0) > Number(product.price || 0),
         );
       }
 

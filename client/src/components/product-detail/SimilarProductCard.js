@@ -147,15 +147,7 @@ export default function SimilarProductCard({ product }) {
 
   return (
     <article
-      className={`
-        group relative flex flex-col overflow-hidden rounded-2xl
-        border bg-white transition-all duration-300
-        hover:-translate-y-1.5 hover:shadow-xl
-        ${product.isHot
-          ? "border-red-300 shadow-red-500/5 hover:border-red-500"
-          : "border-slate-200/90 shadow-xs hover:border-red-400/80"
-        }
-      `}
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200/90 bg-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-red-400/80 shadow-xs"
     >
       {/* ── TOP BADGES & ACTIONS ── */}
       <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 p-4 border-b border-slate-100 flex items-center justify-center">
@@ -178,32 +170,39 @@ export default function SimilarProductCard({ product }) {
         {/* Discount Badge */}
         {discount > 0 && (
           <span className="absolute left-3 top-3 z-20 rounded-lg bg-gradient-to-r from-red-600 to-rose-500 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider text-white shadow-sm">
-            -{discount}%
+            Giảm {discount}%
           </span>
         )}
 
-        {/* Cart Toggle Button (Ẩn đối với Admin hoặc khi hết hàng) */}
-        {mounted && !isAdmin && !isOutOfStock && (
-          <button
-            type="button"
-            aria-label="Thêm vào giỏ hàng"
-            onClick={handleToggleCart}
-            className={`
-              absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center
-              rounded-full bg-white/90 backdrop-blur-md shadow-xs border border-slate-100
-              transition-all duration-200 hover:scale-110 cursor-pointer
-              ${isCart
-                ? "bg-red-600 text-white shadow-sm border-red-600"
-                : "text-slate-600 hover:text-red-600 hover:bg-red-50"
-              }
-            `}
-            title={isCart ? "Đã có trong giỏ hàng (Bấm để bỏ)" : "Thêm vào giỏ hàng"}
-          >
-            <ShoppingCart
-              className={`w-4 h-4 transition-colors ${isCart ? "text-white" : ""}`}
-            />
-          </button>
-        )}
+        {/* Flash Sale Badge & Cart Toggle Button */}
+        <div className="absolute right-3 top-3 z-20 flex items-center gap-1.5">
+          {product.isFlashSale && (
+            <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1 pointer-events-none">
+              <Zap className="w-3 h-3 fill-white text-white" />
+              <span>FLASH SALE</span>
+            </span>
+          )}
+
+          {mounted && !isAdmin && !isOutOfStock && (
+            <button
+              type="button"
+              aria-label="Thêm vào giỏ hàng"
+              onClick={handleToggleCart}
+              className={`
+                flex h-8 w-8 items-center justify-center
+                rounded-full bg-white/90 backdrop-blur-md shadow-xs border border-slate-100
+                transition-all duration-200 hover:scale-110 cursor-pointer
+                ${isCart
+                  ? "bg-red-600 text-white shadow-sm border-red-600"
+                  : "text-slate-600 hover:text-red-600 hover:bg-red-50"
+                }
+              `}
+              title={isCart ? "Đã có trong giỏ hàng (Bấm để bỏ)" : "Thêm vào giỏ hàng"}
+            >
+              <ShoppingCart className="h-4 w-4" />
+            </button>
+          )}
+        </div>
 
         {/* Watermark */}
         <div className="absolute bottom-1.5 left-2 pointer-events-none opacity-85 z-20">

@@ -267,11 +267,11 @@ export default function CategoryProductBox({
                     )
                   )}
 
-                  {/* Hot Sale / Flash Sale Tag góc trên bên phải */}
-                  {showHotSaleBadge && (
+                  {/* Flash Sale Tag góc trên bên phải */}
+                  {isFlashSale && (
                     <div className="absolute top-2 right-2 z-20 bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
-                      <Flame className="w-3 h-3 fill-white" />
-                      <span>{isFlashSale ? "FLASH SALE" : "HOT SALE"}</span>
+                      <Zap className="w-3 h-3 fill-white" />
+                      <span>FLASH SALE</span>
                     </div>
                   )}
 

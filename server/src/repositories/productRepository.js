@@ -77,7 +77,6 @@ class ProductRepository extends BaseRepository {
       if (maxPrice) query.price.$lte = Number(maxPrice);
     }
 
-    if (isHot === "true" || isHot === true) query.isHot = true;
     if (isFlashSale === "true" || isFlashSale === true) query.isFlashSale = true;
 
     // Sắp xếp

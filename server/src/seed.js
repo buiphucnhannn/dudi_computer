@@ -9877,12 +9877,26 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
         defaultCategoryId;
 
       const cleanBrand = normalizeBrand(p.brand, name);
+      const isFlash = typeof p.isFlashSale === "boolean" ? p.isFlashSale : index % 3 === 0;
 
       const price = Number(p.price) || 0;
-      const originalPrice = Number(p.originalPrice) || price;
-      const discountPercent =
-        Number(p.discountPercent) ||
-        (originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0);
+      let rawOriginalPrice = Number(p.originalPrice) || 0;
+      let discountPercent = Number(p.discountPercent) || 0;
+
+      if (isFlash) {
+        if (!discountPercent || discountPercent <= 0) {
+          discountPercent = [10, 12, 15, 18, 20, 25][index % 6];
+        }
+        if (!rawOriginalPrice || rawOriginalPrice <= price) {
+          rawOriginalPrice = Math.round((price / (1 - discountPercent / 100)) / 10000) * 10000;
+        }
+      } else if (rawOriginalPrice > price && !discountPercent) {
+        discountPercent = Math.round(((rawOriginalPrice - price) / rawOriginalPrice) * 100);
+      } else if (discountPercent > 0 && (!rawOriginalPrice || rawOriginalPrice <= price)) {
+        rawOriginalPrice = Math.round((price / (1 - discountPercent / 100)) / 10000) * 10000;
+      }
+
+      const originalPrice = rawOriginalPrice > price ? rawOriginalPrice : price;
 
       const images = Array.isArray(p.images) && p.images.length > 0 ? p.images : [p.thumbnail || "https://zcomputer.vn/uploads/image-1784088696463-533147643.webp"];
       const thumbnail = p.thumbnail || images[0] || "https://zcomputer.vn/uploads/image-1784088696463-533147643.webp";
@@ -10047,8 +10061,7 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
             ? "Cũ (Like New)"
             : "Mới 100%"
         ),
-        isHot: typeof p.isHot === "boolean" ? p.isHot : index < 20,
-        isFlashSale: typeof p.isFlashSale === "boolean" ? p.isFlashSale : index % 3 === 0,
+        isFlashSale: isFlash,
         soldCount: typeof p.soldCount === "number" ? p.soldCount : (index < 30 ? Math.floor(Math.random() * 250) + 120 : Math.floor(Math.random() * 90) + 10),
         views: typeof p.views === "number" ? p.views : Math.floor(Math.random() * 200) + 50,
         ratings: {

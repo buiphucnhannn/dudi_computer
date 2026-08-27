@@ -257,10 +257,10 @@ export default function FeaturedProductsSection({ products = [], categories = []
                       )
                     )}
 
-                    {showHotSaleBadge && (
+                    {isFlashSale && (
                       <div className="absolute top-2 right-2 z-20 bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
-                        <Flame className="w-3 h-3 fill-white" />
-                        <span>{isFlashSale ? "FLASH SALE" : "HOT SALE"}</span>
+                        <Zap className="w-3 h-3 fill-white" />
+                        <span>FLASH SALE</span>
                       </div>
                     )}
 

@@ -146,11 +146,6 @@ const productSchema = new mongoose.Schema(
       index: true,
     },
     // Nhãn nổi bật
-    isHot: {
-      type: Boolean,
-      default: false,
-      index: true,
-    },
     isFlashSale: {
       type: Boolean,
       default: false,

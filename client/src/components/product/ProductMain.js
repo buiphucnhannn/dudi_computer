@@ -61,9 +61,9 @@ export default function ProductMain() {
       result = result.filter((product) => product.discountPercent > 0);
     }
 
-    // Hot sale
-    if (filters.promotions.includes("hot")) {
-      result = result.filter((product) => product.isHot === true);
+    // Flash sale
+    if (filters.promotions.includes("flash_sale") || filters.promotions.includes("flash")) {
+      result = result.filter((product) => product.isFlashSale === true);
     }
 
     // Sort

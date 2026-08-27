@@ -6,7 +6,7 @@
 /**
  * Trích xuất và tính toán thông tin giảm giá chính xác từ Database
  * @param {object} product
- * @returns {{ price: number, originalPrice: number|null, discountPercent: number, hasDiscount: boolean, isHot: boolean, isFlashSale: boolean, showHotSaleBadge: boolean }}
+ * @returns {{ price: number, originalPrice: number|null, discountPercent: number, hasDiscount: boolean, isFlashSale: boolean }}
  */
 export function getProductDiscountInfo(product) {
   if (!product) {
@@ -15,15 +15,12 @@ export function getProductDiscountInfo(product) {
       originalPrice: null,
       discountPercent: 0,
       hasDiscount: false,
-      isHot: false,
       isFlashSale: false,
-      showHotSaleBadge: false,
     };
   }
 
   const price = Number(product.price) || 0;
   const rawOriginalPrice = Number(product.originalPrice) || 0;
-  const isHot = Boolean(product.isHot);
   const isFlashSale = Boolean(product.isFlashSale);
 
   let discountPercent = 0;
@@ -42,17 +39,13 @@ export function getProductDiscountInfo(product) {
   }
 
   const hasDiscount = discountPercent > 0 && originalPrice > price;
-  // Chỉ hiển thị badge góc phải khi Database có cờ isHot hoặc isFlashSale
-  const showHotSaleBadge = Boolean(isFlashSale || isHot);
 
   return {
     price,
     originalPrice: hasDiscount ? originalPrice : null,
     discountPercent,
     hasDiscount,
-    isHot,
     isFlashSale,
-    showHotSaleBadge,
   };
 }
 
@@ -60,7 +53,7 @@ export function getProductDiscountInfo(product) {
  * Sắp xếp sản phẩm theo Bán Chạy Nhất (Most Sold / Best Seller):
  * 1. Số lượng đã bán (soldCount) cao nhất
  * 2. Lượt xem (views) & đánh giá
- * 3. Sản phẩm Hot / Khuyến mãi
+ * 3. Sản phẩm Flash Sale / Khuyến mãi
  * 4. Ngày tạo mới nhất
  * @param {Array} products
  * @returns {Array} Mảng sản phẩm đã sắp xếp
@@ -83,9 +76,9 @@ export function sortProductsByBestSeller(products) {
       return viewsB - viewsA;
     }
 
-    // 3. Ưu tiên sản phẩm Hot
-    if (Boolean(a.isHot) !== Boolean(b.isHot)) {
-      return a.isHot ? -1 : 1;
+    // 3. Ưu tiên sản phẩm Flash Sale
+    if (Boolean(a.isFlashSale) !== Boolean(b.isFlashSale)) {
+      return a.isFlashSale ? -1 : 1;
     }
 
     // 4. Ưu tiên % giảm giá

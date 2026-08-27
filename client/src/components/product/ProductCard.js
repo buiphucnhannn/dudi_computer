@@ -136,37 +136,20 @@ export default function ProductCard({ product }) {
       ) : (
         hasDiscount && (
           <span className="absolute top-2.5 left-2.5 z-20 bg-gradient-to-r from-[#eb1c24] to-[#ff4757] text-white text-[11px] font-black px-2.5 py-0.5 rounded-lg shadow-sm">
-            -{discountPercent}%
+            Giảm {discountPercent}%
           </span>
         )
       )}
 
-      {/* Brand tag & Action buttons */}
-      <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5">
-        <button
-          onClick={handleToggleCompare}
-          className={`w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full backdrop-blur-md transition-all shadow-xs cursor-pointer ${isComp
-            ? "bg-[#eb1c24] text-white shadow-sm scale-105"
-            : "bg-white/90 hover:bg-white text-slate-600 hover:text-[#eb1c24] hover:scale-105 border border-slate-100"
-            }`}
-          title="So sánh sản phẩm"
-        >
-          <Scale className="w-3.5 h-3.5" />
-        </button>
-
-        {mounted && !isAdmin && !isOutOfStock && (
-          <button
-            onClick={handleToggleCart}
-            className={`p-1.5 rounded-full backdrop-blur-xs transition-all shadow-xs cursor-pointer ${isCart
-                ? "bg-[#eb1c24] text-white shadow-sm"
-                : "bg-white/80 hover:bg-white text-gray-700 hover:text-[#eb1c24]"
-              }`}
-            title={isCart ? "Đã có trong giỏ hàng (Bấm để thêm tiếp)" : "Thêm vào giỏ hàng"}
-          >
-            <ShoppingCart className="w-3.5 h-3.5" />
-          </button>
-        )}
-      </div>
+      {/* Flash Sale tag */}
+      {isFlashSale && (
+        <div className="absolute top-2.5 right-2.5 z-20 pointer-events-none">
+          <span className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+            <Zap className="w-3 h-3 fill-white text-white" />
+            <span>FLASH SALE</span>
+          </span>
+        </div>
+      )}
 
       {/* Image container */}
       <div className="block relative aspect-square w-full p-3 sm:p-4 bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 overflow-hidden border-b border-slate-100">
@@ -290,12 +273,18 @@ export default function ProductCard({ product }) {
                   <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   <span className="truncate">Thêm vào giỏ</span>
                 </button>
-                <span
-                  className="p-1 sm:p-1.5 rounded-lg border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-900 transition-colors shrink-0"
-                  title="Xem chi tiết"
+                <button
+                  type="button"
+                  onClick={handleToggleCompare}
+                  className={`p-1 sm:p-1.5 rounded-lg border transition-colors cursor-pointer shrink-0 ${
+                    isComp
+                      ? "bg-[#eb1c24] text-white border-[#eb1c24]"
+                      : "border-gray-200 hover:border-gray-300 text-gray-600 hover:text-[#eb1c24] hover:bg-gray-50"
+                  }`}
+                  title={isComp ? "Đang so sánh (Bấm để bỏ)" : "So sánh sản phẩm"}
                 >
-                  <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                </span>
+                  <Scale className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                </button>
               </>
             )}
           </div>
