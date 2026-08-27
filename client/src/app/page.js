@@ -118,7 +118,8 @@ export default function Home() {
       return [
         { name: "Tất cả", slug: "all" },
         { name: "Màn hình Gaming", slug: "man-hinh-gaming" },
-        { name: "Màn hình Văn phòng / Đồ họa", slug: "man-hinh-van-phong" },
+        { name: "Màn hình Văn phòng", slug: "man-hinh-van-phong" },
+        { name: "Màn hình Đồ họa", slug: "man-hinh-do-hoa" },
       ];
     }
     const monitorParent = dbCategories.find(

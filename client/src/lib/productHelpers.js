@@ -221,22 +221,21 @@ export function isProductMatchingCategory(product, targetCatSlug, categories = [
       isPCBuild &&
       (name.includes("đồ họa") || name.includes("i7") || name.includes("i9") || name.includes("ryzen 9") || name.includes("ryzen 7") || name.includes("workstation") || name.includes("32gb") || name.includes("64gb") || name.includes("quadro") || name.includes("7800x3d") || name.includes("5700x3d"))
     );
+    if (isKeyboard || isMouse || isLaptopOrMacbook || isMonitor) return false;
+    return isPCBuild && (name.includes("gaming") || name.includes("rtx") || name.includes("gtx") || name.includes("rx"));
+  }
+  if (s === "pc-do-hoa" || s === "pc-workstation") {
+    if (isKeyboard || isMouse || isLaptopOrMacbook || isMonitor) return false;
+    return isPCBuild && (name.includes("đồ họa") || name.includes("workstation") || name.includes("render") || name.includes("3d") || name.includes("xeon"));
   }
   if (s === "pc-van-phong") {
-    if (isLaptopOrMacbook || isMonitor || isKeyboard || isMouse) return false;
-    return (
-      isPCBuild &&
-      (name.includes("văn phòng") || name.includes("i3") || name.includes("i5") || name.includes("5500gt") || name.includes("h610") || name.includes("h510") || name.includes("h410") || name.includes("h81") || name.includes("h110") || name.includes("vostro") || name.includes("optiplex") || name.includes("prodesk") || name.includes("aio"))
-    );
-  }
-  if (s === "pc" || s === "pc-cu") {
-    if (isLaptopOrMacbook || isMonitor || isKeyboard || isMouse) return false;
-    return isPCBuild;
+    if (isKeyboard || isMouse || isLaptopOrMacbook || isMonitor) return false;
+    return isPCBuild && (name.includes("văn phòng") || name.includes("office") || name.includes("aio") || (!name.includes("gaming") && !name.includes("đồ họa")));
   }
 
-  // --- ROOT GROUPS: LINH KIỆN & GEAR/MÀN HÌNH ---
-  if (s === "linh-kien-pc" || s === "linh-kien") {
-    if (isPCBuild || isLaptopOrMacbook || isMonitor || isKeyboard || isMouse) return false;
+  // --- LINH KIỆN MÁY TÍNH (PC PARTS) ---
+  if (s === "linh-kien-pc" || s === "linh-kien-may-tinh" || s === "linh-kien") {
+    if (isPCBuild || isLaptopOrMacbook || isMonitor) return false;
     return (
       name.startsWith("main") || name.startsWith("bo mạch") || catSlug.includes("mainboard") ||
       name.startsWith("nguồn") || name.startsWith("psu") || catSlug.includes("psu") ||
@@ -263,7 +262,11 @@ export function isProductMatchingCategory(product, targetCatSlug, categories = [
     if (isKeyboard || isMouse || isPCBuild || isLaptopOrMacbook) return false;
     return isMonitor && (name.includes("gaming") || name.includes("144hz") || name.includes("165hz") || name.includes("180hz") || name.includes("240hz") || name.includes("ultragear") || name.includes("odyssey"));
   }
-  if (s === "man-hinh-van-phong" || s === "man-hinh-do-hoa") {
+  if (s === "man-hinh-do-hoa") {
+    if (isKeyboard || isMouse || isPCBuild || isLaptopOrMacbook) return false;
+    return isMonitor && (name.includes("đồ họa") || name.includes("design") || name.includes("proart") || name.includes("ultrasharp") || name.includes("4k") || name.includes("2k") || name.includes("srgb") || name.includes("ips"));
+  }
+  if (s === "man-hinh-van-phong") {
     if (isKeyboard || isMouse || isPCBuild || isLaptopOrMacbook) return false;
     return isMonitor && !name.includes("144hz") && !name.includes("165hz") && !name.includes("240hz") && !name.includes("ultragear");
   }

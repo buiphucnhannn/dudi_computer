@@ -1,5 +1,4 @@
-"use client";
-
+import { useMemo, Fragment } from "react";
 import { Search, X, SlidersHorizontal, RotateCcw, Tag, Layers } from "lucide-react";
 
 export default function ProductFilters({
@@ -7,12 +6,94 @@ export default function ProductFilters({
   setFilters,
   onClear,
   categoryCounts = {},
+  categories = [],
   brandList = [],
   statusCounts = {},
   searchQuery = "",
   setSearchQuery,
 }) {
-  const categories = Object.keys(categoryCounts).map((cat) => ({
+  const categoryTree = useMemo(() => {
+    if (!Array.isArray(categories) || categories.length === 0) {
+      return [];
+    }
+
+    const roots = [];
+    const childrenMap = new Map();
+
+    categories.forEach((c) => {
+      if (!c) return;
+      const catObj = typeof c === "string" ? { name: c, slug: c } : c;
+      const parentId = catObj.parent?._id?.toString() || catObj.parent?.toString();
+      const parentSlug = catObj.parentSlug?.toLowerCase();
+
+      if (!parentId && !parentSlug) {
+        roots.push(catObj);
+      } else {
+        const key = parentId || parentSlug;
+        if (!childrenMap.has(key)) {
+          childrenMap.set(key, []);
+        }
+        childrenMap.get(key).push(catObj);
+      }
+    });
+
+    roots.sort((a, b) => (a.order || 99) - (b.order || 99));
+
+    const tree = [];
+    const processedChildren = new Set();
+
+    roots.forEach((root) => {
+      const rootId = root._id?.toString() || root.id;
+      const rootSlug = (root.slug || "").toLowerCase();
+
+      const directChildren = [
+        ...(rootId ? (childrenMap.get(rootId) || []) : []),
+        ...(rootSlug ? (childrenMap.get(rootSlug) || []) : []),
+        ...(root.name ? (childrenMap.get(root.name.toLowerCase()) || []) : []),
+      ];
+
+      const uniqueChildren = [];
+      const seenChild = new Set();
+      directChildren.forEach((ch) => {
+        const chName = ch.name;
+        if (chName && !seenChild.has(chName.toLowerCase())) {
+          seenChild.add(chName.toLowerCase());
+          uniqueChildren.push(ch);
+          processedChildren.add(chName.toLowerCase());
+        }
+      });
+
+      uniqueChildren.sort((a, b) => (a.order || 99) - (b.order || 99));
+
+      tree.push({
+        root,
+        children: uniqueChildren,
+      });
+    });
+
+    const orphans = [];
+    categories.forEach((c) => {
+      const catName = typeof c === "string" ? c : c.name;
+      if (
+        catName &&
+        !processedChildren.has(catName.toLowerCase()) &&
+        !roots.some((r) => r.name?.toLowerCase() === catName.toLowerCase())
+      ) {
+        orphans.push(typeof c === "string" ? { name: catName, slug: catName } : c);
+      }
+    });
+
+    if (orphans.length > 0) {
+      tree.push({
+        root: { name: "Danh mục khác", slug: "khac", isOrphanGroup: true },
+        children: orphans,
+      });
+    }
+
+    return tree;
+  }, [categories]);
+
+  const fallbackCategories = Object.keys(categoryCounts).map((cat) => ({
     name: cat,
   }));
 
@@ -61,11 +142,42 @@ export default function ProductFilters({
             className="w-full bg-transparent text-xs font-bold text-slate-800 outline-none cursor-pointer truncate"
           >
             <option value="">Tất cả danh mục</option>
-            {categories.map((c) => (
-              <option key={c.name} value={c.name}>
-                {c.name}
-              </option>
-            ))}
+            {categoryTree.length > 0 ? (
+              categoryTree.map((group) => {
+                const root = group.root;
+                const children = group.children || [];
+                const isOrphan = Boolean(root.isOrphanGroup);
+
+                return (
+                  <Fragment key={root._id || root.slug || root.name}>
+                    {!isOrphan && (
+                      <option
+                        value={root.name}
+                        className="font-bold text-slate-900 bg-slate-100 py-1"
+                      >
+                        {root.name}
+                      </option>
+                    )}
+
+                    {children.map((child) => (
+                      <option
+                        key={child._id || child.slug || child.name}
+                        value={child.name}
+                        className="font-normal text-slate-700 bg-white py-1"
+                      >
+                        &nbsp;&nbsp;&nbsp;— {child.name}
+                      </option>
+                    ))}
+                  </Fragment>
+                );
+              })
+            ) : (
+              fallbackCategories.map((c) => (
+                <option key={c.name} value={c.name}>
+                  {c.name}
+                </option>
+              ))
+            )}
           </select>
         </div>
 

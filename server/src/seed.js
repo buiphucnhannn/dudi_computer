@@ -57,7 +57,7 @@ export const CATEGORIES_DATA = [
   // 2. NHÓM GỐC: MÁY TÍNH ĐỂ BÀN (PC)
   { name: "Máy Tính Để Bàn (PC)", slug: "pc", pcPartType: "none", isFeatured: true, order: 5, description: "Dàn máy tính PC văn phòng, đồ họa, gaming đồng bộ và lắp ráp chất lượng cao" },
   { name: "PC Gaming", slug: "pc-gaming", parentSlug: "pc", pcPartType: "none", isFeatured: true, order: 6, description: "Bộ máy tính PC Gaming cấu hình cao, LED RGB, tản nước, chiến mượt mọi tựa game" },
-  { name: "PC Đồ Họa", slug: "pc-do-hoa", parentSlug: "pc", pcPartType: "none", order: 7, description: "Máy tính đồ họa Workstation chuyên render 3D, kiến trúc, dựng phim 4K" },
+  { name: "PC Đồ Họa", slug: "pc-do-hoa", parentSlug: "pc", pcPartType: "none", isFeatured: true, order: 7, description: "Máy tính đồ họa Workstation chuyên render 3D, kiến trúc, dựng phim 4K" },
   { name: "PC Văn Phòng", slug: "pc-van-phong", parentSlug: "pc", pcPartType: "none", order: 8, description: "Bộ máy tính để bàn nhỏ gọn, vận hành êm ái, tối ưu công việc văn phòng" },
 
   // 3. NHÓM GỐC: LINH KIỆN MÁY TÍNH (PC Parts / Build PC)
@@ -74,12 +74,13 @@ export const CATEGORIES_DATA = [
   // 4. NHÓM GỐC: MÀN HÌNH MÁY TÍNH
   { name: "Màn hình máy tính", slug: "man-hinh", pcPartType: "monitor", isFeatured: true, order: 18, description: "Màn hình máy tính Gaming, Đồ họa 24 - 32 inch, 2K, 4K, 165Hz - 240Hz, IPS, OLED" },
   { name: "Màn hình Gaming", slug: "man-hinh-gaming", parentSlug: "man-hinh", pcPartType: "monitor", isFeatured: true, order: 19, description: "Màn hình gaming tần số quét cao 144Hz, 165Hz, 240Hz, phản hồi 1ms siêu mượt" },
-  { name: "Màn hình Văn phòng / Đồ họa", slug: "man-hinh-van-phong", parentSlug: "man-hinh", pcPartType: "monitor", order: 20, description: "Màn hình IPS chuẩn màu sRGB 100%, 2K, 4K sắc nét cho đồ họa và công việc" },
+  { name: "Màn hình Văn phòng", slug: "man-hinh-van-phong", parentSlug: "man-hinh", pcPartType: "monitor", order: 20, description: "Màn hình văn phòng bảo vệ mắt, chống chói, thiết kế gọn gàng cho học tập và làm việc" },
+  { name: "Màn hình Đồ họa", slug: "man-hinh-do-hoa", parentSlug: "man-hinh", pcPartType: "monitor", isFeatured: true, order: 21, description: "Màn hình IPS chuẩn màu sRGB 100%, DCI-P3 98%, 2K, 4K sắc nét cho thiết kế đồ họa chuyên nghiệp" },
 
   // 5. NHÓM GỐC: PHỤ KIỆN GEAR
-  { name: "Phụ Kiện Gear", slug: "phu-kien-gear", pcPartType: "gear", isFeatured: true, order: 21, description: "Phụ kiện Gear chính hãng bàn phím cơ, chuột, tai nghe và phụ kiện máy tính" },
-  { name: "Bàn phím", slug: "ban-phim", parentSlug: "phu-kien-gear", pcPartType: "gear", isFeatured: true, order: 22, description: "Bàn phím cơ Gaming, bàn phím không dây Akko, Keychron, Corsair, DareU" },
-  { name: "Chuột", slug: "chuot", parentSlug: "phu-kien-gear", pcPartType: "gear", isFeatured: true, order: 23, description: "Chuột gaming không dây, chuột công thái học Logitech, Razer siêu nhẹ" },
+  { name: "Phụ Kiện Gear", slug: "phu-kien-gear", pcPartType: "gear", isFeatured: true, order: 22, description: "Phụ kiện Gear chính hãng bàn phím cơ, chuột, tai nghe và phụ kiện máy tính" },
+  { name: "Bàn phím", slug: "ban-phim", parentSlug: "phu-kien-gear", pcPartType: "gear", isFeatured: true, order: 23, description: "Bàn phím cơ Gaming, bàn phím không dây Akko, Keychron, Corsair, DareU" },
+  { name: "Chuột", slug: "chuot", parentSlug: "phu-kien-gear", pcPartType: "gear", isFeatured: true, order: 24, description: "Chuột gaming không dây, chuột công thái học Logitech, Razer siêu nhẹ" },
 ];
 
 export const NEWS_DATA = [
@@ -9783,9 +9784,36 @@ export const performSeed = async (customProducts = PRODUCTS_DATA) => {
       } else if (rawCatSlug === "tan-nhiet-cooling" || nameLower.startsWith("tản nhiệt") || nameLower.includes("cooling") || nameLower.includes("tản nước")) {
         catSlug = "tan-nhiet-cooling";
         catName = "Tản nhiệt Cooling";
-      } else if (rawCatSlug === "man-hinh" || nameLower.startsWith("màn hình") || rawCatName.includes("màn hình")) {
-        catSlug = "man-hinh";
-        catName = "Màn hình máy tính";
+      } else if (rawCatSlug.startsWith("man-hinh") || nameLower.startsWith("màn hình") || rawCatName.includes("màn hình")) {
+        if (
+          nameLower.includes("gaming") ||
+          nameLower.includes("144hz") ||
+          nameLower.includes("165hz") ||
+          nameLower.includes("180hz") ||
+          nameLower.includes("240hz") ||
+          nameLower.includes("ultragear") ||
+          nameLower.includes("odyssey") ||
+          rawCatSlug === "man-hinh-gaming"
+        ) {
+          catSlug = "man-hinh-gaming";
+          catName = "Màn hình Gaming";
+        } else if (
+          nameLower.includes("đồ họa") ||
+          nameLower.includes("design") ||
+          nameLower.includes("proart") ||
+          nameLower.includes("ultrasharp") ||
+          nameLower.includes("4k") ||
+          nameLower.includes("2k") ||
+          nameLower.includes("srgb") ||
+          nameLower.includes("oled") ||
+          rawCatSlug === "man-hinh-do-hoa"
+        ) {
+          catSlug = "man-hinh-do-hoa";
+          catName = "Màn hình Đồ họa";
+        } else {
+          catSlug = "man-hinh-van-phong";
+          catName = "Màn hình Văn phòng";
+        }
       } else if (rawCatSlug === "ban-phim" || nameLower.startsWith("bàn phím") || nameLower.includes("bàn phím")) {
         catSlug = "ban-phim";
         catName = "Bàn phím";

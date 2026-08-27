@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, Fragment } from "react";
 import {
   X,
   Plus,
@@ -148,6 +148,88 @@ export default function ProductModal({
   // Combine passed props and internal fetched list
   const activeCategoriesSource = categories.length > 0 ? categories : internalCategories;
   const activeBrandsSource = brands.length > 0 ? brands : internalBrands;
+
+  const categoryTree = useMemo(() => {
+    if (!Array.isArray(activeCategoriesSource) || activeCategoriesSource.length === 0) {
+      return [];
+    }
+
+    const roots = [];
+    const childrenMap = new Map();
+
+    activeCategoriesSource.forEach((c) => {
+      if (!c) return;
+      const catObj = typeof c === "string" ? { name: c, slug: c } : c;
+      const parentId = catObj.parent?._id?.toString() || catObj.parent?.toString();
+      const parentSlug = catObj.parentSlug?.toLowerCase();
+
+      if (!parentId && !parentSlug) {
+        roots.push(catObj);
+      } else {
+        const key = parentId || parentSlug;
+        if (!childrenMap.has(key)) {
+          childrenMap.set(key, []);
+        }
+        childrenMap.get(key).push(catObj);
+      }
+    });
+
+    roots.sort((a, b) => (a.order || 99) - (b.order || 99));
+
+    const tree = [];
+    const processedChildren = new Set();
+
+    roots.forEach((root) => {
+      const rootId = root._id?.toString() || root.id;
+      const rootSlug = (root.slug || "").toLowerCase();
+
+      const directChildren = [
+        ...(rootId ? (childrenMap.get(rootId) || []) : []),
+        ...(rootSlug ? (childrenMap.get(rootSlug) || []) : []),
+        ...(root.name ? (childrenMap.get(root.name.toLowerCase()) || []) : []),
+      ];
+
+      const uniqueChildren = [];
+      const seenChild = new Set();
+      directChildren.forEach((ch) => {
+        const chName = ch.name;
+        if (chName && !seenChild.has(chName.toLowerCase())) {
+          seenChild.add(chName.toLowerCase());
+          uniqueChildren.push(ch);
+          processedChildren.add(chName.toLowerCase());
+        }
+      });
+
+      uniqueChildren.sort((a, b) => (a.order || 99) - (b.order || 99));
+
+      tree.push({
+        root,
+        children: uniqueChildren,
+      });
+    });
+
+    // Gom các danh mục độc lập/chưa phân nhóm
+    const orphans = [];
+    activeCategoriesSource.forEach((c) => {
+      const catName = typeof c === "string" ? c : c.name;
+      if (
+        catName &&
+        !processedChildren.has(catName.toLowerCase()) &&
+        !roots.some((r) => r.name?.toLowerCase() === catName.toLowerCase())
+      ) {
+        orphans.push(typeof c === "string" ? { name: cat, slug: cat } : c);
+      }
+    });
+
+    if (orphans.length > 0) {
+      tree.push({
+        root: { name: "Danh mục khác", slug: "khac", isOrphanGroup: true },
+        children: orphans,
+      });
+    }
+
+    return tree;
+  }, [activeCategoriesSource]);
 
   const categoryOptions = useMemo(() => {
     const list = [];
@@ -703,9 +785,38 @@ export default function ProductModal({
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 transition cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 transition cursor-pointer"
                 >
-                  {categoryOptions.length > 0 ? (
+                  {categoryTree.length > 0 ? (
+                    categoryTree.map((group) => {
+                      const root = group.root;
+                      const children = group.children || [];
+                      const isOrphan = Boolean(root.isOrphanGroup);
+
+                      return (
+                        <Fragment key={root._id || root.slug || root.name}>
+                          {!isOrphan && (
+                            <option
+                              value={root.name}
+                              className="font-bold text-slate-900 bg-slate-100 py-1"
+                            >
+                              {root.name}
+                            </option>
+                          )}
+
+                          {children.map((child) => (
+                            <option
+                              key={child._id || child.slug || child.name}
+                              value={child.name}
+                              className="font-normal text-slate-700 bg-white py-1"
+                            >
+                              &nbsp;&nbsp;&nbsp;— {child.name}
+                            </option>
+                          ))}
+                        </Fragment>
+                      );
+                    })
+                  ) : categoryOptions.length > 0 ? (
                     categoryOptions.map((cat) => (
                       <option key={cat.id || cat.name} value={cat.name}>
                         {cat.name}
