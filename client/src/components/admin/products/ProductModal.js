@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   X,
   Plus,
@@ -20,6 +20,7 @@ import {
   CloudUpload,
 } from "lucide-react";
 import { useToast } from "@/components/common/ToastContext";
+import { categoryAPI, brandAPI } from "@/lib/api";
 
 /**
  * Tối ưu nén ảnh trước khi tải lên (Client-side compression)
@@ -96,6 +97,101 @@ export default function ProductModal({
   const { showToast } = useToast();
   const fileInputRef = useRef(null);
 
+  const [internalCategories, setInternalCategories] = useState([]);
+  const [internalBrands, setInternalBrands] = useState([]);
+
+  // Fetch from DB if categories or brands props are empty
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchMeta = async () => {
+      try {
+        const [catRes, brandRes] = await Promise.allSettled([
+          categories.length === 0 ? categoryAPI.getAll() : Promise.resolve(null),
+          brands.length === 0 ? brandAPI.getAll() : Promise.resolve(null),
+        ]);
+
+        if (catRes.status === "fulfilled" && catRes.value) {
+          const list = catRes.value.data?.data || catRes.value.data || [];
+          if (Array.isArray(list)) {
+            setInternalCategories(list.filter((c) => c.isActive !== false));
+          }
+        }
+
+        if (brandRes.status === "fulfilled" && brandRes.value) {
+          const list = brandRes.value.data?.data || brandRes.value.data || [];
+          if (Array.isArray(list)) {
+            setInternalBrands(list.filter((b) => b.isActive !== false));
+          }
+        }
+      } catch (e) {
+        console.warn("Lỗi load categories / brands trong modal:", e);
+      }
+    };
+
+    fetchMeta();
+  }, [isOpen, categories.length, brands.length]);
+
+  // Combine passed props and internal fetched list
+  const activeCategoriesSource = categories.length > 0 ? categories : internalCategories;
+  const activeBrandsSource = brands.length > 0 ? brands : internalBrands;
+
+  const categoryOptions = useMemo(() => {
+    const list = [];
+    const seen = new Set();
+
+    activeCategoriesSource.forEach((c) => {
+      const name = typeof c === "string" ? c.trim() : (c?.name || "").trim();
+      if (name && !seen.has(name.toLowerCase())) {
+        seen.add(name.toLowerCase());
+        list.push({
+          id: typeof c === "object" ? c._id || c.id || name : name,
+          name: name,
+        });
+      }
+    });
+
+    if (initialData?.category || initialData?.categoryName) {
+      const initialCat = (
+        initialData.categoryName ||
+        (typeof initialData.category === "object"
+          ? initialData.category?.name
+          : initialData.category) ||
+        ""
+      ).trim();
+      if (initialCat && !seen.has(initialCat.toLowerCase())) {
+        list.unshift({ id: `initial-${initialCat}`, name: initialCat });
+      }
+    }
+
+    return list;
+  }, [activeCategoriesSource, initialData]);
+
+  const brandOptions = useMemo(() => {
+    const list = [];
+    const seen = new Set();
+
+    activeBrandsSource.forEach((b) => {
+      const name = typeof b === "string" ? b.trim() : (b?.name || "").trim();
+      if (name && !seen.has(name.toLowerCase())) {
+        seen.add(name.toLowerCase());
+        list.push({
+          id: typeof b === "object" ? b._id || b.id || name : name,
+          name: name,
+        });
+      }
+    });
+
+    if (initialData?.brand) {
+      const initialBrand = (initialData.brand || "").trim();
+      if (initialBrand && !seen.has(initialBrand.toLowerCase())) {
+        list.unshift({ id: `initial-${initialBrand}`, name: initialBrand });
+      }
+    }
+
+    return list;
+  }, [activeBrandsSource, initialData]);
+
   const [formData, setFormData] = useState({
     name: "",
     sku: "",
@@ -115,16 +211,28 @@ export default function ProductModal({
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
+    if (!isOpen) return;
+
     if (initialData) {
+      const selectedCategory =
+        initialData.categoryName ||
+        (typeof initialData.category === "object"
+          ? initialData.category?.name
+          : initialData.category) ||
+        categoryOptions[0]?.name ||
+        "Laptop";
+      const selectedBrand =
+        initialData.brand || brandOptions[0]?.name || "ASUS";
+
       setFormData({
         id: initialData.id,
         _id: initialData._id,
         name: initialData.name || "",
         sku: initialData.sku || "",
-        category: initialData.category || "Laptop",
-        brand: initialData.brand || "ASUS",
+        category: selectedCategory,
+        brand: selectedBrand,
         price: initialData.price || "",
-        oldPrice: initialData.oldPrice || "",
+        oldPrice: initialData.oldPrice || initialData.originalPrice || "",
         stock: typeof initialData.stock === "number" ? initialData.stock : 10,
         status: initialData.status || "active",
       });
@@ -169,8 +277,8 @@ export default function ProductModal({
       setFormData({
         name: "",
         sku: `SKU-${Math.floor(1000 + Math.random() * 9000)}`,
-        category: categories[0]?.name || "Laptop",
-        brand: brands[0] || "ASUS",
+        category: categoryOptions[0]?.name || "Laptop",
+        brand: brandOptions[0]?.name || "ASUS",
         price: "",
         oldPrice: "",
         stock: 10,
@@ -180,7 +288,7 @@ export default function ProductModal({
       setUrlInput("");
       setShowUrlInput(false);
     }
-  }, [initialData, isOpen, categories, brands]);
+  }, [initialData, isOpen, categoryOptions, brandOptions]);
 
   if (!isOpen) return null;
 
@@ -415,16 +523,15 @@ export default function ProductModal({
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 transition cursor-pointer"
                 >
-                  <option value="Laptop">Laptop / Notebook</option>
-                  <option value="Laptop Gaming">Laptop Gaming</option>
-                  <option value="PC Gaming">PC Gaming / Workstation</option>
-                  <option value="Màn hình máy tính">Màn hình máy tính</option>
-                  <option value="VGA - Card màn hình">VGA - Card màn hình</option>
-                  <option value="CPU - Bộ vi xử lý">CPU - Bộ vi xử lý</option>
-                  <option value="Mainboard - Bo mạch chủ">Mainboard - Bo mạch chủ</option>
-                  <option value="RAM - Bộ nhớ trong">RAM - Bộ nhớ trong</option>
-                  <option value="Ổ cứng HDD - SSD">Ổ cứng HDD - SSD</option>
-                  <option value="Linh kiện PC">Linh kiện & Phụ kiện Gaming</option>
+                  {categoryOptions.length > 0 ? (
+                    categoryOptions.map((cat) => (
+                      <option key={cat.id || cat.name} value={cat.name}>
+                        {cat.name}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="Laptop">Đang tải danh mục...</option>
+                  )}
                 </select>
               </div>
 
@@ -438,20 +545,15 @@ export default function ProductModal({
                   onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 transition cursor-pointer"
                 >
-                  <option value="ASUS">ASUS</option>
-                  <option value="MSI">MSI</option>
-                  <option value="GIGABYTE">GIGABYTE</option>
-                  <option value="DELL">DELL</option>
-                  <option value="HP">HP</option>
-                  <option value="Lenovo">Lenovo</option>
-                  <option value="Acer">Acer</option>
-                  <option value="Intel">Intel</option>
-                  <option value="AMD">AMD</option>
-                  <option value="Corsair">Corsair</option>
-                  <option value="Kingston">Kingston</option>
-                  <option value="Samsung">Samsung</option>
-                  <option value="Logitech">Logitech</option>
-                  <option value="Razer">Razer</option>
+                  {brandOptions.length > 0 ? (
+                    brandOptions.map((b) => (
+                      <option key={b.id || b.name} value={b.name}>
+                        {b.name}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="ASUS">Đang tải thương hiệu...</option>
+                  )}
                 </select>
               </div>
             </div>

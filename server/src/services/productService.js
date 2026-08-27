@@ -142,8 +142,29 @@ class ProductService {
       thumbnail = allImages[0].url;
     }
 
+    let categoryId = null;
+    let categoryName =
+      productData.categoryName ||
+      (typeof productData.category === "string" ? productData.category : "") ||
+      "Laptop";
+    let categorySlug = productData.categorySlug || "";
+
+    const categoryLookup = productData.category || productData.categoryName;
+    if (categoryLookup) {
+      const categoryDoc = await categoryRepository.findByNameOrSlug(categoryLookup);
+      if (categoryDoc) {
+        categoryId = categoryDoc._id;
+        categoryName = categoryDoc.name;
+        categorySlug = categoryDoc.slug;
+      }
+    }
+
     const newProduct = {
       ...productData,
+      category: categoryId || (productData.category ? productData.category : undefined),
+      categoryName: categoryName,
+      categorySlug: categorySlug,
+      brand: (productData.brand || "ZCOMPUTER").trim(),
       slug,
       shortName: productData.shortName || name,
       stock: Number(productData.stock ?? 10),
@@ -272,8 +293,22 @@ class ProductService {
     if (updateData.stock !== undefined) {
       updateData.stock = Number(updateData.stock);
     }
-    if (updateData.price !== undefined) {
-      updateData.price = Number(updateData.price);
+    if (updateData.category !== undefined || updateData.categoryName !== undefined) {
+      const categoryLookup = updateData.category || updateData.categoryName;
+      if (categoryLookup) {
+        const categoryDoc = await categoryRepository.findByNameOrSlug(categoryLookup);
+        if (categoryDoc) {
+          updateData.category = categoryDoc._id;
+          updateData.categoryName = categoryDoc.name;
+          updateData.categorySlug = categoryDoc.slug;
+        } else if (typeof updateData.category === "string" && !updateData.categoryName) {
+          updateData.categoryName = updateData.category;
+        }
+      }
+    }
+
+    if (updateData.brand) {
+      updateData.brand = updateData.brand.trim();
     }
 
     const updated = await productRepository.updateById(id, updateData);

@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, AlertTriangle, RotateCcw } from "lucide-react";
 import { useDebounce } from "@/lib/useDebounce";
-import { productAPI } from "@/lib/api";
+import { productAPI, categoryAPI, brandAPI } from "@/lib/api";
 import ProductPageHeader from "@/components/admin/products/ProductPageHeader";
 import ProductFilters from "@/components/admin/products/ProductFilters";
 import ProductToolbar from "@/components/admin/products/ProductToolbar";
@@ -38,11 +38,41 @@ function AdminProductsContent() {
     }
   }, [searchParams]);
 
+  // Dedicated state for database categories and brands
+  const [dbCategories, setDbCategories] = useState([]);
+  const [dbBrands, setDbBrands] = useState([]);
+
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [deleteConfirmProduct, setDeleteConfirmProduct] = useState(null);
   const { showToast } = useToast();
+
+  // Dedicated function to fetch fresh metadata (Categories & Brands) directly from Database
+  const fetchMetadata = useCallback(async () => {
+    try {
+      const [catsRes, brandsRes] = await Promise.allSettled([
+        categoryAPI.getAll(),
+        brandAPI.getAll(),
+      ]);
+
+      if (catsRes.status === "fulfilled") {
+        const catList = catsRes.value.data?.data || catsRes.value.data || [];
+        if (Array.isArray(catList)) {
+          setDbCategories(catList.filter((c) => c.isActive !== false));
+        }
+      }
+
+      if (brandsRes.status === "fulfilled") {
+        const brandList = brandsRes.value.data?.data || brandsRes.value.data || [];
+        if (Array.isArray(brandList)) {
+          setDbBrands(brandList.filter((b) => b.isActive !== false));
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi khi tải danh mục và thương hiệu từ Database:", err);
+    }
+  }, []);
 
   // Dedicated function to fetch fresh data directly from Database
   const fetchProductsFromDatabase = useCallback(async (showSkeleton = true) => {
@@ -90,26 +120,33 @@ function AdminProductsContent() {
   // Initial Fetch on component mount
   useEffect(() => {
     fetchProductsFromDatabase(true);
-  }, [fetchProductsFromDatabase]);
+    fetchMetadata();
+  }, [fetchProductsFromDatabase, fetchMetadata]);
 
-  // Compute category counts
+  // Compute category counts (combining database categories with product occurrences)
   const categoryCounts = useMemo(() => {
     const counts = {};
+    dbCategories.forEach((c) => {
+      if (c.name) counts[c.name] = 0;
+    });
     products.forEach((p) => {
       const cat = p.category || "Khác";
       counts[cat] = (counts[cat] || 0) + 1;
     });
     return counts;
-  }, [products]);
+  }, [products, dbCategories]);
 
-  // Compute brand list
+  // Compute brand list (combining database brands with product occurrences)
   const brandList = useMemo(() => {
     const set = new Set();
+    dbBrands.forEach((b) => {
+      if (b.name) set.add(b.name);
+    });
     products.forEach((p) => {
       if (p.brand) set.add(p.brand);
     });
     return Array.from(set);
-  }, [products]);
+  }, [products, dbBrands]);
 
   // Compute status counts
   const statusCounts = useMemo(() => {
@@ -244,7 +281,10 @@ function AdminProductsContent() {
       setIsModalOpen(false);
 
       // 2. Database cập nhật thành công → Fetch lại toàn bộ data mới nhất từ Database
-      await fetchProductsFromDatabase(false);
+      await Promise.allSettled([
+        fetchProductsFromDatabase(false),
+        fetchMetadata(),
+      ]);
     } catch (err) {
       console.error("Lỗi khi lưu sản phẩm vào Database:", err);
       showToast(
@@ -386,8 +426,8 @@ function AdminProductsContent() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveProduct}
         initialData={editingProduct}
-        categories={Object.keys(categoryCounts).map((c) => ({ name: c }))}
-        brands={brandList}
+        categories={dbCategories.length > 0 ? dbCategories : Object.keys(categoryCounts).map((c) => ({ name: c }))}
+        brands={dbBrands.length > 0 ? dbBrands : brandList}
       />
 
       {/* Delete Confirmation Modal */}
