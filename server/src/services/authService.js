@@ -217,6 +217,13 @@ class AuthService {
       throw new ApiError(404, "Tài khoản không tồn tại");
     }
 
+    if (user.authType === "google" && !user.password) {
+      throw new ApiError(
+        400,
+        "Tài khoản này được đăng ký bằng Google. Vui lòng nhấn nút 'Tiếp tục với Google' để đăng nhập."
+      );
+    }
+
     const isPasswordValid = await user.isPasswordCorrect(password);
     if (!isPasswordValid) {
       throw new ApiError(401, "Mật khẩu không chính xác");

@@ -395,6 +395,7 @@ function AdminProductsContent() {
         setFilters={setFilters}
         onClear={handleClearFilters}
         categoryCounts={categoryCounts}
+        categories={dbCategories}
         brandList={brandList}
         statusCounts={statusCounts}
         searchQuery={searchQuery}

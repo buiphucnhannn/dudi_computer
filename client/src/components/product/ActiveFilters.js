@@ -2,12 +2,10 @@ import { X } from "lucide-react";
 
 const CATEGORY_NAMES = {
   "laptop": "Laptop",
-  "laptop-cu": "Laptop Cũ",
   "laptop-gaming": "Laptop Gaming",
   "laptop-van-phong": "Laptop Văn phòng",
   "macbook": "Macbook",
   "pc": "Máy Tính Để Bàn (PC)",
-  "pc-cu": "Máy Tính Để Bàn (PC)",
   "pc-gaming": "PC Gaming",
   "pc-do-hoa": "PC Đồ Họa",
   "pc-van-phong": "PC Văn Phòng",
@@ -16,7 +14,8 @@ const CATEGORY_NAMES = {
   "ban-phim": "Bàn phím",
   "man-hinh": "Màn hình máy tính",
   "man-hinh-gaming": "Màn hình Gaming",
-  "man-hinh-van-phong": "Màn hình Văn phòng / Đồ họa",
+  "man-hinh-van-phong": "Màn hình Văn phòng",
+  "man-hinh-do-hoa": "Màn hình Đồ họa",
   "linh-kien-pc": "Linh Kiện Máy Tính",
   "case-vo-may-tinh": "CASE - Vỏ máy tính",
   "cpu-bo-vi-xu-ly": "CPU - Bộ vi xử lý",

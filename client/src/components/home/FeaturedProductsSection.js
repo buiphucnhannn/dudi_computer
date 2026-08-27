@@ -29,6 +29,7 @@ import {
   sortProductsByBestSeller,
   getProductImage,
   isProductMatchingCategory,
+  formatViews,
 } from "@/lib/productHelpers";
 import { getProductCardBadges } from "@/lib/specParser";
 import { useDispatch, useSelector } from "react-redux";
@@ -366,9 +367,9 @@ export default function FeaturedProductsSection({ products = [], categories = []
                 })()}
 
                 <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100">
-                  <span className="flex items-center gap-1">
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>{item.views || 68} lượt xem</span>
+                  <span className="flex items-center gap-1 font-medium text-slate-400">
+                    <Eye className="w-3.5 h-3.5 text-slate-400" />
+                    <span>{formatViews(item.views)}</span>
                   </span>
                   {isAdmin ? (
                     <Link

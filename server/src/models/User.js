@@ -84,9 +84,14 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// So sánh password
+// So sánh password an toàn
 userSchema.methods.isPasswordCorrect = async function (password) {
-  return await bcrypt.compare(password, this.password);
+  if (!this.password || !password) return false;
+  try {
+    return await bcrypt.compare(password, this.password);
+  } catch (err) {
+    return false;
+  }
 };
 
 // Tạo JWT Access Token (Thời hạn ngắn: 15 phút)
