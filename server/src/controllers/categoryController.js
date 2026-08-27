@@ -59,3 +59,14 @@ export const deleteCategory = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getPCPartTypes = async (req, res, next) => {
+  try {
+    const types = categoryService.getPCPartTypes();
+    return res
+      .status(200)
+      .json(new ApiResponse(200, types, "Lấy danh sách loại linh kiện thành công"));
+  } catch (error) {
+    next(error);
+  }
+};

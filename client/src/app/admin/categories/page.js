@@ -44,39 +44,23 @@ const generateSlug = (text) => {
     .replace(/(^-|-$)+/g, "");
 };
 
-// Map icon sinh động theo slug hoặc pcPartType
+// Map icon sinh động theo tên hoặc slug danh mục
 const getCategoryIcon = (cat) => {
-  const slug = cat.slug || "";
-  const part = cat.pcPartType || "none";
+  const slug = (cat.slug || "").toLowerCase();
+  const name = (cat.name || "").toLowerCase();
 
-  if (slug.includes("laptop") || slug.includes("macbook")) return Laptop;
-  if (slug.includes("pc") && !slug.includes("linh-kien")) return Monitor;
-  if (part === "cpu") return Cpu;
-  if (part === "vga") return Zap;
-  if (part === "ssd" || part === "hdd") return HardDrive;
-  if (part === "cooler") return Fan;
-  if (part === "case") return Box;
-  if (part === "monitor") return Monitor;
-  if (slug.includes("ban-phim")) return Keyboard;
-  if (slug.includes("chuot")) return Mouse;
+  if (slug.includes("laptop") || slug.includes("macbook") || name.includes("laptop")) return Laptop;
+  if ((slug.includes("pc") || name.includes("pc") || name.includes("máy tính")) && !slug.includes("linh-kien")) return Monitor;
+  if (slug.includes("cpu") || name.includes("cpu") || name.includes("vi xử lý")) return Cpu;
+  if (slug.includes("vga") || name.includes("vga") || name.includes("card")) return Zap;
+  if (slug.includes("ssd") || slug.includes("hdd") || slug.includes("o-cung") || name.includes("ổ cứng")) return HardDrive;
+  if (slug.includes("tan-nhiet") || name.includes("tản nhiệt")) return Fan;
+  if (slug.includes("case") || name.includes("vỏ máy")) return Box;
+  if (slug.includes("man-hinh") || name.includes("màn hình")) return Monitor;
+  if (slug.includes("ban-phim") || name.includes("bàn phím")) return Keyboard;
+  if (slug.includes("chuot") || name.includes("chuột")) return Mouse;
   return FolderTree;
 };
-
-// Danh sách các loại linh kiện Build PC
-const PC_PARTS = [
-  { value: "none", label: "Không (Sản phẩm nguyên chiếc / Phụ kiện)" },
-  { value: "cpu", label: "CPU - Bộ vi xử lý" },
-  { value: "mainboard", label: "Mainboard - Bo mạch chủ" },
-  { value: "ram", label: "RAM - Bộ nhớ trong" },
-  { value: "vga", label: "VGA - Card màn hình" },
-  { value: "ssd", label: "SSD - Ổ cứng thể rắn" },
-  { value: "hdd", label: "HDD - Ổ cứng cơ" },
-  { value: "psu", label: "PSU - Nguồn máy tính" },
-  { value: "case", label: "CASE - Vỏ máy tính" },
-  { value: "cooler", label: "Tản nhiệt CPU / Nước" },
-  { value: "monitor", label: "Màn hình máy tính" },
-  { value: "gear", label: "Gaming Gear (Phím / Chuột / Tai nghe)" },
-];
 
 export default function AdminCategoriesAndBrandsPage() {
   // --- Main Tab: 'categories' | 'brands' ---
@@ -101,7 +85,6 @@ export default function AdminCategoriesAndBrandsPage() {
     name: "",
     description: "",
     parent: "",
-    pcPartType: "none",
     isActive: true,
   });
 
@@ -224,7 +207,6 @@ export default function AdminCategoriesAndBrandsPage() {
       name: "",
       description: "",
       parent: "",
-      pcPartType: "none",
       isActive: true,
     });
     setIsCategoryModalOpen(true);
@@ -237,7 +219,6 @@ export default function AdminCategoriesAndBrandsPage() {
       name: cat.name || "",
       description: cat.description || "",
       parent: cat.parent?._id || cat.parent || "",
-      pcPartType: cat.pcPartType || "none",
       isActive: cat.isActive !== undefined ? cat.isActive : true,
     });
     setIsCategoryModalOpen(true);
@@ -1104,27 +1085,13 @@ export default function AdminCategoriesAndBrandsPage() {
                     .filter((rc) => !currentCategory || rc._id !== currentCategory._id)
                     .map((rc) => (
                       <option key={rc._id} value={rc._id}>
-                        ⭐ {rc.name} (Danh mục gốc)
+                        {rc.name}
                       </option>
                     ))}
                 </select>
               </div>
 
-              {/* Cấu hình loại linh kiện Build PC (Tùy chọn) */}
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Loại linh kiện (Tùy chọn - Dành cho linh kiện máy tính)</label>
-                <select
-                  value={categoryForm.pcPartType}
-                  onChange={(e) => setCategoryForm({ ...categoryForm, pcPartType: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800 focus:border-red-500 focus:outline-hidden"
-                >
-                  {PC_PARTS.map((p) => (
-                    <option key={p.value} value={p.value}>
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+
 
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Mô tả ngắn</label>

@@ -175,6 +175,7 @@ export const orderAPI = {
 
 export const categoryAPI = {
   getAll: () => apiClient.get("/categories"),
+  getPCPartTypes: () => apiClient.get("/categories/pc-part-types"),
 };
 
 export const brandAPI = {

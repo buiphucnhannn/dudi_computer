@@ -115,6 +115,22 @@ class CategoryService {
       productCount: 0,
     };
   }
+
+  getPCPartTypes() {
+    return [
+      { value: "cpu", label: "CPU - Bộ vi xử lý", description: "Bộ vi xử lý trung tâm (Intel / AMD)" },
+      { value: "mainboard", label: "Mainboard - Bo mạch chủ", description: "Bo mạch chủ kết nối linh kiện" },
+      { value: "ram", label: "RAM - Bộ nhớ trong", description: "Bộ nhớ tạm thời DDR4, DDR5" },
+      { value: "vga", label: "VGA - Card màn hình", description: "Card đồ họa xử lý hình ảnh & render" },
+      { value: "ssd", label: "SSD - Ổ cứng thể rắn", description: "Ổ cứng thể rắn tốc độ cao NVMe / SATA" },
+      { value: "hdd", label: "HDD - Ổ cứng cơ", description: "Ổ cứng lưu trữ dung lượng lớn" },
+      { value: "psu", label: "PSU - Nguồn máy tính", description: "Bộ nguồn cấp điện cho hệ thống" },
+      { value: "case", label: "CASE - Vỏ máy tính", description: "Vỏ thùng máy tính, case bể cá, kính cường lực" },
+      { value: "cooler", label: "Tản nhiệt Cooling", description: "Tản nhiệt nước AIO hoặc tản khí tháp đôi" },
+      { value: "monitor", label: "Màn hình máy tính", description: "Màn hình Gaming, Văn phòng, Đồ họa" },
+      { value: "gear", label: "Phụ Kiện Gear", description: "Bàn phím cơ, chuột gaming, tai nghe" },
+    ];
+  }
 }
 
 export const categoryService = new CategoryService();
