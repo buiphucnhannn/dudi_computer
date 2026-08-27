@@ -298,9 +298,9 @@ export default function FlashSaleSection({ categories = [] }) {
       {/* Left Flash Sale Banner Card */}
       <div className="bg-[#eb1c24] text-white p-4 sm:p-5 rounded-2xl flex flex-col justify-center items-center text-center shadow-md w-full lg:w-[260px] min-h-[460px] h-full shrink-0 gap-5">
         <div className="w-full">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Zap className="w-6 h-6 text-yellow-300 fill-yellow-300 animate-bounce shrink-0" />
-            <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white drop-shadow-xs truncate">
+          <div className="flex items-center justify-center gap-1.5 mb-2">
+            <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 fill-yellow-300 animate-bounce shrink-0" />
+            <h2 className="text-lg sm:text-xl md:text-2xl font-black uppercase tracking-tight text-white drop-shadow-xs leading-tight text-center">
               {promotion?.name || "FLASH SALE"}
             </h2>
           </div>

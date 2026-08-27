@@ -34,6 +34,7 @@ class ProductService {
       minPrice,
       maxPrice,
       isFlashSale,
+      discount,
       sort = "newest",
       page = 1,
       limit = 20,
@@ -41,24 +42,33 @@ class ProductService {
 
     let categoryId = null;
     let categoryName = category;
+    let categoryIds = [];
 
     // Tìm Category Doc nếu client truyền slug / tên
     if (category && category !== "all") {
       const categoryDoc = await categoryRepository.findByNameOrSlug(category);
       if (categoryDoc) {
         categoryId = categoryDoc._id;
+        const { Category } = await import("../models/Category.js");
+        const children = await Category.find({
+          parent: categoryDoc._id,
+          isActive: { $ne: false },
+        }).select("_id");
+        categoryIds = [categoryDoc._id, ...children.map((c) => c._id)];
       }
     }
 
     return await productRepository.findWithFilters({
       search,
       categoryId,
+      categoryIds,
       categoryName,
       brand,
       condition,
       minPrice,
       maxPrice,
       isFlashSale,
+      discount,
       sort,
       page,
       limit,

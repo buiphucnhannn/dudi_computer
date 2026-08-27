@@ -1,21 +1,16 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { PackageSearch } from "lucide-react";
+import { PackageSearch, Loader2 } from "lucide-react";
 import ProductCard from "@/components/product/ProductCard";
 import ProductSidebar from "@/components/product/ProductSidebar";
 import ProductToolbar from "@/components/product/ProductToolbar";
 import ProductSearch from "@/components/product/ProductSearch";
 import ProductPagination from "@/components/product/ProductPagination";
 import ActiveFilters from "@/components/product/ActiveFilters";
-import { productAPI, categoryAPI } from "@/lib/api";
-import { isProductMatchingCategory } from "@/lib/productHelpers";
-
-// Module-level cache để load tức thì 0ms khi quay lại trang
-let globalProductCache = null;
-let globalCategoryCache = null;
+import { productAPI, categoryAPI, brandAPI } from "@/lib/api";
 
 // Skeleton Card Placeholder khi đang tải dữ liệu
 function ProductCardSkeleton() {
@@ -47,10 +42,14 @@ function ProductsContent() {
   // =========================
   // STATE
   // =========================
-  const [products, setProducts] = useState(() => globalProductCache || []);
-  const [categories, setCategories] = useState(() => globalCategoryCache || []);
-  const [loading, setLoading] = useState(!globalProductCache);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isFetchingPage, setIsFetchingPage] = useState(false);
+
   const [search, setSearch] = useState(searchParam);
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParam);
   const [sort, setSort] = useState("newest");
   const [filters, setFilters] = useState({
     category: categoryParam,
@@ -60,8 +59,17 @@ function ProductsContent() {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 12,
+    totalPages: 1,
+  });
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const productsPerPage = 12;
+
+  // Track initial mount for debounce
+  const isInitialMount = useRef(true);
 
   // Active filter count for badge
   const activeFilterCount =
@@ -80,51 +88,57 @@ function ProductsContent() {
       condition: conditionParam || prev.condition,
     }));
     setSearch(searchParam || "");
+    setDebouncedSearch(searchParam || "");
     setCurrentPage(1);
   }, [categoryParam, searchParam, isFlashSaleParam, brandParam, conditionParam]);
 
+  // Debounce search input (350ms)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1);
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
   // =========================
-  // LOAD PRODUCTS & CATEGORIES TỪ API
+  // 1. TẢI DANH MỤC & THƯƠNG HIỆU ONCE
   // =========================
   useEffect(() => {
     let isMounted = true;
 
-    const fetchData = async () => {
+    const fetchMetadata = async () => {
       try {
-        const [prodRes, catRes] = await Promise.allSettled([
-          productAPI.getAll({ limit: 1000 }),
+        const [catRes, brandRes] = await Promise.allSettled([
           categoryAPI.getAll(),
+          brandAPI.getAll(),
         ]);
-
-        if (isMounted && prodRes.status === "fulfilled") {
-          const data =
-            prodRes.value?.data?.data?.products ||
-            (Array.isArray(prodRes.value?.data?.data) ? prodRes.value.data.data : []);
-          if (data?.length > 0) {
-            globalProductCache = data;
-            setProducts(data);
-          }
-        }
 
         if (isMounted && catRes.status === "fulfilled") {
           const catData = Array.isArray(catRes.value?.data?.data)
             ? catRes.value.data.data
             : [];
-          if (catData.length > 0) {
-            globalCategoryCache = catData;
-            setCategories(catData);
-          }
+          setCategories(catData);
+        }
+
+        if (isMounted && brandRes.status === "fulfilled") {
+          const brandData = Array.isArray(brandRes.value?.data?.data)
+            ? brandRes.value.data.data
+            : [];
+          setBrands(brandData);
         }
       } catch (error) {
-        console.error("Lỗi khi tải sản phẩm/danh mục từ API:", error.message);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        console.error("Lỗi khi tải danh mục/thương hiệu:", error);
       }
     };
 
-    fetchData();
+    fetchMetadata();
 
     return () => {
       isMounted = false;
@@ -132,148 +146,102 @@ function ProductsContent() {
   }, []);
 
   // =========================
-  // FILTER
+  // 2. FETCH SẢN PHẨM THEO TRANG VÀ BỘ LỌC TỪ API
   // =========================
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
+  useEffect(() => {
+    let isMounted = true;
 
-    // SEARCH
-    if (search.trim()) {
-      const keyword = search.toLowerCase().trim();
-      const parts = keyword.split(/[\s-]+/).filter(Boolean);
+    const fetchProductsByPage = async () => {
+      try {
+        setIsFetchingPage(true);
 
-      result = result.filter((product) => {
-        const name = product.name?.toLowerCase() || "";
-        const brand = product.brand?.toLowerCase() || "";
-        const category = (product.categoryName || "").toLowerCase();
-        const sku = (product.sku || "").toLowerCase();
-        const shortDesc = (product.shortDescription || "").toLowerCase();
-        const fullText = `${name} ${brand} ${category} ${sku} ${shortDesc}`;
+        const params = {
+          page: currentPage,
+          limit: productsPerPage,
+          sort: sort,
+        };
 
-        return (
-          fullText.includes(keyword) ||
-          parts.every((part) => fullText.includes(part))
-        );
-      });
-    }
+        if (debouncedSearch.trim()) {
+          params.search = debouncedSearch.trim();
+        }
 
-    // CATEGORY (Lọc động theo Danh mục Database & Phân cấp Cha - Con)
-    if (filters.category) {
-      const selectedCat = filters.category.toLowerCase().trim();
-      result = result.filter((product) =>
-        isProductMatchingCategory(product, selectedCat, categories)
-      );
-    }
+        if (filters.category) {
+          params.category = filters.category;
+        }
 
-    // CONDITION (Tình trạng: Chọn 1 trong 2 - Mới 100% hoặc Cũ Like New)
-    if (filters.condition) {
-      result = result.filter((product) => {
-        const cond = (product.condition || "").toLowerCase();
-        const name = (product.name || "").toLowerCase();
+        if (filters.brands && filters.brands.length > 0) {
+          params.brand = filters.brands.join(",");
+        }
 
-        const isUsed =
-          cond.includes("cũ") ||
-          cond.includes("like new") ||
-          cond.includes("99%") ||
-          cond.includes("used") ||
-          cond.includes("lướt") ||
-          cond.includes("second hand") ||
-          name.includes("cũ") ||
-          name.includes("like new") ||
-          name.includes("99%") ||
-          name.includes("lướt") ||
-          name.includes("second hand");
+        if (filters.condition) {
+          params.condition = filters.condition;
+        }
 
-        if (filters.condition === "new") return !isUsed;
-        if (filters.condition === "used") return isUsed;
-        return true;
-      });
-    }
+        if (filters.promotions && filters.promotions.length > 0) {
+          if (filters.promotions.includes("flash_sale")) {
+            params.isFlashSale = true;
+          }
+          if (filters.promotions.includes("discount")) {
+            params.discount = true;
+          }
+        }
 
-    // BRANDS
-    if (filters.brands.length > 0) {
-      result = result.filter((product) => {
-        const prodBrand = (product.brand || "").toLowerCase();
-        const prodName = (product.name || "").toLowerCase();
+        const res = await productAPI.getAll(params);
 
-        return filters.brands.some((b) => {
-          const brandKey = b.toLowerCase();
-          return (
-            prodBrand.includes(brandKey) ||
-            prodName.includes(brandKey) ||
-            brandKey.includes(prodBrand)
-          );
-        });
-      });
-    }
+        if (isMounted) {
+          const responseData = res?.data?.data;
+          const items =
+            responseData?.products ||
+            (Array.isArray(responseData) ? responseData : []);
+          const pageInfo = responseData?.pagination || {
+            total: items.length,
+            page: currentPage,
+            limit: productsPerPage,
+            totalPages: Math.max(1, Math.ceil(items.length / productsPerPage)),
+          };
 
-    // PROMOTIONS (Đang giảm giá & Chiến dịch Flash Sale)
-    if (filters.promotions.length > 0) {
-      if (filters.promotions.includes("discount")) {
-        result = result.filter(
-          (product) =>
-            Number(product.discountPercent || 0) > 0 ||
-            Number(product.originalPrice || 0) > Number(product.price || 0),
-        );
+          setProducts(items);
+          setPagination(pageInfo);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải sản phẩm theo trang:", error);
+        if (isMounted) {
+          setProducts([]);
+          setPagination({
+            total: 0,
+            page: currentPage,
+            limit: productsPerPage,
+            totalPages: 1,
+          });
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+          setIsFetchingPage(false);
+        }
       }
+    };
 
-      if (
-        filters.promotions.includes("flash_sale") ||
-        filters.promotions.includes("hot")
-      ) {
-        result = result.filter(
-          (product) =>
-            product.isFlashSale === true ||
-            product.isFlashSale === "true",
-        );
-      }
-    }
+    fetchProductsByPage();
 
-    // SORT
-    switch (sort) {
-      case "newest":
-        result.sort(
-          (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
-        );
-        break;
-
-      case "price-low":
-        result.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
-        break;
-
-      case "price-high":
-        result.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
-        break;
-
-      case "popular":
-        result.sort(
-          (a, b) => Number(b.soldCount || 0) - Number(a.soldCount || 0),
-        );
-        break;
-
-      default:
-        break;
-    }
-
-    return result;
-  }, [products, search, filters, sort, categories]);
-
-  // =========================
-  // PAGINATION
-  // =========================
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-
-  const paginatedProducts = filteredProducts.slice(
-    (currentPage - 1) * productsPerPage,
-    currentPage * productsPerPage,
-  );
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    currentPage,
+    debouncedSearch,
+    sort,
+    filters.category,
+    filters.condition,
+    filters.brands,
+    filters.promotions,
+  ]);
 
   // =========================
   // HANDLERS
   // =========================
   const handleSearch = (value) => {
     setSearch(value);
-    setCurrentPage(1);
   };
 
   const handleSort = (value) => {
@@ -291,12 +259,15 @@ function ProductsContent() {
       category: "",
       brands: [],
       promotions: [],
+      condition: "",
     });
     setSearch("");
+    setDebouncedSearch("");
     setCurrentPage(1);
   };
 
   const handlePageChange = (page) => {
+    if (page === currentPage || page < 1 || page > pagination.totalPages) return;
     setCurrentPage(page);
 
     window.scrollTo({
@@ -308,9 +279,8 @@ function ProductsContent() {
   return (
     <main className="w-full bg-[#f8f9fa] min-h-screen">
       <div className="mx-auto max-w-[1600px] px-3 py-5 sm:px-4 lg:px-6">
-        {/* BANNER PROMOTION (Mặc định cố định chuẩn đẹp) */}
+        {/* BANNER PROMOTION */}
         <div className="mb-5 overflow-hidden rounded-2xl shadow-xs border border-slate-700/40 bg-gradient-to-r from-[#0a0c10] via-[#141824] to-[#0a0c10] relative select-none">
-          {/* Showroom background with dark gradient overlay */}
           <img
             src="/images/dudi/dudi_showroom_hero.jpg"
             alt="DUDI SOFTWARE Showroom"
@@ -360,12 +330,15 @@ function ProductsContent() {
             </div>
           </div>
         </div>
+
         <div className="flex gap-6">
           {/* SIDEBAR (Desktop & Mobile Drawer) */}
           <ProductSidebar
             filters={filters}
             products={products}
             categories={categories}
+            brands={brands}
+            totalProductCount={pagination.total}
             onFilterChange={handleFilterChange}
             isMobileOpen={isMobileFilterOpen}
             onCloseMobile={() => setIsMobileFilterOpen(false)}
@@ -375,7 +348,7 @@ function ProductsContent() {
           {/* CONTENT */}
           <div className="min-w-0 flex-1">
             <ProductToolbar
-              productCount={filteredProducts.length}
+              productCount={pagination.total}
               sort={sort}
               onSortChange={handleSort}
               onOpenMobileFilters={() => setIsMobileFilterOpen(true)}
@@ -389,20 +362,24 @@ function ProductsContent() {
               categories={categories}
               search={search}
               onFilterChange={handleFilterChange}
-              onClearSearch={() => handleSearch("")}
+              onClearSearch={() => {
+                setSearch("");
+                setDebouncedSearch("");
+                setCurrentPage(1);
+              }}
               onClear={handleClearFilters}
             />
 
             {/* PRODUCT GRID OR SKELETON */}
-            {loading && products.length === 0 ? (
+            {loading || isFetchingPage ? (
               <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, idx) => (
+                {Array.from({ length: productsPerPage }).map((_, idx) => (
                   <ProductCardSkeleton key={idx} />
                 ))}
               </div>
-            ) : paginatedProducts.length > 0 ? (
+            ) : products.length > 0 ? (
               <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-                {paginatedProducts.map((product) => (
+                {products.map((product) => (
                   <ProductCard
                     key={product._id || product.id}
                     product={product}
@@ -431,11 +408,11 @@ function ProductsContent() {
             )}
 
             {/* PAGINATION */}
-            {totalPages > 1 && (
+            {!loading && pagination.totalPages > 1 && (
               <div className="mt-8">
                 <ProductPagination
                   currentPage={currentPage}
-                  totalPages={totalPages}
+                  totalPages={pagination.totalPages}
                   onPageChange={handlePageChange}
                 />
               </div>
