@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { bannerAPI } from "@/lib/api";
-import { optimizeImageUrl } from "@/lib/imageOptimizer";
 
 export default function PromotionPopup() {
   const pathname = usePathname();
@@ -55,7 +55,7 @@ export default function PromotionPopup() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="relative w-full max-w-[92vw] sm:max-w-[720px] mx-auto flex items-center justify-center"
+        className="relative w-full max-w-[92vw] sm:max-w-[700px] mx-auto flex items-center justify-center"
         onClick={(event) => event.stopPropagation()}
       >
         <button
@@ -72,27 +72,29 @@ export default function PromotionPopup() {
           <Link
             href={popupData.link.trim()}
             onClick={() => setOpen(false)}
-            className="block w-full overflow-hidden rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-[1.01] cursor-pointer aspect-[16/10]"
+            className="relative block w-full overflow-hidden rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-[1.01] cursor-pointer aspect-[16/10]"
           >
-            <img
-              src={optimizeImageUrl(popupData.imageUrl, { width: 680, quality: "auto:eco" })}
+            <Image
+              src={popupData.imageUrl}
               alt={popupData.title || "Khuyến mãi DUDI SOFTWARE"}
-              width={720}
-              height={450}
-              className="w-full h-full object-cover rounded-2xl"
+              fill
+              sizes="(max-width: 640px) 92vw, 680px"
+              quality={75}
+              className="object-cover rounded-2xl"
               onError={(e) => {
                 e.currentTarget.src = "/back-to-school-popup.webp";
               }}
             />
           </Link>
         ) : (
-          <div className="block w-full overflow-hidden rounded-2xl shadow-2xl select-none aspect-[16/10]">
-            <img
-              src={optimizeImageUrl(popupData.imageUrl, { width: 680, quality: "auto:eco" })}
+          <div className="relative block w-full overflow-hidden rounded-2xl shadow-2xl select-none aspect-[16/10]">
+            <Image
+              src={popupData.imageUrl}
               alt={popupData.title || "Khuyến mãi DUDI SOFTWARE"}
-              width={720}
-              height={450}
-              className="w-full h-full object-cover rounded-2xl"
+              fill
+              sizes="(max-width: 640px) 92vw, 680px"
+              quality={75}
+              className="object-cover rounded-2xl"
               onError={(e) => {
                 e.currentTarget.src = "/back-to-school-popup.webp";
               }}

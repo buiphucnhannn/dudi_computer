@@ -82,7 +82,7 @@ export default function NewsContent() {
               "radial-gradient(circle at 82% 18%, rgba(235, 28, 36, 0.24) 0%, transparent 50%), radial-gradient(circle at 10% 90%, rgba(37, 99, 235, 0.12) 0%, transparent 45%)",
           }}
         >
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10 text-center">

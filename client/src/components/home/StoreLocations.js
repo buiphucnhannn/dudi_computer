@@ -1,9 +1,34 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
 import { MapPin, Phone, Mail, ChevronRight, ExternalLink } from "lucide-react";
 
 export default function StoreLocations() {
+  const [loadMap, setLoadMap] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setLoadMap(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px" }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
       id="he-thong-showroom"
+      ref={containerRef}
       className="mb-12 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-8 lg:p-10 shadow-2xl relative overflow-hidden group transition-all duration-500 text-white"
     >
       {/* Hiệu ứng đỏ mờ khi hover */}
@@ -88,18 +113,25 @@ export default function StoreLocations() {
               <div className="w-2 h-2 rounded-full bg-[#eb1c24] animate-pulse"></div>
               <span>Chi nhánh Thủ Đức</span>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900 shadow-lg">
-              <iframe
-                title="Bản đồ chỉ đường đến chi nhánh Thủ Đức"
-                src="https://maps.google.com/maps?q=49/2%20%C4%90%C6%B0%E1%BB%9Dng%2014,%20Ph%C6%B0%E1%BB%9Dng%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="transition-all duration-500 group-hover/map:scale-105 w-full h-full"
-              />
+            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900 shadow-lg flex items-center justify-center">
+              {loadMap ? (
+                <iframe
+                  title="Bản đồ chỉ đường đến chi nhánh Thủ Đức"
+                  src="https://maps.google.com/maps?q=49/2%20%C4%90%C6%B0%E1%BB%9Dng%2014,%20Ph%C6%B0%E1%BB%9Dng%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="transition-all duration-500 group-hover/map:scale-105 w-full h-full"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center p-4 text-center">
+                  <MapPin className="w-8 h-8 text-[#eb1c24] mb-2 animate-bounce" />
+                  <span className="text-xs text-white/80 font-medium">Bấm hoặc cuộn để tải bản đồ</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -109,18 +141,25 @@ export default function StoreLocations() {
               <div className="w-2 h-2 rounded-full bg-[#eb1c24] animate-pulse"></div>
               <span>Chi nhánh Nguyễn Thị Minh Khai</span>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900 shadow-lg">
-              <iframe
-                title="Bản đồ chỉ đường đến chi nhánh Nguyễn Thị Minh Khai"
-                src="https://maps.google.com/maps?q=232%20%C4%90%C6%B0%E1%BB%9Dng%20Nguy%E1%BB%85n%20Th%E1%BB%8B%20Minh%20Khai,%20Ph%C6%B0%E1%BB%9Dng%20Xu%C3%A2n%20H%C3%B2a,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="transition-all duration-500 group-hover/map:scale-105 w-full h-full"
-              />
+            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900 shadow-lg flex items-center justify-center">
+              {loadMap ? (
+                <iframe
+                  title="Bản đồ chỉ đường đến chi nhánh Nguyễn Thị Minh Khai"
+                  src="https://maps.google.com/maps?q=232%20%C4%90%C6%B0%E1%BB%9Dng%20Nguy%E1%BB%85n%20Th%E1%BB%8B%20Minh%20Khai,%20Ph%C6%B0%E1%BB%9Dng%20Xu%C3%A2n%20H%C3%B2a,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="transition-all duration-500 group-hover/map:scale-105 w-full h-full"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center p-4 text-center">
+                  <MapPin className="w-8 h-8 text-[#eb1c24] mb-2 animate-bounce" />
+                  <span className="text-xs text-white/80 font-medium">Bấm hoặc cuộn để tải bản đồ</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

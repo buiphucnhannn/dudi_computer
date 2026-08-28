@@ -21,19 +21,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://zcomputer.vn" />
         <link rel="dns-prefetch" href="https://zcomputer.vn" />
-        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://images.unsplash.com" />
-        <link
-          rel="preload"
-          as="image"
-          href="https://zcomputer.vn/uploads/image-1784730915598-869631355.webp"
-          fetchPriority="high"
-          type="image/webp"
-        />
       </head>
       <body
         className="min-h-screen flex flex-col antialiased bg-[#f8f9fa] text-gray-900 selection:bg-[#dc2626] selection:text-white"
