@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { MapPin, Phone, Mail, ChevronRight, ExternalLink, Map } from "lucide-react";
 
 export default function StoreLocations() {
@@ -120,10 +121,13 @@ export default function StoreLocations() {
                 />
               ) : (
                 <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] to-[#0a0c10]">
-                  <img
+                  <Image
                     src="/images/dudi/dudi_showroom_hero.webp"
                     alt="Chi nhánh Thủ Đức"
-                    className="absolute inset-0 w-full h-full object-cover opacity-25"
+                    fill
+                    sizes="(max-width: 640px) 100vw, 400px"
+                    quality={65}
+                    className="object-cover opacity-25"
                   />
                   <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
                   <div className="relative z-10 flex flex-col items-center gap-2.5">
@@ -179,10 +183,13 @@ export default function StoreLocations() {
                 />
               ) : (
                 <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] to-[#0a0c10]">
-                  <img
+                  <Image
                     src="/images/dudi/dudisoftware3.webp"
                     alt="Chi nhánh Nguyễn Thị Minh Khai"
-                    className="absolute inset-0 w-full h-full object-cover opacity-25"
+                    fill
+                    sizes="(max-width: 640px) 100vw, 400px"
+                    quality={65}
+                    className="object-cover opacity-25"
                   />
                   <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
                   <div className="relative z-10 flex flex-col items-center gap-2.5">
