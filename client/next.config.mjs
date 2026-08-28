@@ -1,6 +1,11 @@
+import path from "path";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   devIndicators: false,
+  turbopack: {
+    root: path.resolve(".."),
+  },
   allowedDevOrigins: [
     "localhost:3000",
     "localhost:3001",
@@ -18,7 +23,11 @@ const nextConfig = {
     optimizePackageImports: ["lucide-react", "@reduxjs/toolkit", "clsx"],
   },
   images: {
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     formats: ["image/avif", "image/webp"],
+    qualities: [60, 65, 70, 75, 80],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [

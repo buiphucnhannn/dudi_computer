@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 const BRANDS = [
   { name: "ASUS", slug: "asus", color: "#00539B" },
   { name: "CORSAIR", slug: "corsair", color: "#E5C158" },
@@ -30,7 +28,7 @@ export default function BrandLogosBar() {
             className="flex items-center px-6 md:px-12 group cursor-pointer w-[120px] md:w-[250px] justify-center gap-4 shrink-0"
             style={{ "--brand-color": brand.color }}
           >
-            <Image
+            <img
               src={`https://cdn.simpleicons.org/${brand.slug}`}
               alt={brand.name}
               loading="lazy"

@@ -78,6 +78,8 @@ export default function PromotionPopup() {
               src={popupData.imageUrl}
               alt={popupData.title || "Khuyến mãi DUDI SOFTWARE"}
               fill
+              priority={true}
+              loading="eager"
               sizes="(max-width: 640px) 92vw, 680px"
               quality={75}
               className="object-cover rounded-2xl"

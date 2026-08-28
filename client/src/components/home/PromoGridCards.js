@@ -117,6 +117,8 @@ export default function PromoGridCards() {
                   src={card.imageUrl || BANNER_FALLBACK_IMAGE}
                   alt={card.title || `Khuyến mãi ${idx + 1}`}
                   fill
+                  priority={idx === 0}
+                  loading="eager"
                   sizes="(max-width: 640px) 100vw, 33vw"
                   className="object-cover object-center"
                   onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
