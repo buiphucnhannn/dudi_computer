@@ -1,26 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { bannerAPI } from "@/lib/api";
 import { handleImageError, BANNER_FALLBACK_IMAGE } from "@/lib/imageFallback";
 import { optimizeImageUrl } from "@/lib/imageOptimizer";
 
-const DEFAULT_BANNERS = [
-  { imageUrl: "https://zcomputer.vn/uploads/image-1784730915598-869631355.webp", link: "/product" },
-  { imageUrl: "https://zcomputer.vn/uploads/image-1784727646608-314735893.webp", link: "/product" },
-  { imageUrl: "https://zcomputer.vn/uploads/image-1784723786956-517954066.webp", link: "/installment-guide" },
-  { imageUrl: "https://zcomputer.vn/uploads/image-1785249221437-528368707.webp", link: "/product" },
-  { imageUrl: "https://zcomputer.vn/uploads/image-1784731172192-558618536.webp", link: "/product" },
-  { imageUrl: "https://zcomputer.vn/uploads/image-1784727158263-712835383.webp", link: "/warranty-policy" },
-];
+const INITIAL_BANNER = {
+  _id: "initial_hero_banner",
+  imageUrl: "/banners/hero_slide_1.webp",
+  title: "DUDI SOFTWARE - PC Gaming & Laptop Chính Hãng",
+  link: "/product",
+};
 
 export default function HeroSlider() {
-  const [banners, setBanners] = useState(DEFAULT_BANNERS);
+  const [banners, setBanners] = useState([INITIAL_BANNER]);
   const [current, setCurrent] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [dragOffset, setDragOffset] = useState(0);
   const containerRef = useRef(null);
 
   // Fetch dynamic banners from backend API
@@ -50,7 +47,7 @@ export default function HeroSlider() {
     loadBanners();
   }, []);
 
-  const totalBanners = banners.length || DEFAULT_BANNERS.length;
+  const totalBanners = banners.length;
 
   // Tự động chuyển slide sau 4s với hiệu ứng mờ dần xuất hiện (Cross-fade)
   useEffect(() => {
@@ -108,6 +105,15 @@ export default function HeroSlider() {
     }
   };
 
+  // Loading skeleton khi chưa có banner từ API
+  if (banners.length === 0) {
+    return (
+      <div className="relative rounded-2xl overflow-hidden shadow-xs bg-white aspect-[2/1] w-full h-full animate-pulse">
+        <div className="absolute inset-0 bg-gray-100" />
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}
@@ -136,11 +142,10 @@ export default function HeroSlider() {
           return (
             <div
               key={item._id || idx}
-              className={`absolute inset-0 w-full h-full flex items-center justify-center bg-[#07080a] transition-opacity duration-[1500ms] ease-in-out ${
-                isActive
+              className={`absolute inset-0 w-full h-full flex items-center justify-center bg-[#07080a] transition-opacity duration-[1500ms] ease-in-out ${isActive
                   ? "opacity-100 z-10 pointer-events-auto"
                   : "opacity-0 z-0 pointer-events-none"
-              }`}
+                }`}
             >
               {isDefault ? (
                 <Link
@@ -150,10 +155,12 @@ export default function HeroSlider() {
                   className="w-full h-full bg-gradient-to-r from-[#0a0a0c] via-[#14161d] to-[#0a0a0c] flex items-center justify-center relative overflow-hidden group select-none px-6 py-4"
                 >
                   {/* Background showroom image with dark glass overlay */}
-                  <img
+                  <Image
                     src="/images/dudi/dudi_showroom_hero.webp"
                     alt="DUDI SOFTWARE Showroom"
-                    className="absolute inset-0 w-full h-full object-cover object-center opacity-35 group-hover:scale-105 transition-transform duration-700 pointer-events-none"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, calc(100vw - 280px)"
+                    className="object-cover object-center opacity-35 group-hover:scale-105 transition-transform duration-700 pointer-events-none"
                     onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/70 to-transparent pointer-events-none" />
@@ -164,9 +171,11 @@ export default function HeroSlider() {
                   {/* Brand Content Box */}
                   <div className="flex flex-col items-center text-center z-10 space-y-2.5 max-w-2xl mx-auto">
                     <div className="flex items-center gap-3">
-                      <img
+                      <Image
                         src="/images/dudi/dudisoftware4.webp"
                         alt="DUDI SOFTWARE Logo"
+                        width={56}
+                        height={56}
                         className="w-11 h-11 sm:w-14 sm:h-14 object-contain drop-shadow-md rounded-2xl"
                         onError={handleImageError}
                       />
@@ -210,29 +219,33 @@ export default function HeroSlider() {
                   href={item.link.trim()}
                   onClick={handleSlideClick}
                   draggable={false}
-                  className="block w-full h-full cursor-pointer"
+                  className="relative block w-full h-full cursor-pointer overflow-hidden"
                 >
-                  <img
+                  <Image
                     src={imgSrc || BANNER_FALLBACK_IMAGE}
                     alt={item.title || `DUDI SOFTWARE Banner ${idx + 1}`}
-                    className={`w-full h-full object-cover object-center select-none pointer-events-none transition-transform ease-out ${
-                      isHovered && isActive ? "scale-105 duration-[6000ms]" : "scale-100 duration-[3000ms]"
-                    }`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, calc(100vw - 280px)"
+                    className={`object-cover object-center select-none pointer-events-none transition-transform ease-out ${isHovered && isActive ? "scale-105 duration-[6000ms]" : "scale-100 duration-[3000ms]"
+                      }`}
                     onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
+                    priority={idx === 0}
                     loading={idx === 0 ? "eager" : "lazy"}
                     fetchPriority={idx === 0 ? "high" : "auto"}
                     draggable={false}
                   />
                 </Link>
               ) : (
-                <div className="block w-full h-full cursor-default select-none">
-                  <img
+                <div className="relative block w-full h-full cursor-default select-none overflow-hidden">
+                  <Image
                     src={imgSrc || BANNER_FALLBACK_IMAGE}
                     alt={item.title || `DUDI SOFTWARE Banner ${idx + 1}`}
-                    className={`w-full h-full object-cover object-center select-none pointer-events-none transition-transform ease-out ${
-                      isHovered && isActive ? "scale-105 duration-[6000ms]" : "scale-100 duration-[3000ms]"
-                    }`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, calc(100vw - 280px)"
+                    className={`object-cover object-center select-none pointer-events-none transition-transform ease-out ${isHovered && isActive ? "scale-105 duration-[6000ms]" : "scale-100 duration-[3000ms]"
+                      }`}
                     onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
+                    priority={idx === 0}
                     loading={idx === 0 ? "eager" : "lazy"}
                     fetchPriority={idx === 0 ? "high" : "auto"}
                     draggable={false}
@@ -275,11 +288,10 @@ export default function HeroSlider() {
               e.stopPropagation();
               setCurrent(idx);
             }}
-            className={`h-2 rounded-full transition-all duration-700 cursor-pointer ${
-              idx === current
+            className={`h-2 rounded-full transition-all duration-700 cursor-pointer ${idx === current
                 ? "w-6 bg-white/40 shadow-none"
                 : "w-2 bg-white/15 hover:bg-white/30"
-            }`}
+              }`}
             aria-label={`Go to slide ${idx + 1}`}
           />
         ))}

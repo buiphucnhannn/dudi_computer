@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   Zap,
-  Flame,
   Scale,
   ShoppingCart,
   Eye,
@@ -36,13 +37,11 @@ import { getProductCardBadges, detectProductType, PRODUCT_TYPES } from "@/lib/sp
 import { useDispatch, useSelector } from "react-redux";
 import {
   addToCartAsync,
-  removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
 import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { useCompare } from "@/components/common/CompareContext";
-import dynamic from "next/dynamic";
 import { promotionAPI, productAPI } from "@/lib/api";
 
 const OrderCheckoutModal = dynamic(
@@ -457,12 +456,12 @@ export default function FlashSaleSection({ categories = [] }) {
                           🔥 FLASH SALE
                         </div>
 
-                        <img
+                        <Image
                           src={imgSrc}
                           alt={item.name}
-                          width={260}
-                          height={260}
-                          className="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-108 transition-transform duration-500 ease-out"
+                          fill
+                          sizes="(max-width: 640px) 75vw, (max-width: 1024px) 40vw, 28vw"
+                          className="object-contain mix-blend-multiply group-hover/img:scale-108 transition-transform duration-500 ease-out"
                           loading="lazy"
                           onError={handleImageError}
                         />

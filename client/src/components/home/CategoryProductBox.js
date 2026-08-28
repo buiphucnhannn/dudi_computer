@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   ChevronLeft,
   ChevronRight,
@@ -13,7 +15,7 @@ import {
   CircuitBoard,
   Layers,
   ArrowRight,
-  Flame,
+
   Monitor,
   Maximize2,
   Zap,
@@ -22,7 +24,7 @@ import {
   Wifi,
   Clock,
 } from "lucide-react";
-import { formatVND, smoothScrollBy } from "@/lib/utils";
+import { formatVND } from "@/lib/utils";
 import { handleImageError } from "@/lib/imageFallback";
 import {
   getProductDiscountInfo,
@@ -35,14 +37,11 @@ import { getProductCardBadges } from "@/lib/specParser";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addToCartAsync,
-  removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
 import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useCompare } from "@/components/common/CompareContext";
 import { useToast } from "@/components/common/ToastContext";
-import dynamic from "next/dynamic";
-
 const OrderCheckoutModal = dynamic(
   () => import("@/components/cart/OrderCheckoutModal"),
   { ssr: false }
@@ -267,10 +266,12 @@ export default function CategoryProductBox({
                     </div>
                   )}
 
-                  <img
+                  <Image
                     src={imgSrc}
                     alt={item.name}
-                    className="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-108 transition-transform duration-500 ease-out"
+                    fill
+                    sizes="(max-width: 640px) 75vw, (max-width: 1024px) 45vw, 23vw"
+                    className="object-contain mix-blend-multiply group-hover/img:scale-108 transition-transform duration-500 ease-out"
                     loading="lazy"
                     onError={handleImageError}
                   />

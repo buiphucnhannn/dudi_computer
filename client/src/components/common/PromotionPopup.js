@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { bannerAPI } from "@/lib/api";
-
 import { optimizeImageUrl } from "@/lib/imageOptimizer";
 
 export default function PromotionPopup() {
@@ -105,4 +104,4 @@ export default function PromotionPopup() {
   );
 
   return createPortal(popupContent, document.body);
-}
+}

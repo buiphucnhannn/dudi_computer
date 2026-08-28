@@ -9,21 +9,20 @@ import ServiceFeatures from "@/components/home/ServiceFeatures";
 import CategoryPills from "@/components/home/CategoryPills";
 import FlashSaleSection from "@/components/home/FlashSaleSection";
 import FeaturedProductsSection from "@/components/home/FeaturedProductsSection";
-import CategoryProductBox from "@/components/home/CategoryProductBox";
-
-const BrandLogosBar = dynamic(() => import("@/components/home/BrandLogosBar"), {
-  ssr: true,
-});
-const HomeNewsSection = dynamic(
-  () => import("@/components/home/HomeNewsSection"),
-  { ssr: true }
-);
-const CustomerGallery = dynamic(
-  () => import("@/components/home/CustomerGallery"),
-  { ssr: true }
-);
+import BrandLogosBar from "@/components/home/BrandLogosBar";
 import { productAPI, categoryAPI } from "@/lib/api";
 import { sortProductsByBestSeller, isProductMatchingCategory } from "@/lib/productHelpers";
+
+// Below-the-fold: dynamic imports để giảm initial JS bundle
+const CategoryProductBox = dynamic(() => import("@/components/home/CategoryProductBox"), {
+  loading: () => <div className="h-[500px] bg-gray-50 rounded-3xl animate-pulse mb-10" />,
+});
+const HomeNewsSection = dynamic(() => import("@/components/home/HomeNewsSection"), {
+  loading: () => <div className="h-[300px] bg-gray-50 rounded-3xl animate-pulse" />,
+});
+const CustomerGallery = dynamic(() => import("@/components/home/CustomerGallery"), {
+  loading: () => <div className="h-[400px] bg-gray-100 animate-pulse" />,
+});
 
 export default function Home() {
   const [selectedCategoryPill, setSelectedCategoryPill] = useState("all");

@@ -30,6 +30,7 @@ export default function BrandLogosBar() {
             className="flex items-center px-6 md:px-12 group cursor-pointer w-[120px] md:w-[250px] justify-center gap-4 shrink-0"
             style={{ "--brand-color": brand.color }}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`https://cdn.simpleicons.org/${brand.slug}`}
               alt={brand.name}
