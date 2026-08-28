@@ -16,8 +16,10 @@ import {
   Check,
 } from "lucide-react";
 import { newsAPI } from "@/lib/api";
+import Image from "next/image";
 import { formatDate } from "@/lib/utils";
 import { handleImageError, NEWS_FALLBACK_IMAGE } from "@/lib/imageFallback";
+import { optimizeImageUrl } from "@/lib/imageOptimizer";
 
 export default function NewsDetailPage() {
   const params = useParams();
@@ -117,9 +119,12 @@ export default function NewsDetailPage() {
       <div className="relative min-h-[48vh] md:min-h-[58vh] w-full bg-black pt-24 pb-12 md:pb-20 flex flex-col justify-end overflow-hidden">
         {/* Ảnh thumbnail thật của bài viết làm nền */}
         <div className="absolute inset-0 z-0">
-          <img
-            src={bgThumbnail || NEWS_FALLBACK_IMAGE}
+          <Image
+            src={optimizeImageUrl(bgThumbnail || NEWS_FALLBACK_IMAGE, { width: 1200 })}
             alt={article.title}
+            fill
+            priority={true}
+            sizes="100vw"
             className="w-full h-full object-cover opacity-45"
             onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
           />
@@ -261,10 +266,13 @@ export default function NewsDetailPage() {
                       href={`/tin-tuc/${rel.slug}`}
                       className="group flex gap-3 items-start"
                     >
-                      <div className="w-20 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
-                        <img
-                          src={rel.thumbnail || NEWS_FALLBACK_IMAGE}
+                      <div className="relative w-20 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
+                        <Image
+                          src={optimizeImageUrl(rel.thumbnail || NEWS_FALLBACK_IMAGE, { width: 200 })}
                           alt={rel.title}
+                          fill
+                          sizes="80px"
+                          loading="lazy"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
                         />
