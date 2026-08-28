@@ -130,23 +130,28 @@ export default function SimilarProducts({ products = defaultProducts }) {
 
   // Check scroll bounds
   const checkScrollBounds = () => {
-    if (sliderRef.current) {
+    if (!sliderRef.current) return;
+    requestAnimationFrame(() => {
+      if (!sliderRef.current) return;
       const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
       setCanScrollLeft(scrollLeft > 10);
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-    }
+    });
   };
 
   useEffect(() => {
     checkScrollBounds();
     const current = sliderRef.current;
+    const handleResize = () => {
+      requestAnimationFrame(checkScrollBounds);
+    };
     if (current) {
       current.addEventListener("scroll", checkScrollBounds, { passive: true });
-      window.addEventListener("resize", checkScrollBounds);
+      window.addEventListener("resize", handleResize, { passive: true });
     }
     return () => {
       if (current) current.removeEventListener("scroll", checkScrollBounds);
-      window.removeEventListener("resize", checkScrollBounds);
+      window.removeEventListener("resize", handleResize);
     };
   }, [displayProducts]);
 
@@ -182,7 +187,11 @@ export default function SimilarProducts({ products = defaultProducts }) {
     e.preventDefault();
     const x = e.pageX - sliderRef.current.offsetLeft;
     const walk = (x - startX) * 1.5;
-    sliderRef.current.scrollLeft = scrollLeftState - walk;
+    requestAnimationFrame(() => {
+      if (sliderRef.current) {
+        sliderRef.current.scrollLeft = scrollLeftState - walk;
+      }
+    });
   };
 
   return (
