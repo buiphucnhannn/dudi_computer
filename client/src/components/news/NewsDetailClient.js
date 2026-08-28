@@ -82,7 +82,7 @@ export default function NewsDetailClient({ initialArticle = null, initialRelated
     return (
       <div className="bg-[#f8f9fa] min-h-screen pb-20 animate-pulse">
         {/* Skeleton Hero Banner */}
-        <div className="relative min-h-[48vh] md:min-h-[58vh] w-full bg-[#0b0f19] pt-24 pb-12 md:pb-20 flex flex-col justify-end overflow-hidden">
+        <div className="relative min-h-[380px] sm:min-h-[420px] md:min-h-[460px] w-full bg-[#0b0f19] pt-24 pb-12 md:pb-20 flex flex-col justify-end overflow-hidden">
           <div className="container mx-auto px-4 h-full flex flex-col justify-end relative z-10 space-y-4">
             <div className="w-20 h-7 bg-white/10 rounded-lg"></div>
             <div className="w-24 h-5 bg-[#eb1c24]/50 rounded"></div>
@@ -132,20 +132,22 @@ export default function NewsDetailClient({ initialArticle = null, initialRelated
   return (
     <div className="bg-[#f8f9fa] min-h-screen pb-20">
       {/* 1. HERO BANNER CHUẨN 100% ZCOMPUTER.VN VỚI ẢNH NỀN THUMBNAIL CỦA BÀI VIẾT */}
-      <div className="relative min-h-[48vh] md:min-h-[58vh] w-full bg-black pt-24 pb-12 md:pb-20 flex flex-col justify-end overflow-hidden">
+      <div className="relative min-h-[380px] sm:min-h-[420px] md:min-h-[460px] w-full bg-black pt-24 pb-12 md:pb-20 flex flex-col justify-end overflow-hidden">
         {/* Ảnh thumbnail thật của bài viết làm nền */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 overflow-hidden">
           <Image
-            src={optimizeImageUrl(bgThumbnail || NEWS_FALLBACK_IMAGE, { width: 1200 })}
+            src={optimizeImageUrl(bgThumbnail || NEWS_FALLBACK_IMAGE, { width: 900, quality: 70 })}
             alt={article.title}
             fill
             priority={true}
+            fetchPriority="high"
+            quality={70}
             sizes="100vw"
             className="w-full h-full object-cover opacity-45"
             onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
           />
           {/* Lớp gradient phủ mờ từ dưới lên */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#f8f9fa] via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#f8f9fa] via-black/50 to-transparent pointer-events-none" />
         </div>
 
         <div className="container mx-auto px-4 h-full flex flex-col justify-end relative z-10">

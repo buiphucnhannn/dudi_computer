@@ -32,5 +32,12 @@ export function optimizeImageUrl(url, options = {}) {
     return optimized;
   }
 
+  // 2. Tối ưu URL Unsplash
+  if (url.includes("images.unsplash.com/photo-")) {
+    const { width = 900, quality = 70 } = options;
+    const base = url.split("?")[0];
+    return `${base}?auto=format&fit=crop&w=${width}&q=${quality}`;
+  }
+
   return url;
 }
