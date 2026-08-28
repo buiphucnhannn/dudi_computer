@@ -8,8 +8,8 @@ import {
 } from "lucide-react";
 
 const StoreSystem = ({
-  thuDucImage = "/thuDucImage.webp",
-  binhThanhImage = "/binhThanhImage.webp",
+  thuDucImage = "/images/dudi/dudi_showroom_hero.webp",
+  binhThanhImage = "/images/dudi/dudisoftware3.webp",
   thuDucMapUrl = "https://maps.google.com/?q=49/2+Đường+14+Phường+Thủ+Đức+TP+Hồ+Chí+Minh",
   binhThanhMapUrl = "https://maps.google.com/?q=232+Đường+Nguyễn+Thị+Minh+Khai+Phường+Xuân+Hòa+TP+Hồ+Chí+Minh",
 }) => {
