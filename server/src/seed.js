@@ -256,9 +256,9 @@ export const PRODUCTS_DATA = [
     "price": 5490000,
     "originalPrice": 5990000,
     "discountPercent": 8,
-    "thumbnail": "https://images.unsplash.com/photo-1541140532154-b024d705b909?w=800&auto=format&fit=crop&q=80",
+    "thumbnail": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80",
     "images": [
-      "https://images.unsplash.com/photo-1541140532154-b024d705b909?w=800&auto=format&fit=crop&q=80"
+      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80"
     ],
     "warranty": "Bảo hành 24 Tháng chính hãng",
     "status": "in_stock",
@@ -336,9 +336,9 @@ export const PRODUCTS_DATA = [
     "price": 2490000,
     "originalPrice": 2790000,
     "discountPercent": 10,
-    "thumbnail": "https://images.unsplash.com/photo-1541140532154-b024d705b909?w=800&auto=format&fit=crop&q=80",
+    "thumbnail": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80",
     "images": [
-      "https://images.unsplash.com/photo-1541140532154-b024d705b909?w=800&auto=format&fit=crop&q=80"
+      "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80"
     ],
     "warranty": "Bảo hành 12 Tháng chính hãng",
     "status": "in_stock",

@@ -29,7 +29,7 @@ import { useToast } from "@/components/common/ToastContext";
 import { getProductCardBadges } from "@/lib/specParser";
 import { getProductDiscountInfo, getProductImage } from "@/lib/productHelpers";
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, priority = false }) {
   const [mounted, setMounted] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -160,8 +160,9 @@ export default function ProductCard({ product }) {
             width={280}
             height={280}
             className="w-full h-full object-contain mix-blend-multiply group-hover:scale-108 transition-transform duration-500 ease-out"
-            loading="lazy"
-            decoding="async"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "auto"}
+            decoding={priority ? "sync" : "async"}
             onError={handleImageError}
           />
         </div>
@@ -182,13 +183,13 @@ export default function ProductCard({ product }) {
             <span className="truncate">{product.warranty || "Bảo hành 3 - 12 Tháng"}</span>
           </div>
 
-          {/* Product Name */}
-          <h3
+          {/* Product Name (H2 tuân thủ thứ tự tiêu đề chuẩn a11y) */}
+          <h2
             className="text-xs sm:text-[13px] font-bold text-slate-800 group-hover:text-[#eb1c24] transition-colors line-clamp-2 min-h-[34px] sm:min-h-[38px] leading-snug mb-2"
             title={product.name}
           >
             {product.name}
-          </h3>
+          </h2>
 
           {/* 4 Specs Chips Grid */}
           {(() => {

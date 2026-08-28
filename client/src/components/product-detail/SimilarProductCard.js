@@ -152,7 +152,7 @@ export default function SimilarProductCard({ product }) {
     >
       {/* ── TOP BADGES & ACTIONS ── */}
       <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 p-4 border-b border-slate-100 flex items-center justify-center">
-        <Link href={href} className="block w-full h-full flex items-center justify-center">
+        <Link href={href} tabIndex={-1} aria-hidden="true" className="block w-full h-full flex items-center justify-center">
           <img
             src={optimizeImageUrl(product.image || product.thumbnail, { width: 350 })}
             alt={product.name}

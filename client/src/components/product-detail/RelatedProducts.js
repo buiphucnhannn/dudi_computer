@@ -31,6 +31,8 @@ const RelatedProducts = ({ products = [] }) => {
               >
                 <Link
                   href={href}
+                  tabIndex={-1}
+                  aria-hidden="true"
                   className="aspect-square overflow-hidden bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 border-b border-slate-100 p-5 relative flex items-center justify-center"
                 >
                   <img
