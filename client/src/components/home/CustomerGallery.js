@@ -5,43 +5,43 @@ import { handleImageError } from "@/lib/imageFallback";
 
 const GALLERY_PHOTOS = [
   {
-    url: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=800&q=80",
+    url: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=480&q=75",
     title: "Dàn PC Gaming lắp ráp tại DUDI",
   },
   {
-    url: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=800&q=80",
+    url: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=480&q=75",
     title: "Góc làm việc & Setup công nghệ",
   },
   {
-    url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80",
+    url: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=480&q=75",
     title: "Không gian Gaming & Setup rực rỡ",
   },
   {
-    url: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=800&q=80",
+    url: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=480&q=75",
     title: "Kỹ thuật lắp ráp & cân chỉnh phần cứng",
   },
   {
-    url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80",
+    url: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=480&q=75",
     title: "Hệ thống linh kiện máy tính cao cấp",
   },
   {
-    url: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=800&q=80",
+    url: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=480&q=75",
     title: "Workstation đồ họa & Render chuyên nghiệp",
   },
   {
-    url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
+    url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=480&q=75",
     title: "Trải nghiệm Laptop cao cấp chính hãng",
   },
   {
-    url: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&w=800&q=80",
+    url: "https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&w=480&q=75",
     title: "Bàn phím cơ & Phụ kiện Gaming Gear",
   },
   {
-    url: "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?auto=format&fit=crop&w=800&q=80",
+    url: "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?auto=format&fit=crop&w=480&q=75",
     title: "Hệ thống tản nhiệt & Case PC hiện đại",
   },
   {
-    url: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
+    url: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=480&q=75",
     title: "Đồng hành công nghệ cùng quý khách hàng",
   },
 ];
