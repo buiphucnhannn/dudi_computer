@@ -3,19 +3,19 @@ import { MapPin, ArrowRight } from "lucide-react";
 const showrooms = [
   {
     name: "Showroom Thủ Đức",
-    address: "123 Kha Vạn Cân, Phường Linh Trung, TP. Thủ Đức",
+    address: "49/2 Đường 14, Phường Thủ Đức, TP. Thủ Đức",
     location: "Kha Vạn Cân, Thủ Đức, Ho Chi Minh City",
-    image: "thuDucImage.webp",
+    image: "/images/dudi/dudi_showroom_hero.webp",
     mapUrl:
-      "https://www.google.com/maps?ll=10.852127,106.753852&z=15&t=m&hl=vi&gl=US&mapclient=embed&cid=480909348043455982",
+      "https://maps.google.com/?q=49/2+Đường+14+Phường+Thủ+Đức+TP+Hồ+Chí+Minh",
   },
   {
     name: "Showroom Bình Thạnh",
-    address: "456 Phan Văn Trị, Phường 7, Quận Bình Thạnh",
-    location: "Phan Van Tri, Binh Thanh, Ho Chi Minh City",
-    image: "binhThanhImage.webp",
+    address: "232 Đường Nguyễn Thị Minh Khai, Phường Xuân Hòa, TP.Hồ Chí Minh",
+    location: "Nguyen Thi Minh Khai, Ho Chi Minh City",
+    image: "/images/dudi/dudisoftware3.webp",
     mapUrl:
-      "https://www.google.com/maps?ll=10.805765,106.707257&z=15&t=m&hl=vi&gl=US&mapclient=embed&cid=1627194541284691795",
+      "https://maps.google.com/?q=232+Đường+Nguyễn+Thị+Minh+Khai+Phường+Xuân+Hòa+TP+Hồ+Chí+Minh",
   },
 ];
 
@@ -42,6 +42,9 @@ const ShowroomSection = () => {
                 <img
                   src={showroom.image}
                   alt={showroom.name}
+                  width={300}
+                  height={200}
+                  loading="lazy"
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
 

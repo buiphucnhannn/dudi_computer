@@ -1,6 +1,12 @@
-import { MapPin, Phone, Mail, ChevronRight, ExternalLink } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { MapPin, Phone, Mail, ChevronRight, ExternalLink, Map } from "lucide-react";
 
 export default function StoreLocations() {
+  const [loadMap1, setLoadMap1] = useState(false);
+  const [loadMap2, setLoadMap2] = useState(false);
+
   return (
     <div
       id="he-thong-showroom"
@@ -80,47 +86,123 @@ export default function StoreLocations() {
           </div>
         </div>
 
-        {/* Cột phải: 2 bản đồ chi nhánh */}
+        {/* Cột phải: 2 bản đồ chi nhánh (Tải theo yêu cầu để giảm 800KB JS) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {/* Map 1: Chi nhánh Thủ Đức */}
           <div className="group/map">
-            <div className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#eb1c24] animate-pulse"></div>
-              <span>Chi nhánh Thủ Đức</span>
+            <div className="text-sm font-bold text-white mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#eb1c24] animate-pulse"></div>
+                <span>Chi nhánh Thủ Đức</span>
+              </div>
+              <a
+                href="https://maps.google.com/?q=49/2+Đường+14+Phường+Thủ+Đức+TP+Hồ+Chí+Minh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-red-400 hover:text-white flex items-center gap-1 font-bold"
+              >
+                <span>Google Maps</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900 shadow-lg">
-              <iframe
-                title="Bản đồ chỉ đường đến chi nhánh Thủ Đức"
-                src="https://maps.google.com/maps?q=49/2%20%C4%90%C6%B0%E1%BB%9Dng%2014,%20Ph%C6%B0%E1%BB%9Dng%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="transition-all duration-500 group-hover/map:scale-105 w-full h-full"
-              />
+            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-[#111318] shadow-lg">
+              {loadMap1 ? (
+                <iframe
+                  title="Bản đồ chỉ đường đến chi nhánh Thủ Đức"
+                  src="https://maps.google.com/maps?q=49/2%20%C4%90%C6%B0%E1%BB%9Dng%2014,%20Ph%C6%B0%E1%BB%9Dng%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full h-full"
+                />
+              ) : (
+                <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] to-[#0a0c10]">
+                  <img
+                    src="/images/dudi/dudi_showroom_hero.webp"
+                    alt="Chi nhánh Thủ Đức"
+                    className="absolute inset-0 w-full h-full object-cover opacity-25"
+                  />
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+                  <div className="relative z-10 flex flex-col items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-full bg-[#eb1c24]/20 border border-[#eb1c24]/40 flex items-center justify-center text-[#eb1c24]">
+                      <Map className="w-5 h-5" />
+                    </div>
+                    <p className="text-xs text-slate-300 font-medium max-w-[200px] leading-tight">
+                      49/2 Đường 14, P.Thủ Đức, TP.HCM
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setLoadMap1(true)}
+                      className="mt-1 px-3.5 py-1.5 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] text-white text-xs font-bold shadow-md hover:scale-105 transition-all cursor-pointer flex items-center gap-1.5"
+                    >
+                      <MapPin className="w-3.5 h-3.5" />
+                      <span>Xem bản đồ tương tác</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Map 2: Chi nhánh Nguyễn Thị Minh Khai */}
           <div className="group/map">
-            <div className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#eb1c24] animate-pulse"></div>
-              <span>Chi nhánh Nguyễn Thị Minh Khai</span>
+            <div className="text-sm font-bold text-white mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#eb1c24] animate-pulse"></div>
+                <span>Chi nhánh Q.1</span>
+              </div>
+              <a
+                href="https://maps.google.com/?q=232+Đường+Nguyễn+Thị+Minh+Khai+Phường+Xuân+Hòa+TP+Hồ+Chí+Minh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-red-400 hover:text-white flex items-center gap-1 font-bold"
+              >
+                <span>Google Maps</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-gray-900 shadow-lg">
-              <iframe
-                title="Bản đồ chỉ đường đến chi nhánh Nguyễn Thị Minh Khai"
-                src="https://maps.google.com/maps?q=232%20%C4%90%C6%B0%E1%BB%9Dng%20Nguy%E1%BB%85n%20Th%E1%BB%8B%20Minh%20Khai,%20Ph%C6%B0%E1%BB%9Dng%20Xu%C3%A2n%20H%C3%B2a,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="transition-all duration-500 group-hover/map:scale-105 w-full h-full"
-              />
+            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-[#111318] shadow-lg">
+              {loadMap2 ? (
+                <iframe
+                  title="Bản đồ chỉ đường đến chi nhánh Nguyễn Thị Minh Khai"
+                  src="https://maps.google.com/maps?q=232%20%C4%90%C6%B0%E1%BB%9Dng%20Nguy%E1%BB%85n%20Th%E1%BB%8B%20Minh%20Khai,%20Ph%C6%B0%E1%BB%9Dng%20Xu%C3%A2n%20H%C3%B2a,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full h-full"
+                />
+              ) : (
+                <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] to-[#0a0c10]">
+                  <img
+                    src="/images/dudi/dudisoftware3.webp"
+                    alt="Chi nhánh Nguyễn Thị Minh Khai"
+                    className="absolute inset-0 w-full h-full object-cover opacity-25"
+                  />
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+                  <div className="relative z-10 flex flex-col items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-full bg-[#eb1c24]/20 border border-[#eb1c24]/40 flex items-center justify-center text-[#eb1c24]">
+                      <Map className="w-5 h-5" />
+                    </div>
+                    <p className="text-xs text-slate-300 font-medium max-w-[200px] leading-tight">
+                      232 Nguyễn Thị Minh Khai, TP.HCM
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setLoadMap2(true)}
+                      className="mt-1 px-3.5 py-1.5 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] text-white text-xs font-bold shadow-md hover:scale-105 transition-all cursor-pointer flex items-center gap-1.5"
+                    >
+                      <MapPin className="w-3.5 h-3.5" />
+                      <span>Xem bản đồ tương tác</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { CreditCard, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { handleImageError, DEFAULT_FALLBACK_IMAGE } from "@/lib/imageFallback";
+import { optimizeImageUrl } from "@/lib/imageOptimizer";
 import { formatViews } from "@/lib/productHelpers";
 
 const paymentMethods = [
@@ -115,8 +116,11 @@ const ProductGallery = ({ product }) => {
       {/* ================= MAIN IMAGE ================= */}
       <div className="w-full aspect-square bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs relative group p-5 sm:p-8 flex items-center justify-center">
         <img
-          src={images[activeIndex]}
+          src={optimizeImageUrl(images[activeIndex], { width: 800 })}
           alt={product?.name || "Sản phẩm"}
+          width={600}
+          height={600}
+          fetchPriority={activeIndex === 0 ? "high" : "auto"}
           className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 ease-out group-hover:scale-105"
           onError={handleImageError}
         />
@@ -200,8 +204,11 @@ const ProductGallery = ({ product }) => {
                 `}
               >
                 <img
-                  src={image}
+                  src={optimizeImageUrl(image, { width: 140 })}
                   alt={`${product?.name || "Thumbnail"} ${index + 1}`}
+                  width={70}
+                  height={70}
+                  loading="lazy"
                   className="w-full h-full object-contain mix-blend-multiply"
                   onError={handleImageError}
                 />
