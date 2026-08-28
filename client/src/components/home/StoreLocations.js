@@ -125,7 +125,7 @@ export default function StoreLocations() {
                     src="/images/dudi/dudi_showroom_hero.webp"
                     alt="Chi nhánh Thủ Đức"
                     fill
-                    sizes="(max-width: 640px) 100vw, 400px"
+                    sizes="(max-width: 640px) 45vw, 320px"
                     quality={65}
                     className="object-cover opacity-25"
                   />
@@ -187,7 +187,7 @@ export default function StoreLocations() {
                     src="/images/dudi/dudisoftware3.webp"
                     alt="Chi nhánh Nguyễn Thị Minh Khai"
                     fill
-                    sizes="(max-width: 640px) 100vw, 400px"
+                    sizes="(max-width: 640px) 45vw, 320px"
                     quality={65}
                     className="object-cover opacity-25"
                   />
