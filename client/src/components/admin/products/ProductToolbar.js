@@ -28,8 +28,13 @@ export default function ProductToolbar({
       {/* Sort & View Mode */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-slate-500 font-medium">Sắp xếp:</span>
+          <label htmlFor="admin-product-sort-select" className="text-xs text-slate-500 font-medium cursor-pointer">
+            Sắp xếp:
+          </label>
           <select
+            id="admin-product-sort-select"
+            name="admin-product-sort-select"
+            aria-label="Sắp xếp sản phẩm quản trị"
             value={sort}
             onChange={(e) => setSort(e.target.value)}
             className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 outline-none transition focus:bg-white focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
@@ -46,6 +51,7 @@ export default function ProductToolbar({
         {/* View mode toggle */}
         <div className="flex rounded-xl border border-slate-200 bg-slate-100 p-0.5">
           <button
+            type="button"
             onClick={() => setViewMode("grid")}
             className={`flex items-center justify-center rounded-lg p-1.5 transition-all cursor-pointer ${
               viewMode === "grid"
@@ -53,11 +59,13 @@ export default function ProductToolbar({
                 : "text-slate-500 hover:text-slate-900"
             }`}
             title="Dạng lưới"
+            aria-label="Chuyển sang dạng lưới"
           >
             <LayoutGrid className="h-4 w-4" />
           </button>
 
           <button
+            type="button"
             onClick={() => setViewMode("list")}
             className={`flex items-center justify-center rounded-lg p-1.5 transition-all cursor-pointer ${
               viewMode === "list"
@@ -65,6 +73,7 @@ export default function ProductToolbar({
                 : "text-slate-500 hover:text-slate-900"
             }`}
             title="Dạng danh sách"
+            aria-label="Chuyển sang dạng danh sách"
           >
             <List className="h-4 w-4" />
           </button>

@@ -577,19 +577,19 @@ export default function Header() {
               </span>
             </div>
             <div className="flex justify-between items-center w-full mt-[3px] font-sans">
-              <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] uppercase tracking-tight">
+              <span className="text-[6px] sm:text-[8px] font-black text-[#b91c1c] uppercase tracking-tight">
                 PC GAMING
               </span>
-              <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] tracking-tight">
+              <span className="text-[6px] sm:text-[8px] font-black text-[#b91c1c] tracking-tight">
                 -
               </span>
-              <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] uppercase tracking-tight">
+              <span className="text-[6px] sm:text-[8px] font-black text-[#b91c1c] uppercase tracking-tight">
                 LAPTOP
               </span>
-              <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] tracking-tight">
+              <span className="text-[6px] sm:text-[8px] font-black text-[#b91c1c] tracking-tight">
                 -
               </span>
-              <span className="text-[6px] sm:text-[8px] font-black text-[#eb1c24] uppercase tracking-tight">
+              <span className="text-[6px] sm:text-[8px] font-black text-[#b91c1c] uppercase tracking-tight">
                 WORKSTATION
               </span>
             </div>
