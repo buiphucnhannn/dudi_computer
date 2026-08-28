@@ -42,7 +42,10 @@ import {
 import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useCompare } from "@/components/common/CompareContext";
 import { useToast } from "@/components/common/ToastContext";
-const OrderCheckoutModal = dynamic(() => import("@/components/cart/OrderCheckoutModal"), { ssr: false });
+const OrderCheckoutModal = dynamic(
+  () => import("@/components/cart/OrderCheckoutModal"),
+  { ssr: false }
+);
 
 export default function FeaturedProductsSection({ products = [], categories = [] }) {
   const [activeTab, setActiveTab] = useState("all");
@@ -97,20 +100,15 @@ export default function FeaturedProductsSection({ products = [], categories = []
     }
   };
 
-
   const scrollLeft = () => {
     if (!sliderRef.current) return;
-    const firstCard = sliderRef.current.querySelector(":scope > div");
-    if (!firstCard) return;
-    const step = firstCard.getBoundingClientRect().width + 16;
+    const step = Math.max(300, sliderRef.current.clientWidth * 0.75);
     sliderRef.current.scrollBy({ left: -step, behavior: "smooth" });
   };
 
   const scrollRight = () => {
     if (!sliderRef.current) return;
-    const firstCard = sliderRef.current.querySelector(":scope > div");
-    if (!firstCard) return;
-    const step = firstCard.getBoundingClientRect().width + 16;
+    const step = Math.max(300, sliderRef.current.clientWidth * 0.75);
     sliderRef.current.scrollBy({ left: step, behavior: "smooth" });
   };
 

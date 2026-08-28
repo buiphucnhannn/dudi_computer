@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { useToast } from "@/components/common/ToastContext";
 import { selectIsAuthenticated, selectIsAdmin } from "@/redux/slices/authSlice";
-import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
+import dynamic from "next/dynamic";
+
+const OrderCheckoutModal = dynamic(
+  () => import("@/components/cart/OrderCheckoutModal"),
+  { ssr: false }
+);
 
 const ProductActions = ({ product }) => {
   const router = useRouter();

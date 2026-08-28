@@ -5,8 +5,14 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
-const FloatingWidgets = dynamic(() => import("@/components/layout/FloatingWidgets"), { ssr: false });
-const PromotionPopup = dynamic(() => import("@/components/common/PromotionPopup"), { ssr: false });
+const FloatingWidgets = dynamic(
+  () => import("@/components/layout/FloatingWidgets"),
+  { ssr: false }
+);
+const PromotionPopup = dynamic(
+  () => import("@/components/common/PromotionPopup"),
+  { ssr: false }
+);
 
 export default function AppLayoutWrapper({ children }) {
   const pathname = usePathname();

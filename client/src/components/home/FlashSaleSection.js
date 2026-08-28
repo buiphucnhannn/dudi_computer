@@ -42,8 +42,12 @@ import {
 import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { useCompare } from "@/components/common/CompareContext";
-const OrderCheckoutModal = dynamic(() => import("@/components/cart/OrderCheckoutModal"), { ssr: false });
 import { promotionAPI, productAPI } from "@/lib/api";
+
+const OrderCheckoutModal = dynamic(
+  () => import("@/components/cart/OrderCheckoutModal"),
+  { ssr: false }
+);
 
 export default function FlashSaleSection({ categories = [] }) {
   const [activeTab, setActiveTab] = useState("all");
@@ -93,20 +97,15 @@ export default function FlashSaleSection({ categories = [] }) {
     }
   };
 
-
   const scrollLeft = () => {
     if (!sliderRef.current) return;
-    const firstCard = sliderRef.current.querySelector(":scope > div");
-    if (!firstCard) return;
-    const step = firstCard.getBoundingClientRect().width + 12;
+    const step = Math.max(260, sliderRef.current.clientWidth * 0.75);
     sliderRef.current.scrollBy({ left: -step, behavior: "smooth" });
   };
 
   const scrollRight = () => {
     if (!sliderRef.current) return;
-    const firstCard = sliderRef.current.querySelector(":scope > div");
-    if (!firstCard) return;
-    const step = firstCard.getBoundingClientRect().width + 12;
+    const step = Math.max(260, sliderRef.current.clientWidth * 0.75);
     sliderRef.current.scrollBy({ left: step, behavior: "smooth" });
   };
 
@@ -262,20 +261,26 @@ export default function FlashSaleSection({ categories = [] }) {
     }
   };
 
-  // Loading state
+  // Loading state (Khớp chính xác 100% kích thước với layout thật để triệt tiêu CLS)
   if (loading) {
     return (
-      <section className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-2.5 sm:gap-3 items-stretch my-2">
-        <div className="bg-gray-100 animate-pulse rounded-2xl h-[280px]"></div>
-        <div className="space-y-3">
-          <div className="flex gap-2">
-            <div className="bg-gray-100 animate-pulse rounded-lg h-8 w-20"></div>
-            <div className="bg-gray-100 animate-pulse rounded-lg h-8 w-16"></div>
-            <div className="bg-gray-100 animate-pulse rounded-lg h-8 w-20"></div>
+      <section className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-2.5 sm:gap-3 items-stretch my-2 min-h-[460px]">
+        {/* Left skeleton */}
+        <div className="bg-gray-100 animate-pulse rounded-2xl w-full lg:w-[260px] min-h-[460px] h-full"></div>
+        {/* Right skeleton */}
+        <div className="space-y-3 min-w-0 flex-1 flex flex-col justify-between">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <div className="bg-gray-100 animate-pulse rounded-xl h-8 w-20 shrink-0"></div>
+            <div className="bg-gray-100 animate-pulse rounded-xl h-8 w-16 shrink-0"></div>
+            <div className="bg-gray-100 animate-pulse rounded-xl h-8 w-24 shrink-0"></div>
+            <div className="bg-gray-100 animate-pulse rounded-xl h-8 w-20 shrink-0"></div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+          <div className="flex gap-3 overflow-x-auto pb-2 pt-1">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-gray-100 animate-pulse rounded-2xl h-[350px]"></div>
+              <div
+                key={i}
+                className="w-[82%] min-w-[82%] sm:w-[calc((100%-12px)/2)] sm:min-w-[calc((100%-12px)/2)] lg:w-[calc((100%-24px)/3)] lg:min-w-[calc((100%-24px)/3)] shrink-0 bg-gray-100 animate-pulse rounded-2xl min-h-[440px]"
+              ></div>
             ))}
           </div>
         </div>

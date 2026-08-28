@@ -171,6 +171,7 @@ export default function TopProductsTable() {
             </div>
 
             <select
+              aria-label="Sắp xếp sản phẩm hàng đầu"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-800 outline-none cursor-pointer"

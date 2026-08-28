@@ -55,7 +55,7 @@ export default function Footer() {
                       SOFTWARE
                     </span>
                   </div>
-                  <span className="text-[5.5px] sm:text-[6px] font-black text-[#eb1c24] uppercase mt-0.5 sm:mt-1 tracking-tight">
+                  <span className="text-[5.5px] sm:text-[6px] font-black text-[#b91c1c] uppercase mt-0.5 sm:mt-1 tracking-tight">
                     PC GAMING - LAPTOP - WORKSTATION
                   </span>
                 </div>

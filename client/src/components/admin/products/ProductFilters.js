@@ -137,6 +137,7 @@ export default function ProductFilters({
         <div className="lg:col-span-3 xl:col-span-3 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
           <Layers className="h-3.5 w-3.5 text-slate-400 shrink-0" />
           <select
+            aria-label="Lọc theo danh mục sản phẩm"
             value={filters.category || ""}
             onChange={(e) => setFilters((prev) => ({ ...prev, category: e.target.value }))}
             className="w-full bg-transparent text-xs font-bold text-slate-800 outline-none cursor-pointer truncate"
@@ -185,6 +186,7 @@ export default function ProductFilters({
         <div className="lg:col-span-2 xl:col-span-2 flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
           <Tag className="h-3.5 w-3.5 text-slate-400 shrink-0" />
           <select
+            aria-label="Lọc theo thương hiệu sản phẩm"
             value={filters.brand || ""}
             onChange={(e) => setFilters((prev) => ({ ...prev, brand: e.target.value }))}
             className="w-full bg-transparent text-xs font-bold text-slate-800 outline-none cursor-pointer truncate"
@@ -204,6 +206,7 @@ export default function ProductFilters({
         }`}>
           <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400 shrink-0" />
           <select
+            aria-label="Lọc theo tình trạng tồn kho"
             value={filters.status || ""}
             onChange={(e) => setFilters((prev) => ({ ...prev, status: e.target.value }))}
             className="w-full bg-transparent text-xs font-bold text-slate-800 outline-none cursor-pointer truncate"

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { bannerAPI } from "@/lib/api";
 import { handleImageError, BANNER_FALLBACK_IMAGE } from "@/lib/imageFallback";
+import { optimizeImageUrl } from "@/lib/imageOptimizer";
 
 const INITIAL_BANNER = {
   _id: "initial_hero_banner",
@@ -135,7 +136,7 @@ export default function HeroSlider() {
         {banners.map((item, idx) => {
           const isActive = idx === current;
           const isDefault = item.isDefaultFallback || item.isActive === false;
-          const imgSrc = item.imageUrl || "/images/dudi/dudi_showroom_hero.webp";
+          const imgSrc = optimizeImageUrl(item.imageUrl || "/images/dudi/dudi_showroom_hero.webp");
           const link = item.link || "/tat-ca-san-pham";
 
           return (
@@ -230,6 +231,7 @@ export default function HeroSlider() {
                     onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                     priority={idx === 0}
                     loading={idx === 0 ? "eager" : "lazy"}
+                    fetchPriority={idx === 0 ? "high" : "auto"}
                     draggable={false}
                   />
                 </Link>
@@ -245,6 +247,7 @@ export default function HeroSlider() {
                     onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                     priority={idx === 0}
                     loading={idx === 0 ? "eager" : "lazy"}
+                    fetchPriority={idx === 0 ? "high" : "auto"}
                     draggable={false}
                   />
                 </div>

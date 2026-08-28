@@ -35,12 +35,15 @@ export default function ProductToolbar({
       </div>
 
       <div className="flex items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
-        <div className="flex items-center gap-1.5">
+        <label htmlFor="product-sort-select" className="flex items-center gap-1.5 cursor-pointer">
           <SlidersHorizontal className="h-4 w-4 text-gray-500" />
           <span className="text-xs sm:text-sm text-gray-500 font-medium">Sắp xếp:</span>
-        </div>
+        </label>
 
         <select
+          id="product-sort-select"
+          name="product-sort-select"
+          aria-label="Sắp xếp sản phẩm"
           value={sort}
           onChange={(e) => onSortChange(e.target.value)}
           className="rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs sm:text-sm font-semibold outline-none focus:border-[#dc2626] cursor-pointer"

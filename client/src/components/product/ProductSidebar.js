@@ -151,7 +151,8 @@ function CategoryTreeFilter({
                     <button
                       type="button"
                       onClick={(e) => toggleExpand(root.slug, e)}
-                      className="p-1 text-gray-400 hover:text-gray-700 transition-transform"
+                      className="p-1 text-gray-400 hover:text-gray-700 transition-transform cursor-pointer"
+                      aria-label={`Mở rộng hoặc thu gọn danh mục ${root.name}`}
                     >
                       <ChevronDown
                         className={`w-3.5 h-3.5 transition-transform duration-200 ${
