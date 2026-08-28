@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MoreHorizontal, ArrowLeft } from "lucide-react";
 import { categoryAPI } from "@/lib/api";
 
@@ -131,9 +132,11 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
                     isActive ? "ring-2.5 ring-[#eb1c24] scale-105" : ""
                   }`}
                 >
-                  <img
+                  <Image
                     src={c.icon}
                     alt={c.name}
+                    width={56}
+                    height={56}
                     className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
                     loading="lazy"
                   />
@@ -179,9 +182,11 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
                       isActive ? "ring-2.5 ring-[#eb1c24] scale-105" : ""
                     }`}
                   >
-                    <img
+                    <Image
                       src={c.icon}
                       alt={c.name}
+                      width={56}
+                      height={56}
                       className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
                       loading="lazy"
                     />
@@ -216,9 +221,11 @@ export default function CategoryPills({ activeCategory, onSelectCategory }) {
                       isActive ? "ring-2.5 ring-[#eb1c24] scale-105" : ""
                     }`}
                   >
-                    <img
+                    <Image
                       src={c.icon}
                       alt={c.name}
+                      width={56}
+                      height={56}
                       className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
                       loading="lazy"
                     />

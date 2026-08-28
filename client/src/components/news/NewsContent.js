@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Calendar, Eye, ChevronRight, Search, Newspaper } from "lucide-react";
 import { newsAPI } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { handleImageError, NEWS_FALLBACK_IMAGE } from "@/lib/imageFallback";
+import { optimizeImageUrl } from "@/lib/imageOptimizer";
 
 const CATEGORIES = [
   "Tất cả",
@@ -193,9 +195,12 @@ export default function NewsContent() {
                     href={`/tin-tuc/${featuredArticle.slug}`}
                     className="lg:col-span-7 relative aspect-[16/10] overflow-hidden bg-slate-900 block cursor-pointer"
                   >
-                    <img
-                      src={featuredArticle.thumbnail || NEWS_FALLBACK_IMAGE}
+                    <Image
+                      src={optimizeImageUrl(featuredArticle.thumbnail || NEWS_FALLBACK_IMAGE, { width: 800 })}
                       alt={featuredArticle.title}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 55vw"
+                      priority={true}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                       onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
                     />
@@ -268,11 +273,13 @@ export default function NewsContent() {
                           href={`/tin-tuc/${item.slug}`}
                           className="block relative aspect-[16/10] overflow-hidden bg-slate-100"
                         >
-                          <img
-                            src={item.thumbnail || NEWS_FALLBACK_IMAGE}
+                          <Image
+                            src={optimizeImageUrl(item.thumbnail || NEWS_FALLBACK_IMAGE, { width: 500 })}
                             alt={item.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                             loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
                           />
                           <div className="absolute top-2.5 left-2.5 z-10">

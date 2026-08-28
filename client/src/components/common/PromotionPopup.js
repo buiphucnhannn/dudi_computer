@@ -75,7 +75,7 @@ export default function PromotionPopup() {
             className="block w-full overflow-hidden rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-[1.01] cursor-pointer aspect-[16/10]"
           >
             <img
-              src={optimizeImageUrl(popupData.imageUrl, { width: 800 })}
+              src={optimizeImageUrl(popupData.imageUrl, { width: 680, quality: "auto:eco" })}
               alt={popupData.title || "Khuyến mãi DUDI SOFTWARE"}
               width={720}
               height={450}
@@ -88,7 +88,7 @@ export default function PromotionPopup() {
         ) : (
           <div className="block w-full overflow-hidden rounded-2xl shadow-2xl select-none aspect-[16/10]">
             <img
-              src={optimizeImageUrl(popupData.imageUrl, { width: 800 })}
+              src={optimizeImageUrl(popupData.imageUrl, { width: 680, quality: "auto:eco" })}
               alt={popupData.title || "Khuyến mãi DUDI SOFTWARE"}
               width={720}
               height={450}

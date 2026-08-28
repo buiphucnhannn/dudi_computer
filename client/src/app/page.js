@@ -257,67 +257,81 @@ export default function Home() {
         <BrandLogosBar />
       </div>
 
-      {/* 8. 💻 LAPTOP Box (Tabs lọc chính xác theo dòng máy, Max 8 sản phẩm) */}
-      <CategoryProductBox
-        title="LAPTOP"
-        mainSlug="laptop"
-        tabs={laptopTabs}
-        products={laptopProducts}
-        categories={dbCategories}
-      />
+      {/* 8. 💻 LAPTOP Box */}
+      <div className="content-auto">
+        <CategoryProductBox
+          title="LAPTOP"
+          mainSlug="laptop"
+          tabs={laptopTabs}
+          products={laptopProducts}
+          categories={dbCategories}
+        />
+      </div>
 
-      {/* 9. 🖥️ PC Box (Max 8 sản phẩm) */}
-      <CategoryProductBox
-        title="PC"
-        mainSlug="pc"
-        tabs={pcTabs}
-        products={pcProducts}
-        categories={dbCategories}
-      />
+      {/* 9. 🖥️ PC Box */}
+      <div className="content-auto">
+        <CategoryProductBox
+          title="PC"
+          mainSlug="pc"
+          tabs={pcTabs}
+          products={pcProducts}
+          categories={dbCategories}
+        />
+      </div>
 
-      {/* 10. 📺 MÀN HÌNH MÁY TÍNH Box (Max 8 sản phẩm) */}
-      <CategoryProductBox
-        title="MÀN HÌNH MÁY TÍNH"
-        mainSlug="man-hinh"
-        tabs={monitorTabs}
-        products={monitorProducts}
-        categories={dbCategories}
-      />
+      {/* 10. 📺 MÀN HÌNH MÁY TÍNH Box */}
+      <div className="content-auto">
+        <CategoryProductBox
+          title="MÀN HÌNH MÁY TÍNH"
+          mainSlug="man-hinh"
+          tabs={monitorTabs}
+          products={monitorProducts}
+          categories={dbCategories}
+        />
+      </div>
 
-      {/* 11. ⌨️ PHỤ KIỆN GEAR (Bàn phím & Chuột riêng biệt, Max 8 sản phẩm) */}
-      <CategoryProductBox
-        title="PHỤ KIỆN GEAR"
-        mainSlug="phu-kien-gear"
-        tabs={gearTabs}
-        products={gearProducts}
-        categories={dbCategories}
-      />
+      {/* 11. ⌨️ PHỤ KIỆN GEAR */}
+      <div className="content-auto">
+        <CategoryProductBox
+          title="PHỤ KIỆN GEAR"
+          mainSlug="phu-kien-gear"
+          tabs={gearTabs}
+          products={gearProducts}
+          categories={dbCategories}
+        />
+      </div>
 
-      {/* 12. ⚡ PSU - NGUỒN MÁY TÍNH Box (Max 8 sản phẩm) */}
-      <CategoryProductBox
-        title="PSU - NGUỒN MÁY TÍNH"
-        mainSlug="psu-nguon-may-tinh"
-        tabs={[]}
-        products={psuProducts}
-        categories={dbCategories}
-      />
+      {/* 12. ⚡ PSU - NGUỒN MÁY TÍNH Box */}
+      <div className="content-auto">
+        <CategoryProductBox
+          title="PSU - NGUỒN MÁY TÍNH"
+          mainSlug="psu-nguon-may-tinh"
+          tabs={[]}
+          products={psuProducts}
+          categories={dbCategories}
+        />
+      </div>
 
-      {/* 13. 🎛️ MAINBOARD - BO MẠCH CHỦ Box (Max 8 sản phẩm) */}
-      <CategoryProductBox
-        title="MAINBOARD - BO MẠCH CHỦ"
-        mainSlug="mainboard-bo-mach-chu"
-        tabs={[]}
-        products={mainboardProducts}
-        categories={dbCategories}
-      />
+      {/* 13. 🎛️ MAINBOARD - BO MẠCH CHỦ Box */}
+      <div className="content-auto">
+        <CategoryProductBox
+          title="MAINBOARD - BO MẠCH CHỦ"
+          mainSlug="mainboard-bo-mach-chu"
+          tabs={[]}
+          products={mainboardProducts}
+          categories={dbCategories}
+        />
+      </div>
 
-      {/* 14. 📰 BÀI VIẾT - TIN TỨC CÔNG NGHỆ (Load trực tiếp từ Database API) */}
-      <div className="mb-10 sm:mb-14 md:mb-16">
+      {/* 14. 📰 BÀI VIẾT - TIN TỨC CÔNG NGHỆ */}
+      <div className="mb-10 sm:mb-14 md:mb-16 content-auto">
         <HomeNewsSection />
       </div>
 
       {/* 15. 🌟 LỜI CẢM ƠN TỪ DUDI SOFTWARE & HÌNH ẢNH KHÁCH HÀNG */}
-      <CustomerGallery />
+      <div className="content-auto">
+        <CustomerGallery />
+      </div>
     </div>
   );
 }

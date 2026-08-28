@@ -1,9 +1,15 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronDown } from "lucide-react";
-import StoreLocations from "@/components/home/StoreLocations";
+
+const StoreLocations = dynamic(() => import("@/components/home/StoreLocations"), {
+  ssr: false,
+  loading: () => <div className="h-48 rounded-2xl bg-white/5 animate-pulse mb-8" />,
+});
 
 export default function Footer() {
   // Mobile accordion state (mở mặc định trên desktop, toggle linh hoạt trên mobile)
@@ -41,9 +47,11 @@ export default function Footer() {
               className="inline-block bg-white px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl shadow-md hover:opacity-95 transition-opacity"
             >
               <div className="flex items-center gap-2 select-none">
-                <img
+                <Image
                   src="/images/dudi/dudisoftware4.webp"
                   alt="DUDI SOFTWARE Logo"
+                  width={40}
+                  height={40}
                   className="h-8 sm:h-10 w-8 sm:w-10 object-contain rounded-xl"
                 />
                 <div className="flex flex-col justify-center select-none">
@@ -73,9 +81,11 @@ export default function Footer() {
               </span>
               <div className="bg-white text-gray-900 p-3 sm:p-3.5 rounded-2xl shadow-md border border-gray-100 space-y-2.5 sm:space-y-3 max-w-sm">
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
                     src="/images/dudi/dudisoftware2.webp"
                     alt="DUDI SOFTWARE Avatar"
+                    width={40}
+                    height={40}
                     className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 p-0.5 object-contain shrink-0"
                   />
                   <div className="min-w-0">

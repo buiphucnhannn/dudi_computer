@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -562,9 +563,12 @@ export default function Header() {
           href="/"
           className="flex items-center gap-2 shrink-0 group relative"
         >
-          <img
+          <Image
             src="/images/dudi/dudisoftware4.webp"
             alt="DUDI SOFTWARE Logo"
+            width={50}
+            height={50}
+            priority={true}
             className="h-10 w-10 sm:h-[50px] sm:w-[50px] object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-md rounded-xl"
           />
           <div className="flex flex-col justify-center select-none">

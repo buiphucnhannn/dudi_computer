@@ -1,4 +1,4 @@
-"use client";
+import Image from "next/image";
 
 const BRANDS = [
   { name: "ASUS", slug: "asus", color: "#00539B" },
@@ -30,14 +30,13 @@ export default function BrandLogosBar() {
             className="flex items-center px-6 md:px-12 group cursor-pointer w-[120px] md:w-[250px] justify-center gap-4 shrink-0"
             style={{ "--brand-color": brand.color }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={`https://cdn.simpleicons.org/${brand.slug}`}
               alt={brand.name}
               loading="lazy"
-              width={100}
-              height={56}
-              className="h-8 md:h-12 w-auto opacity-30 group-hover:opacity-100 group-hover:scale-115 transition-all duration-500 drop-shadow-xs"
+              width={48}
+              height={48}
+              className="h-8 md:h-12 w-auto opacity-30 group-hover:opacity-100 group-hover:scale-115 transition-all duration-500 drop-shadow-xs object-contain"
             />
             <span
               className="text-gray-400 font-extrabold tracking-widest uppercase opacity-0 -translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 hidden md:block text-sm sm:text-base"

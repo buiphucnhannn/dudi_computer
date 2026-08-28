@@ -270,7 +270,7 @@ export default function CategoryProductBox({
                     src={imgSrc}
                     alt={item.name}
                     fill
-                    sizes="(max-width: 640px) 75vw, (max-width: 1024px) 45vw, 23vw"
+                    sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 240px"
                     className="object-contain mix-blend-multiply group-hover/img:scale-108 transition-transform duration-500 ease-out"
                     loading="lazy"
                     onError={handleImageError}
