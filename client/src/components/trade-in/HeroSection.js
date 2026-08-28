@@ -5,7 +5,7 @@ export default function HeroSection() {
     <section
       className="relative flex min-h-[440px] md:min-h-[500px] lg:min-h-[520px] w-full items-center overflow-hidden bg-[#f8f9fa] bg-cover bg-center bg-no-repeat py-8 sm:py-10 md:py-12"
       style={{
-        backgroundImage: "url('/tradeinbg.webp')",
+        backgroundImage: "url('/hero-bg.webp')",
       }}
     >
       {/* Background overlay */}
