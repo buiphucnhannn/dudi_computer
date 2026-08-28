@@ -115,14 +115,16 @@ export function getProductImage(item) {
   const fallback = "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80";
   if (!item) return fallback;
   
+  const opt = { width: 350, quality: "auto:good" };
+
   // 1. Kiểm tra thumbnail
   const thumb = typeof item.thumbnail === "object" ? item.thumbnail?.url : item.thumbnail;
   if (thumb && typeof thumb === "string" && thumb.trim()) {
     const cleanThumb = thumb.trim();
     if (cleanThumb.startsWith("http") || cleanThumb.startsWith("/") || cleanThumb.startsWith("data:")) {
-      return optimizeImageUrl(cleanThumb);
+      return optimizeImageUrl(cleanThumb, opt);
     }
-    return optimizeImageUrl(`/${cleanThumb}`);
+    return optimizeImageUrl(`/${cleanThumb}`, opt);
   }
 
   // 2. Kiểm tra mảng images
@@ -131,9 +133,9 @@ export function getProductImage(item) {
     if (firstImg && typeof firstImg === "string" && firstImg.trim()) {
       const cleanImg = firstImg.trim();
       if (cleanImg.startsWith("http") || cleanImg.startsWith("/") || cleanImg.startsWith("data:")) {
-        return optimizeImageUrl(cleanImg);
+        return optimizeImageUrl(cleanImg, opt);
       }
-      return optimizeImageUrl(`/${cleanImg}`);
+      return optimizeImageUrl(`/${cleanImg}`, opt);
     }
   }
 
@@ -142,9 +144,9 @@ export function getProductImage(item) {
   if (singleImg && typeof singleImg === "string" && singleImg.trim()) {
     const cleanSingle = singleImg.trim();
     if (cleanSingle.startsWith("http") || cleanSingle.startsWith("/") || cleanSingle.startsWith("data:")) {
-      return optimizeImageUrl(cleanSingle);
+      return optimizeImageUrl(cleanSingle, opt);
     }
-    return optimizeImageUrl(`/${cleanSingle}`);
+    return optimizeImageUrl(`/${cleanSingle}`, opt);
   }
 
   return fallback;

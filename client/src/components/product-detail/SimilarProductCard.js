@@ -27,6 +27,7 @@ import {
 import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { handleImageError } from "@/lib/imageFallback";
+import { optimizeImageUrl } from "@/lib/imageOptimizer";
 import { getProductCardBadges } from "@/lib/specParser";
 import { formatViews } from "@/lib/productHelpers";
 
@@ -151,10 +152,13 @@ export default function SimilarProductCard({ product }) {
     >
       {/* ── TOP BADGES & ACTIONS ── */}
       <div className="relative aspect-square w-full overflow-hidden bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 p-4 border-b border-slate-100 flex items-center justify-center">
-        <Link href={href} className="block w-full h-full flex items-center justify-center">
+        <Link href={href} tabIndex={-1} aria-hidden="true" className="block w-full h-full flex items-center justify-center">
           <img
-            src={product.image || product.thumbnail}
+            src={optimizeImageUrl(product.image || product.thumbnail, { width: 350 })}
             alt={product.name}
+            width={280}
+            height={280}
+            loading="lazy"
             className={`
               h-full w-full object-contain mix-blend-multiply
               transition-transform duration-500 ease-out

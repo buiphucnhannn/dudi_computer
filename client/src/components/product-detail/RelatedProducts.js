@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatVND } from "@/lib/utils";
+import { optimizeImageUrl } from "@/lib/imageOptimizer";
 
 const RelatedProducts = ({ products = [] }) => {
   if (!products.length) return null;
@@ -14,10 +15,11 @@ const RelatedProducts = ({ products = [] }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((product) => {
-            const thumbnail =
+            const rawThumbnail =
               product.thumbnail ||
               product.images?.[0] ||
               "/images/dudi/dudisoftware1.webp";
+            const thumbnail = optimizeImageUrl(rawThumbnail, { width: 350 });
             const href = `/product-detail?slug=${encodeURIComponent(
               product.slug || product._id,
             )}`;
@@ -29,11 +31,16 @@ const RelatedProducts = ({ products = [] }) => {
               >
                 <Link
                   href={href}
+                  tabIndex={-1}
+                  aria-hidden="true"
                   className="aspect-square overflow-hidden bg-gradient-to-b from-slate-50/60 via-white to-slate-50/30 border-b border-slate-100 p-5 relative flex items-center justify-center"
                 >
                   <img
                     src={thumbnail}
                     alt={product.name}
+                    width={280}
+                    height={280}
+                    loading="lazy"
                     className="w-full h-full object-contain mix-blend-multiply group-hover:scale-108 transition-transform duration-500 ease-out"
                   />
 

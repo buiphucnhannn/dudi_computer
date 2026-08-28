@@ -179,10 +179,11 @@ export default function ProductMain() {
             {/* Product grid */}
             {paginatedProducts.length > 0 ? (
               <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-                {paginatedProducts.map((product) => (
+                {paginatedProducts.map((product, idx) => (
                   <ProductCard
                     key={product._id || product.id}
                     product={product}
+                    priority={idx < 4}
                   />
                 ))}
               </div>

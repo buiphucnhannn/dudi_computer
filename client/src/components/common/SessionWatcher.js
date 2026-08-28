@@ -75,20 +75,20 @@ export default function SessionWatcher() {
     };
 
     // 2. Kết nối Server-Sent Events (SSE) Stream
-    // Nếu có đăng nhập: kết nối stream xác thực
-    // Nếu là khách vãng lai: kết nối stream thông báo hệ thống realtime
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
-      const streamUrl =
-        isAuthenticated && user?._id
-          ? `${baseUrl}/auth/session-stream`
-          : `${baseUrl}/system/events`;
+    // Trì hoãn kết nối SSE 2s sau khi trang tải xong để không chặn Critical Request Chain
+    const timer = setTimeout(() => {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+        const streamUrl =
+          isAuthenticated && user?._id
+            ? `${baseUrl}/auth/session-stream`
+            : `${baseUrl}/system/events`;
 
-      const es = new EventSource(streamUrl, { withCredentials: true });
-      eventSourceRef.current = es;
+        const es = new EventSource(streamUrl, { withCredentials: true });
+        eventSourceRef.current = es;
 
-      // A. Lắng nghe sự kiện KICK (Khi Admin khóa tài khoản)
-      es.addEventListener("KICK", (e) => {
+        // A. Lắng nghe sự kiện KICK (Khi Admin khóa tài khoản)
+        es.addEventListener("KICK", (e) => {
         let reason = "Tài khoản của bạn đã bị khóa bởi Quản trị viên.";
         try {
           const data = JSON.parse(e.data);
@@ -158,14 +158,16 @@ export default function SessionWatcher() {
         }
       });
 
-      es.onerror = () => {
-        // EventSource tự động reconnect khi mất kết nối
-      };
-    } catch (err) {
-      console.error("[SessionWatcher] Lỗi thiết lập kết nối realtime:", err);
-    }
+        es.onerror = () => {
+          // EventSource tự động reconnect khi mất kết nối
+        };
+      } catch (err) {
+        console.error("[SessionWatcher] Lỗi thiết lập kết nối realtime:", err);
+      }
+    }, 2000);
 
     return () => {
+      clearTimeout(timer);
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
         eventSourceRef.current = null;
