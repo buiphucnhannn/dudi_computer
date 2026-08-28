@@ -82,9 +82,27 @@ export default function NewsDetailPage() {
 
   if (loading) {
     return (
-      <div className="bg-[#f8f9fa] min-h-screen py-24 flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-red-500/30 border-t-[#eb1c24] rounded-full animate-spin"></div>
-        <p className="mt-4 text-xs font-bold text-gray-500">Đang tải nội dung bài viết...</p>
+      <div className="bg-[#f8f9fa] min-h-screen pb-20 animate-pulse">
+        {/* Skeleton Hero Banner cùng tỷ lệ kích thước */}
+        <div className="relative min-h-[48vh] md:min-h-[58vh] w-full bg-[#0b0f19] pt-24 pb-12 md:pb-20 flex flex-col justify-end overflow-hidden">
+          <div className="container mx-auto px-4 h-full flex flex-col justify-end relative z-10 space-y-4">
+            <div className="w-20 h-7 bg-white/10 rounded-lg"></div>
+            <div className="w-24 h-5 bg-[#eb1c24]/50 rounded"></div>
+            <div className="w-4/5 h-8 sm:h-10 bg-white/10 rounded-xl"></div>
+            <div className="w-1/2 h-4 bg-white/10 rounded"></div>
+          </div>
+        </div>
+
+        {/* Skeleton Nội dung */}
+        <div className="container mx-auto px-4 relative z-20 -mt-8 md:-mt-12">
+          <div className="bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 shadow-sm border border-gray-100 space-y-6">
+            <div className="h-16 bg-red-50/50 rounded-xl w-full"></div>
+            <div className="h-4 bg-gray-200 rounded w-full"></div>
+            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+            <div className="aspect-[16/9] bg-gray-200 rounded-2xl w-full"></div>
+          </div>
+        </div>
       </div>
     );
   }
