@@ -104,6 +104,8 @@ export function sortProductsByPriority(products) {
   return sortProductsByBestSeller(products);
 }
 
+import { optimizeImageUrl } from "./imageOptimizer";
+
 /**
  * Lấy URL hình ảnh chuẩn của sản phẩm từ Database
  * @param {object} item
@@ -117,8 +119,10 @@ export function getProductImage(item) {
   const thumb = typeof item.thumbnail === "object" ? item.thumbnail?.url : item.thumbnail;
   if (thumb && typeof thumb === "string" && thumb.trim()) {
     const cleanThumb = thumb.trim();
-    if (cleanThumb.startsWith("http") || cleanThumb.startsWith("/") || cleanThumb.startsWith("data:")) return cleanThumb;
-    return `/${cleanThumb}`;
+    if (cleanThumb.startsWith("http") || cleanThumb.startsWith("/") || cleanThumb.startsWith("data:")) {
+      return optimizeImageUrl(cleanThumb);
+    }
+    return optimizeImageUrl(`/${cleanThumb}`);
   }
 
   // 2. Kiểm tra mảng images
@@ -126,8 +130,10 @@ export function getProductImage(item) {
     const firstImg = typeof item.images[0] === "object" ? item.images[0]?.url : item.images[0];
     if (firstImg && typeof firstImg === "string" && firstImg.trim()) {
       const cleanImg = firstImg.trim();
-      if (cleanImg.startsWith("http") || cleanImg.startsWith("/") || cleanImg.startsWith("data:")) return cleanImg;
-      return `/${cleanImg}`;
+      if (cleanImg.startsWith("http") || cleanImg.startsWith("/") || cleanImg.startsWith("data:")) {
+        return optimizeImageUrl(cleanImg);
+      }
+      return optimizeImageUrl(`/${cleanImg}`);
     }
   }
 
@@ -135,8 +141,10 @@ export function getProductImage(item) {
   const singleImg = typeof item.image === "object" ? item.image?.url : item.image;
   if (singleImg && typeof singleImg === "string" && singleImg.trim()) {
     const cleanSingle = singleImg.trim();
-    if (cleanSingle.startsWith("http") || cleanSingle.startsWith("/") || cleanSingle.startsWith("data:")) return cleanSingle;
-    return `/${cleanSingle}`;
+    if (cleanSingle.startsWith("http") || cleanSingle.startsWith("/") || cleanSingle.startsWith("data:")) {
+      return optimizeImageUrl(cleanSingle);
+    }
+    return optimizeImageUrl(`/${cleanSingle}`);
   }
 
   return fallback;

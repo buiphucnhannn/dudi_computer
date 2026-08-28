@@ -1,14 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { bannerAPI } from "@/lib/api";
+
+import { optimizeImageUrl } from "@/lib/imageOptimizer";
 
 export default function PromotionPopup() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [popupData, setPopupData] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // CHỈ hiển thị popup quảng cáo khi ở Trang chủ (pathname === "/")
@@ -23,7 +31,7 @@ export default function PromotionPopup() {
           const first = activeBanners[0];
           if (first && first.isActive !== false && isMounted) {
             setPopupData(first);
-            setTimeout(() => setOpen(true), 400);
+            setOpen(true);
           }
         }
       } catch (err) {
@@ -37,17 +45,18 @@ export default function PromotionPopup() {
     };
   }, [pathname]);
 
-  if (pathname !== "/" || !open || !popupData || !popupData.imageUrl) {
+  if (!mounted || pathname !== "/" || !open || !popupData || !popupData.imageUrl) {
     return null;
   }
 
-  return (
+  const popupContent = (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in duration-200"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs transition-opacity duration-200"
+      style={{ contain: "layout size style" }}
       onClick={() => setOpen(false)}
     >
       <div
-        className="relative w-fit max-w-[92vw] max-h-[90vh] mx-auto flex items-center justify-center"
+        className="relative w-full max-w-[92vw] sm:max-w-[720px] mx-auto flex items-center justify-center"
         onClick={(event) => event.stopPropagation()}
       >
         <button
@@ -64,23 +73,27 @@ export default function PromotionPopup() {
           <Link
             href={popupData.link.trim()}
             onClick={() => setOpen(false)}
-            className="block overflow-hidden rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-[1.01] cursor-pointer"
+            className="block w-full overflow-hidden rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-[1.01] cursor-pointer aspect-[16/10]"
           >
             <img
-              src={popupData.imageUrl}
+              src={optimizeImageUrl(popupData.imageUrl, { width: 800 })}
               alt={popupData.title || "Khuyến mãi DUDI SOFTWARE"}
-              className="block w-auto h-auto max-w-[92vw] sm:max-w-[800px] max-h-[85vh] object-contain rounded-2xl"
+              width={720}
+              height={450}
+              className="w-full h-full object-cover rounded-2xl"
               onError={(e) => {
                 e.currentTarget.src = "/back-to-school-popup.webp";
               }}
             />
           </Link>
         ) : (
-          <div className="block overflow-hidden rounded-2xl shadow-2xl select-none">
+          <div className="block w-full overflow-hidden rounded-2xl shadow-2xl select-none aspect-[16/10]">
             <img
-              src={popupData.imageUrl}
+              src={optimizeImageUrl(popupData.imageUrl, { width: 800 })}
               alt={popupData.title || "Khuyến mãi DUDI SOFTWARE"}
-              className="block w-auto h-auto max-w-[92vw] sm:max-w-[800px] max-h-[85vh] object-contain rounded-2xl"
+              width={720}
+              height={450}
+              className="w-full h-full object-cover rounded-2xl"
               onError={(e) => {
                 e.currentTarget.src = "/back-to-school-popup.webp";
               }}
@@ -90,4 +103,6 @@ export default function PromotionPopup() {
       </div>
     </div>
   );
-}
+
+  return createPortal(popupContent, document.body);
+}

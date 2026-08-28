@@ -41,7 +41,12 @@ import {
 import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useCompare } from "@/components/common/CompareContext";
 import { useToast } from "@/components/common/ToastContext";
-import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
+import dynamic from "next/dynamic";
+
+const OrderCheckoutModal = dynamic(
+  () => import("@/components/cart/OrderCheckoutModal"),
+  { ssr: false }
+);
 
 export default function CategoryProductBox({
   title,
@@ -74,28 +79,15 @@ export default function CategoryProductBox({
     }
   };
 
-  const getSingleCardStep = () => {
-    if (!sliderRef.current) return 300;
-    const firstCard = sliderRef.current.querySelector(":scope > div");
-    if (!firstCard) return 300;
-    const cardWidth = firstCard.getBoundingClientRect().width;
-    const gap = 16;
-    return cardWidth + gap;
-  };
-
   const scrollLeft = () => {
     if (!sliderRef.current) return;
-    const firstCard = sliderRef.current.querySelector(":scope > div");
-    if (!firstCard) return;
-    const step = firstCard.getBoundingClientRect().width + 14;
+    const step = Math.max(300, sliderRef.current.clientWidth * 0.75);
     sliderRef.current.scrollBy({ left: -step, behavior: "smooth" });
   };
 
   const scrollRight = () => {
     if (!sliderRef.current) return;
-    const firstCard = sliderRef.current.querySelector(":scope > div");
-    if (!firstCard) return;
-    const step = firstCard.getBoundingClientRect().width + 14;
+    const step = Math.max(300, sliderRef.current.clientWidth * 0.75);
     sliderRef.current.scrollBy({ left: step, behavior: "smooth" });
   };
 

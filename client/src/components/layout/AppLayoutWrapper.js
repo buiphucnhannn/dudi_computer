@@ -1,10 +1,18 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import FloatingWidgets from "@/components/layout/FloatingWidgets";
-import PromotionPopup from "@/components/common/PromotionPopup";
+
+const FloatingWidgets = dynamic(
+  () => import("@/components/layout/FloatingWidgets"),
+  { ssr: false }
+);
+const PromotionPopup = dynamic(
+  () => import("@/components/common/PromotionPopup"),
+  { ssr: false }
+);
 
 export default function AppLayoutWrapper({ children }) {
   const pathname = usePathname();

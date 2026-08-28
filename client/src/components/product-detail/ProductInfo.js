@@ -20,7 +20,12 @@ import {
   Scale,
 } from "lucide-react";
 
-import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
+import dynamic from "next/dynamic";
+
+const OrderCheckoutModal = dynamic(
+  () => import("@/components/cart/OrderCheckoutModal"),
+  { ssr: false }
+);
 import { useCompare } from "@/components/common/CompareContext";
 import { parseProductSpecs } from "@/lib/specParser";
 import { getCleanBrandName } from "@/lib/productHelpers";

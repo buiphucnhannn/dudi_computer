@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { bannerAPI } from "@/lib/api";
 import { handleImageError, BANNER_FALLBACK_IMAGE } from "@/lib/imageFallback";
+import { optimizeImageUrl } from "@/lib/imageOptimizer";
 
 const DEFAULT_BANNERS = [
   { imageUrl: "https://zcomputer.vn/uploads/image-1784730915598-869631355.webp", link: "/product" },
@@ -129,7 +130,7 @@ export default function HeroSlider() {
         {banners.map((item, idx) => {
           const isActive = idx === current;
           const isDefault = item.isDefaultFallback || item.isActive === false;
-          const imgSrc = item.imageUrl || "/images/dudi/dudi_showroom_hero.webp";
+          const imgSrc = optimizeImageUrl(item.imageUrl || "/images/dudi/dudi_showroom_hero.webp");
           const link = item.link || "/tat-ca-san-pham";
 
           return (
@@ -219,6 +220,7 @@ export default function HeroSlider() {
                     }`}
                     onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                     loading={idx === 0 ? "eager" : "lazy"}
+                    fetchPriority={idx === 0 ? "high" : "auto"}
                     draggable={false}
                   />
                 </Link>
@@ -232,6 +234,7 @@ export default function HeroSlider() {
                     }`}
                     onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                     loading={idx === 0 ? "eager" : "lazy"}
+                    fetchPriority={idx === 0 ? "high" : "auto"}
                     draggable={false}
                   />
                 </div>

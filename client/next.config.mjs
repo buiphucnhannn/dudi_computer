@@ -24,6 +24,24 @@ const nextConfig = {
       },
     ],
   },
+  compress: true,
+  poweredByHeader: false,
+  compiler: {
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? {
+            exclude: ["error", "warn"],
+          }
+        : false,
+  },
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "@reduxjs/toolkit",
+      "clsx",
+      "tailwind-merge",
+    ],
+  },
   async rewrites() {
     return [
       // 1. Tin tức
