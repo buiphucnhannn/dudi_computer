@@ -157,8 +157,11 @@ export default function ProductCard({ product }) {
           <img
             src={thumbnail}
             alt={product.name}
+            width={280}
+            height={280}
             className="w-full h-full object-contain mix-blend-multiply group-hover:scale-108 transition-transform duration-500 ease-out"
             loading="lazy"
+            decoding="async"
             onError={handleImageError}
           />
         </div>
