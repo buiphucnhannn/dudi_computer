@@ -144,7 +144,7 @@ export const bannerService = {
       return {
         ...bObj,
         title: "DUDI SOFTWARE - PC & Laptop Gaming Cao Cấp",
-        imageUrl: "/images/dudi/dudi_showroom_hero.jpg",
+        imageUrl: "/images/dudi/dudi_showroom_hero.webp",
         link: "/tat-ca-san-pham",
         isDefaultFallback: true,
       };

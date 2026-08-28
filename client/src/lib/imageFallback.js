@@ -4,9 +4,9 @@
  * đều hiển thị ảnh dự phòng chuẩn xác, chuyên nghiệp, không vỡ layout.
  */
 
-export const DEFAULT_FALLBACK_IMAGE = "/images/dudi/dudisoftware4.png";
-export const NEWS_FALLBACK_IMAGE = "/images/dudi/dudisoftware1.png";
-export const BANNER_FALLBACK_IMAGE = "/images/dudi/dudisoftware3.png";
+export const DEFAULT_FALLBACK_IMAGE = "/images/dudi/dudisoftware4.webp";
+export const NEWS_FALLBACK_IMAGE = "/images/dudi/dudisoftware1.webp";
+export const BANNER_FALLBACK_IMAGE = "/images/dudi/dudisoftware3.webp";
 
 /**
  * Xử lý lỗi load ảnh an toàn (Chống lặp vô tận onError loop)

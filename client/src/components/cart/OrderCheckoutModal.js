@@ -72,7 +72,7 @@ export default function OrderCheckoutModal({
             (Array.isArray(single.images) &&
               (single.images[0]?.url || single.images[0])) ||
             single.image ||
-            "/images/dudi/dudisoftware1.png",
+            "/images/dudi/dudisoftware1.webp",
           quantity: Number(single.quantity || quantity || 1),
         },
       ]

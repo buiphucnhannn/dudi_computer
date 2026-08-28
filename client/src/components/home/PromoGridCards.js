@@ -88,7 +88,7 @@ export default function PromoGridCards() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 rounded-full blur-2xl pointer-events-none" />
                 <div className="flex items-center gap-2.5 z-10">
                   <img
-                    src="/images/dudi/dudisoftware4.png"
+                    src="/images/dudi/dudisoftware4.webp"
                     alt="DUDI SOFTWARE Logo"
                     className="w-8 h-8 sm:w-9 sm:h-9 object-contain drop-shadow-md rounded-xl"
                     onError={handleImageError}

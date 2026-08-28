@@ -69,7 +69,7 @@ export default function ZComputerShorts() {
                 <div className="relative">
                   <div className="w-8 h-8 rounded-full bg-white p-0.5 shadow-md flex items-center justify-center">
                     <img
-                      src="/images/dudi/dudisoftware2.png"
+                      src="/images/dudi/dudisoftware2.webp"
                       alt="DUDI SOFTWARE Logo"
                       className="w-full h-full object-contain rounded-full"
                     />

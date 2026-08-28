@@ -5,7 +5,7 @@ export default function ProductBanner() {
     <div className="mb-5 overflow-hidden rounded-2xl shadow-xs border border-slate-700/40 bg-gradient-to-r from-[#0a0c10] via-[#141824] to-[#0a0c10] relative select-none">
       {/* Showroom background with dark gradient overlay */}
       <img
-        src="/images/dudi/dudi_showroom_hero.jpg"
+        src="/images/dudi/dudi_showroom_hero.webp"
         alt="DUDI SOFTWARE Showroom"
         className="absolute inset-0 w-full h-full object-cover object-center opacity-25 pointer-events-none"
       />
@@ -15,7 +15,7 @@ export default function ProductBanner() {
       <div className="relative z-10 px-5 py-4 sm:px-8 sm:py-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5 sm:gap-4">
           <img
-            src="/images/dudi/dudisoftware4.png"
+            src="/images/dudi/dudisoftware4.webp"
             alt="DUDI SOFTWARE Logo"
             className="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow-md rounded-2xl shrink-0"
           />

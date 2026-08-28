@@ -35,7 +35,7 @@ export default function OrderDetailModal({
           id: 1,
           name: order.product || "Sản phẩm đơn hàng",
           sku: order.sku || "SKU-PROD",
-          image: order.image || order.thumbnail || "/images/dudi/dudisoftware1.png",
+          image: order.image || order.thumbnail || "/images/dudi/dudisoftware1.webp",
           price: order.total || 0,
           quantity: 1,
         },

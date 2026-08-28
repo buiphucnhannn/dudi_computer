@@ -42,7 +42,7 @@ export default function Footer() {
             >
               <div className="flex items-center gap-2 select-none">
                 <img
-                  src="/images/dudi/dudisoftware4.png"
+                  src="/images/dudi/dudisoftware4.webp"
                   alt="DUDI SOFTWARE Logo"
                   className="h-8 sm:h-10 w-8 sm:w-10 object-contain rounded-xl"
                 />
@@ -74,7 +74,7 @@ export default function Footer() {
               <div className="bg-white text-gray-900 p-3 sm:p-3.5 rounded-2xl shadow-md border border-gray-100 space-y-2.5 sm:space-y-3 max-w-sm">
                 <div className="flex items-center gap-3">
                   <img
-                    src="/images/dudi/dudisoftware2.png"
+                    src="/images/dudi/dudisoftware2.webp"
                     alt="DUDI SOFTWARE Avatar"
                     className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 p-0.5 object-contain shrink-0"
                   />
