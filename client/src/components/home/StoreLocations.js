@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Phone, Mail, ChevronRight, ExternalLink, Map } from "lucide-react";
+import { MapPin, Phone, Mail, ChevronRight, ExternalLink, Navigation, Map as MapIcon } from "lucide-react";
 
 export default function StoreLocations() {
   const [loadMap1, setLoadMap1] = useState(false);
@@ -119,16 +119,19 @@ export default function StoreLocations() {
                   className="w-full h-full"
                 />
               ) : (
-                <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] to-[#0a0c10]">
-                  <img
-                    src="/images/dudi/dudi_showroom_hero.webp"
-                    alt="Chi nhánh Thủ Đức"
-                    className="absolute inset-0 w-full h-full object-cover opacity-25"
+                <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] via-[#10131a] to-[#0a0c10]">
+                  {/* Grid Lines Pattern */}
+                  <div
+                    className="absolute inset-0 opacity-15 pointer-events-none"
+                    style={{
+                      backgroundImage: "radial-gradient(#eb1c24 1px, transparent 1px), radial-gradient(#fff 1px, transparent 1px)",
+                      backgroundSize: "20px 20px",
+                      backgroundPosition: "0 0, 10px 10px",
+                    }}
                   />
-                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
-                  <div className="relative z-10 flex flex-col items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-full bg-[#eb1c24]/20 border border-[#eb1c24]/40 flex items-center justify-center text-[#eb1c24]">
-                      <Map className="w-5 h-5" />
+                  <div className="relative z-10 flex flex-col items-center gap-2">
+                    <div className="w-10 h-10 rounded-full bg-[#eb1c24]/20 border border-[#eb1c24]/40 flex items-center justify-center text-[#eb1c24] shadow-lg shadow-red-500/20">
+                      <MapIcon className="w-5 h-5" />
                     </div>
                     <p className="text-xs text-slate-300 font-medium max-w-[200px] leading-tight">
                       49/2 Đường 14, P.Thủ Đức, TP.HCM
@@ -178,16 +181,19 @@ export default function StoreLocations() {
                   className="w-full h-full"
                 />
               ) : (
-                <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] to-[#0a0c10]">
-                  <img
-                    src="/images/dudi/dudisoftware3.webp"
-                    alt="Chi nhánh Nguyễn Thị Minh Khai"
-                    className="absolute inset-0 w-full h-full object-cover opacity-25"
+                <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] via-[#10131a] to-[#0a0c10]">
+                  {/* Grid Lines Pattern */}
+                  <div
+                    className="absolute inset-0 opacity-15 pointer-events-none"
+                    style={{
+                      backgroundImage: "radial-gradient(#eb1c24 1px, transparent 1px), radial-gradient(#fff 1px, transparent 1px)",
+                      backgroundSize: "20px 20px",
+                      backgroundPosition: "0 0, 10px 10px",
+                    }}
                   />
-                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
-                  <div className="relative z-10 flex flex-col items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-full bg-[#eb1c24]/20 border border-[#eb1c24]/40 flex items-center justify-center text-[#eb1c24]">
-                      <Map className="w-5 h-5" />
+                  <div className="relative z-10 flex flex-col items-center gap-2">
+                    <div className="w-10 h-10 rounded-full bg-[#eb1c24]/20 border border-[#eb1c24]/40 flex items-center justify-center text-[#eb1c24] shadow-lg shadow-red-500/20">
+                      <MapIcon className="w-5 h-5" />
                     </div>
                     <p className="text-xs text-slate-300 font-medium max-w-[200px] leading-tight">
                       232 Nguyễn Thị Minh Khai, TP.HCM
