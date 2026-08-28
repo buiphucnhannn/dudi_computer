@@ -12,9 +12,18 @@ export default function SessionWatcher() {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const eventSourceRef = useRef(null);
 
-  // Đồng bộ và xác thực Session trực tiếp từ HttpOnly Cookie của server khi tải app
+  // Đồng bộ và xác thực Session trực tiếp từ HttpOnly Cookie của server khi tải app (chỉ kiểm tra nếu đã từng đăng nhập)
   useEffect(() => {
     let isMounted = true;
+    const hasLocalSession =
+      typeof window !== "undefined" &&
+      (Boolean(localStorage.getItem("dudi_user")) ||
+        Boolean(localStorage.getItem("zcomputer_user")));
+
+    if (!hasLocalSession && !isAuthenticated) {
+      return;
+    }
+
     apiClient
       .get("/auth/profile")
       .then((res) => {
@@ -24,7 +33,7 @@ export default function SessionWatcher() {
       })
       .catch((err) => {
         if (isMounted && err.response?.status === 401) {
-          if (isAuthenticated) {
+          if (isAuthenticated || hasLocalSession) {
             dispatch(logoutUser());
           }
         }
@@ -33,7 +42,7 @@ export default function SessionWatcher() {
     return () => {
       isMounted = false;
     };
-  }, [dispatch]);
+  }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
     // 1. Lắng nghe BroadcastChannel giữa các tab trình duyệt
