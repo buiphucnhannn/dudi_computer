@@ -89,9 +89,9 @@ export default function Footer() {
                     className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-gray-200 p-0.5 object-contain shrink-0"
                   />
                   <div className="min-w-0">
-                    <h5 className="text-xs sm:text-[12.5px] font-bold text-gray-900 leading-snug truncate">
+                    <p className="text-xs sm:text-[12.5px] font-bold text-gray-900 leading-snug truncate">
                       DUDI Software : Gaming.Nox.Office
-                    </h5>
+                    </p>
                     <span className="text-[10px] sm:text-[11px] text-gray-500 block mt-0.5 font-medium">
                       3.185 người theo dõi
                     </span>
@@ -267,9 +267,9 @@ export default function Footer() {
           <div className="md:col-span-8 lg:col-span-3 space-y-5 sm:space-y-6">
             {/* HỖ TRỢ THANH TOÁN */}
             <div>
-              <h4 className="font-black uppercase mb-3 sm:mb-4 text-[13px] sm:text-[14px] text-white tracking-wider">
+              <p className="font-black uppercase mb-3 sm:mb-4 text-[13px] sm:text-[14px] text-white tracking-wider">
                 HỖ TRỢ THANH TOÁN
-              </h4>
+              </p>
               <div className="grid grid-cols-3 gap-2 sm:gap-2.5 max-w-xs sm:max-w-none">
                 {/* VISA */}
                 <div className="bg-white border border-gray-100 rounded-lg flex items-center justify-center p-1.5 shadow-xs h-[38px] sm:h-[42px] overflow-hidden hover:shadow-md transition-all">
@@ -325,9 +325,9 @@ export default function Footer() {
 
             {/* HỖ TRỢ TRẢ GÓP */}
             <div>
-              <h4 className="font-black uppercase mb-3 sm:mb-4 text-[13px] sm:text-[14px] text-white tracking-wider">
+              <p className="font-black uppercase mb-3 sm:mb-4 text-[13px] sm:text-[14px] text-white tracking-wider">
                 HỖ TRỢ TRẢ GÓP
-              </h4>
+              </p>
               <div className="grid grid-cols-3 gap-2 sm:gap-2.5 mb-3 max-w-xs sm:max-w-none">
                 {/* HD SAISON */}
                 <div className="bg-white border border-gray-100 rounded-lg flex items-center justify-center shadow-xs h-[38px] sm:h-[42px] hover:shadow-md transition-all overflow-hidden p-1">
@@ -374,9 +374,9 @@ export default function Footer() {
       {/* 2. Vùng chân trang Bản quyền & Pháp lý */}
       <div className="w-full bg-[#050608] border-t border-white/5 py-6 sm:py-8 text-center text-xs text-white/50 space-y-2 relative z-20">
         <div className="container mx-auto px-4 space-y-2 max-w-3xl">
-          <h5 className="font-black text-white text-xs sm:text-sm uppercase tracking-wide">
+          <p className="font-black text-white text-xs sm:text-sm uppercase tracking-wide">
             CÔNG TY TNHH GIẢI PHÁP PHẦN MỀM DUDI
-          </h5>
+          </p>
           <p className="text-[11.5px] sm:text-[12.5px] text-white/60 leading-relaxed">
             <strong>Mã số GPKD:</strong> 0319641544 - Cấp bởi Sở Kế Hoạch và Đầu Tư TP. Hồ Chí Minh.
           </p>

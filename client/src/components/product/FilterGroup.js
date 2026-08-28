@@ -7,9 +7,9 @@ export default function FilterGroup({
 }) {
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-4 sm:p-5 shadow-xs">
-      <h3 className="mb-3.5 border-b border-gray-100 pb-2.5 text-xs sm:text-sm font-black uppercase tracking-wide text-gray-900">
+      <h2 className="mb-3.5 border-b border-gray-100 pb-2.5 text-xs sm:text-sm font-black uppercase tracking-wide text-gray-900">
         {title}
-      </h3>
+      </h2>
 
       <div className="space-y-2.5">
         {items.map((item) => {

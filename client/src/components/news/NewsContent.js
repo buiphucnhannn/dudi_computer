@@ -17,46 +17,22 @@ const CATEGORIES = [
   "Thủ thuật",
 ];
 
-const defaultInitialNews = [
-  {
-    _id: "news-init-1",
-    slug: "huong-dan-build-pc-gaming-i5-13400f-rtx-4060-chien-moi-tua-game-aaa",
-    title: "Hướng Dẫn Build PC Gaming i5 13400F + RTX 4060 Chiến Mọi Tựa Game AAA",
-    category: "Thủ thuật",
-    thumbnail: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80",
-    summary: "Chi tiết cấu hình PC Gaming tối ưu ngân sách năm 2026, chiến mượt mà Black Myth Wukong, Cyberpunk 2077 và các tựa game Esport ở độ phân giải 2K.",
-    createdAt: new Date().toISOString(),
-    views: 1240,
-  },
-  {
-    _id: "news-init-2",
-    slug: "top-5-laptop-gaming-tam-trung-dang-mua-nhat-nam-2026",
-    title: "Top 5 Laptop Gaming Tầm Trung Đáng Mua Nhất Năm 2026",
-    category: "Đánh giá sản phẩm",
-    thumbnail: "/post-1.webp",
-    summary: "Tổng hợp các mẫu laptop gaming phân khúc 15 - 25 triệu đồng có hiệu năng ấn tượng, màn hình tần số quét cao và tản nhiệt mát mẻ.",
-    createdAt: new Date().toISOString(),
-    views: 890,
-  },
-  {
-    _id: "news-init-3",
-    slug: "cach-ve-sinh-tra-keo-tan-nhiet-laptop-pc-dung-chuan-tai-nha",
-    title: "Cách Vệ Sinh & Tra Keo Tản Nhiệt Laptop, PC Đúng Chuẩn Tại Nhà",
-    category: "Thủ thuật",
-    thumbnail: "/post-2.webp",
-    summary: "Hướng dẫn từng bước tự vệ sinh bụi bẩn, tra keo tản nhiệt gốm/kim loại lỏng giúp hạ nhiệt độ CPU và GPU từ 10-15 độ C.",
-    createdAt: new Date().toISOString(),
-    views: 650,
-  },
-];
+import { DEFAULT_ARTICLES } from "@/lib/defaultNews";
 
-export default function NewsContent() {
+export default function NewsContent({ initialNews = [] }) {
   const [activeCategory, setActiveCategory] = useState("Tất cả");
   const [searchQuery, setSearchQuery] = useState("");
-  const [newsList, setNewsList] = useState(defaultInitialNews);
+  const [newsList, setNewsList] = useState(
+    initialNews && initialNews.length > 0 ? initialNews : DEFAULT_ARTICLES
+  );
   const [loading, setLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    if (!isMounted) {
+      setIsMounted(true);
+      return;
+    }
     fetchNews();
   }, [activeCategory]);
 

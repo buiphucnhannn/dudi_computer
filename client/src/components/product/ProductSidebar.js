@@ -66,10 +66,10 @@ function CategoryTreeFilter({
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-xs">
       <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2.5">
-        <h3 className="text-xs sm:text-sm font-black uppercase tracking-wide text-gray-900 flex items-center gap-2">
+        <h2 className="text-xs sm:text-sm font-black uppercase tracking-wide text-gray-900 flex items-center gap-2">
           <FolderTree className="w-4 h-4 text-[#eb1c24]" />
           <span>Danh mục</span>
-        </h3>
+        </h2>
         {selectedCategory && (
           <button
             type="button"

@@ -21,13 +21,13 @@ export default function ProductToolbar({
         <button
           type="button"
           onClick={onOpenMobileFilters}
-          className="lg:hidden flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-[#dc2626] border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
+          className="lg:hidden flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-[#991b1b] border border-red-200 px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-2xs"
           aria-label="Mở bộ lọc tìm kiếm"
         >
-          <Filter className="w-3.5 h-3.5 text-[#dc2626]" />
-          <span>Bộ lọc</span>
+          <Filter className="w-3.5 h-3.5 text-[#991b1b]" />
+          <span className="font-bold text-[#991b1b]">Bộ lọc</span>
           {activeFilterCount > 0 && (
-            <span className="w-4.5 h-4.5 bg-[#dc2626] text-white rounded-full text-[10px] font-black flex items-center justify-center">
+            <span className="w-4.5 h-4.5 bg-[#b91c1c] text-white rounded-full text-[10px] font-black flex items-center justify-center">
               {activeFilterCount}
             </span>
           )}

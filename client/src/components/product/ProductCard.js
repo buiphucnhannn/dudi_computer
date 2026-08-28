@@ -183,13 +183,13 @@ export default function ProductCard({ product, priority = false }) {
             <span className="truncate">{product.warranty || "Bảo hành 3 - 12 Tháng"}</span>
           </div>
 
-          {/* Product Name (H2 tuân thủ thứ tự tiêu đề chuẩn a11y) */}
-          <h2
-            className="text-xs sm:text-[13px] font-bold text-slate-800 group-hover:text-[#eb1c24] transition-colors line-clamp-2 min-h-[34px] sm:min-h-[38px] leading-snug mb-2"
+          {/* Product Name (H3 tuân thủ thứ tự tiêu đề chuẩn a11y: h1 -> h2 -> h3) */}
+          <h3
+            className="text-xs sm:text-[13px] font-bold text-slate-800 group-hover:text-[#b91c1c] transition-colors line-clamp-2 min-h-[34px] sm:min-h-[38px] leading-snug mb-2"
             title={product.name}
           >
             {product.name}
-          </h2>
+          </h3>
 
           {/* 4 Specs Chips Grid */}
           {(() => {
@@ -229,16 +229,16 @@ export default function ProductCard({ product, priority = false }) {
         {/* Price & Actions */}
         <div className="mt-1.5 sm:mt-2 pt-2 border-t border-slate-100">
           <div className="flex flex-wrap items-baseline gap-1.5 sm:gap-2 mb-1">
-            <span className="text-sm sm:text-base font-black text-[#eb1c24]">
+            <span className="text-sm sm:text-base font-black text-[#b91c1c]">
               {formatVND(price)}
             </span>
             {hasDiscount && (
-              <span className="text-[10.5px] sm:text-[11px] text-slate-400 line-through">
+              <span className="text-[10.5px] sm:text-[11px] text-slate-500 line-through font-medium">
                 {formatVND(originalPrice)}
               </span>
             )}
             {hasDiscount && (
-              <span className="text-[10px] font-bold text-[#eb1c24] bg-red-50 border border-red-100 px-1.5 py-0.2 rounded">
+              <span className="text-[10px] font-bold text-[#991b1b] bg-red-50 border border-red-200 px-1.5 py-0.5 rounded">
                 -{discountPercent}%
               </span>
             )}
@@ -246,7 +246,7 @@ export default function ProductCard({ product, priority = false }) {
 
           {/* Trả góp estimate */}
           {product.price > 3000000 && (
-            <div className="text-[9.5px] sm:text-[10px] text-slate-500 mb-2 font-medium truncate">
+            <div className="text-[9.5px] sm:text-[10px] text-slate-600 mb-2 font-medium truncate">
               Trả góp chỉ từ{" "}
               <span className="text-slate-800 font-bold">
                 {formatVND(installmentEst)}/tháng
@@ -254,40 +254,44 @@ export default function ProductCard({ product, priority = false }) {
             </div>
           )}
 
-          <div className="flex items-center gap-1 sm:gap-1.5">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {isAdmin ? (
               <button
                 type="button"
                 onClick={handleOpenDetail}
-                className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white py-1.5 px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
+                className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white min-h-[38px] py-1.5 px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
+                aria-label={`Xem chi tiết sản phẩm ${product.name}`}
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>Xem chi tiết</span>
               </button>
             ) : isOutOfStock ? (
-              <div className="flex-1 flex items-center justify-center py-1.5 px-2 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-500 text-[10.5px] sm:text-xs font-bold select-none">
+              <div className="flex-1 flex items-center justify-center min-h-[38px] py-1.5 px-2 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-600 text-[10.5px] sm:text-xs font-bold select-none">
                 <span>Tạm hết hàng</span>
               </div>
             ) : (
               <>
                 <button
+                  type="button"
                   onClick={handleAddToCart}
-                  className="flex-1 flex items-center justify-center gap-1 bg-red-50 hover:bg-[#dc2626] text-[#dc2626] hover:text-white border border-red-200/80 py-1.5 px-1.5 sm:px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
+                  aria-label={`Thêm sản phẩm ${product.name} vào giỏ hàng`}
+                  className="flex-1 flex items-center justify-center gap-1 bg-red-50 hover:bg-[#b91c1c] text-[#991b1b] hover:text-white border border-red-200/90 min-h-[38px] py-1.5 px-2 rounded-lg text-[10.5px] sm:text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
                 >
-                  <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
                   <span className="truncate">Thêm vào giỏ</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleToggleCompare}
-                  className={`p-1 sm:p-1.5 rounded-lg border transition-colors cursor-pointer shrink-0 ${
+                  aria-label={isComp ? `Bỏ so sánh sản phẩm ${product.name}` : `Thêm sản phẩm ${product.name} vào so sánh`}
+                  className={`min-w-[38px] min-h-[38px] p-2 rounded-lg border transition-colors cursor-pointer shrink-0 flex items-center justify-center ${
                     isComp
-                      ? "bg-[#eb1c24] text-white border-[#eb1c24]"
-                      : "border-gray-200 hover:border-gray-300 text-gray-600 hover:text-[#eb1c24] hover:bg-gray-50"
+                      ? "bg-[#b91c1c] text-white border-[#b91c1c]"
+                      : "border-gray-200 hover:border-gray-300 text-gray-700 hover:text-[#b91c1c] hover:bg-gray-50"
                   }`}
                   title={isComp ? "Đang so sánh (Bấm để bỏ)" : "So sánh sản phẩm"}
                 >
-                  <Scale className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <Scale className="w-3.5 h-3.5" />
                 </button>
               </>
             )}
