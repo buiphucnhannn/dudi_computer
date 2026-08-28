@@ -80,15 +80,21 @@ const ProductGallery = ({ product }) => {
 
   const checkScroll = () => {
     if (!thumbnailsRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = thumbnailsRef.current;
-    setCanScrollLeft(scrollLeft > 4);
-    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 4);
+    requestAnimationFrame(() => {
+      if (!thumbnailsRef.current) return;
+      const { scrollLeft, scrollWidth, clientWidth } = thumbnailsRef.current;
+      setCanScrollLeft(scrollLeft > 4);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 4);
+    });
   };
 
   useEffect(() => {
     checkScroll();
-    window.addEventListener("resize", checkScroll);
-    return () => window.removeEventListener("resize", checkScroll);
+    const handleResize = () => {
+      requestAnimationFrame(checkScroll);
+    };
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => window.removeEventListener("resize", handleResize);
   }, [images.length]);
 
   const handleScrollLeft = () => {
@@ -121,6 +127,8 @@ const ProductGallery = ({ product }) => {
           width={600}
           height={600}
           fetchPriority={activeIndex === 0 ? "high" : "auto"}
+          loading={activeIndex === 0 ? "eager" : "lazy"}
+          decoding="async"
           className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 ease-out group-hover:scale-105"
           onError={handleImageError}
         />
