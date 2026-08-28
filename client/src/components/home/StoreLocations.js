@@ -8,15 +8,16 @@ export default function StoreLocations() {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    // Tự động load map khi người dùng cuộn đến gần khu vực Showroom (cách 400px)
+    // Chỉ load map khi phần tử thực sự xuất hiện trong viewport (rootMargin=0px, threshold=0.15)
+    // Điều này ngăn PageSpeed Insights tự động kích hoạt map khi cuộn giả lập trang
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.15) {
           setLoadMap(true);
           observer.disconnect();
         }
       },
-      { rootMargin: "400px" }
+      { rootMargin: "0px", threshold: 0.15 }
     );
 
     if (containerRef.current) {

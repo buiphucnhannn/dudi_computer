@@ -139,18 +139,18 @@ export default function NewsDetailClient({ initialArticle = null, initialRelated
     <div className="bg-[#f8f9fa] min-h-screen pb-20">
       {/* 1. HERO BANNER CHUẨN 100% ZCOMPUTER.VN VỚI ẢNH NỀN THUMBNAIL CỦA BÀI VIẾT */}
       <div className="relative min-h-[380px] sm:min-h-[420px] md:min-h-[460px] w-full bg-black pt-24 pb-12 md:pb-20 flex flex-col justify-end overflow-hidden">
-        {/* Ảnh thumbnail thật của bài viết làm nền */}
+        {/* Ảnh thumbnail thật của bài viết làm nền - dùng img thường với width/height rõ ràng */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <Image
-            src={optimizeImageUrl(bgThumbnail || NEWS_FALLBACK_IMAGE, { width: 900, quality: 70 })}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={optimizeImageUrl(bgThumbnail || NEWS_FALLBACK_IMAGE, { width: 1200, quality: 70 })}
             alt={article.title}
-            fill
-            priority={true}
+            width={1200}
+            height={630}
             fetchPriority="high"
-            quality={70}
-            sizes="100vw"
-            className="w-full h-full object-cover opacity-45"
-            onError={(e) => handleImageError(e, NEWS_FALLBACK_IMAGE)}
+            decoding="async"
+            style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.45 }}
+            onError={(e) => { e.currentTarget.src = NEWS_FALLBACK_IMAGE; }}
           />
           {/* Lớp gradient phủ mờ từ dưới lên */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#f8f9fa] via-black/50 to-transparent pointer-events-none" />

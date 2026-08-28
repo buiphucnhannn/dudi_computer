@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+
 import CategorySidebar from "@/components/home/CategorySidebar";
 import HeroSlider from "@/components/home/HeroSlider";
 import PromoGridCards from "@/components/home/PromoGridCards";
@@ -9,11 +10,14 @@ import ServiceFeatures from "@/components/home/ServiceFeatures";
 import CategoryPills from "@/components/home/CategoryPills";
 import FlashSaleSection from "@/components/home/FlashSaleSection";
 import FeaturedProductsSection from "@/components/home/FeaturedProductsSection";
-import BrandLogosBar from "@/components/home/BrandLogosBar";
 import { productAPI, categoryAPI } from "@/lib/api";
 import { sortProductsByBestSeller, isProductMatchingCategory } from "@/lib/productHelpers";
 
 // Below-the-fold: dynamic imports để giảm initial JS bundle
+const BrandLogosBar = dynamic(() => import("@/components/home/BrandLogosBar"), {
+  ssr: false,
+  loading: () => <div className="h-24 bg-transparent" />,
+});
 const CategoryProductBox = dynamic(() => import("@/components/home/CategoryProductBox"), {
   loading: () => <div className="h-[500px] bg-gray-50 rounded-3xl animate-pulse mb-10" />,
 });

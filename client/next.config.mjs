@@ -16,12 +16,7 @@ const nextConfig = {
     "192.168.1.27:3001",
     "192.168.1.27",
   ],
-  compiler: {
-    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
-  },
-  experimental: {
-    optimizePackageImports: ["lucide-react", "@reduxjs/toolkit", "clsx"],
-  },
+
   images: {
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
@@ -70,6 +65,40 @@ const nextConfig = {
       "clsx",
       "tailwind-merge",
     ],
+  },
+  async headers() {
+    return [
+      // Cache JS/CSS chunks của Next.js rất lâu (immutable vì hash trong tên file)
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      // Cache ảnh tĩnh trong public/
+      {
+        source: "/images/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      // Cache ảnh tối ưu Next.js Image (/_next/image)
+      {
+        source: "/_next/image",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+    ];
   },
   async rewrites() {
     return [
