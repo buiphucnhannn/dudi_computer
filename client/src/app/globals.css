@@ -126,12 +126,16 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 img {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: auto;
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
 .crisp-image {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
+}
+
+/* Content-visibility: auto cho các section below-the-fold — giảm initial render work */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
 }
 

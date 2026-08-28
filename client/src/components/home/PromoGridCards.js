@@ -2,29 +2,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { bannerAPI } from "@/lib/api";
 import { handleImageError, BANNER_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
-const DEFAULT_PROMO_CARDS = [
-  {
-    title: "Back to school",
-    link: "/back-to-school",
-    imageUrl: "https://zcomputer.vn/uploads/image-1783241558898-515012004.webp",
-  },
-  {
-    title: "Thu cũ đổi mới",
-    link: "/trade-in",
-    imageUrl: "https://zcomputer.vn/uploads/image-1783241574331-418008867.webp",
-  },
-  {
-    title: "Giới thiệu bạn bè",
-    link: "/referral",
-    imageUrl: "https://zcomputer.vn/uploads/image-1783241586922-863037014.webp",
-  },
-];
-
 export default function PromoGridCards() {
-  const [promoCards, setPromoCards] = useState(DEFAULT_PROMO_CARDS);
+  const [promoCards, setPromoCards] = useState([]);
 
   useEffect(() => {
     const loadBanners = async () => {
@@ -75,7 +58,13 @@ export default function PromoGridCards() {
 
       {/* Cột phải: Các Banner Khuyến mãi được chia đều cột với aspect ratio 3/2 */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 items-stretch">
-        {promoCards.map((card, idx) => {
+        {promoCards.length === 0 ? (
+          <>
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-2xl bg-gray-100 aspect-[3/2] w-full animate-pulse" />
+            ))}
+          </>
+        ) : promoCards.map((card, idx) => {
           const isHidden = card.isActive === false || card.isDefaultFallback;
           if (isHidden) {
             return (
@@ -87,9 +76,11 @@ export default function PromoGridCards() {
                 {/* Background glow */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/10 rounded-full blur-2xl pointer-events-none" />
                 <div className="flex items-center gap-2.5 z-10">
-                  <img
+                  <Image
                     src="/images/dudi/dudisoftware4.webp"
                     alt="DUDI SOFTWARE Logo"
+                    width={36}
+                    height={36}
                     className="w-8 h-8 sm:w-9 sm:h-9 object-contain drop-shadow-md rounded-xl"
                     onError={handleImageError}
                   />
@@ -120,12 +111,14 @@ export default function PromoGridCards() {
               <Link
                 key={card._id || idx}
                 href={card.link.trim()}
-                className="rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 aspect-[3/2] w-full cursor-pointer"
+                className="relative rounded-2xl overflow-hidden shadow-xs hover:opacity-95 transition-transform hover:scale-[1.01] block bg-gray-100 aspect-[3/2] w-full cursor-pointer"
               >
-                <img
+                <Image
                   src={card.imageUrl || BANNER_FALLBACK_IMAGE}
                   alt={card.title || `Khuyến mãi ${idx + 1}`}
-                  className="w-full h-full object-cover object-center"
+                  fill
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                  className="object-cover object-center"
                   onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                 />
               </Link>
@@ -135,12 +128,14 @@ export default function PromoGridCards() {
           return (
             <div
               key={card._id || idx}
-              className="rounded-2xl overflow-hidden shadow-xs block bg-gray-100 aspect-[3/2] w-full cursor-default select-none"
+              className="relative rounded-2xl overflow-hidden shadow-xs block bg-gray-100 aspect-[3/2] w-full cursor-default select-none"
             >
-              <img
+              <Image
                 src={card.imageUrl || BANNER_FALLBACK_IMAGE}
                 alt={card.title || `Khuyến mãi ${idx + 1}`}
-                className="w-full h-full object-cover object-center"
+                fill
+                sizes="(max-width: 640px) 100vw, 33vw"
+                className="object-cover object-center"
                 onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
               />
             </div>

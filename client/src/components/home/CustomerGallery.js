@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { handleImageError } from "@/lib/imageFallback";
 
 const GALLERY_PHOTOS = [
@@ -68,10 +69,12 @@ export default function CustomerGallery() {
               className="relative aspect-[4/3] rounded-xl overflow-hidden group shadow-lg border border-gray-800 bg-[#1a1a1a]"
               title={item.title}
             >
-              <img
+              <Image
                 src={item.url}
                 alt={item.title}
-                className="w-full h-full object-cover rounded-xl group-hover:scale-110 transition-transform duration-500"
+                fill
+                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
+                className="object-cover rounded-xl group-hover:scale-110 transition-transform duration-500"
                 loading="lazy"
                 onError={handleImageError}
               />

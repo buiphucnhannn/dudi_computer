@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   Zap,
-  Flame,
   Scale,
   ShoppingCart,
   Eye,
@@ -36,13 +37,12 @@ import { getProductCardBadges, detectProductType, PRODUCT_TYPES } from "@/lib/sp
 import { useDispatch, useSelector } from "react-redux";
 import {
   addToCartAsync,
-  removeFromCartAsync,
   selectCartItems,
 } from "@/redux/slices/cartSlice";
 import { selectIsAdmin } from "@/redux/slices/authSlice";
 import { useToast } from "@/components/common/ToastContext";
 import { useCompare } from "@/components/common/CompareContext";
-import OrderCheckoutModal from "@/components/cart/OrderCheckoutModal";
+const OrderCheckoutModal = dynamic(() => import("@/components/cart/OrderCheckoutModal"), { ssr: false });
 import { promotionAPI, productAPI } from "@/lib/api";
 
 export default function FlashSaleSection({ categories = [] }) {
@@ -93,14 +93,6 @@ export default function FlashSaleSection({ categories = [] }) {
     }
   };
 
-  const getSingleCardStep = () => {
-    if (!sliderRef.current) return 260;
-    const firstCard = sliderRef.current.querySelector(":scope > div");
-    if (!firstCard) return 260;
-    const cardWidth = firstCard.getBoundingClientRect().width;
-    const gap = 12; // gap-3 = 12px
-    return cardWidth + gap;
-  };
 
   const scrollLeft = () => {
     if (!sliderRef.current) return;
@@ -459,10 +451,12 @@ export default function FlashSaleSection({ categories = [] }) {
                           🔥 FLASH SALE
                         </div>
 
-                        <img
+                        <Image
                           src={imgSrc}
                           alt={item.name}
-                          className="w-full h-full object-contain mix-blend-multiply group-hover/img:scale-108 transition-transform duration-500 ease-out"
+                          fill
+                          sizes="(max-width: 640px) 75vw, (max-width: 1024px) 40vw, 28vw"
+                          className="object-contain mix-blend-multiply group-hover/img:scale-108 transition-transform duration-500 ease-out"
                           loading="lazy"
                           onError={handleImageError}
                         />

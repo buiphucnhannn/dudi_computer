@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import CategorySidebar from "@/components/home/CategorySidebar";
 import HeroSlider from "@/components/home/HeroSlider";
 import PromoGridCards from "@/components/home/PromoGridCards";
@@ -9,11 +10,19 @@ import CategoryPills from "@/components/home/CategoryPills";
 import FlashSaleSection from "@/components/home/FlashSaleSection";
 import FeaturedProductsSection from "@/components/home/FeaturedProductsSection";
 import BrandLogosBar from "@/components/home/BrandLogosBar";
-import CategoryProductBox from "@/components/home/CategoryProductBox";
-import HomeNewsSection from "@/components/home/HomeNewsSection";
-import CustomerGallery from "@/components/home/CustomerGallery";
 import { productAPI, categoryAPI } from "@/lib/api";
 import { sortProductsByBestSeller, isProductMatchingCategory } from "@/lib/productHelpers";
+
+// Below-the-fold: dynamic imports để giảm initial JS bundle
+const CategoryProductBox = dynamic(() => import("@/components/home/CategoryProductBox"), {
+  loading: () => <div className="h-[500px] bg-gray-50 rounded-3xl animate-pulse mb-10" />,
+});
+const HomeNewsSection = dynamic(() => import("@/components/home/HomeNewsSection"), {
+  loading: () => <div className="h-[300px] bg-gray-50 rounded-3xl animate-pulse" />,
+});
+const CustomerGallery = dynamic(() => import("@/components/home/CustomerGallery"), {
+  loading: () => <div className="h-[400px] bg-gray-100 animate-pulse" />,
+});
 
 export default function Home() {
   const [selectedCategoryPill, setSelectedCategoryPill] = useState("all");
