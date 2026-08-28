@@ -222,6 +222,7 @@ export default function HeroSlider() {
                       }`}
                     onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                     priority={idx === 0}
+                    loading={idx === 0 ? "eager" : "lazy"}
                     draggable={false}
                   />
                 </Link>
@@ -236,6 +237,7 @@ export default function HeroSlider() {
                       }`}
                     onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
                     priority={idx === 0}
+                    loading={idx === 0 ? "eager" : "lazy"}
                     draggable={false}
                   />
                 </div>

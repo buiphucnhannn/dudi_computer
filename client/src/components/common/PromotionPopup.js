@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { bannerAPI } from "@/lib/api";
 
+import Image from "next/image";
+
 export default function PromotionPopup() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -23,7 +25,7 @@ export default function PromotionPopup() {
           const first = activeBanners[0];
           if (first && first.isActive !== false && isMounted) {
             setPopupData(first);
-            setTimeout(() => setOpen(true), 400);
+            setTimeout(() => setOpen(true), 600);
           }
         }
       } catch (err) {
@@ -47,7 +49,7 @@ export default function PromotionPopup() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="relative w-fit max-w-[92vw] max-h-[90vh] mx-auto flex items-center justify-center"
+        className="relative w-full max-w-[92vw] sm:max-w-[700px] max-h-[85vh] mx-auto flex items-center justify-center rounded-2xl overflow-visible"
         onClick={(event) => event.stopPropagation()}
       >
         <button
@@ -59,28 +61,32 @@ export default function PromotionPopup() {
           ×
         </button>
 
-        {/* Banner Content */}
+        {/* Banner Content với kích thước cố định ngăn chặn Layout Shift (CLS) */}
         {popupData.link && popupData.link.trim() ? (
           <Link
             href={popupData.link.trim()}
             onClick={() => setOpen(false)}
-            className="block overflow-hidden rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-[1.01] cursor-pointer"
+            className="relative block w-full aspect-[16/10] overflow-hidden rounded-2xl shadow-2xl transition-transform duration-300 hover:scale-[1.01] cursor-pointer bg-slate-900"
           >
-            <img
+            <Image
               src={popupData.imageUrl}
               alt={popupData.title || "Khuyến mãi DUDI SOFTWARE"}
-              className="block w-auto h-auto max-w-[92vw] sm:max-w-[800px] max-h-[85vh] object-contain rounded-2xl"
+              fill
+              sizes="(max-width: 768px) 92vw, 700px"
+              className="object-contain rounded-2xl"
               onError={(e) => {
                 e.currentTarget.src = "/back-to-school-popup.webp";
               }}
             />
           </Link>
         ) : (
-          <div className="block overflow-hidden rounded-2xl shadow-2xl select-none">
-            <img
+          <div className="relative block w-full aspect-[16/10] overflow-hidden rounded-2xl shadow-2xl select-none bg-slate-900">
+            <Image
               src={popupData.imageUrl}
               alt={popupData.title || "Khuyến mãi DUDI SOFTWARE"}
-              className="block w-auto h-auto max-w-[92vw] sm:max-w-[800px] max-h-[85vh] object-contain rounded-2xl"
+              fill
+              sizes="(max-width: 768px) 92vw, 700px"
+              className="object-contain rounded-2xl"
               onError={(e) => {
                 e.currentTarget.src = "/back-to-school-popup.webp";
               }}
