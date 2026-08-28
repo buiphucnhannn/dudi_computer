@@ -213,7 +213,11 @@ export default function NewsDetailClient({ initialArticle = null, initialRelated
                 [&>img]:rounded-xl [&>img]:shadow-md [&>img]:my-6 [&>img]:w-full [&>img]:max-w-full [&>img]:h-auto [&>img]:object-cover
                 [&>table]:w-full [&>table]:max-w-full [&>table]:overflow-x-auto [&>table]:block
                 [&>blockquote]:border-l-4 [&>blockquote]:border-[#eb1c24] [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:bg-red-50/40 [&>blockquote]:p-3.5 [&>blockquote]:rounded-r-xl"
-              dangerouslySetInnerHTML={{ __html: (article.content || "").replace(/&nbsp;/g, " ") }}
+              dangerouslySetInnerHTML={{
+                __html: (article.content || "")
+                  .replace(/&nbsp;/g, " ")
+                  .replace(/<img\s+/gi, '<img loading="lazy" decoding="async" ')
+              }}
             />
 
             {/* Tags & Share */}

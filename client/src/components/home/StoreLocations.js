@@ -1,15 +1,35 @@
 "use client";
 
-import { useState } from "react";
-import { MapPin, Phone, Mail, ChevronRight, ExternalLink, Navigation, Map as MapIcon } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { MapPin, Phone, Mail, ChevronRight, ExternalLink } from "lucide-react";
 
 export default function StoreLocations() {
-  const [loadMap1, setLoadMap1] = useState(false);
-  const [loadMap2, setLoadMap2] = useState(false);
+  const [loadMap, setLoadMap] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    // Tự động load map khi người dùng cuộn đến gần khu vực Showroom (cách 400px)
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setLoadMap(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "400px" }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
       id="he-thong-showroom"
+      ref={containerRef}
       className="mb-12 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-8 lg:p-10 shadow-2xl relative overflow-hidden group transition-all duration-500 text-white"
     >
       {/* Hiệu ứng đỏ mờ khi hover */}
@@ -86,7 +106,7 @@ export default function StoreLocations() {
           </div>
         </div>
 
-        {/* Cột phải: 2 bản đồ chi nhánh (Tải theo yêu cầu để giảm dung lượng mạng) */}
+        {/* Cột phải: 2 bản đồ chi nhánh tự động tải sẵn khi cuộn tới */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {/* Map 1: Chi nhánh Thủ Đức */}
           <div className="group/map">
@@ -105,8 +125,8 @@ export default function StoreLocations() {
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-[#111318] shadow-lg">
-              {loadMap1 ? (
+            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-[#111318] shadow-lg flex items-center justify-center">
+              {loadMap ? (
                 <iframe
                   title="Bản đồ chỉ đường đến chi nhánh Thủ Đức"
                   src="https://maps.google.com/maps?q=49/2%20%C4%90%C6%B0%E1%BB%9Dng%2014,%20Ph%C6%B0%E1%BB%9Dng%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
@@ -119,32 +139,11 @@ export default function StoreLocations() {
                   className="w-full h-full"
                 />
               ) : (
-                <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] via-[#10131a] to-[#0a0c10]">
-                  {/* Grid Lines Pattern */}
-                  <div
-                    className="absolute inset-0 opacity-15 pointer-events-none"
-                    style={{
-                      backgroundImage: "radial-gradient(#eb1c24 1px, transparent 1px), radial-gradient(#fff 1px, transparent 1px)",
-                      backgroundSize: "20px 20px",
-                      backgroundPosition: "0 0, 10px 10px",
-                    }}
-                  />
-                  <div className="relative z-10 flex flex-col items-center gap-2">
-                    <div className="w-10 h-10 rounded-full bg-[#eb1c24]/20 border border-[#eb1c24]/40 flex items-center justify-center text-[#eb1c24] shadow-lg shadow-red-500/20">
-                      <MapIcon className="w-5 h-5" />
-                    </div>
-                    <p className="text-xs text-slate-300 font-medium max-w-[200px] leading-tight">
-                      49/2 Đường 14, P.Thủ Đức, TP.HCM
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setLoadMap1(true)}
-                      className="mt-1 px-3.5 py-1.5 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] text-white text-xs font-bold shadow-md hover:scale-105 transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
-                    >
-                      <Navigation className="w-3.5 h-3.5" />
-                      <span>Xem bản đồ tương tác</span>
-                    </button>
+                <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] via-[#10131a] to-[#0a0c10] animate-pulse">
+                  <div className="w-8 h-8 rounded-full bg-[#eb1c24]/20 border border-[#eb1c24]/40 flex items-center justify-center text-[#eb1c24] mb-2">
+                    <MapPin className="w-4 h-4" />
                   </div>
+                  <span className="text-[11px] text-slate-300 font-medium">Bản đồ chi nhánh Thủ Đức</span>
                 </div>
               )}
             </div>
@@ -167,8 +166,8 @@ export default function StoreLocations() {
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-[#111318] shadow-lg">
-              {loadMap2 ? (
+            <div className="rounded-2xl overflow-hidden border border-white/10 group-hover/map:border-[#eb1c24]/50 transition-colors relative aspect-[16/10] bg-[#111318] shadow-lg flex items-center justify-center">
+              {loadMap ? (
                 <iframe
                   title="Bản đồ chỉ đường đến chi nhánh Nguyễn Thị Minh Khai"
                   src="https://maps.google.com/maps?q=232%20%C4%90%C6%B0%E1%BB%9Dng%20Nguy%E1%BB%85n%20Th%E1%BB%8B%20Minh%20Khai,%20Ph%C6%B0%E1%BB%9Dng%20Xu%C3%A2n%20H%C3%B2a,%20TP.H%E1%BB%93%20Ch%C3%AD%20Minh&t=&z=15&ie=UTF8&iwloc=&output=embed"
@@ -181,32 +180,11 @@ export default function StoreLocations() {
                   className="w-full h-full"
                 />
               ) : (
-                <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] via-[#10131a] to-[#0a0c10]">
-                  {/* Grid Lines Pattern */}
-                  <div
-                    className="absolute inset-0 opacity-15 pointer-events-none"
-                    style={{
-                      backgroundImage: "radial-gradient(#eb1c24 1px, transparent 1px), radial-gradient(#fff 1px, transparent 1px)",
-                      backgroundSize: "20px 20px",
-                      backgroundPosition: "0 0, 10px 10px",
-                    }}
-                  />
-                  <div className="relative z-10 flex flex-col items-center gap-2">
-                    <div className="w-10 h-10 rounded-full bg-[#eb1c24]/20 border border-[#eb1c24]/40 flex items-center justify-center text-[#eb1c24] shadow-lg shadow-red-500/20">
-                      <MapIcon className="w-5 h-5" />
-                    </div>
-                    <p className="text-xs text-slate-300 font-medium max-w-[200px] leading-tight">
-                      232 Nguyễn Thị Minh Khai, TP.HCM
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setLoadMap2(true)}
-                      className="mt-1 px-3.5 py-1.5 rounded-xl bg-[#eb1c24] hover:bg-[#d6131b] text-white text-xs font-bold shadow-md hover:scale-105 transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
-                    >
-                      <Navigation className="w-3.5 h-3.5" />
-                      <span>Xem bản đồ tương tác</span>
-                    </button>
+                <div className="relative w-full h-full flex flex-col items-center justify-center p-4 text-center select-none bg-gradient-to-br from-[#161922] via-[#10131a] to-[#0a0c10] animate-pulse">
+                  <div className="w-8 h-8 rounded-full bg-[#eb1c24]/20 border border-[#eb1c24]/40 flex items-center justify-center text-[#eb1c24] mb-2">
+                    <MapPin className="w-4 h-4" />
                   </div>
+                  <span className="text-[11px] text-slate-300 font-medium">Bản đồ chi nhánh Q.1</span>
                 </div>
               )}
             </div>
