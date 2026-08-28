@@ -19,6 +19,7 @@ import {
 import { formatDate } from "@/lib/utils";
 import { handleImageError, NEWS_FALLBACK_IMAGE } from "@/lib/imageFallback";
 import { optimizeImageUrl } from "@/lib/imageOptimizer";
+import { newsAPI } from "@/lib/api";
 
 export default function NewsDetailClient({
   slug,
@@ -29,6 +30,8 @@ export default function NewsDetailClient({
   const [article, setArticle] = useState(initialArticle);
   const [relatedArticles] = useState(initialRelatedArticles);
   const [copied, setCopied] = useState(false);
+  // loading chỉ true khi SSR không lấy được article → cần client fetch
+  const [loading, setLoading] = useState(!initialArticle && !!slug);
 
   // Đồng bộ tab title với tên bài viết thực
   useEffect(() => {
@@ -36,6 +39,30 @@ export default function NewsDetailClient({
       document.title = `${article.title} | DUDI SOFTWARE`;
     }
   }, [article?.title]);
+
+  // Client-side fallback fetch: khi SSR không lấy được article (Vercel không có INTERNAL_API_URL)
+  useEffect(() => {
+    if (initialArticle || !slug) return;
+    let cancelled = false;
+    const fetchArticle = async () => {
+      try {
+        setLoading(true);
+        const res = await newsAPI.getBySlug(slug);
+        if (!cancelled) {
+          const data = res.data?.data;
+          if (data?.article) {
+            setArticle(data.article);
+          }
+        }
+      } catch (err) {
+        // Giữ article = null → hiện "Không tìm thấy"
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    fetchArticle();
+    return () => { cancelled = true; };
+  }, [slug, initialArticle]);
 
   // Lắng nghe sự kiện admin ẩn/xóa bài viết để cập nhật real-time
   useEffect(() => {
@@ -70,6 +97,31 @@ export default function NewsDetailClient({
       setTimeout(() => setCopied(false), 2500);
     }
   };
+
+  // Skeleton loading khi đang client-fetch
+  if (loading) {
+    return (
+      <div className="bg-[#f8f9fa] min-h-screen pb-20 animate-pulse">
+        <div className="relative min-h-[48vh] md:min-h-[58vh] w-full bg-[#0b0f19] pt-24 pb-12 md:pb-20 flex flex-col justify-end overflow-hidden">
+          <div className="container mx-auto px-4 h-full flex flex-col justify-end relative z-10 space-y-4">
+            <div className="w-20 h-7 bg-white/10 rounded-lg"></div>
+            <div className="w-24 h-5 bg-[#eb1c24]/50 rounded"></div>
+            <div className="w-4/5 h-8 sm:h-10 bg-white/10 rounded-xl"></div>
+            <div className="w-1/2 h-4 bg-white/10 rounded"></div>
+          </div>
+        </div>
+        <div className="container mx-auto px-4 relative z-20 -mt-8 md:-mt-12">
+          <div className="bg-white rounded-2xl md:rounded-[2rem] p-6 md:p-10 shadow-sm border border-gray-100 space-y-6">
+            <div className="h-16 bg-red-50/50 rounded-xl w-full"></div>
+            <div className="h-4 bg-gray-200 rounded w-full"></div>
+            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+            <div className="aspect-[16/9] bg-gray-200 rounded-2xl w-full"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!article) {
     return (
