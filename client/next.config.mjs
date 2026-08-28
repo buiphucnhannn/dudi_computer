@@ -10,8 +10,13 @@ const nextConfig = {
     "192.168.1.27:3000",
     "192.168.1.27:3001",
     "192.168.1.27",
-    "192.168.*.*",
   ],
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
+  },
+  experimental: {
+    optimizePackageImports: ["lucide-react", "@reduxjs/toolkit", "clsx"],
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],

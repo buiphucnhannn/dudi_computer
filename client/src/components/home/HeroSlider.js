@@ -5,8 +5,15 @@ import Image from "next/image";
 import { bannerAPI } from "@/lib/api";
 import { handleImageError, BANNER_FALLBACK_IMAGE } from "@/lib/imageFallback";
 
+const INITIAL_BANNER = {
+  _id: "initial_hero_banner",
+  imageUrl: "/banners/hero_slide_1.webp",
+  title: "DUDI SOFTWARE - PC Gaming & Laptop Chính Hãng",
+  link: "/product",
+};
+
 export default function HeroSlider() {
-  const [banners, setBanners] = useState([]);
+  const [banners, setBanners] = useState([INITIAL_BANNER]);
   const [current, setCurrent] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
