@@ -30,6 +30,12 @@ export default function NewsDetailClient({ initialArticle = null, initialRelated
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    if (article?.title) {
+      document.title = `${article.title} | DUDI SOFTWARE`;
+    }
+  }, [article?.title]);
+
+  useEffect(() => {
     if (!initialArticle && slug) {
       fetchArticleDetail(slug);
     }

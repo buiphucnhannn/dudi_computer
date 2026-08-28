@@ -6,9 +6,11 @@ export async function generateMetadata({ params }) {
   try {
     const res = await newsAPI.getBySlug(slug);
     const article = res.data?.data?.article;
-    if (article) {
+    if (article?.title) {
       return {
-        title: `${article.title} | DUDI SOFTWARE`,
+        title: {
+          absolute: `${article.title} | DUDI SOFTWARE`,
+        },
         description: article.summary || article.title,
         openGraph: {
           title: article.title,
@@ -20,7 +22,9 @@ export async function generateMetadata({ params }) {
   } catch (_) {}
 
   return {
-    title: "Tin Tức Công Nghệ | DUDI SOFTWARE",
+    title: {
+      absolute: "Tin Tức Công Nghệ | DUDI SOFTWARE",
+    },
     description: "Cập nhật tin tức công nghệ mới nhất từ DUDI SOFTWARE.",
   };
 }

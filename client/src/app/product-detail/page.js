@@ -1,21 +1,15 @@
 import { Suspense } from "react";
 import ReactDOM from "react-dom";
 import ProductDetailClient from "@/components/product-detail/ProductDetailClient";
+import { productAPI } from "@/lib/api";
 import { optimizeImageUrl } from "@/lib/imageOptimizer";
 
 async function getProductData(slug) {
   if (!slug) return null;
 
   try {
-    const baseUrl =
-      process.env.INTERNAL_API_URL || "http://localhost:5000/api/v1";
-    const res = await fetch(`${baseUrl}/products/${encodeURIComponent(slug)}`, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json?.data || null;
+    const res = await productAPI.getBySlug(slug);
+    return res?.data?.data || null;
   } catch (error) {
     return null;
   }
@@ -27,7 +21,7 @@ export async function generateMetadata({ searchParams }) {
 
   if (!slug) {
     return {
-      title: "Chi tiết sản phẩm | DUDI SOFTWARE",
+      title: "Chi Tiết Sản Phẩm | DUDI SOFTWARE",
       description: "Xem thông tin chi tiết sản phẩm chính hãng tại DUDI SOFTWARE.",
     };
   }
@@ -37,8 +31,8 @@ export async function generateMetadata({ searchParams }) {
 
   if (!product) {
     return {
-      title: "Không tìm thấy sản phẩm | DUDI SOFTWARE",
-      description: "Sản phẩm không tồn tại hoặc đã ngừng kinh doanh.",
+      title: "Chi Tiết Sản Phẩm | DUDI SOFTWARE",
+      description: "Xem thông tin chi tiết sản phẩm chính hãng tại DUDI SOFTWARE.",
     };
   }
 
@@ -55,7 +49,7 @@ export async function generateMetadata({ searchParams }) {
     product.thumbnail ||
     "/images/dudi/dudisoftware1.webp";
 
-  const imageUrl = optimizeImageUrl(rawImage, { width: 800 });
+  const imageUrl = optimizeImageUrl(rawImage, { width: 800, quality: 75 });
 
   return {
     title,
@@ -98,7 +92,7 @@ export default async function ProductDetailPage({ searchParams }) {
     : null;
 
   const lcpImageUrl = rawMainImage
-    ? optimizeImageUrl(rawMainImage, { width: 800 })
+    ? optimizeImageUrl(rawMainImage, { width: 800, quality: 75 })
     : null;
 
   if (lcpImageUrl) {

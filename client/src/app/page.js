@@ -217,7 +217,8 @@ export default function Home() {
   }, [products, dbCategories]);
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 pt-0 pb-0">
+    <>
+      <div className="container mx-auto px-2 sm:px-4 pt-0 pb-0">
       {/* 1. Hero Area: Sidebar + Full width carousel */}
       <section className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-2.5 sm:gap-3 items-stretch mb-3 sm:mb-4">
         <CategorySidebar />
@@ -327,11 +328,12 @@ export default function Home() {
       <div className="mb-10 sm:mb-14 md:mb-16 content-auto">
         <HomeNewsSection />
       </div>
-
-      {/* 15. 🌟 LỜI CẢM ƠN TỪ DUDI SOFTWARE & HÌNH ẢNH KHÁCH HÀNG */}
-      <div className="content-auto">
-        <CustomerGallery />
-      </div>
     </div>
-  );
+
+    {/* 15. 🌟 LỜI CẢM ƠN TỪ DUDI SOFTWARE & HÌNH ẢNH KHÁCH HÀNG (Full Width Nền Đen 100%) */}
+    <div className="w-full bg-[#111111]">
+      <CustomerGallery />
+    </div>
+  </>
+);
 }

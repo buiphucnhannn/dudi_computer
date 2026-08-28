@@ -25,6 +25,12 @@ export default function ProductDetailClient({
   const [relatedProducts, setRelatedProducts] = useState(initialRelatedProducts);
   const [loading, setLoading] = useState(!initialProduct && Boolean(slug));
 
+  useEffect(() => {
+    if (product?.name) {
+      document.title = `${product.name} | DUDI SOFTWARE`;
+    }
+  }, [product?.name]);
+
   /**
    * Fetch product from Database API if not provided via SSR
    */
