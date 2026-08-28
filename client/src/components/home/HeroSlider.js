@@ -129,7 +129,7 @@ export default function HeroSlider() {
         {banners.map((item, idx) => {
           const isActive = idx === current;
           const isDefault = item.isDefaultFallback || item.isActive === false;
-          const imgSrc = item.imageUrl || "/images/dudi/dudi_showroom_hero.jpg";
+          const imgSrc = item.imageUrl || "/images/dudi/dudi_showroom_hero.webp";
           const link = item.link || "/tat-ca-san-pham";
 
           return (
@@ -150,7 +150,7 @@ export default function HeroSlider() {
                 >
                   {/* Background showroom image with dark glass overlay */}
                   <img
-                    src="/images/dudi/dudi_showroom_hero.jpg"
+                    src="/images/dudi/dudi_showroom_hero.webp"
                     alt="DUDI SOFTWARE Showroom"
                     className="absolute inset-0 w-full h-full object-cover object-center opacity-35 group-hover:scale-105 transition-transform duration-700 pointer-events-none"
                     onError={(e) => handleImageError(e, BANNER_FALLBACK_IMAGE)}
@@ -164,7 +164,7 @@ export default function HeroSlider() {
                   <div className="flex flex-col items-center text-center z-10 space-y-2.5 max-w-2xl mx-auto">
                     <div className="flex items-center gap-3">
                       <img
-                        src="/images/dudi/dudisoftware4.png"
+                        src="/images/dudi/dudisoftware4.webp"
                         alt="DUDI SOFTWARE Logo"
                         className="w-11 h-11 sm:w-14 sm:h-14 object-contain drop-shadow-md rounded-2xl"
                         onError={handleImageError}

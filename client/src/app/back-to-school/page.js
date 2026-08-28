@@ -39,7 +39,7 @@ export default function BackToSchoolPage() {
         <section className="relative w-full pt-16 pb-16 sm:pt-24 sm:pb-20 md:pt-28 md:pb-24 flex items-center justify-center overflow-hidden">
           {/* Authentic High-Tech Gaming Background Image */}
           <div className="absolute inset-0 z-0 pointer-events-none">
-            <div className="absolute inset-0 bg-[url('/hero-bg.png')] bg-cover bg-center bg-no-repeat opacity-[0.3] mix-blend-screen" />
+            <div className="absolute inset-0 bg-[url('/hero-bg.webp')] bg-cover bg-center bg-no-repeat opacity-[0.3] mix-blend-screen" />
             <div className="absolute inset-0 bg-gradient-to-b from-[#030303]/70 via-[#030303]/30 to-[#030303]" />
           </div>
 

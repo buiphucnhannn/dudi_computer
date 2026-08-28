@@ -430,7 +430,7 @@ function OrderTrackingContent() {
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <img
-                            src={it.thumbnail || "/images/dudi/dudisoftware1.png"}
+                            src={it.thumbnail || "/images/dudi/dudisoftware1.webp"}
                             alt={it.name}
                             className="w-11 h-11 rounded-lg object-contain bg-white border border-slate-200 shrink-0 p-0.5"
                           />

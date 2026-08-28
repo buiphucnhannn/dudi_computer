@@ -563,7 +563,7 @@ export default function Header() {
           className="flex items-center gap-2 shrink-0 group relative"
         >
           <img
-            src="/images/dudi/dudisoftware4.png"
+            src="/images/dudi/dudisoftware4.webp"
             alt="DUDI SOFTWARE Logo"
             className="h-10 w-10 sm:h-[50px] sm:w-[50px] object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-md rounded-xl"
           />
@@ -1373,7 +1373,7 @@ export default function Header() {
             className="flex items-center gap-2"
           >
             <img
-              src="/images/dudi/dudisoftware4.png"
+              src="/images/dudi/dudisoftware4.webp"
               alt="DUDI SOFTWARE Logo"
               className="h-8 w-8 object-contain rounded-lg"
             />

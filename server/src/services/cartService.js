@@ -40,9 +40,9 @@ class CartService {
             images:
               matched.images && matched.images.length > 0
                 ? matched.images
-                : ["/images/dudi/dudisoftware1.png"],
+                : ["/images/dudi/dudisoftware1.webp"],
             thumbnail:
-              matched.thumbnail || matched.images?.[0] || "/images/dudi/dudisoftware1.png",
+              matched.thumbnail || matched.images?.[0] || "/images/dudi/dudisoftware1.webp",
             warranty: matched.warranty || "Bảo hành 3 - 12 Tháng",
             status: "in_stock",
           });
@@ -73,7 +73,7 @@ class CartService {
           price: p.price,
           originalPrice: p.originalPrice || p.price,
           images: p.images || [],
-          thumbnail: p.thumbnail || p.images?.[0] || "/images/dudi/dudisoftware1.png",
+          thumbnail: p.thumbnail || p.images?.[0] || "/images/dudi/dudisoftware1.webp",
           quantity: item.quantity || 1,
           addedAt: item.addedAt,
           specs: p.specs || {},

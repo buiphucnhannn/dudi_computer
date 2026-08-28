@@ -258,7 +258,7 @@ export const mapBackendOrderToMaster = (o, idx = 0) => {
           id: it._id || itemIdx + 1,
           name: it.name || "Sản phẩm",
           sku: it.sku || `SKU-${100 + itemIdx}`,
-          image: it.thumbnail || it.image || "/images/dudi/dudisoftware1.png",
+          image: it.thumbnail || it.image || "/images/dudi/dudisoftware1.webp",
           price: it.price || 0,
           quantity: it.quantity || 1,
         }))
