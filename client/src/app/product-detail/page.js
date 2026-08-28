@@ -99,30 +99,39 @@ function ProductDetailContent() {
   }
 
   /**
-   * Loading
+   * Không có sản phẩm sau khi tải xong
    */
-  if (loading && !product) {
+  if (!loading && !product) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 pt-20">
-        <p className="font-semibold text-gray-500">
-          Đang tải sản phẩm...
-        </p>
+        <div className="text-center p-8 bg-white rounded-2xl shadow-xs border border-gray-100 max-w-md">
+          <p className="font-bold text-gray-800 text-lg mb-2">
+            Không tìm thấy sản phẩm
+          </p>
+          <p className="text-sm text-gray-500 mb-6">
+            Sản phẩm này có thể đã bị xóa hoặc tạm ngừng kinh doanh.
+          </p>
+          <Link
+            href="/product"
+            className="inline-block bg-[#eb1c24] text-white text-xs font-bold px-6 py-2.5 rounded-xl hover:bg-red-700 transition-colors"
+          >
+            Xem tất cả sản phẩm
+          </Link>
+        </div>
       </main>
     );
   }
 
-  /**
-   * Product không tồn tại
-   */
-  if (!product) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50 pt-20">
-        <p className="font-semibold text-gray-500">
-          Không tìm thấy sản phẩm
-        </p>
-      </main>
-    );
-  }
+  const currentProduct = product || {
+    _id: "init-loading",
+    slug: slug || "",
+    name: "Đang tải thông tin sản phẩm...",
+    price: 0,
+    thumbnail: "/images/dudi/dudisoftware1.webp",
+    images: ["/images/dudi/dudisoftware1.webp"],
+    categoryName: "Sản phẩm",
+    stock: 1,
+  };
 
   return (
     <main className="w-full min-h-screen bg-[#f8f9fa] py-4 sm:py-6">
@@ -148,14 +157,14 @@ function ProductDetailContent() {
               </Link>
               <span className="text-gray-400">/</span>
               <Link
-                href={`/product?category=${encodeURIComponent(product.categoryName || product.category || "")}`}
+                href={`/product?category=${encodeURIComponent(currentProduct.categoryName || currentProduct.category || "")}`}
                 className="hover:text-[#eb1c24] transition-colors uppercase font-semibold text-gray-600"
               >
-                {product.categoryName || product.category || product.brand || "Sản phẩm"}
+                {currentProduct.categoryName || currentProduct.category || currentProduct.brand || "Sản phẩm"}
               </Link>
               <span className="text-gray-400">/</span>
               <span className="font-bold text-gray-900 line-clamp-1 max-w-[320px] sm:max-w-md md:max-w-xl truncate">
-                {product.name}
+                {currentProduct.name}
               </span>
             </div>
           </div>
@@ -184,14 +193,14 @@ function ProductDetailContent() {
                   {/* Product Gallery */}
 
                   <ProductGallery
-                    key={product._id || product.slug}
-                    product={product}
+                    key={currentProduct._id || currentProduct.slug}
+                    product={currentProduct}
                   />
 
                   {/* Product Information */}
 
                   <ProductInfo
-                    product={product}
+                    product={currentProduct}
                   />
 
                 </div>
@@ -200,7 +209,7 @@ function ProductDetailContent() {
               {/* ================= SPECIFICATIONS & DESCRIPTION ================= */}
 
               <ProductSpecifications
-                product={product}
+                product={currentProduct}
               />
 
             </div>
@@ -218,7 +227,7 @@ function ProductDetailContent() {
               {/* ================= STORE ================= */}
 
               <StoreInfo
-                product={product}
+                product={currentProduct}
               />
 
               {/* ================= NEWS ================= */}
